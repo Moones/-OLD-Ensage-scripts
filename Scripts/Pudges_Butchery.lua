@@ -46,7 +46,6 @@ function Tick( tick )
 	
 	local me = entityList:GetMyHero()
 	local player = entityList:GetMyPlayer()
-	
 	if not me or not player then
 		return
 	end	
@@ -54,14 +53,14 @@ function Tick( tick )
 	local target = entityList:GetEntity(targetHandle)
 	local distance = me:GetDistance2D(target)
 	local rotRange = 250
-	
-	if not target or not target.visible or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) then
-		targetHandle = nil
-		targetText.visible = false
-		statusText.text = "Pudge Script: ON"
-		active = true
-		script:UnregisterEvent(Tick)
-		return
+	if not target or not target.visible or not target.alive or not me.alive or not active
+		or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) then
+			targetHandle = nil
+			targetText.visible = false
+			statusText.text = "Pudge Script: ON"
+			active = true
+			script:UnregisterEvent(Tick)
+			return
 	end
 	
 	local abilities = me.abilities
@@ -73,7 +72,7 @@ function Tick( tick )
 	end
 	
 	if R.state ~= LuaEntityAbility.STATE_READY and not (distance > rotRange) then
-		return
+			return
 	end
 	
 	if R.channelTime > 0 then
@@ -83,12 +82,12 @@ function Tick( tick )
 	local urn = me:FindItem("item_urn_of_shadows")
 	local aga = me:FindItem("item_ultimate_scepter")
 	
-	if urn and urn.charges ~= 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) and not aga then 
-		me:SafeCastItem(urn.name,target)
+	if urn and urn.charges ~= 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) and not aga and R.level > 0 and R.state == LuaEntityAbility.STATE_READY then 
+		me:SafeCastItem(urn.name,target,true)
 	end
 	
-	if urn and urn.charges ~= 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and aga and target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) then
-		me:SafeCastItem(urn.name,target)
+	if urn and urn.charges ~= 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and aga and target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and R.level > 0 and R.state == LuaEntityAbility.STATE_READY then
+		me:SafeCastItem(urn.name,target,true)
 	end
 	
 	if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) then 
@@ -96,13 +95,14 @@ function Tick( tick )
 	end
 	
 	if R.state ~= LuaEntityAbility.STATE_READY and (distance > rotRange) then
-		targetHandle = nil
-		targetText.visible = false
-		statusText.text = "Pudge Script: ON"
-		active = true
-		script:UnregisterEvent(Tick)
-		return
+			targetHandle = nil
+			targetText.visible = false
+			statusText.text = "Pudge Script: ON"
+			active = true
+			script:UnregisterEvent(Tick)
+			return
 	end
+	me:Attack(target, true)
 end
 
 function target(tick)
@@ -111,7 +111,6 @@ function target(tick)
 	end
 	
 	local me = entityList:GetMyHero()
-	
 	if not me then
 		return
 	end
@@ -128,15 +127,14 @@ function target(tick)
 		script:Disable()
 		return
 	end
-	
 	if active then
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
 			if v.team ~= me.team then
 				if v:DoesHaveModifier("modifier_pudge_meat_hook") then
-					targetHandle = v.handle
-					targetText.visible = true
-					targetText.text = "Killing " .. client:Localize(v.name)
-					script:RegisterEvent(EVENT_TICK,Tick)
+				targetHandle = v.handle
+				targetText.visible = true
+				targetText.text = "Killing " .. client:Localize(v.name)
+				script:RegisterEvent(EVENT_TICK,Tick)
 				end
 			end
 		end
@@ -148,7 +146,6 @@ function GameClose()
 		script:UnregisterEvent(EVENT_KEY,Key)
 		reg = nil
 	end
-	
 	statusText.visible = false
 	targetText.visible = false
 	active = nil
