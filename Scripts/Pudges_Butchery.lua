@@ -79,7 +79,7 @@ function Tick( tick )
 	
 	local urn = me:FindItem("item_urn_of_shadows")
 	
-	if urn and urn.charges ~= 0 and urn.state == -1 then 
+	if urn and urn.charges ~= 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") then 
 		me:SafeCastItem(urn.name,target)
 	end
 	
