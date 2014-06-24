@@ -69,6 +69,8 @@ function Tick(tick)
     	end
     	
     	info[v.playerId].lhd.text = " "..lasthits.." / "..denies  
+    	
+    	end
 end
 
 function GetXX(ent)
