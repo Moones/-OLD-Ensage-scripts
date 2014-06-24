@@ -64,7 +64,7 @@ function Tick( tick )
 	local W = abilities[2]
 	local R = abilities[4]
 	
-	if W.level > 0 and not target:DoesHaveModifier("modifier_pudge_rot") and W.toggled == false then
+	if W.level > 0 and W.toggled == false then
 		me:SafeToggleSpell(W.name)
 	end
 	
