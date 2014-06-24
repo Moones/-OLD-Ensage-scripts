@@ -53,26 +53,22 @@ function Tick(tick)
 	sleeptick = tick + 200
 
 	local me = entityList:GetMyHero()
-	local player = entityList:GetMyPlayer()
-	
-	if not me or not player then
-		return
-	end
-	
+
+	if not me then return end
+
 	local heroes = entityList:GetEntities({type=LuaEntity.TYPE_HERO, illusion=false})
-	for i,v in ipairs(heroes) do
-		local playerTable = entityList:GetEntities({classId=CDOTA_PlayerResource})
-		local players = playerTable[1]
-		local lasthits = players:GetLasthits(v.playerId)
-		local denies = players:GetDenies(v.playerId)
-		local xx = GetXX(v)		
-	
-		if not info[v.playerId] then info[v.playerId] = {}
-			info[v.playerId].lhd = drawMgr:CreateText(0,y_,-1,"",F13) info[v.playerId].lhd.visible = false
-		end
-		
-		info[v.playerId].lhd.visible = true info[v.playerId].lhd.text = " "..lasthits.." / "..denies info[v.playerId].lhd.x = xx-20+x_*v.playerId
-	end
+	local player = entityList:GetEntities({classId=CDOTA_PlayerResource})[1]
+
+	for i,v in ipairs(heroes) do        
+    	local lasthits = player:GetLasthits(v.playerId)
+    	local denies = player:GetDenies(v.playerId)
+    	local xx = GetXX(v)
+    	
+    	if not info[v.playerId] then info[v.playerId] = {}
+        	info[v.playerId].lhd = drawMgr:CreateText(xx-20+x_*v.playerId,y_,-1,"",F13)
+    	end
+    	
+    	info[v.playerId].lhd.text = " "..lasthits.." / "..denies  
 end
 
 function GetXX(ent)
