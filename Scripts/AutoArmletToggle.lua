@@ -50,7 +50,7 @@ minhp = config.MinimumHP
 
 local xx,yy = 10,client.screenSize.y/25.714
 local sleep,reg = nil,nil
-local F14 = drawMgr:CreateFont("f14","Tahoma",14,5500)
+local F14 = drawMgr:CreateFont("f14","Tahoma",14,550)
 local statusText = drawMgr:CreateText(xx,yy,-1,"Auto armlet toggle: Off",F14)
 
 ARMLET_DELAY = 2000
