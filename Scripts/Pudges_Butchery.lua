@@ -46,6 +46,7 @@ function Tick( tick )
 	
 	local me = entityList:GetMyHero()
 	local player = entityList:GetMyPlayer()
+	
 	if not me or not player then
 		return
 	end	
@@ -53,14 +54,14 @@ function Tick( tick )
 	local target = entityList:GetEntity(targetHandle)
 	local distance = me:GetDistance2D(target)
 	local rotRange = 250
-	if not target or not target.visible or not target.alive or not me.alive or not active
-		or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) then
-			targetHandle = nil
-			targetText.visible = false
-			statusText.text = "Pudge Script: ON"
-			active = true
-			script:UnregisterEvent(Tick)
-			return
+	
+	if not target or not target.visible or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) then
+		targetHandle = nil
+		targetText.visible = false
+		statusText.text = "Pudge Script: ON"
+		active = true
+		script:UnregisterEvent(Tick)
+		return
 	end
 	
 	local abilities = me.abilities
@@ -72,7 +73,7 @@ function Tick( tick )
 	end
 	
 	if R.state ~= LuaEntityAbility.STATE_READY and not (distance > rotRange) then
-			return
+		return
 	end
 	
 	if R.channelTime > 0 then
@@ -95,14 +96,13 @@ function Tick( tick )
 	end
 	
 	if R.state ~= LuaEntityAbility.STATE_READY and (distance > rotRange) then
-			targetHandle = nil
-			targetText.visible = false
-			statusText.text = "Pudge Script: ON"
-			active = true
-			script:UnregisterEvent(Tick)
-			return
+		targetHandle = nil
+		targetText.visible = false
+		statusText.text = "Pudge Script: ON"
+		active = true
+		script:UnregisterEvent(Tick)
+		return
 	end
-	
 end
 
 function target(tick)
@@ -111,6 +111,7 @@ function target(tick)
 	end
 	
 	local me = entityList:GetMyHero()
+	
 	if not me then
 		return
 	end
@@ -127,14 +128,15 @@ function target(tick)
 		script:Disable()
 		return
 	end
+	
 	if active then
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
 			if v.team ~= me.team then
 				if v:DoesHaveModifier("modifier_pudge_meat_hook") then
-				targetHandle = v.handle
-				targetText.visible = true
-				targetText.text = "Killing " .. client:Localize(v.name)
-				script:RegisterEvent(EVENT_TICK,Tick)
+					targetHandle = v.handle
+					targetText.visible = true
+					targetText.text = "Killing " .. client:Localize(v.name)
+					script:RegisterEvent(EVENT_TICK,Tick)
 				end
 			end
 		end
@@ -146,6 +148,7 @@ function GameClose()
 		script:UnregisterEvent(EVENT_KEY,Key)
 		reg = nil
 	end
+	
 	statusText.visible = false
 	targetText.visible = false
 	active = nil
