@@ -4,43 +4,43 @@ local info = {}
 local sleeptick = 0
 
 if math.floor(client.screenRatio*100) == 177 then
-local testX = 1600
-local tinfoHeroSize = 55
-local tinfoHeroDown = 17.714
-local txxB = 2.527
-local txxG = 3.47
+testX = 1600
+tinfoHeroSize = 55
+tinfoHeroDown = 17.714
+txxB = 2.527
+txxG = 3.47
 elseif math.floor(client.screenRatio*100) == 166 then
-local testX = 1280
-local tinfoHeroSize = 47
-local tinfoHeroDown = 17.714
-local txxB = 2.558
-local txxG = 3.62
+testX = 1280
+tinfoHeroSize = 47
+tinfoHeroDown = 17.714
+txxB = 2.558
+txxG = 3.62
 elseif math.floor(client.screenRatio*100) == 160 then
-local testX = 1280
-local tinfoHeroSize = 48.5
-local tinfoHeroDown = 17.714
-local txxB = 2.579
-local txxG = 3.735
+testX = 1280
+tinfoHeroSize = 48.5
+tinfoHeroDown = 17.714
+txxB = 2.579
+txxG = 3.735
 elseif math.floor(client.screenRatio*100) == 133 then
-local testX = 1024
-local tinfoHeroSize = 47
-local tinfoHeroDown = 17.714
-local txxB = 2.747
-local txxG = 4.54
+testX = 1024
+tinfoHeroSize = 47
+tinfoHeroDown = 17.714
+txxB = 2.747
+txxG = 4.54
 elseif math.floor(client.screenRatio*100) == 125 then
-local testX = 1280
-local tinfoHeroSize = 58
-local tinfoHeroDown = 17.714
-local tinfoHeroSS = 23
-local txxB = 2.747
-local txxG = 4.54
+testX = 1280
+tinfoHeroSize = 58
+tinfoHeroDown = 17.714
+tinfoHeroSS = 23
+txxB = 2.747
+txxG = 4.54
 else
-local testX = 1600
-local tinfoHeroSize = 55
-local tinfoHeroDown = 17.714
-local tinfoHeroSS = 22
-local txxB = 2.527
-local txxG = 3.47
+testX = 1600
+tinfoHeroSize = 55
+tinfoHeroDown = 17.714
+tinfoHeroSS = 22
+txxB = 2.527
+txxG = 3.47
 end
 
 local x_ = tinfoHeroSize*(client.screenSize.x/testX)
