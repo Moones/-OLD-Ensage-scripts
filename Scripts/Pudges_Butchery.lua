@@ -16,6 +16,8 @@ local statusText = drawMgr:CreateText(xx,yy,-1,"Pudge Script: ON",myFont);
 local targetText = drawMgr:CreateText(xx,yy+15,-1,"",myFont);
 local reg = nil
 local active = true
+DmgD = {225,375,525}
+
 
 targetText.visible = false
 
@@ -78,12 +80,17 @@ function Tick( tick )
 	end
 	
 	local urn = me:FindItem("item_urn_of_shadows")
+	local aga = me:FindItem("item_ultimate_scepter")
 	
-	if urn and urn.charges ~= 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") then 
+	if urn and urn.charges ~= 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) and not aga then 
 		me:SafeCastItem(urn.name,target)
 	end
 	
-	if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*2) then 
+	if urn and urn.charges ~= 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and aga and target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) then
+		me:SafeCastItem(urn.name,target)
+	end
+	
+	if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) then 
 		me:SafeCastSpell(R.name,target)
 	end
 	
