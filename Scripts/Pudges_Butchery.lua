@@ -148,7 +148,7 @@ function Load()
 	targetText.visible = false
 	statusText.visible = true
 	statusText.text = "Pudge Script: ON"
-	active = nil
+	active = true
 end
 
 
