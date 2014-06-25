@@ -29,7 +29,7 @@ targetText.visible = false
 
 function HookKey(msg,code)
 	if msg ~= KEY_UP or code ~= hookkey or client.chat then return end
-	
+	if active then
 	if not hookem then
 		hookem = true
 		return true
@@ -37,7 +37,7 @@ function HookKey(msg,code)
 		hookem = nil
 		return true
 	end
-	
+	end
 end
 
 function Key(msg,code)	
@@ -68,7 +68,7 @@ function Autohook(tick)
 	hookem = nil
 		if me.alive then	
 			local victim = entityList:GetEntity(victimHandle)		
-			if victim.visible and victim.alive and victim.health > 1 then
+			if victim and victim.visible and victim.alive and victim.health > 1 then
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local move = victim.movespeed 
 					local pos = victim.position	
@@ -195,20 +195,19 @@ function target(tick)
 		return
 	end
 
-	
-	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
-		if v.team ~= me.team then
-			local victimm = targetFind:GetLowestEHP(1325)
-			if victimm and victimm.visible and victimm.alive then
-			local distance = GetDistance2D(victimm,me) 
-				if distance < 1325 then
-						victimHandle = victimm.handle
-						statusText.text = "Hook: " .. client:Localize(victimm.name)
+	if active then	
+		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
+			if v.team ~= me.team then
+				local victimm = targetFind:GetLowestEHP(1325)
+				if victimm and victimm.visible and victimm.alive then
+				local distance = GetDistance2D(victimm,me) 
+					if distance < 1325 then
+							victimHandle = victimm.handle
+							statusText.text = "Hook: " .. client:Localize(victimm.name)
+					end
+				else
+					statusText.text = "  Hook'em!"
 				end
-			else
-				statusText.text = "  Hook'em!"
-			end
-			if active then
 				if v:DoesHaveModifier("modifier_pudge_meat_hook") then
 					targetHandle = v.handle
 					targetText.visible = true
