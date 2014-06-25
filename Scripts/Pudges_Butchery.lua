@@ -30,13 +30,13 @@ targetText.visible = false
 function HookKey(msg,code)
 	if msg ~= KEY_UP or code ~= hookkey or client.chat then return end
 	if active then
-	if not hookem then
-		hookem = true
-		return true
-	else
-		hookem = nil
-		return true
-	end
+		if not hookem then
+			hookem = true
+			return true
+		else
+			hookem = nil
+			return true
+		end
 	end
 end
 
