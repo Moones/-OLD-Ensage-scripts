@@ -11,6 +11,7 @@ local key = config.Hotkey
 local hookkey = config.Hookkey
 
 sleeptick = 0
+sleeptickk = 0
 targetHandle = nil
 victimHandle = nil
 
@@ -23,6 +24,7 @@ local active = true
 local hookem = nil
 DmgD = {225,375,525}
 DmgR = {35,60,85,110}
+DmgR2 = {7,12,17,22}
 RangeH = {700,900,1100,1300}
 
 targetText.visible = false
@@ -52,7 +54,6 @@ function Key(msg,code)
 		statusText.text = "   OFF!"
 		return true
 	end
-
 end
 
 function Autohook(tick)
@@ -60,9 +61,7 @@ function Autohook(tick)
 		return
 	end
 	local me = entityList:GetMyHero()
-	if not me then
-		return
-	end
+	if not me then return end
 	local hook = me:GetAbility(1)
 	if hook.level > 0 and hookem then
 	hookem = nil
@@ -111,7 +110,7 @@ function Tick( tick )
 		targetHandle = nil
 		targetText.visible = false
 		statusText.text = "  Hook'em!"
-		if W.toggled == true then
+		if W.toggled then
 			me:SafeToggleSpell(W.name)
 		end
 		active = true
@@ -129,7 +128,7 @@ function Tick( tick )
 		targetHandle = nil
 		targetText.visible = false
 		statusText.text = "  Hook'em!"
-		if W.toggled == true then
+		if W.toggled then
 			me:SafeToggleSpell(W.name)
 		end
 		active = true
@@ -212,6 +211,34 @@ function target(tick)
 	end
 end
 
+function AutoDeny(tick)
+	if tick < sleeptickk and not IsIngame() or client.console or client.paused then return end
+	
+	sleeptickk = tick + 300 + client.latency
+	
+	local me = entityList:GetMyHero()
+
+	if not me or not me.alive then return end
+	
+	local rot = me:GetAbility(2)
+	
+	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
+		if v.team ~= me.team then
+			local distance = GetDistance2D(v,me)
+			local projectile = entityList:GetProjectiles({target=me, source=v})
+			if projectile and distance <= (v.attackRange + 50) then
+				for k,z in ipairs(projectile) do
+					if me.health <= (v.dmgMax + v.dmgBonus) then
+						if not rot.toggled then
+							me:SafeToggleSpell(rot.name)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
 function CanEscape(who)
 	local me = entityList:GetMyHero()
 	local abilities = me.abilities
@@ -241,6 +268,7 @@ end
 
 script:RegisterEvent(EVENT_TICK,target)
 script:RegisterEvent(EVENT_TICK,Autohook)
+script:RegisterEvent(EVENT_TICK,AutoDeny)
 script:RegisterEvent(EVENT_CLOSE,GameClose)
 script:RegisterEvent(EVENT_LOAD,Load)
 script:RegisterEvent(EVENT_KEY,Key)
