@@ -26,7 +26,10 @@ DmgD = {225,375,525}
 DmgR = {35,60,85,110}
 DmgR2 = {7,12,17,22}
 RangeH = {700,900,1100,1300}
-
+SkillShot = {}
+SkillShot.trackTable = {}
+SkillShot.lastTrackTick = 0
+SkillShot.currentTick = 0
 targetText.visible = false
 
 function HookKey(msg,code)
@@ -69,18 +72,32 @@ function Autohook(tick)
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local move = victim.movespeed 
 					local pos = victim.position	
+					local mepos = me.position
 					local distance = GetDistance2D(victim,me) 
 					local project = 1600 
-					local cast = 0.5
-					if victim.activity == LuaEntityNPC.ACTIVITY_MOVE and victim:CanMove() then					
-						local range = Vector(pos.x + move * (distance/(project * math.sqrt(1 - math.pow(move/project,2))) + cast) * math.cos(victim.rotR), pos.y + move * (distance/(project * math.sqrt(1 - math.pow(move/project,2))) + cast) * math.sin(victim.rotR), pos.z)
-						if GetDistance2D(me,range) < RangeH[hook.level] + 25 then									
-							me:SafeCastAbility(hook,range)	
-							return
+					local cast = 300
+					local delay = client.latency
+					local delay = cast + delay
+					if not victim:CanMove() then
+						local prediction = Vector(pos.x, pos.y, 0)
+						me:SafeCastAbility(hook, prediction)
+					else
+						local delay1 = (delay + (distance*1000/project))
+						local stage1 = SkillShot.PredictedXYZ(victim,delay1)
+						if stage1 then
+							local distance1 = math.sqrt(math.pow(mepos.x-stage1.x,2)+math.pow(mepos.y-stage1.y,2))
+							local delay2 = delay + (distance1*1000/project)
+							local stage2 = SkillShot.PredictedXYZ(victim,delay2)
+							local i = 1
+							while math.floor(distance1) ~= math.floor(math.sqrt(math.pow(mepos.x-stage1.x,2)+math.pow(mepos.y-stage1.y,2))) do
+							stage1 = stage2
+							distance1 = math.sqrt(math.pow(mepos.x-stage1.x,2)+math.pow(mepos.y-stage1.y,2))
+							delay2 = delay + (distance1*1000/project)
+							stage2 = SkillShot.PredictedXYZ(victim,delay2)
+							i = i + 1
+							end
+							me:SafeCastAbility(hook,Vector(stage2.x,stage2.y,stage2.z))
 						end
-					elseif distance < RangeH[hook.level] + 25 then
-						me:SafeCastAbility(hook,Vector(pos.x + move * 0.05 * math.cos(victim.rotR), pos.y + move* 0.05 * math.sin(victim.rotR), pos.z)) 
-						return
 					end
 				end
 			end
@@ -137,7 +154,7 @@ function Tick( tick )
 	local urn = me:FindItem("item_urn_of_shadows")
 	local aga = me:FindItem("item_ultimate_scepter")
 	
-	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage")and not aga and R.level > 0 and R.cd ~= 30 and not me:IsChanneling() then 
+	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage")and not aga and R.level > 0 and R.cd < 27 and R.cd ~= 0 and not me:IsChanneling() then 
 		if target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) or CanEscape(target) then
 			me:SafeCastItem(urn.name,target)
 		elseif target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
@@ -145,7 +162,7 @@ function Tick( tick )
 		end
 	end
 	
-	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and aga and R.level > 0 and R.cd ~= 30 and not me:IsChanneling() then
+	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and aga and R.level > 0 and R.cd < 27 and R.cd ~= 0 and not me:IsChanneling() then
 		if target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) then
 			me:SafeCastItem(urn.name,target)
 		elseif target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
@@ -164,12 +181,43 @@ function Tick( tick )
 	end
 end
 
+function SkillShot.__Track()
+	local all = entityList:GetEntities({type = TYPE_HERO})
+	for i,v in ipairs(all) do
+		if SkillShot.trackTable[v.handle] == nil and v.alive and v.visible then
+			SkillShot.trackTable[v.handle] = {nil,nil,nil,v,nil}
+		elseif SkillShot.trackTable[v.handle] ~= nil and (not v.alive or not v.visible) then
+			SkillShot.trackTable[v.handle] = nil
+		elseif SkillShot.trackTable[v.handle] then
+			if SkillShot.trackTable[v.handle].last ~= nil then
+				SkillShot.trackTable[v.handle].speed = (v.position - SkillShot.trackTable[v.handle].last.pos)/(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)
+			end
+			SkillShot.trackTable[v.handle].last = {pos = v.position, tick = SkillShot.currentTick}
+		end
+	end
+end
+
+function SkillShot.PredictedXYZ(t,delay)
+	if t.CanMove and not t:CanMove() then
+		return Vector(t.x,t.y,0)
+	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed then
+		local v = t.position + SkillShot.trackTable[t.handle].speed * delay
+		return Vector(v.x,v.y,0)
+	end
+end
+
 function target(tick)
 	if not IsIngame() or client.console then return end
 	
 	local me = entityList:GetMyHero()
 	
 	if not me then return end
+	
+	SkillShot.currentTick = tick
+	if tick > SkillShot.lastTrackTick + 50 then
+		SkillShot.__Track()
+		SkillShot.lastTrackTick = tick 	
+	end
 	
 	local offset = me.healthbarOffset
 	
