@@ -92,17 +92,13 @@ function Autohook(tick)
 end
 
 function Tick( tick )
-	if tick < sleeptick or not IsIngame() or client.console or client.paused then
-		return
-	end
+	if tick < sleeptick or not IsIngame() or client.console or client.paused then return end
+	
 	sleeptick = tick + 50 + client.latency
 	
 	local me = entityList:GetMyHero()
-	local player = entityList:GetMyPlayer()
 	
-	if not me or not player then
-		return
-	end	
+	if not me then return end	
 	
 	local target = entityList:GetEntity(targetHandle)
 	local distance = me:GetDistance2D(target)
@@ -123,7 +119,7 @@ function Tick( tick )
 		return
 	end
 	
-	if W.level > 0 and W.toggled == false then
+	if W.level > 0 and not W.toggled then
 		if distance <= 250 then
 			me:SafeToggleSpell(W.name)
 		end
@@ -144,25 +140,25 @@ function Tick( tick )
 	local urn = me:FindItem("item_urn_of_shadows")
 	local aga = me:FindItem("item_ultimate_scepter")
 	
-	if urn and urn.charges > 0 and urn.state == -1 and target:DoesHaveModifier("modifier_item_urn_damage") == false and not aga and R.level > 0 and R.cd > 0 and me:IsChanneling() == false then 
-		if target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) then
+	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage")and not aga and R.level > 0 and not me:IsChanneling() then 
+		if target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) or CanEscape(target) then
 			me:SafeCastItem(urn.name,target)
-		elseif target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY then
+		elseif target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
 			me:SafeCastItem(urn.name,target)
 		end
 	end
 	
-	if urn and urn.charges ~= 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and aga and R.level > 0 and R.cd > 0 and me:IsChanneling() == false then
-		if target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) == true then
+	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and aga and R.level > 0 and not me:IsChanneling() then
+		if target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) then
 			me:SafeCastItem(urn.name,target)
-		elseif target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) == true then
+		elseif target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
 			me:SafeCastItem(urn.name,target)
 		end
 	end
-	if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target) == true then 
+	if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target) then 
 		me:SafeCastSpell(R.name,target)
 	end
-	if R.cd > 0 and me:IsChanneling() == false then
+	if R.cd > 0 and not me:IsChanneling() then
 		if distance > 150 and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) then
 			me:Move(target.position)
 		else
@@ -172,15 +168,12 @@ function Tick( tick )
 end
 
 function target(tick)
-	if not IsIngame() or client.console then
-		return
-	end
+	if not IsIngame() or client.console then return end
 	
 	local me = entityList:GetMyHero()
 	
-	if not me then
-		return
-	end
+	if not me then return end
+	
 	local offset = me.healthbarOffset
 	
 	statusText.entity = me
