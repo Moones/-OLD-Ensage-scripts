@@ -93,7 +93,7 @@ end
 function Tick( tick )
 	if tick < sleeptick or not IsIngame() or client.console or client.paused then return end
 	
-	sleeptick = tick + 50 + client.latency
+	sleeptick = tick + 30 + client.latency
 	
 	local me = entityList:GetMyHero()
 	
@@ -110,7 +110,7 @@ function Tick( tick )
 		targetHandle = nil
 		targetText.visible = false
 		statusText.text = "  Hook'em!"
-		if W.toggled then
+		if W.toggled == true then
 			me:SafeToggleSpell(W.name)
 		end
 		active = true
@@ -118,7 +118,7 @@ function Tick( tick )
 		return
 	end
 	
-	if W.level > 0 and not W.toggled then
+	if W.level > 0 and W.toggled == false then
 		if distance <= 250 then
 			me:SafeToggleSpell(W.name)
 		end
@@ -128,7 +128,7 @@ function Tick( tick )
 		targetHandle = nil
 		targetText.visible = false
 		statusText.text = "  Hook'em!"
-		if W.toggled then
+		if W.toggled == true then
 			me:SafeToggleSpell(W.name)
 		end
 		active = true
@@ -139,7 +139,7 @@ function Tick( tick )
 	local urn = me:FindItem("item_urn_of_shadows")
 	local aga = me:FindItem("item_ultimate_scepter")
 	
-	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage")and not aga and R.level > 0 and not me:IsChanneling() then 
+	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage")and not aga and R.level > 0 and R.cd ~= 30 and not me:IsChanneling() then 
 		if target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) or CanEscape(target) then
 			me:SafeCastItem(urn.name,target)
 		elseif target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
@@ -147,7 +147,7 @@ function Tick( tick )
 		end
 	end
 	
-	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and aga and R.level > 0 and not me:IsChanneling() then
+	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and aga and R.level > 0 and R.cd ~= 30 and not me:IsChanneling() then
 		if target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) then
 			me:SafeCastItem(urn.name,target)
 		elseif target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
@@ -214,7 +214,7 @@ end
 function AutoDeny(tick)
 	if tick < sleeptickk and not IsIngame() or client.console or client.paused then return end
 	
-	sleeptickk = tick + 300 + client.latency
+	sleeptickk = tick + 50 + client.latency
 	
 	local me = entityList:GetMyHero()
 
@@ -226,12 +226,20 @@ function AutoDeny(tick)
 		if v.team ~= me.team then
 			local distance = GetDistance2D(v,me)
 			local projectile = entityList:GetProjectiles({target=me, source=v})
-			if projectile and distance <= (v.attackRange + 50) then
-				for k,z in ipairs(projectile) do
-					if me.health <= (v.dmgMax + v.dmgBonus) then
-						if not rot.toggled then
-							me:SafeToggleSpell(rot.name)
+			if v:IsRanged() then
+				if projectile and distance <= (v.attackRange + 50) then
+					for k,z in ipairs(projectile) do
+						if me.health <= (v.dmgMax + v.dmgBonus) then
+							if rot.toggled == false then
+								me:SafeToggleSpell(rot.name)
+							end
 						end
+					end
+				end
+			else
+				if distance <= (v.attackRange + 50) and me.health <= (v.dmgMax + v.dmgBonus) then
+					if rot.toggled == false then
+						me:SafeToggleSpell(rot.name)
 					end
 				end
 			end
