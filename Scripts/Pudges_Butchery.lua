@@ -57,9 +57,7 @@ function Key(msg,code)
 end
 
 function Autohook(tick)
-	if not IsIngame() or client.console or client.paused then
-		return
-	end
+	if not IsIngame() or client.console or client.paused then return end
 	local me = entityList:GetMyHero()
 	if not me then return end
 	local hook = me:GetAbility(1)
@@ -194,8 +192,8 @@ function target(tick)
 				if victimm and victimm.visible and victimm.alive then
 				local distance = GetDistance2D(victimm,me) 
 					if distance < 1325 then
-							victimHandle = victimm.handle
-							statusText.text = "Hook: " .. client:Localize(victimm.name)
+						victimHandle = victimm.handle
+						statusText.text = "Hook: " .. client:Localize(victimm.name)
 					end
 				else
 					statusText.text = "  Hook'em!"
