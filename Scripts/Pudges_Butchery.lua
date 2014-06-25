@@ -1,5 +1,6 @@
 require("libs.Utils")
 require("libs.ScriptConfig")
+require("libs.TargetFind")
 
 config = ScriptConfig.new()
 config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
@@ -11,25 +12,40 @@ local hookkey = config.Hookkey
 
 sleeptick = 0
 targetHandle = nil
+victimHandle = nil
 
 local xx,yy = 10,client.screenSize.y/25.714
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
-local statusText = drawMgr:CreateText(-30,-20,-1,"Hook'em!",myFont);
+local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
 local targetText = drawMgr:CreateText(-100,-5,-1,"",myFont);
 local reg = nil
 local active = true
+local hookem = nil
 DmgD = {225,375,525}
 DmgR = {35,60,85,110}
+RangeH = {700,900,1100,1300}
 
 targetText.visible = false
 
-function Key(msg,code)
+function HookKey(msg,code)
+	if msg ~= KEY_UP or code ~= hookkey or client.chat then return end
+	
+	if not hookem then
+		hookem = true
+		return true
+	else
+		hookem = nil
+		return true
+	end
+	
+end
 
+function Key(msg,code)	
     if msg ~= KEY_UP or code ~= key or client.chat then	return end
 
 	if not active then
 		active = true
-		statusText.text = "Hook'em!"
+		statusText.text = "  Hook'em!"
 		return true
 	else
 		active = nil
@@ -37,6 +53,42 @@ function Key(msg,code)
 		return true
 	end
 
+end
+
+function Autohook(tick)
+	if not IsIngame() or client.console or client.paused then
+		return
+	end
+	local me = entityList:GetMyHero()
+	if not me then
+		return
+	end
+	local hook = me:GetAbility(1)
+	if hook.level > 0 and hookem then
+	hookem = nil
+		if me.alive then	
+			local victim = entityList:GetEntity(victimHandle)		
+			if victim.visible and victim.alive and victim.health > 1 then
+				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
+					local move = victim.movespeed 
+					local pos = victim.position	
+					local distance = GetDistance2D(victim,me) 
+					local project = 1600 
+					local cast = 0.5
+					if victim.activity == LuaEntityNPC.ACTIVITY_MOVE and victim:CanMove() then					
+						local range = Vector(pos.x + move * (distance/(project * math.sqrt(1 - math.pow(move/project,2))) + cast) * math.cos(victim.rotR), pos.y + move * (distance/(project * math.sqrt(1 - math.pow(move/project,2))) + cast) * math.sin(victim.rotR), pos.z)
+						if GetDistance2D(me,range) < RangeH[hook.level] + 25 then									
+							me:SafeCastAbility(hook,range)	
+							return
+						end
+					elseif distance < RangeH[hook.level] + 25 then
+						me:SafeCastAbility(hook,Vector(pos.x + move * 0.05 * math.cos(victim.rotR), pos.y + move* 0.05 * math.sin(victim.rotR), pos.z)) 
+						return
+					end
+				end
+			end
+		end
+	end	
 end
 
 function Tick( tick )
@@ -55,19 +107,21 @@ function Tick( tick )
 	local target = entityList:GetEntity(targetHandle)
 	local distance = me:GetDistance2D(target)
 	local minRange = 950
+	local abilities = me.abilities
+	local W = abilities[2]
+	local R = abilities[4]
 	
 	if not target or not target.visible or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) then
 		targetHandle = nil
 		targetText.visible = false
-		statusText.text = "Hook'em!"
+		statusText.text = "  Hook'em!"
+		if W.toggled == true then
+			me:SafeToggleSpell(W.name)
+		end
 		active = true
 		script:UnregisterEvent(Tick)
 		return
 	end
-	
-	local abilities = me.abilities
-	local W = abilities[2]
-	local R = abilities[4]
 	
 	if W.level > 0 and W.toggled == false then
 		if distance <= 250 then
@@ -78,7 +132,10 @@ function Tick( tick )
 	if distance > minRange then
 		targetHandle = nil
 		targetText.visible = false
-		statusText.text = "Hook'em!"
+		statusText.text = "  Hook'em!"
+		if W.toggled == true then
+			me:SafeToggleSpell(W.name)
+		end
 		active = true
 		script:UnregisterEvent(Tick)
 		return
@@ -130,13 +187,6 @@ function target(tick)
 	statusText.entityPosition = Vector(0,0,offset)
 	targetText.entity = me
 	targetText.entityPosition = Vector(0,0,offset)
-	
-	
-	if not reg then
-		script:RegisterEvent(EVENT_KEY,Key)
-		reg = true
-		statusText.visible = true
-	end
 		
 	if me.classId ~= CDOTA_Unit_Hero_Pudge then
 		targetText.visible = false
@@ -144,10 +194,21 @@ function target(tick)
 		script:Disable()
 		return
 	end
+
 	
-	if active then
-		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
-			if v.team ~= me.team then
+	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
+		if v.team ~= me.team then
+			local victimm = targetFind:GetLowestEHP(1325)
+			if victimm and victimm.visible and victimm.alive then
+			local distance = GetDistance2D(victimm,me) 
+				if distance < 1325 then
+						victimHandle = victimm.handle
+						statusText.text = "Hook: " .. client:Localize(victimm.name)
+				end
+			else
+				statusText.text = "  Hook'em!"
+			end
+			if active then
 				if v:DoesHaveModifier("modifier_pudge_meat_hook") then
 					targetHandle = v.handle
 					targetText.visible = true
@@ -173,11 +234,6 @@ end
 
 
 function GameClose()
-	if reg then
-		script:UnregisterEvent(EVENT_KEY,Key)
-		reg = nil
-	end
-	
 	statusText.visible = false
 	targetText.visible = false
 	active = nil
@@ -186,11 +242,14 @@ end
 function Load()
 	targetText.visible = false
 	statusText.visible = true
-	statusText.text = "Hook'em!"
+	statusText.text = "  Hook'em!"
 	active = true
 end
 
 
 script:RegisterEvent(EVENT_TICK,target)
+script:RegisterEvent(EVENT_TICK,Autohook)
 script:RegisterEvent(EVENT_CLOSE,GameClose)
 script:RegisterEvent(EVENT_LOAD,Load)
+script:RegisterEvent(EVENT_KEY,Key)
+script:RegisterEvent(EVENT_KEY,HookKey)
