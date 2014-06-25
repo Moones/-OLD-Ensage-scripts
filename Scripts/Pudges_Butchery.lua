@@ -229,7 +229,7 @@ function AutoDeny(tick)
 			if v:IsRanged() then
 				if projectile and distance <= (v.attackRange + 50) then
 					for k,z in ipairs(projectile) do
-						if me.health <= (DmgR2[rot.level]*3) then
+						if me.health <= (DmgR2[rot.level]*3*(1 - target.magicDmgResist)) then
 							if rot.toggled == false then
 								me:SafeToggleSpell(rot.name)
 							end
@@ -237,7 +237,7 @@ function AutoDeny(tick)
 					end
 				end
 			else
-				if distance <= (v.attackRange + 50) and me.health <= (DmgR2[rot.level]*3) then
+				if distance <= (v.attackRange + 50) and me.health <= (DmgR2[rot.level]*3*(1 - me.magicDmgResist)) then
 					if rot.toggled == false then
 						me:SafeToggleSpell(rot.name)
 					end
