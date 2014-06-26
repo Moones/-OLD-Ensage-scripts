@@ -19,7 +19,7 @@ require("libs.VectorOp")
 			SkillShot.InFront(target,distance): Returns the Vector of the position in front of the target for specified distance
 			SkillShot.PredictedXYZ(target,delay): Returns the Vector of the target's predicted location after specified milisecond
 			SkillShot.SkillShotXYZ(source,target,delay,speed): Returns the Vector of the target's predicted location for a  Souce is the caster,speed is the speed of the projectile and delay is the casting time
-			SkillShot.BlockableSkillShotXYZ(source,target,delay,speed,aoe,team): Same as SkillShotXYZ, but this time it returns nil if skillshot can be blocked by a unit. AoE is aoe of the spell. Team is true if allies can block, false otherwise.
+			(Currently not working)SkillShot.BlockableSkillShotXYZ(source,target,delay,speed,aoe,team): Same as SkillShotXYZ, but this time it returns nil if skillshot can be blocked by a unit. AoE is aoe of the spell. Team is true if allies can block, false otherwise.
 
 
 		Changelog:
@@ -80,8 +80,8 @@ function SkillShot.InFront(t,distance)
 end
 
 function SkillShot.PredictedXYZ(t,delay)
-	if t.CanMove and not t:CanMove() then
-		return Vector(t.x,t.y,0)
+	if not t:CanMove() then
+		return t.position
 	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed then
 		local v = t.position + SkillShot.trackTable[t.handle].speed * delay
 		return Vector(v.x,v.y,0)
@@ -90,7 +90,7 @@ end
 
 function SkillShot.SkillShotXYZ(source,t,delay,speed,castpoint)
 	if not t:CanMove() then
-		return Vector(t.x,t.y,0)
+		return t.position
 	elseif source and t and delay and speed then
 		local delay1 = delay + (GetDistance2D(source,t)*1000/speed)
 		local stage1 = SkillShot.PredictedXYZ(t,delay1)
