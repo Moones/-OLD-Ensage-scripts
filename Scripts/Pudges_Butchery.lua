@@ -72,7 +72,7 @@ function Autohook(tick)
 					local castPoint = 300
 					local aoe = 100
 					local delay = client.latency
-					local xyz = SkillShot.SkillShotXYZ(me,victim,castPoint + delay,speed)
+					local xyz = SkillShot.SkillShotXYZ(me,victim,(castPoint + delay),speed)
 					if xyz then
 						if me:GetDistance2D(xyz) > (RangeH[hook.level] + aoe) and RangeH[hook.level] ~= 0 then
 							xyz = (xyz - me.position) * (RangeH[hook.level] - 100) / me:GetDistance2D(xyz) + me.position
