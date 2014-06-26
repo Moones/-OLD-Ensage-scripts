@@ -13,6 +13,7 @@ local key = config.Hotkey
 local arrowkey = config.Arrowkey
 
 victimHandle = nil
+sleeptick = 0
 
 local myFont = drawMgr:CreateFont("Mirana","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Shoot Arrow hit Arrow!",myFont);
@@ -79,6 +80,8 @@ end
 function target(tick)
 	if not IsIngame() or client.console then return end
 	
+	sleeptick = tick + 30 + client.latency
+	
 	local me = entityList:GetMyHero()
 	
 	if not me then return end
@@ -93,7 +96,7 @@ function target(tick)
 		script:Disable()
 		return
 	end
-
+	
 	if active then	
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
 			if v.team ~= me.team then
@@ -106,6 +109,15 @@ function target(tick)
 					end
 				else
 					statusText.text = "Shoot Arrow hit Arrow!"
+				end
+				if v:DoesHaveModifier("modifier_shadow_demon_disruption") then
+				local distime = v:FindModifier("modifier_shadow_demon_disruption").remainingTime
+				local arrow = me:GetAbility(2)
+					if GetDistance2D(v,me) <= 2200 then
+						if (distime * 857) == GetDistance2D(v,me) or ((distime * 857) < GetDistance2D(v,me) and (distime * 857)+25 > GetDistance2D(v,me)) then
+							ArrowKey(KEY_UP,arrowkey)
+						end
+					end
 				end
 			end
 		end
