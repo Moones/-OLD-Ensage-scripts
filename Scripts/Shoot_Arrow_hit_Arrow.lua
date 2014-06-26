@@ -13,7 +13,6 @@ local key = config.Hotkey
 local arrowkey = config.Arrowkey
 
 victimHandle = nil
-sleeptick = 0
 
 local myFont = drawMgr:CreateFont("Mirana","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Shoot Arrow hit Arrow!",myFont);
@@ -80,8 +79,6 @@ end
 function target(tick)
 	if not IsIngame() or client.console then return end
 	
-	sleeptick = tick + 30 + client.latency
-	
 	local me = entityList:GetMyHero()
 	
 	if not me then return end
@@ -114,7 +111,23 @@ function target(tick)
 				local distime = v:FindModifier("modifier_shadow_demon_disruption").remainingTime
 				local arrow = me:GetAbility(2)
 					if GetDistance2D(v,me) <= 2200 then
-						if (distime * 857) == GetDistance2D(v,me) or ((distime * 857) < GetDistance2D(v,me) and (distime * 857)+25 > GetDistance2D(v,me)) then
+						if (distime * 857) == GetDistance2D(v,me)+115 or ((distime * 857) < GetDistance2D(v,me)+115 and (distime * 857)+25 > GetDistance2D(v,me)) then
+							ArrowKey(KEY_UP,arrowkey)
+						end
+					end
+				end
+				if v:DoesHaveModifier("modifier_obsidian_destroyer_astral_imprisonment_prison") then
+				local odtime = v:FindModifier("modifier_obsidian_destroyer_astral_imprisonment_prison").remainingTime
+					if GetDistance2D(v,me) <= (odtime*857+57.5) then
+						if (odtime * 857) == GetDistance2D(v,me)+115 or ((odtime * 857) < GetDistance2D(v,me)+115 and (odtime * 857)+25 > GetDistance2D(v,me)) then
+							ArrowKey(KEY_UP,arrowkey)
+						end
+					end
+				end
+				if v:DoesHaveModifier("modifier_eul_cyclone") then
+				local cyctime = v:FindModifier("modifier_eul_cyclone").remainingTime
+					if GetDistance2D(v,me) <= (cyctime*857+57.5) then
+						if (cyctime * 857) == GetDistance2D(v,me)+140 or ((cyctime * 857) < GetDistance2D(v,me)+140 and (cyctime * 857)+25 > GetDistance2D(v,me)) then
 							ArrowKey(KEY_UP,arrowkey)
 						end
 					end
@@ -124,21 +137,8 @@ function target(tick)
 	end
 end
 
-function GameClose()
-	statusText.visible = false
-	active = nil
-end
-
-function Load()
-	statusText.visible = true
-	statusText.text = "Shoot Arrow hit Arrow!"
-	active = true
-end
-
 
 script:RegisterEvent(EVENT_TICK,target)
 script:RegisterEvent(EVENT_TICK,Arrow)
-script:RegisterEvent(EVENT_CLOSE,GameClose)
-script:RegisterEvent(EVENT_LOAD,Load)
 script:RegisterEvent(EVENT_KEY,Key)
 script:RegisterEvent(EVENT_KEY,ArrowKey)
