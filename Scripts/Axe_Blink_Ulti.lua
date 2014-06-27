@@ -133,7 +133,6 @@ function Load()
 	end
 end
 
-
 function GameClose()
 	cullingblade.visible = false
 	blink.visible = false
