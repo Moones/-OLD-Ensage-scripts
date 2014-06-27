@@ -43,6 +43,7 @@ function Key(msg,code)
 		else
 			active = nil
 			statusText.text = "   OFF!"
+			victimText.visible = false
 		end
 	end
 	if IsKeyDown(hookkey) then
@@ -92,7 +93,7 @@ function Autohook(tick)
 	end	
 end
 
-function Tick( tick )
+function Combo( tick )
 	if tick < sleeptick or not IsIngame() or client.console or client.paused then return end
 	
 	sleeptick = tick + 30 + client.latency
@@ -100,84 +101,83 @@ function Tick( tick )
 	local me = entityList:GetMyHero()
 	
 	if not me then return end	
-	
-	local target = entityList:GetEntity(targetHandle)
-	local distance = me:GetDistance2D(target)
-	local minRange = 950
-	local abilities = me.abilities
-	local W = abilities[2]
-	local R = abilities[4]
-	
-	if not target or not target.visible or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) then
-		targetHandle = nil
-		targetText.visible = false
-		if not manualselection then
-			statusText.text = "  Hook'em!"
-		else
-			statusText.text = "Hook'em - Manual!"
+		local target = entityList:GetEntity(targetHandle)
+		local distance = me:GetDistance2D(target)
+		local minRange = 950
+		local abilities = me.abilities
+		local W = abilities[2]
+		local R = abilities[4]
+		if not target or not target.visible or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) then
+			targetHandle = nil
+			targetText.visible = false
+			if not manualselection then
+				statusText.text = "  Hook'em!"
+			else
+				statusText.text = "Hook'em - Manual!"
+			end
+			if W.toggled == true then
+				me:SafeToggleSpell(W.name)
+			end
+			active = true
+			script:UnregisterEvent(Combo)
+			return
 		end
-		if W.toggled == true then
-			me:SafeToggleSpell(W.name)
+		if W.level > 0 and W.toggled == false then
+			if distance <= 250 then
+				me:SafeToggleSpell(W.name)
+			end
 		end
-		active = true
-		script:UnregisterEvent(Tick)
-		return
-	end
-	
-	if W.level > 0 and W.toggled == false then
-		if distance <= 250 then
-			me:SafeToggleSpell(W.name)
+		
+		if distance > minRange then
+			targetHandle = nil
+			targetText.visible = false
+			if not manualselection then
+				statusText.text = "  Hook'em!"
+			else
+				statusText.text = "Hook'em - Manual!"
+			end
+			if W.toggled == true then
+				me:SafeToggleSpell(W.name)
+			end
+			active = true
+			script:UnregisterEvent(Combo)
+			return
 		end
-	end
-	
-	if distance > minRange then
-		targetHandle = nil
-		targetText.visible = false
-		if not manualselection then
-			statusText.text = "  Hook'em!"
-		else
-			statusText.text = "Hook'em - Manual!"
+		
+		local urn = me:FindItem("item_urn_of_shadows")
+		local aga = me:FindItem("item_ultimate_scepter")
+		
+		if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage")and not aga and R.level > 0 and R.cd < 27 and R.cd ~= 0 and not me:IsChanneling() then 
+			if target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) or CanEscape(target) then
+				me:SafeCastItem(urn.name,target)
+			elseif target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
+				me:SafeCastItem(urn.name,target)
+			end
 		end
-		if W.toggled == true then
-			me:SafeToggleSpell(W.name)
+		
+		if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and aga and R.level > 0 and R.cd < 27 and R.cd ~= 0 and not me:IsChanneling() then
+			if target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) then
+				me:SafeCastItem(urn.name,target)
+			elseif target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
+				me:SafeCastItem(urn.name,target)
+			end
 		end
-		active = true
-		script:UnregisterEvent(Tick)
-		return
-	end
-	
-	local urn = me:FindItem("item_urn_of_shadows")
-	local aga = me:FindItem("item_ultimate_scepter")
-	
-	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage")and not aga and R.level > 0 and R.cd < 27 and R.cd ~= 0 and not me:IsChanneling() then 
-		if target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) or CanEscape(target) then
-			me:SafeCastItem(urn.name,target)
-		elseif target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
-			me:SafeCastItem(urn.name,target)
+		if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target) then 
+			me:SafeCastSpell(R.name,target)
 		end
-	end
-	
-	if urn and urn.charges > 0 and urn.state == -1 and not target:DoesHaveModifier("modifier_item_urn_damage") and aga and R.level > 0 and R.cd < 27 and R.cd ~= 0 and not me:IsChanneling() then
-		if target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) then
-			me:SafeCastItem(urn.name,target)
-		elseif target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
-			me:SafeCastItem(urn.name,target)
+		if R.cd > 0 and not me:IsChanneling() then
+			if distance > 150 and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) then
+				me:Move(target.position)
+			else
+			me:Attack(target)
+			end
 		end
-	end
-	if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target) then 
-		me:SafeCastSpell(R.name,target)
-	end
-	if R.cd > 0 and not me:IsChanneling() then
-		if distance > 150 and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) then
-			me:Move(target.position)
-		else
-		me:Attack(target)
-		end
-	end
 end
 
-function target(tick)
-	if not IsIngame() or client.console then return end
+function tick(tick)
+	if tick < sleeptickk and not IsIngame() or client.console then return end
+	
+	sleeptickk = tick + 50 + client.latency
 	
 	local me = entityList:GetMyHero()
 	
@@ -196,25 +196,28 @@ function target(tick)
 		script:Disable()
 		return
 	end
-
-	if active then	
+	local huk = me:GetAbility(1)
+	if huk.state == LuaEntityAbility.STATE_READY then
+		victimText.visible = true
+	end
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
 			if v.team ~= me.team then
-				local victimm = targetFind:GetLowestEHP(1350, magic)
+				local victimm = nil
 				if manualselection then
 					victimm = targetFind:GetClosestToMouse(100)
-					victimText.entity = entityList:GetEntity(victimm.handle)
-					victimText.entityPosition = Vector(0,0,entityList:GetEntity(victimm.handle).healthbarOffset)
-					victimText.visible = true
-					victimText.text = "  Hook'em!"
-					else
-					victimText.visible = false
+				else
+					victimm = targetFind:GetLowestEHP(1350, magic)
 				end
 				if victimm and victimm.visible and victimm.alive then
+				victimText.entity = entityList:GetEntity(victimm.handle)
+				victimText.entityPosition = Vector(0,0,entityList:GetEntity(victimm.handle).healthbarOffset)
+				victimText.text = "  Hook'em!"
 				local distance = GetDistance2D(victimm,me) 
 					if distance < 1350 then
 						victimHandle = victimm.handle
-						statusText.text = "Hook: " .. client:Localize(victimm.name)
+						if not manualselection then
+							statusText.text = "Hook: " .. client:Localize(victimm.name)
+						end
 					end
 				else
 					if not manualselection then
@@ -227,22 +230,13 @@ function target(tick)
 					targetHandle = v.handle
 					targetText.visible = true
 					targetText.text = "Eating " .. client:Localize(v.name) .. ". Press " .. string.char(togglekey) .. " to cancel."
-					script:RegisterEvent(EVENT_TICK,Tick)
+					script:RegisterEvent(EVENT_TICK,Combo)
+					if targetHandle == victimHandle then
+						victimText.visible = false
+					end
 				end
 			end
 		end
-	end
-end
-
-function AutoDeny(tick)
-	if tick < sleeptickk and not IsIngame() or client.console or client.paused then return end
-	
-	sleeptickk = tick + 50 + client.latency
-	
-	local me = entityList:GetMyHero()
-
-	if not me or not me.alive then return end
-	
 	local rot = me:GetAbility(2)
 	if rot then
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
@@ -301,9 +295,8 @@ function Load()
 end
 
 
-script:RegisterEvent(EVENT_TICK,target)
+script:RegisterEvent(EVENT_TICK,tick)
 script:RegisterEvent(EVENT_TICK,Autohook)
-script:RegisterEvent(EVENT_TICK,AutoDeny)
 script:RegisterEvent(EVENT_CLOSE,GameClose)
 script:RegisterEvent(EVENT_LOAD,Load)
 script:RegisterEvent(EVENT_KEY,Key)
