@@ -7,10 +7,12 @@ require("libs.VectorOp")
 config = ScriptConfig.new()
 config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:SetParameter("Hookkey", "D", config.TYPE_HOTKEY)
+config:SetParameter("ManualtoggleKey", "G", config.TYPE_HOTKEY)
 config:Load()
 
-local key = config.Hotkey
+local togglekey = config.Hotkey
 local hookkey = config.Hookkey
+local manualtogglekey = config.ManualtoggleKey
 
 sleeptick = 0
 sleeptickk = 0
@@ -21,40 +23,44 @@ local xx,yy = 10,client.screenSize.y/25.714
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
 local targetText = drawMgr:CreateText(-100,-5,-1,"",myFont);
-local reg = nil
+local victimText = drawMgr:CreateText(-40,-5,-1,"",myFont);
 local active = true
 local hookem = nil
+local manualselection = nil
 DmgD = {225,375,525}
 DmgR = {35,60,85,110}
 DmgR2 = {7,12,17,22}
 RangeH = {700,900,1100,1300}
 targetText.visible = false
-
-function HookKey(msg,code)
-	if msg ~= KEY_UP or code ~= hookkey or client.chat then return end
-	if active then
-		if not hookem then
-			hookem = true
-			return true
-		else
-			hookem = nil
-			return true
-		end
-	end
-end
+victimText.visible = false
 
 function Key(msg,code)	
-    if msg ~= KEY_UP or code ~= key or client.chat then	return end
-
-	if not active then
-		active = true
-		statusText.text = "  Hook'em!"
-		return true
-	else
-		active = nil
-		statusText.text = "   OFF!"
-		return true
+    if client.chat then	return end
+	if IsKeyDown(togglekey) then
+		if not active then
+			active = true
+			statusText.text = "  Hook'em!"
+		else
+			active = nil
+			statusText.text = "   OFF!"
+		end
 	end
+	if IsKeyDown(hookkey) then
+		if active then
+			hookem = not hookem
+		end
+	end
+	if IsKeyDown(manualtogglekey) then
+		if active then
+			if not manualselection then
+				manualselection = true
+				statusText.text = "Hook'em - Manual!"
+			else
+				manualselection = nil
+				statusText.text = "  Hook'em!"
+			end
+		end
+	end	
 end
 
 function Autohook(tick)
@@ -105,7 +111,11 @@ function Tick( tick )
 	if not target or not target.visible or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) then
 		targetHandle = nil
 		targetText.visible = false
-		statusText.text = "  Hook'em!"
+		if not manualselection then
+			statusText.text = "  Hook'em!"
+		else
+			statusText.text = "Hook'em - Manual!"
+		end
 		if W.toggled == true then
 			me:SafeToggleSpell(W.name)
 		end
@@ -123,7 +133,11 @@ function Tick( tick )
 	if distance > minRange then
 		targetHandle = nil
 		targetText.visible = false
-		statusText.text = "  Hook'em!"
+		if not manualselection then
+			statusText.text = "  Hook'em!"
+		else
+			statusText.text = "Hook'em - Manual!"
+		end
 		if W.toggled == true then
 			me:SafeToggleSpell(W.name)
 		end
@@ -187,6 +201,15 @@ function target(tick)
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
 			if v.team ~= me.team then
 				local victimm = targetFind:GetLowestEHP(1350, magic)
+				if manualselection then
+					victimm = targetFind:GetClosestToMouse(100)
+					victimText.entity = entityList:GetEntity(victimm.handle)
+					victimText.entityPosition = Vector(0,0,entityList:GetEntity(victimm.handle).healthbarOffset)
+					victimText.visible = true
+					victimText.text = "  Hook'em!"
+					else
+					victimText.visible = false
+				end
 				if victimm and victimm.visible and victimm.alive then
 				local distance = GetDistance2D(victimm,me) 
 					if distance < 1350 then
@@ -194,12 +217,16 @@ function target(tick)
 						statusText.text = "Hook: " .. client:Localize(victimm.name)
 					end
 				else
-					statusText.text = "  Hook'em!"
+					if not manualselection then
+						statusText.text = "  Hook'em!"
+					else
+						statusText.text = "Hook'em - Manual!"
+					end
 				end
 				if v:DoesHaveModifier("modifier_pudge_meat_hook") then
 					targetHandle = v.handle
 					targetText.visible = true
-					targetText.text = "Eating " .. client:Localize(v.name) .. ". Press " .. string.char(key) .. " to cancel."
+					targetText.text = "Eating " .. client:Localize(v.name) .. ". Press " .. string.char(togglekey) .. " to cancel."
 					script:RegisterEvent(EVENT_TICK,Tick)
 				end
 			end
@@ -259,6 +286,8 @@ end
 function GameClose()
 	statusText.visible = false
 	targetText.visible = false
+	local hookem = nil
+	local manualselection = nil
 	active = nil
 end
 
@@ -266,6 +295,8 @@ function Load()
 	targetText.visible = false
 	statusText.visible = true
 	statusText.text = "  Hook'em!"
+	local hookem = nil
+	local manualselection = nil
 	active = true
 end
 
@@ -276,4 +307,3 @@ script:RegisterEvent(EVENT_TICK,AutoDeny)
 script:RegisterEvent(EVENT_CLOSE,GameClose)
 script:RegisterEvent(EVENT_LOAD,Load)
 script:RegisterEvent(EVENT_KEY,Key)
-script:RegisterEvent(EVENT_KEY,HookKey)
