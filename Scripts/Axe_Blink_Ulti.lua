@@ -8,8 +8,8 @@ config:Load()
 
 local toggleKey = config.Hotkey
 
-local hero = {} local note = {} local reg = false
-local active = true local draw = true local myhero = nil
+local hero = {} local reg = false
+local active = true local myhero = nil
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor)
@@ -59,7 +59,7 @@ function Tick(tick)
 						hero[v.handle] = drawMgr:CreateText(-45,-55, 0xFFFFFF99, "",F14) hero[v.handle].visible = false hero[v.handle].entity = v hero[v.handle].entityPosition = Vector(0,0,v.healthbarOffset)
 					end
 					if v.visible and v.alive and v.health > 0 then
-						hero[v.handle].visible = draw
+						hero[v.handle].visible = active
 						local culldamage = math.floor(v:DamageTaken(Dmg,Type,me))
 						local healthtokill = math.floor(v.health - culldamage + CastPoint*v.healthRegen+Moprhling(v,CastPoint))
 						hero[v.handle].text = "Health to kill: "..healthtokill
