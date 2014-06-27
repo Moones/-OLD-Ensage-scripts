@@ -1,6 +1,5 @@
 require("libs.ScriptConfig")
 require("libs.Utils")
-require("libs.SideMessage")
 
 config = ScriptConfig.new()
 config:SetParameter("Hotkey", "D", config.TYPE_HOTKEY)
