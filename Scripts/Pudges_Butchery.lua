@@ -186,7 +186,7 @@ function target(tick)
 	if active then	
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
 			if v.team ~= me.team then
-				local victimm = targetFind:GetLowestEHP(1350)
+				local victimm = targetFind:GetLowestEHP(1350, magic)
 				if victimm and victimm.visible and victimm.alive then
 				local distance = GetDistance2D(victimm,me) 
 					if distance < 1350 then
