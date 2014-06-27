@@ -97,7 +97,7 @@ function target(tick)
 	if active then	
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
 			if v.team ~= me.team then
-				local victimm = targetFind:GetLowestEHP(3057.5)
+				local victimm = targetFind:GetLowestEHP(3057.5, magic)
 				if victimm and victimm.visible and victimm.alive then
 				local distance = GetDistance2D(victimm,me) 
 					if distance < 3057.5 then
@@ -112,23 +112,25 @@ function target(tick)
 				local arrow = me:GetAbility(2)
 					if GetDistance2D(v,me) <= 2200 then
 						if (distime * 857) == GetDistance2D(v,me)+115 or ((distime * 857) < GetDistance2D(v,me)+115 and (distime * 857)+25 > GetDistance2D(v,me)) then
-							ArrowKey(KEY_UP,arrowkey)
+							me:SafeCastAbility(arrow, v.position)
 						end
 					end
 				end
 				if v:DoesHaveModifier("modifier_obsidian_destroyer_astral_imprisonment_prison") then
 				local odtime = v:FindModifier("modifier_obsidian_destroyer_astral_imprisonment_prison").remainingTime
+				local arrow = me:GetAbility(2)
 					if GetDistance2D(v,me) <= (odtime*857+57.5) then
-						if (odtime * 857) == GetDistance2D(v,me)+115 or ((odtime * 857) < GetDistance2D(v,me)+115 and (odtime * 857)+25 > GetDistance2D(v,me)) then
-							ArrowKey(KEY_UP,arrowkey)
+						if (odtime * 857) == GetDistance2D(v,me)+140 or ((odtime * 857) < GetDistance2D(v,me)+140 and (odtime * 857)+25 > GetDistance2D(v,me)) then
+							me:SafeCastAbility(arrow, v.position)
 						end
 					end
 				end
 				if v:DoesHaveModifier("modifier_eul_cyclone") then
 				local cyctime = v:FindModifier("modifier_eul_cyclone").remainingTime
+				local arrow = me:GetAbility(2)
 					if GetDistance2D(v,me) <= (cyctime*857+57.5) then
 						if (cyctime * 857) == GetDistance2D(v,me)+140 or ((cyctime * 857) < GetDistance2D(v,me)+140 and (cyctime * 857)+25 > GetDistance2D(v,me)) then
-							ArrowKey(KEY_UP,arrowkey)
+							me:SafeCastAbility(arrow, v.position)
 						end
 					end
 				end
