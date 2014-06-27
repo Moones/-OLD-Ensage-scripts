@@ -68,11 +68,9 @@ function Autohook(tick)
 					local castPoint = 300
 					local aoe = 100
 					local delay = client.latency
+					local distance = me:GetDistance2D(victim)
 					local xyz = SkillShot.SkillShotXYZ(me,victim,(castPoint + delay),speed)
-					if xyz then
-						if me:GetDistance2D(xyz) > (RangeH[hook.level] + aoe) and RangeH[hook.level] ~= 0 then
-							xyz = (xyz - me.position) * (RangeH[hook.level] - 100) / me:GetDistance2D(xyz) + me.position
-						end
+					if xyz and distance < 1350 then	
 					me:SafeCastAbility(hook, xyz)
 					Sleep(250)
 					end
@@ -186,8 +184,10 @@ function tick(tick)
 		return
 	end
 	local huk = me:GetAbility(1)
-	if huk.state == LuaEntityAbility.STATE_READY then
+	if huk.state == LuaEntityAbility.STATE_READY and active then
 		victimText.visible = true
+	else
+		victimText.visible = false
 	end
 	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
 		if v.team ~= me.team then
@@ -204,18 +204,19 @@ function tick(tick)
 			local distance = GetDistance2D(victimm,me) 
 				if distance < 1350 then
 					victimHandle = victimm.handle
-					if not manualselection then
+					if not manualselection and active then
 						statusText.text = "Hook: " .. client:Localize(victimm.name)
 					end
 				end
 			else
-				if not manualselection then
+			victimText.visible = false
+				if not manualselection and active then
 					statusText.text = "  Hook'em!"
 				else
 					statusText.text = "Hook'em - Manual!"
 				end
 			end
-			if v:DoesHaveModifier("modifier_pudge_meat_hook") then
+			if v:DoesHaveModifier("modifier_pudge_meat_hook") and active then
 				targetHandle = v.handle
 				targetText.visible = true
 				targetText.text = "Eating " .. client:Localize(v.name) .. ". Press " .. string.char(togglekey) .. " to cancel."
