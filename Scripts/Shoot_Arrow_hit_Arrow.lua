@@ -60,10 +60,7 @@ function Arrow(tick)
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 857 
 					local distance = GetDistance2D(victim, me)
-					local castPoint = arrow:GetCastPoint(arrow.level)+client.latency/1000
-					if distance > 1500 then 
-						castPoint = arrow:GetCastPoint(arrow.level)+(client.latency/1000) - 0.2
-					end
+					local castPoint = arrow:GetCastPoint(arrow.level)
 					local xyz = SkillShot.SkillShotXYZ(me,victim,speed,castPoint)
 					if xyz and distance < RangeA + 57.5 then	
 					me:SafeCastAbility(arrow, xyz)
