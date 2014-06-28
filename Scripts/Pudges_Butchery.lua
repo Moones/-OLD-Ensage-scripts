@@ -53,16 +53,59 @@ function Key(msg,code)
 	end	
 end
 
-function Autohook(tick)
-	if not IsIngame() or client.console or client.paused then return end
+function Main(tick)
+	if not IsIngame() or client.console or not SleepCheck() then return end
+
+	Sleep(200)
+	
 	local me = entityList:GetMyHero()
+	
 	if not me then return end
+	
+	if me.classId ~= CDOTA_Unit_Hero_Pudge then
+		targetText.visible = false
+		statusText.visible = false
+		script:Disable()
+		return
+	end
+	
+	local offset = me.healthbarOffset
+	
+	if not statusText.entity then
+		statusText.entity = me
+		statusText.entityPosition = Vector(0,0,offset)
+	end
+	
+	if not targetText.entity then
+		targetText.entity = me
+		targetText.entityPosition = Vector(0,0,offset)
+	end
+	
 	local hook = me:GetAbility(1)
-	if hook.level > 0 and hookem then
-		hookem = nil
-		if me.alive and victimHandle then		
-			local victim = entityList:GetEntity(victimHandle)		
-			if victim and victim.visible and victim.alive and victim.health > 1 then
+	
+	if active then
+	
+		if hook.state == LuaEntityAbility.STATE_READY then
+			victimText.visible = true
+		else
+			victimText.visible = false
+		end
+		
+		local victim = targetFind:GetLowestEHP(1350, magic)
+		if manualselection then
+			victim = targetFind:GetClosestToMouse(100)
+		end
+		
+		if victim and GetDistance2D(victim,me) < 1350 then
+			if not manualselection then
+				statusText.text = "Hook: " .. client:Localize(victim.name)
+			else
+				statusText.text = "Hook'em - Manual!"
+			end
+			victimText.text = "  Hook'em!"
+			victimText.entity = entityList:GetEntity(victim.handle)
+			victimText.entityPosition = Vector(0,0,entityList:GetEntity(victim.handle).healthbarOffset)
+			if hookem and hook.level > 0 and me.alive then hookem = nil
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 1600 
 					local castPoint = hook:GetCastPoint(hook.level)+client.latency/1000	
@@ -70,15 +113,62 @@ function Autohook(tick)
 					local xyz = SkillShot.SkillShotXYZ(me,victim,speed,castPoint)
 					if xyz and distance < 1350 then	
 					me:SafeCastAbility(hook, xyz)
-					Sleep(250)
+					end
+				end
+			end
+		else
+			if not manualselection then
+				statusText.text = "  Hook'em!"
+				victimText.visible = false
+			else
+				statusText.text = "Hook'em - Manual!"
+				victimText.visible = false
+			end
+		end
+		
+		local rot = me:GetAbility(2)
+		
+		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do	
+			if v.team ~= me.team then
+				if v:DoesHaveModifier("modifier_pudge_meat_hook") then
+					targetHandle = v.handle
+					targetText.visible = true
+					targetText.text = "Eating " .. client:Localize(v.name) .. ". Press " .. string.char(togglekey) .. " to cancel."
+					script:RegisterEvent(EVENT_TICK,Combo)
+					if targetHandle == v.handle then
+						victimText.visible = false
+					end
+					
+					if rot.level > 0 then
+					
+						local distance = GetDistance2D(v,me)
+						local projectile = entityList:GetProjectiles({target=me, source=v})
+					
+						if v:IsRanged() then
+							if projectile and distance <= (v.attackRange + 50) then
+								for k,z in ipairs(projectile) do
+									if me.health <= (DmgR2[rot.level]*3*(1 - me.magicDmgResist)) then
+										if rot.toggled == false then
+											me:SafeToggleSpell(rot.name)
+										end
+									end
+								end
+							end
+						else
+							if distance <= (v.attackRange + 50) and me.health <= (DmgR2[rot.level]*3*(1 - me.magicDmgResist)) then
+								if rot.toggled == false then
+									me:SafeToggleSpell(rot.name)
+								end
+							end
+						end
 					end
 				end
 			end
 		end
-	end	
+	end
 end
 
-function Combo( tick )
+function Combo(tick)
 	if tick < sleeptick or not IsIngame() or client.console or client.paused then return end
 	
 	sleeptick = tick + 30 + client.latency
@@ -159,100 +249,6 @@ function Combo( tick )
 	end
 end
 
-function tick(tick)
-	if tick < sleeptickk and not IsIngame() or client.console then return end
-	
-	sleeptickk = tick + 50 + client.latency
-	
-	local me = entityList:GetMyHero()
-	
-	if not me then return end
-	
-	local offset = me.healthbarOffset
-	
-	statusText.entity = me
-	statusText.entityPosition = Vector(0,0,offset)
-	targetText.entity = me
-	targetText.entityPosition = Vector(0,0,offset)
-		
-	if me.classId ~= CDOTA_Unit_Hero_Pudge then
-		targetText.visible = false
-		statusText.visible = false
-		script:Disable()
-		return
-	end
-	local huk = me:GetAbility(1)
-	if huk.state == LuaEntityAbility.STATE_READY and active then
-		victimText.visible = true
-	else
-		victimText.visible = false
-	end
-	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
-		if v.team ~= me.team then
-			local victimm = nil
-			if manualselection then
-				victimm = targetFind:GetClosestToMouse(100)
-			else
-				victimm = targetFind:GetLowestEHP(1350, magic)
-			end
-			if victimm and victimm.visible and victimm.alive then
-			victimText.entity = entityList:GetEntity(victimm.handle)
-			victimText.entityPosition = Vector(0,0,entityList:GetEntity(victimm.handle).healthbarOffset)
-			victimText.text = "  Hook'em!"
-			local distance = GetDistance2D(victimm,me) 
-				if distance < 1350 then
-					victimHandle = victimm.handle
-					if not manualselection and active then
-						statusText.text = "Hook: " .. client:Localize(victimm.name)
-					end
-				end
-			else
-			victimText.visible = false
-				if not manualselection and active then
-					statusText.text = "  Hook'em!"
-				else
-					statusText.text = "Hook'em - Manual!"
-				end
-			end
-			if v:DoesHaveModifier("modifier_pudge_meat_hook") and active then
-				targetHandle = v.handle
-				targetText.visible = true
-				targetText.text = "Eating " .. client:Localize(v.name) .. ". Press " .. string.char(togglekey) .. " to cancel."
-				script:RegisterEvent(EVENT_TICK,Combo)
-				if targetHandle == victimHandle then
-					victimText.visible = false
-				end
-			end
-		end
-	end
-	local rot = me:GetAbility(2)
-	if rot.level > 0 then
-		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
-			if v.team ~= me.team then
-				local distance = GetDistance2D(v,me)
-				local projectile = entityList:GetProjectiles({target=me, source=v})
-				if v:IsRanged() then
-					if projectile and distance <= (v.attackRange + 50) then
-						for k,z in ipairs(projectile) do
-							if me.health <= (DmgR2[rot.level]*3*(1 - me.magicDmgResist)) then
-								if rot.toggled == false then
-									me:SafeToggleSpell(rot.name)
-								end
-							end
-						end
-					end
-				else
-					if distance <= (v.attackRange + 50) and me.health <= (DmgR2[rot.level]*3*(1 - me.magicDmgResist)) then
-						if rot.toggled == false then
-							me:SafeToggleSpell(rot.name)
-						end
-					end
-				end
-			end
-		end
-	end
-end
-
 function CanEscape(who)
 	local me = entityList:GetMyHero()
 	local W = me:GetAbility(2)
@@ -266,15 +262,5 @@ function CanEscape(who)
 	end
 end
 
-function Load()
-	targetText.visible = false victimText.visible = false statusText.visible = true
-	statusText.text = "  Hook'em!"
-	targetHandle = nil victimHandle = nil local hookem = nil local manualselection = nil local active = true
-end
-
-
-script:RegisterEvent(EVENT_TICK,tick)
-script:RegisterEvent(EVENT_TICK,Autohook)
+script:RegisterEvent(EVENT_TICK,Main)
 script:RegisterEvent(EVENT_KEY,Key)
-script:RegisterEvent(EVENT_LOAD,Load)
-
