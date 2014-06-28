@@ -47,8 +47,6 @@ end
 function Main(tick)
 	if not IsIngame() or client.console or not SleepCheck() then return end
 
-	Sleep(200)
-
 	local me = entityList:GetMyHero()
 
 	if not me then return end
@@ -74,7 +72,7 @@ function Main(tick)
 
 		if victim and GetDistance2D(victim,me) < 3057.5 then
 			statusText.text = "Shoot: " .. client:Localize(victim.name)
-			if shoot and arrow.level > 0 and me.alive then shoot = nil              
+			if shoot and arrow.level > 0 and me.alive then shoot = nil 	Sleep(250)             
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 857 
 					local distance = GetDistance2D(victim, me)
