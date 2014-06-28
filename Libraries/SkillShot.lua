@@ -25,6 +25,7 @@ require("libs.VectorOp")
 		Changelog:
 			v1.4:
 			 - Improved prediction
+			 
 			v1.3:
 			 - Reworked for new version
 			 
@@ -45,17 +46,6 @@ require("libs.VectorOp")
 
 SkillShot = {}
 
-SkillShot.trackTable = {}
-SkillShot.lastTrackTick = 0
-SkillShot.currentTick = 0
-
-function SkillShot.__TrackTick(tick)
-	SkillShot.currentTick = tick
-	if tick > SkillShot.lastTrackTick + 50 then
-		SkillShot.lastTrackTick = tick 	
-	end
-end
-
 function SkillShot.InFront(t,distance)
 	local alpha = t.rotR
 	if alpha then
@@ -72,7 +62,7 @@ function SkillShot.PredictedXYZ(t,delay)
 		local thandle = t.handle
 		local target = entityList:GetEntity(thandle)
 		local move = target.movespeed	
-		local v = Vector(tpos.x + move * delay * math.cos(t.rotR), tpos.y + move * delay * math.sin(t.rotR),tpos.z)
+		local v = Vector(tpos.x + move * delay * math.cos(t.rotR), tpos.y + move * delay * math.sin(t.rotR),0)
 		return v
 	end
 end
@@ -82,25 +72,22 @@ function SkillShot.SkillShotXYZ(source,t,speed,castpoint)
 		return t.position
 	else
 		local thandle = t.handle
+		local sourcepos = source.position
 		local target = entityList:GetEntity(thandle)
 		local move = target.movespeed		
 		local castpoint1 = (GetDistance2D(t,source)/(speed * math.sqrt(1 - math.pow(move/speed,2))) + castpoint)
 		local stage1 = SkillShot.PredictedXYZ(t,castpoint1)
 		if stage1 then
-			local sourcepos = source.position
-			local distance = stage1:GetDistance2D(sourcepos)
-			local castpoint2 = (distance/(speed * math.sqrt(1 - math.pow(move/speed,2))) + castpoint)
+			local distance = sourcepos:GetDistance2D(stage1)
+			local castpoint2 = (distance/(speed * math.sqrt(1 - math.pow(move/speed,2))) + castpoint)	
 			local stage2 = SkillShot.PredictedXYZ(t,castpoint2)
-			while (math.floor(distance) ~= math.floor(stage2:GetDistance2D(sourcepos))) do
+			while (math.floor(distance) ~= math.floor(sourcepos:GetDistance2D(stage1))) do
 				stage1 = stage2
-				distance = stage1:GetDistance2D(sourcepos)
-				castpoint2 = (distance/(speed * math.sqrt(1 - math.pow(move/speed,2))) + castpoint)
+				distance = sourcepos:GetDistance2D(stage1)
+				castpoint2 = (distance/(speed * math.sqrt(1 - math.pow(move/speed,2))) + castpoint-((client.latency/1000)*2))	
 				stage2 = SkillShot.PredictedXYZ(t,castpoint2)
 			end
 			return Vector(stage2.x,stage2.y,stage2.z)
 		end
 	end
 end
-
-
-scriptEngine:RegisterLibEvent(EVENT_TICK,SkillShot.__TrackTick)
