@@ -13,7 +13,7 @@ config:Load()
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
 
 sleeptick = 0 sleeptickk = 0
-targetHandle = nil victimHandle = nil local hookem = nil local manualselection = nil local active = true 
+targetHandle = nil local hookem = nil local manualselection = nil local active = true 
 
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
@@ -55,8 +55,6 @@ end
 
 function Main(tick)
 	if not IsIngame() or client.console or not SleepCheck() then return end
-
-	Sleep(200)
 	
 	local me = entityList:GetMyHero()
 	
@@ -105,7 +103,7 @@ function Main(tick)
 			victimText.text = "  Hook'em!"
 			victimText.entity = entityList:GetEntity(victim.handle)
 			victimText.entityPosition = Vector(0,0,entityList:GetEntity(victim.handle).healthbarOffset)
-			if hookem and hook.level > 0 and me.alive then hookem = nil
+			if hookem and hook.level > 0 and me.alive then Sleep(250) hookem = nil
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 1600 
 					local castPoint = hook:GetCastPoint(hook.level)+client.latency/1000	
@@ -138,27 +136,26 @@ function Main(tick)
 					if targetHandle == v.handle then
 						victimText.visible = false
 					end
+				end	
+				if rot.level > 0 then
 					
-					if rot.level > 0 then
+					local distance = GetDistance2D(v,me)
+					local projectile = entityList:GetProjectiles({target=me, source=v})
 					
-						local distance = GetDistance2D(v,me)
-						local projectile = entityList:GetProjectiles({target=me, source=v})
-					
-						if v:IsRanged() then
-							if projectile and distance <= (v.attackRange + 50) then
-								for k,z in ipairs(projectile) do
-									if me.health <= (DmgR2[rot.level]*3*(1 - me.magicDmgResist)) then
-										if rot.toggled == false then
-											me:SafeToggleSpell(rot.name)
-										end
+					if v:IsRanged() then
+						if projectile and distance <= (v.attackRange + 50) then
+							for k,z in ipairs(projectile) do
+								if me.health <= (DmgR2[rot.level]*3*(1 - me.magicDmgResist)) then
+									if rot.toggled == false then
+										me:SafeToggleSpell(rot.name)
 									end
 								end
 							end
-						else
-							if distance <= (v.attackRange + 50) and me.health <= (DmgR2[rot.level]*3*(1 - me.magicDmgResist)) then
-								if rot.toggled == false then
-									me:SafeToggleSpell(rot.name)
-								end
+						end
+					else
+						if distance <= (v.attackRange + 50) and me.health <= (DmgR2[rot.level]*3*(1 - me.magicDmgResist)) then
+							if rot.toggled == false then
+								me:SafeToggleSpell(rot.name)
 							end
 						end
 					end
@@ -168,6 +165,7 @@ function Main(tick)
 	end
 end
 
+
 function Combo(tick)
 	if tick < sleeptick or not IsIngame() or client.console or client.paused then return end
 	
@@ -175,14 +173,16 @@ function Combo(tick)
 	
 	local me = entityList:GetMyHero()
 	
-	if not me then return end	
+	if not me then return end
+	
 	local target = entityList:GetEntity(targetHandle)
 	local distance = me:GetDistance2D(target)
 	local minRange = 950
 	local abilities = me.abilities
 	local W = abilities[2]
 	local R = abilities[4]
-	if not target or not target.visible or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) then
+	
+	if not target or not target.visible or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) or distance > minRange then
 		targetHandle = nil
 		targetText.visible = false
 		if not manualselection then
@@ -201,22 +201,6 @@ function Combo(tick)
 		if distance <= 250 then
 			me:SafeToggleSpell(W.name)
 		end
-	end
-		
-	if distance > minRange then
-		targetHandle = nil
-		targetText.visible = false
-		if not manualselection then
-			statusText.text = "  Hook'em!"
-		else
-			statusText.text = "Hook'em - Manual!"
-		end
-		if W.toggled == true then
-			me:SafeToggleSpell(W.name)
-		end
-		active = true
-		script:UnregisterEvent(Combo)
-		return
 	end
 		
 	local urn = me:FindItem("item_urn_of_shadows")
