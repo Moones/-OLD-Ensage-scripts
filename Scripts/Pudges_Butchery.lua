@@ -226,7 +226,7 @@ function tick(tick)
 		end
 	end
 	local rot = me:GetAbility(2)
-	if rot then
+	if rot.level > 0 then
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
 			if v.team ~= me.team then
 				local distance = GetDistance2D(v,me)
@@ -257,10 +257,12 @@ function CanEscape(who)
 	local me = entityList:GetMyHero()
 	local W = me:GetAbility(2)
 	wID = who.classId
-	if (who.health > DmgR[W.level]) and (wID == CDOTA_Unit_Hero_Anti_Mage or wID == CDOTA_Unit_Hero_Mirana or wID == CDOTA_Unit_Hero_Queen_of_Pain or wID == CDOTA_Unit_Hero_Windrunner or wID == CDOTA_Unit_Hero_Shredder or wID == CDOTA_Unit_Hero_Centaur or wID == CDOTA_Unit_Hero_Earth_Spirit or wID == CDOTA_Unit_Hero_Ember_Spirit or wID == CDOTA_Unit_Hero_Storm_Spirit or who:FindItem("item_force_staff") or who.movespeed > 480) then
-		return true
-	else
-		return	false
+	if who and wID and W.level > 0 then
+		if (who.health > DmgR[W.level]) and (wID == CDOTA_Unit_Hero_Anti_Mage or wID == CDOTA_Unit_Hero_Mirana or wID == CDOTA_Unit_Hero_Queen_of_Pain or wID == CDOTA_Unit_Hero_Windrunner or wID == CDOTA_Unit_Hero_Shredder or wID == CDOTA_Unit_Hero_Centaur or wID == CDOTA_Unit_Hero_Earth_Spirit or wID == CDOTA_Unit_Hero_Ember_Spirit or wID == CDOTA_Unit_Hero_Storm_Spirit or who:FindItem("item_force_staff") or who.movespeed > 480) then
+			return true
+		else
+			return	false
+		end
 	end
 end
 
