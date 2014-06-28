@@ -65,11 +65,9 @@ function Autohook(tick)
 			if victim and victim.visible and victim.alive and victim.health > 1 then
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 1600 
-					local castPoint = 300
-					local aoe = 100
-					local delay = client.latency
-					local distance = me:GetDistance2D(victim)
-					local xyz = SkillShot.SkillShotXYZ(me,victim,(castPoint + delay),speed)
+					local castPoint = hook:GetCastPoint(hook.level)+client.latency/1000	
+					local distance = GetDistance2D(victim, me)
+					local xyz = SkillShot.SkillShotXYZ(me,victim,speed,castPoint)
 					if xyz and distance < 1350 then	
 					me:SafeCastAbility(hook, xyz)
 					Sleep(250)
