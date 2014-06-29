@@ -118,7 +118,7 @@ function AutoOFF()
 		GenerateSideMessage(me.name,"Advanced CreepControl auto OFF!")
 		stage = 2
 		sleepp = math.floor(client.gameTime)		
-	elseif sleepp + 5 <= math.floor(client.gameTime) and stage == 2 and active == nil then
+	elseif sleepp + 5 <= math.floor(client.gameTime) and stage == 2 and active == nil and danger[2] == nil then
 		stage = 1
 		GenerateSideMessage(me.name,"Advanced CreepControl auto ON!")
 		active = true
