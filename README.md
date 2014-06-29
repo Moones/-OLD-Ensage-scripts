@@ -17,3 +17,5 @@ Shoot_Arrow_hit_Arrow.lua
 Libraries:
 ==============
 SkillShot.lua
+
+HeroInfo.lua
