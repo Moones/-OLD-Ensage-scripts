@@ -145,6 +145,12 @@ function Main(tick)
 			script:RegisterEvent(EVENT_TICK,__TrackTick)
 			local creepHp = nil
 			--print(me.name)
+			local range = nil
+			if heroInfo[me.name].projectileSpeed then
+				range = 1200
+			else
+				range = 200
+			end
 			if v.visible and v.alive then
 				if trackTable[v.handle] and trackTable[v.handle].hploss and trackTable[v.handle].hploss ~= 0 and trackTable[v.handle].hploss > 0 then
 					if heroInfo[me.name].projectileSpeed then
@@ -153,28 +159,31 @@ function Main(tick)
 						creepHp = (v.health - trackTable[v.handle].hploss*client.latency/1000 - (me.attackSpeed/10*(heroInfo[me.name].attackRate + heroInfo[me.name].attackPoint)) - (GetDistance2D(v, me)/me.movespeed))
 					end
 					if creepHp < ((dmg*(1-v.dmgResist)+1)*2) and creepHp > (dmg*(1-v.dmgResist)+1) and enablelasthits then
-						if me.activity ~= 424 and not lasthit and v.team ~= me.team and me:GetDistance2D(v) < me.attackRange + 400 and me:GetDistance2D(v) > me.attackRange + 100 then
+						if me.activity ~= 424 and not lasthit and v.team ~= me.team and me:GetDistance2D(v) < me.attackRange + range and me:GetDistance2D(v) > me.attackRange + 100 then
 							player:Move(v.position)
 						end
+						if me.activity == LuaEntityNPC.ACTIVITY_MOVE and not lasthit and me:GetDistance2D(v) <= me.attackRange then
+							player:Stop()
+						end	
 					end
 					if me.activity ~= 424 and creepHp > 0 and creepHp <= (dmg*(1-v.dmgResist))-10 then
-					if not lasthit and v.team ~= me.team and me:GetDistance2D(v) < me.attackRange + 300 and enablelasthits then
+					if not lasthit and v.team ~= me.team and enablelasthits then
 						lasthit = v
 						player:Attack(v) break
 					end
-					if not lasthit and v.team == me.team and me:GetDistance2D(v) < me.attackRange + 300 and enabledenies then
+					if not lasthit and v.team == me.team and enabledenies then
 						lasthit = v
 						player:Attack(v) break
 					end 
 				end
 				else
 					creepHp = v.health
-					if me.activity ~= 424 and creepHp > 0 and creepHp <= (dmg*(1-v.dmgResist))+10 then
-					if not lasthit and v.team ~= me.team and me:GetDistance2D(v) < me.attackRange + 300 and enablelasthits then
+					if me.activity ~= 424 and creepHp > 0 and creepHp <= (dmg*(1-v.dmgResist))+5 then
+					if not lasthit and v.team ~= me.team and me:GetDistance2D(v) < me.attackRange + range and enablelasthits then
 						lasthit = v
 						player:Attack(v) break
 					end
-					if not lasthit and v.team == me.team and me:GetDistance2D(v) < me.attackRange + 300 and enabledenies then
+					if not lasthit and v.team == me.team and me:GetDistance2D(v) < me.attackRange + range and enabledenies then
 						lasthit = v
 						player:Attack(v) break
 					end 
@@ -189,7 +198,7 @@ function Main(tick)
 			for k,z in ipairs(projectiles) do
 				if z.source then
 					if z.source.type ~= LuaEntity.TYPE_HERO then
-						if me.activity ~= 424 and v.team == me.team and v.visible and v.alive and me:GetDistance2D(v) < me.attackRange + 600 then	
+						if me.activity ~= 424 and v.team == me.team and v.visible and v.alive and GetDistance2D(v,me) < me.attackRange + 600 then	
 							player:Attack(v)
 							lasthit = nil
 							Sleep(200)
