@@ -125,7 +125,7 @@ function AutoOFF()
 end
 
 function Main(tick)
-	if not client.connected or client.loading or client.console or sleep > tick then return end	
+	if not client.connected or client.loading or client.console or sleep > tick or not SleepCheck() then return end	
 	sleep = tick + 200
 	local me = entityList:GetMyHero()	
 	local player = entityList:GetMyPlayer()
