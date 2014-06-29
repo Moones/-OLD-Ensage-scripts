@@ -116,8 +116,7 @@ function AutoOFF()
 end
 
 function Main(tick)
-	if not client.connected or client.loading or client.console or sleep > tick or not SleepCheck() then return end	
-	sleep = tick + 100 + client.latency/10
+	if not client.connected or client.loading or client.console or not SleepCheck() then return end	
 	local me = entityList:GetMyHero()	
 	local player = entityList:GetMyPlayer()
 	if not me or not player then return end
@@ -141,15 +140,19 @@ function Main(tick)
 			if v.visible and v.alive then
 				if trackTable[v.handle] and trackTable[v.handle].hploss and trackTable[v.handle].hploss ~= 0 and trackTable[v.handle].hploss > 0 then
 					if heroInfo[me.name].projectileSpeed then
-						creepHp = (v.health - trackTable[v.handle].hploss - heroInfo[me.name].attackRate - (me.attackSpeed*(heroInfo[me.name].attackPoint))*client.latency/1000 + (heroInfo[me.name].projectileSpeed/GetDistance2D(v, me)))
+						if heroInfo[me.name].projectileSpeed > 1500 then
+							creepHp = (v.health - trackTable[v.handle].hploss + (heroInfo[me.name].attackPoint + (heroInfo[me.name].projectileSpeed/GetDistance2D(v, me))*heroInfo[me.name].attackRate) + client.latency/1000)
+						else
+							creepHp = (v.health - trackTable[v.handle].hploss + (heroInfo[me.name].attackPoint - (heroInfo[me.name].projectileSpeed/GetDistance2D(v, me))*heroInfo[me.name].attackRate) - client.latency/1000)
+						end
 					else
 						creepHp = (v.health - trackTable[v.handle].hploss*client.latency/1000 - (me.attackSpeed/10*(heroInfo[me.name].attackRate + heroInfo[me.name].attackPoint)) - (GetDistance2D(v, me)/me.movespeed))
 					end
 					if creepHp < ((dmg*(1-v.dmgResist)+1)*2) and creepHp > (dmg*(1-v.dmgResist)+1)-5 and enablelasthits then
-						if me.activity ~= 424 and not lasthit and v.team ~= me.team and me:GetDistance2D(v) < me.attackRange + range and me:GetDistance2D(v) > me.attackRange + 100 then
+						if me.activity ~= 424 and not lasthit and v.team ~= me.team and me:GetDistance2D(v) > me.attackRange + range then
 							player:Move(v.position)
 						end
-						if me.activity == LuaEntityNPC.ACTIVITY_MOVE and not lasthit and me:GetDistance2D(v) <= me.attackRange then
+						if me.activity == LuaEntityNPC.ACTIVITY_MOVE and not lasthit and me:GetDistance2D(v) < me.attackRange + range then
 							player:Stop()
 						end	
 					end
