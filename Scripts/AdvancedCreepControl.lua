@@ -36,21 +36,25 @@ function __TrackTick(tick)
 end
 
 function __Track()
+	local me = entityList:GetMyHero()
+	if not me then return end
 	local lasthits = {}
 	local creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane})
 	local catapults = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Siege})
 	for k,v in ipairs(creeps) do lasthits[#lasthits + 1] = v end
 	for k,v in ipairs(catapults) do lasthits[#lasthits + 1] = v end
 	for i,v in ipairs(lasthits) do
-		if trackTable[v.handle] == nil and v.alive and v.visible then
-			trackTable[v.handle] = {nil,nil,nil,v,nil}
-		elseif trackTable[v.handle] ~= nil and (not v.alive or not v.visible) then
-			trackTable[v.handle] = nil
-		elseif trackTable[v.handle] then
-			if trackTable[v.handle].last ~= nil then
-				trackTable[v.handle].hploss = (trackTable[v.handle].last.hp - v.health)
+		if me:GetDistance2D(v) < me.attackRange + 1000 then 
+			if trackTable[v.handle] == nil and v.alive and v.visible then
+				trackTable[v.handle] = {nil,nil,nil,v,nil}
+			elseif trackTable[v.handle] ~= nil and (not v.alive or not v.visible) then
+				trackTable[v.handle] = nil
+			elseif trackTable[v.handle] then
+				if trackTable[v.handle].last ~= nil then
+					trackTable[v.handle].hploss = (trackTable[v.handle].last.hp - v.health)
+				end
+				trackTable[v.handle].last = {hp = v.health}
 			end
-			trackTable[v.handle].last = {hp = v.health}
 		end
 	end
 end
