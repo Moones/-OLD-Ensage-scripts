@@ -95,6 +95,7 @@ function Main(tick)
 				local astral = v:FindModifier("modifier_obsidian_destroyer_astral_imprisonment_prison")
 				local eul = v:FindModifier("modifier_eul_cyclone")
 				local nightmare = v:FindModifier("modifier_bane_nightmare")
+				local shackles = v:FindModifier("modifier_shadow_shaman_shackles")
 
 				if disruption then              
 					if GetDistance2D(v,me) <= 2200 then
@@ -104,7 +105,7 @@ function Main(tick)
 					end             
 				elseif astral then
 					if GetDistance2D(v,me) <= (astral.remainingTime*857+57.5) then
-						if (astral.remainingTime * 857) == GetDistance2D(v,me)+140 or ((astral.remainingTime * 857) < GetDistance2D(v,me)+140 and (astral.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+						if (astral.remainingTime * 857) == GetDistance2D(v,me)+200 or ((astral.remainingTime * 857) < GetDistance2D(v,me)+200 and (astral.remainingTime * 857)+25 > GetDistance2D(v,me)) then
 							me:SafeCastAbility(arrow, v.position)
 						end
 					end
@@ -116,7 +117,13 @@ function Main(tick)
 					end
 				elseif nightmare then
 					if GetDistance2D(v,me) <= ( nightmare.remainingTime*857+57.5) then
-						if (nightmare.remainingTime * 857) == GetDistance2D(v,me)+140 or (( nightmare.remainingTime * 857) < GetDistance2D(v,me)+140 and ( nightmare.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+						if (nightmare.remainingTime * 857) == GetDistance2D(v,me)+160 or (( nightmare.remainingTime * 857) < GetDistance2D(v,me)+160 and ( nightmare.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+							me:SafeCastAbility(arrow, v.position)
+						end
+					end
+				elseif shackles then
+					if GetDistance2D(v,me) <= ( shackles.remainingTime*857+57.5) then
+						if (shackles.remainingTime * 857) == GetDistance2D(v,me)+180 or (( shackles.remainingTime * 857) < GetDistance2D(v,me)+180 and ( shackles.remainingTime * 857)+25 > GetDistance2D(v,me)) then
 							me:SafeCastAbility(arrow, v.position)
 						end
 					end
