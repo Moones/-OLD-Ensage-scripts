@@ -91,9 +91,10 @@ function Main(tick)
 
 			if v.team ~= me.team and GetDistance2D(v,me) < 3057.5 then
 
-				local disruption = v:DoesHaveModifier("modifier_shadow_demon_disruption")
-				local astral = v:DoesHaveModifier("modifier_obsidian_destroyer_astral_imprisonment_prison")
-				local eul = v:DoesHaveModifier("modifier_eul_cyclone")
+				local disruption = v:FindModifier("modifier_shadow_demon_disruption")
+				local astral = v:FindModifier("modifier_obsidian_destroyer_astral_imprisonment_prison")
+				local eul = v:FindModifier("modifier_eul_cyclone")
+				local nightmare = v:FindModifier("modifier_bane_nightmare")
 
 				if disruption then              
 					if GetDistance2D(v,me) <= 2200 then
@@ -110,6 +111,12 @@ function Main(tick)
 				elseif eul then
 					if GetDistance2D(v,me) <= ( eul.remainingTime*857+57.5) then
 						if (eul.remainingTime * 857) == GetDistance2D(v,me)+140 or (( eul.remainingTime * 857) < GetDistance2D(v,me)+140 and ( eul.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+							me:SafeCastAbility(arrow, v.position)
+						end
+					end
+				elseif nightmare then
+					if GetDistance2D(v,me) <= ( nightmare.remainingTime*857+57.5) then
+						if (nightmare.remainingTime * 857) == GetDistance2D(v,me)+140 or (( nightmare.remainingTime * 857) < GetDistance2D(v,me)+140 and ( nightmare.remainingTime * 857)+25 > GetDistance2D(v,me)) then
 							me:SafeCastAbility(arrow, v.position)
 						end
 					end
