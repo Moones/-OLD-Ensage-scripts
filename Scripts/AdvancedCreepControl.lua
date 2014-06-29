@@ -31,7 +31,7 @@ lastTrackTick = 0
 function __TrackTick(tick)
 	if tick > lastTrackTick then
 		__Track()
-		lastTrackTick = tick + 100
+		lastTrackTick = tick
 	end
 end
 
