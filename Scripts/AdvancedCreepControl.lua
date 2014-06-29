@@ -26,24 +26,11 @@ local monitor = client.screenSize.x/1600
 local F15 = drawMgr:CreateFont("F15","Tahoma",15*monitor,550*monitor)
 
 trackTable = {}
-lastTrackTick = 0
 
-function __TrackTick(tick)
-	if tick > lastTrackTick then
-		__Track()
-		lastTrackTick = tick 
-	end
-end
-
-function __Track()
+function __Track(entities)
 	local me = entityList:GetMyHero()
 	if not me then return end
-	local lasthits = {}
-	local creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane})
-	local catapults = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Siege})
-	for k,v in ipairs(creeps) do lasthits[#lasthits + 1] = v end
-	for k,v in ipairs(catapults) do lasthits[#lasthits + 1] = v end
-	for i,v in ipairs(lasthits) do
+	for i,v in ipairs(entities) do
 		if GetDistance2D(v, me) < me.attackRange + 2000 then 
 			if trackTable[v.handle] == nil and v.alive and v.visible then
 				trackTable[v.handle] = {nil,nil,nil,v,nil}
@@ -141,8 +128,8 @@ function Main(tick)
 	for k,v in pairs(creeps) do lasthits[#lasthits + 1] = v end
 	for k,v in pairs(catapults) do lasthits[#lasthits + 1] = v end
 	if active then
+		__Track(lasthits)
 		for i,v in ipairs(lasthits) do
-			script:RegisterEvent(EVENT_TICK,__TrackTick)
 			local creepHp = nil
 			--print(me.name)
 			local range = nil
@@ -158,7 +145,7 @@ function Main(tick)
 					else
 						creepHp = (v.health - trackTable[v.handle].hploss*client.latency/1000 - (me.attackSpeed/10*(heroInfo[me.name].attackRate + heroInfo[me.name].attackPoint)) - (GetDistance2D(v, me)/me.movespeed))
 					end
-					if creepHp < ((dmg*(1-v.dmgResist)+1)*2) and creepHp > (dmg*(1-v.dmgResist)+1) and enablelasthits then
+					if creepHp < ((dmg*(1-v.dmgResist)+1)*2) and creepHp > (dmg*(1-v.dmgResist)+1)-5 and enablelasthits then
 						if me.activity ~= 424 and not lasthit and v.team ~= me.team and me:GetDistance2D(v) < me.attackRange + range and me:GetDistance2D(v) > me.attackRange + 100 then
 							player:Move(v.position)
 						end
@@ -166,7 +153,7 @@ function Main(tick)
 							player:Stop()
 						end	
 					end
-					if me.activity ~= 424 and creepHp > 0 and creepHp <= (dmg*(1-v.dmgResist))-10 then
+					if me.activity ~= 424 and creepHp > 0 and creepHp <= (dmg*(1-v.dmgResist)) then
 					if not lasthit and v.team ~= me.team and enablelasthits then
 						lasthit = v
 						player:Attack(v) break
@@ -208,7 +195,6 @@ function Main(tick)
 			end
 		end
 	end
-	script:UnregisterEvent(__TrackTick)
 end
 
 function GenerateSideMessage(heroname,msg)
