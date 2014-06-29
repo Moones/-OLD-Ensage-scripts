@@ -2,6 +2,8 @@ Lua scripts for Ensage
 ==============
 Scripts:
 ==============
+AdvancedCreepControl.lua
+
 Auto_Armlet_Toggle.lua
 
 Axe_Blink_Ulti.lua
