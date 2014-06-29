@@ -188,9 +188,8 @@ function Main(tick)
 				end
 			end
 		end
-	else
-		script:UnregisterEvent(__TrackTick)
 	end
+	script:UnregisterEvent(__TrackTick)
 end
 
 function GenerateSideMessage(heroname,msg)
