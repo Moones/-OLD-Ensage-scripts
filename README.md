@@ -12,6 +12,8 @@ Lasthits_Denies.lua
 
 Pudges_Butchery.lua
 
+ShadowFiend_Raze_Range.lua
+
 Shoot_Arrow_hit_Arrow.lua
 
 Libraries:
