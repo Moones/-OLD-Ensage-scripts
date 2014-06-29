@@ -31,7 +31,7 @@ lastTrackTick = 0
 function __TrackTick(tick)
 	if tick > lastTrackTick then
 		__Track()
-		lastTrackTick = tick
+		lastTrackTick = tick 
 	end
 end
 
@@ -44,7 +44,7 @@ function __Track()
 	for k,v in ipairs(creeps) do lasthits[#lasthits + 1] = v end
 	for k,v in ipairs(catapults) do lasthits[#lasthits + 1] = v end
 	for i,v in ipairs(lasthits) do
-		if me:GetDistance2D(v) < me.attackRange + 1000 then 
+		if GetDistance2D(v, me) < me.attackRange + 2000 then 
 			if trackTable[v.handle] == nil and v.alive and v.visible then
 				trackTable[v.handle] = {nil,nil,nil,v,nil}
 			elseif trackTable[v.handle] ~= nil and (not v.alive or not v.visible) then
@@ -130,7 +130,7 @@ end
 
 function Main(tick)
 	if not client.connected or client.loading or client.console or sleep > tick or not SleepCheck() then return end	
-	sleep = tick + 200
+	sleep = tick + 100 + client.latency/10
 	local me = entityList:GetMyHero()	
 	local player = entityList:GetMyPlayer()
 	if not me or not player then return end
@@ -148,27 +148,37 @@ function Main(tick)
 			if v.visible and v.alive then
 				if trackTable[v.handle] and trackTable[v.handle].hploss and trackTable[v.handle].hploss ~= 0 and trackTable[v.handle].hploss > 0 then
 					if heroInfo[me.name].projectileSpeed then
-						creepHp = (v.health - trackTable[v.handle].hploss * ((me.attackSpeed/100) - heroInfo[me.name].attackRate + heroInfo[me.name].attackPoint +1) - (me:GetDistance2D(v)/heroInfo[me.name].projectileSpeed)*10)
+						creepHp = (v.health - trackTable[v.handle].hploss - heroInfo[me.name].attackRate - (me.attackSpeed*(heroInfo[me.name].attackPoint))*client.latency/1000 + (heroInfo[me.name].projectileSpeed/GetDistance2D(v, me)))
 					else
-						creepHp = (v.health - trackTable[v.handle].hploss * ((me.attackSpeed/100) - heroInfo[me.name].attackRate + heroInfo[me.name].attackPoint +1) - (me:GetDistance2D(v)/100))
+						creepHp = (v.health - trackTable[v.handle].hploss*client.latency/1000 - (me.attackSpeed/10*(heroInfo[me.name].attackRate + heroInfo[me.name].attackPoint)) - (GetDistance2D(v, me)/me.movespeed))
 					end
 					if creepHp < ((dmg*(1-v.dmgResist)+1)*2) and creepHp > (dmg*(1-v.dmgResist)+1) and enablelasthits then
 						if me.activity ~= 424 and not lasthit and v.team ~= me.team and me:GetDistance2D(v) < me.attackRange + 400 and me:GetDistance2D(v) > me.attackRange + 100 then
 							player:Move(v.position)
 						end
 					end
-				else
-					creepHp = v.health
-				end
-				if me.activity ~= 424 and creepHp > 0 and creepHp <= (dmg*(1-v.dmgResist)+1) then
-					if not lasthit and v.team ~= me.team and me:GetDistance2D(v) < me.attackRange + 200 and enablelasthits then
+					if me.activity ~= 424 and creepHp > 0 and creepHp <= (dmg*(1-v.dmgResist))-10 then
+					if not lasthit and v.team ~= me.team and me:GetDistance2D(v) < me.attackRange + 300 and enablelasthits then
 						lasthit = v
 						player:Attack(v) break
 					end
-					if not lasthit and v.team == me.team and me:GetDistance2D(v) < me.attackRange + 200 and enabledenies then
+					if not lasthit and v.team == me.team and me:GetDistance2D(v) < me.attackRange + 300 and enabledenies then
 						lasthit = v
 						player:Attack(v) break
 					end 
+				end
+				else
+					creepHp = v.health
+					if me.activity ~= 424 and creepHp > 0 and creepHp <= (dmg*(1-v.dmgResist))+10 then
+					if not lasthit and v.team ~= me.team and me:GetDistance2D(v) < me.attackRange + 300 and enablelasthits then
+						lasthit = v
+						player:Attack(v) break
+					end
+					if not lasthit and v.team == me.team and me:GetDistance2D(v) < me.attackRange + 300 and enabledenies then
+						lasthit = v
+						player:Attack(v) break
+					end 
+				end
 				end
 			else
 				lasthit = nil
@@ -182,7 +192,7 @@ function Main(tick)
 						if me.activity ~= 424 and v.team == me.team and v.visible and v.alive and me:GetDistance2D(v) < me.attackRange + 600 then	
 							player:Attack(v)
 							lasthit = nil
-							Sleep(500)
+							Sleep(200)
 						end
 					end
 				end
@@ -193,7 +203,7 @@ function Main(tick)
 end
 
 function GenerateSideMessage(heroname,msg)
-	local sidemsg = sideMessage:CreateMessage(300,60,0x111111C0,0x444444FF,150,1000)
+	local sidemsg = sideMessage:CreateMessage(300*monitor,60*monitor,0x111111C0,0x444444FF,150,1000)
 	sidemsg:AddElement(drawMgr:CreateRect(10,10,72,40,0xFFFFFFFF,drawMgr:GetTextureId("NyanUI/heroes_horizontal/"..heroname:gsub("npc_dota_hero_",""))))
 	sidemsg:AddElement(drawMgr:CreateText(85,16,-1,"" .. msg,F15))
 end
