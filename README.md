@@ -8,6 +8,8 @@ Auto_Armlet_Toggle.lua
 
 Axe_Blink_Ulti.lua
 
+Furion_Treant_Block.lua
+
 Lasthits_Denies.lua
 
 Pudges_Butchery.lua
