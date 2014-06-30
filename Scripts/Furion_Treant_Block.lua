@@ -33,20 +33,14 @@ function Main(tick)
 	
 	if casted and target then
 		if call.state == LuaEntityAbility.STATE_COOLDOWN then
-			treants = entityList:GetEntities({controllable=true, classId=287})
-			Attack(target, treants)
+			local treants = entityList:GetEntities({controllable=true, classId=287,alive = true, visible = true})
+			for i,v in ipairs(treants) do
+				v:Attack(target)
+			end
 			casted=false
 		end
 	end
 	Sleep(200)
-end
-
-function Attack(target, treants)
-	for i,v in ipairs(treants) do
-		if v.alive and v.visible then
-			v:Attack(target)
-		end
-	end
 end
 
 script:RegisterEvent(EVENT_TICK, Main)
