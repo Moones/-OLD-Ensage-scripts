@@ -1,3 +1,5 @@
+require("libs.ScriptConfig")
+
 config = ScriptConfig.new()
 config:SetParameter("Hotkey", "E", config.TYPE_HOTKEY)
 config:Load()
