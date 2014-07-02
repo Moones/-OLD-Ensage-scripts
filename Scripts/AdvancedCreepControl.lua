@@ -26,7 +26,7 @@ creepTable = {} myAttackTickTable = {}
 
 sleep = 0 myAttackTickTable.attackRateTick = 0
 
-local myhero = nil local lasthit = false local reg = false
+local myhero = nil local lasthit = false local reg = false local HUD = nil
 
 local monitor = client.screenSize.x/1600
 local F15 = drawMgr:CreateFont("F15","Tahoma",15*monitor,550*monitor)
@@ -36,7 +36,7 @@ local statusText = drawMgr:CreateText(10*monitor,600*monitor,-1,"AdvancedCreepCo
 armorTypeModifiers = { Normal = {Unarmored = 1.00, Light = 1.00, Medium = 1.50, Heavy = 1.25, Fortified = 0.70, Hero = 0.75}, Pierce = {Unarmored = 1.50, Light = 2.00, Medium = 0.75, Heavy = 0.75, Fortified = 0.35, Hero = 0.50},	Siege = {Unarmored = 1.00, Light = 1.00, Medium = 0.50, Heavy = 1.25, Fortified = 1.50, Hero = 0.75}, Chaos = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 0.40, Hero = 1.00},	Hero = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 0.50, Hero = 1.00}, Magic = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 1.00, Hero = 0.75} }
 
 
-function buttonClick()	
+function activeCheck()	
 	if PlayingGame() then
 		if not active then
 			active = true
@@ -156,11 +156,11 @@ function Main(tick)
 							if z.source.type ~= LuaEntity.TYPE_HERO then
 								if me.activity ~= LuaEntityNPC.ACTIVITY_ATTACK and v.team == me.team and v.visible and v.alive and tick > sleep then
 								
-									if (myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange - 50) or (GetDistance2D(v,me) < myhero.attackRange + 100) then
+									if (myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange - 50) or (not myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange + 100) then
 								
 										entityList:GetMyPlayer():Attack(v)
 										me:Move(client.mousePosition)		
-										sleep = tick + 50										
+										sleep = tick + 100										
 									end
 								end
 							end
@@ -549,31 +549,31 @@ end
 function CreateHUD()
 	if not HUD then
 		HUD = EasyHUD.new(550*monitor,300*monitor,500*monitor,300*monitor,"AdvancedCreepControl",0x111111C0,-1,true,true)
-		HUD:AddText(5*monitor,10,"Hello, this is AdvancedCreepControl Menu and you might want to adjust settings")
-		HUD:AddText(5*monitor,30,"Usage: Hold SPACE for Autolasthit / Autodeny while moving to your mouse position")
-		HUD:AddText(330*monitor,270*monitor,"Press " .. string.char(menu) .. " for Open / Close Menu")
+		HUD:AddText(5*monitor,10*monitor,"Hello, this is AdvancedCreepControl Menu and you might want to adjust settings")
+		HUD:AddText(5*monitor,30*monitor,"Usage: Hold SPACE for Autolasthit / Autodeny while moving to your mouse position")
+		HUD:AddText(300*monitor,270*monitor,"Press " .. string.char(menu) .. " for Open / Close Menu")
 		if not active then
-			HUD:AddCheckbox(5*monitor,50,35,20,"ENABLE SCRIPT",buttonClick,false)
+			HUD:AddCheckbox(5*monitor,50*monitor,35*monitor,20*monitor,"ENABLE SCRIPT",activeCheck,false)
 		else
-			HUD:AddCheckbox(5*monitor,50,35,20,"ENABLE SCRIPT",buttonClick,true)
+			HUD:AddCheckbox(5*monitor,50*monitor,35*monitor,20*monitor,"ENABLE SCRIPT",activeCheck,true)
 		end
-		HUD:AddText(5*monitor,75,"Script Settings:")
+		HUD:AddText(5*monitor,75*monitor,"Script Settings:")
 		if not enablelasthits then
-			HUD:AddCheckbox(5*monitor,95,35,20,"ENABLE AUTO LASTHIT",lhCheck,false)
+			HUD:AddCheckbox(5*monitor,95*monitor,35*monitor,20*monitor,"ENABLE AUTO LASTHIT",lhCheck,false)
 		else
-			HUD:AddCheckbox(5*monitor,95,35,20,"ENABLE AUTO LASTHIT",lhCheck,true)
+			HUD:AddCheckbox(5*monitor,95*monitor,35*monitor,20*monitor,"ENABLE AUTO LASTHIT",lhCheck,true)
 		end
 		if not enabledenies then
-			HUD:AddCheckbox(5*monitor,115,35,20,"ENABLE AUTO DENY",dCheck,false)
+			HUD:AddCheckbox(5*monitor,115*monitor,35*monitor,20*monitor,"ENABLE AUTO DENY",dCheck,false)
 		else
-			HUD:AddCheckbox(5*monitor,115,35,20,"ENABLE AUTO DENY",dCheck,true)
+			HUD:AddCheckbox(5*monitor,115*monitor,35*monitor,20*monitor,"ENABLE AUTO DENY",dCheck,true)
 		end
 		if not autounaggro then
-			HUD:AddCheckbox(5*monitor,135,35,20,"ENABLE AUTO UNAGGRO",aCheck,false)
+			HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ENABLE AUTO UNAGGRO",aCheck,false)
 		else
-			HUD:AddCheckbox(5*monitor,135,35,20,"ENABLE AUTO UNAGGRO",aCheck,true)
+			HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ENABLE AUTO UNAGGRO",aCheck,true)
 		end
-		HUD:AddButton(5*monitor,250*monitor,110,40, 0x60615FFF,"Save Settings",SaveSettings)
+		HUD:AddButton(5*monitor,250*monitor,110*monitor,40*monitor, 0x60615FFF,"Save Settings",SaveSettings)
 	end
 end
 
@@ -622,9 +622,7 @@ function Load()
 		else
 			statusText.visible = false
 			myhero = nil
-			if HUD then
-				HUD:Open()	
-			end
+			HUD = nil
 			reg = true
 			creepTable = {}
 			if active then
@@ -646,6 +644,7 @@ function Close()
 	
 	if HUD then
 		HUD:Close()	
+		HUD = nil
 	end
 	
 	creepTable = {}
