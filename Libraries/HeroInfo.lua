@@ -763,7 +763,7 @@ npc_dota_hero_medusa = {
  movementSpeed = 290,
  turnRate = 0.5},
 
-npc_dota_hero_trollwarlord = {
+npc_dota_hero_troll_warlord = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 500,
