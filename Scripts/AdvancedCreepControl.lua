@@ -551,7 +551,7 @@ function CreateHUD()
 		HUD = EasyHUD.new(550*monitor,300*monitor,500*monitor,300*monitor,"AdvancedCreepControl",0x111111C0,-1,true,true)
 		HUD:AddText(5*monitor,10,"Hello, this is AdvancedCreepControl Menu and you might want to adjust settings")
 		HUD:AddText(5*monitor,30,"Usage: Hold SPACE for Autolasthit / Autodeny while moving to your mouse position")
-		HUD:AddText(330*monitor,270*monitor,"Press H for Open / Close Menu")
+		HUD:AddText(330*monitor,270*monitor,"Press " .. string.char(menu) .. " for Open / Close Menu")
 		if not active then
 			HUD:AddCheckbox(5*monitor,50,35,20,"ENABLE SCRIPT",buttonClick,false)
 		else
