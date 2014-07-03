@@ -19,13 +19,10 @@ require("libs.VectorOp")
 			SkillShot.InFront(target,distance): Returns the Vector of the position in front of the target for specified distance
 			SkillShot.PredictedXYZ(target,delay): Returns the Vector of the target's predicted location after specified milisecond
 			SkillShot.SkillShotXYZ(source,target,speed,castpoint): Returns the Vector of the target's predicted location for a Source is the caster,speed is the speed of the projectile and castpoint is the casting time
-			(Currently not working)SkillShot.BlockableSkillShotXYZ(source,target,delay,speed,aoe,team): Same as SkillShotXYZ, but this time it returns nil if skillshot can be blocked by a unit. AoE is aoe of the spell. Team is true if allies can block, false otherwise.
+			SkillShot.BlockableSkillShotXYZ(source,target,speed,castpoint,aoe,team): Same as SkillShotXYZ, but this time it returns nil if skillshot can be blocked by a unit. AoE is aoe of the spell. Team is true if allies can block, false otherwise.
 
 
 		Changelog:
-			v1.4:
-			 - Improved prediction
-			 
 			v1.3:
 			 - Reworked for new version
 			 
@@ -46,6 +43,34 @@ require("libs.VectorOp")
 
 SkillShot = {}
 
+SkillShot.trackTable = {}
+SkillShot.lastTrackTick = 0
+SkillShot.currentTick = 0
+
+function SkillShot.__TrackTick(tick)
+	SkillShot.currentTick = tick
+	if tick > SkillShot.lastTrackTick + 50 then
+		SkillShot.__Track()
+		SkillShot.lastTrackTick = tick 	
+	end
+end
+
+function SkillShot.__Track()
+	local all = entityList:GetEntities({type = LuaEntity.TYPE_HERO})
+	for i,v in ipairs(all) do
+		if SkillShot.trackTable[v.handle] == nil and v.alive and v.visible then
+			SkillShot.trackTable[v.handle] = {nil,nil,nil,v,nil}
+		elseif SkillShot.trackTable[v.handle] ~= nil and (not v.alive or not v.visible) then
+			SkillShot.trackTable[v.handle] = nil
+		elseif SkillShot.trackTable[v.handle] then
+			if SkillShot.trackTable[v.handle].last ~= nil then
+				SkillShot.trackTable[v.handle].speed = (v.position - SkillShot.trackTable[v.handle].last.pos)/(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)
+			end
+			SkillShot.trackTable[v.handle].last = {pos = v.position, tick = SkillShot.currentTick}
+		end
+	end
+end
+
 function SkillShot.InFront(t,distance)
 	local alpha = t.rotR
 	if alpha then
@@ -57,37 +82,112 @@ end
 function SkillShot.PredictedXYZ(t,delay)
 	if not t:CanMove() then
 		return t.position
-	else
-		tpos = t.position
-		local thandle = t.handle
-		local target = entityList:GetEntity(thandle)
-		local move = target.movespeed	
-		local v = Vector(tpos.x + move * delay * math.cos(t.rotR), tpos.y + move * delay * math.sin(t.rotR),0)
-		return v
+	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed then
+		local v = t.position + SkillShot.trackTable[t.handle].speed * delay
+		return Vector(v.x,v.y,0)
 	end
 end
 
 function SkillShot.SkillShotXYZ(source,t,speed,castpoint)
-	if t.activity ~= LuaEntityNPC.ACTIVITY_MOVE or not t:CanMove() then
+	local sourcepos = source.position
+	if not t:CanMove() then
 		return t.position
-	else
-		local thandle = t.handle
-		local sourcepos = source.position
-		local target = entityList:GetEntity(thandle)
-		local move = target.movespeed		
-		local castpoint1 = (GetDistance2D(t,source)/(speed * math.sqrt(1 - math.pow(move/speed,2))) + castpoint)
-		local stage1 = SkillShot.PredictedXYZ(t,castpoint1)
+	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed then
+		local delay1 = castpoint + (GetDistance2D(source,t)*1000/speed)
+		local stage1 = SkillShot.PredictedXYZ(t,delay1)
 		if stage1 then
-			local distance = sourcepos:GetDistance2D(stage1)
-			local castpoint2 = (distance/(speed * math.sqrt(1 - math.pow(move/speed,2))) + castpoint)	
-			local stage2 = SkillShot.PredictedXYZ(t,castpoint2)
-			while (math.floor(distance) ~= math.floor(sourcepos:GetDistance2D(stage1))) do
+			local distance = stage1:GetDistance2D(sourcepos)
+			local delay2 = castpoint + (distance*1000/speed)
+			local stage2 = SkillShot.PredictedXYZ(t,delay2)
+			while math.floor(distance) ~= math.floor(stage1:GetDistance2D(sourcepos)) do
 				stage1 = stage2
-				distance = sourcepos:GetDistance2D(stage1)
-				castpoint2 = (distance/(speed * math.sqrt(1 - math.pow(move/speed,2))) + castpoint-((client.latency/1000)*2))	
-				stage2 = SkillShot.PredictedXYZ(t,castpoint2)
+				distance = stage1:GetDistance2D(sourcepos)
+				delay2 = castpoint + (distance*1000/speed)
+				stage2 = SkillShot.PredictedXYZ(t,delay2)
 			end
 			return Vector(stage2.x,stage2.y,stage2.z)
-		end
+		end			
 	end
 end
+
+function SkillShot.BlockableSkillShotXYZ(source,t,speed,delay,aoe,team)
+	if team == nil then
+		team = false
+	end
+	local pred = SkillShot.SkillShotXYZ(source,t,speed,delay)
+	if pred and not SkillShot.__GetBlock(source.position,pred,t,aoe,team) then
+		return pred
+	end
+end
+
+
+function SkillShot.__GetBlock(v1,v2,target,aoe,team)
+	local me = entityList:GetMyHero()
+	local enemyTeam = me:GetEnemyTeam()
+	
+	if team == nil then
+		team = false
+	end
+	local block = {}
+	local creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,team=enemyTeam,visible=true})
+	local siege = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Siege,alive=true,team=enemyTeam,visible=true})
+	local forge = entityList:GetEntities({classId=CDOTA_BaseNPC_Invoker_Forged_Spirit,alive=true,team=enemyTeam,visible=true})
+	local hero = entityList:GetEntities({type=TYPE_HERO,alive=true,team=enemyTeam,visible=true})
+	local neutrals = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Neutral,alive=true,visible=true})
+	local golem = entityList:GetEntities({classId=CDOTA_BaseNPC_Warlock_Golem,alive=true,team=enemyTeam,visible=true})
+	if team then
+		creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true})
+		siege = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Siege,alive=true,visible=true})
+		forge = entityList:GetEntities({classId=CDOTA_BaseNPC_Invoker_Forged_Spirit,alive=true,visible=true})
+		hero = entityList:GetEntities({type=TYPE_HERO,alive=true,visible=true})
+		golem = entityList:GetEntities({classId=CDOTA_BaseNPC_Warlock_Golem,alive=true,visible=true})
+	end
+	for k,v in pairs(creeps) do block[#block + 1] = v end
+	for k,v in pairs(siege) do block[#block + 1] = v end
+	for k,v in pairs(forge) do block[#block + 1] = v end
+	for k,v in pairs(hero) do block[#block + 1] = v end
+	for k,v in pairs(golem) do block[#block + 1] = v end	
+	for k,v in pairs(neutrals) do block[#block + 1] = v end	
+	local block = SkillShot.__CheckBlock(block,v1,v2,aoe,target)
+	return block
+end
+
+function SkillShot.__CheckBlock(units,v1,v2,aoe,target)
+	distance = GetDistance2D(v1,v2)
+	local i = 1
+	local block = false
+	local filterunits = {}
+	for k,v in pairs(units) do
+		if GetDistance2D(v,target) < distance and GetDistance2D(v,me) < distance and v.handle ~= target.handle then
+			table.insert(filterunits,v)
+		end
+	end
+	for i,v in ipairs(filterunits) do
+		local vec = v2 - v1
+		local closest = SkillShot.GetClosestPoint(v1,vec:GetXYAngle(),v.position,distance-aoe)
+		if closest then
+			if GetDistance2D(v,closest) < aoe then
+				block = true
+			end
+		end
+	end
+	return block
+end
+
+function SkillShot.GetClosestPoint(A, _a, P,e)
+    local l1 = {x = math.tan(_a), c = A.y - A.x * math.tan(_a)}
+    local l2 = {x = math.tan(_a+math.pi/2), c =  P.y - P.x * math.tan(_a+math.pi/2)}
+
+    local final = Vector((l2.c-l1.c)/(l1.x-l2.x),l1.x*(l2.c-l1.c)/(l1.x-l2.x) + l1.c,A.z)
+
+    local length = GetDistance2D(final, A)
+    if math.floor((final.x - A.x)/length) == math.floor(math.cos(_a)) and math.floor((final.y - A.y)/length) == math.floor(math.sin(_a)) then
+        if length <= e then
+            return final
+        else
+            return Vector(A.x + e*math.cos(_a),A.y + e*math.sin(_a),A.z)
+        end
+    end
+end
+
+scriptEngine:RegisterLibEvent(EVENT_TICK,SkillShot.__TrackTick)
