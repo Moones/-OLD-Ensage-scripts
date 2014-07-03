@@ -61,8 +61,7 @@ function Tick(tick)
 			local Dmg = avdamage[aval.level]+(todamage[tos.level]*1.2)
 			if grow.level > 0 then
 				Dmg = avdamage[aval.level]+(todamage[tos.level]*ultibonus[grow.level])
-			end
-			if me:AghanimState() then		
+			elseif me:AghanimState() then		
 				Dmg = avdamage[aval.level]+(todamage[tos.level]*agabonus[grow.level])
 				aga.textureId = drawMgr:GetTextureId("NyanUI/items/ultimate_scepter")
 				aga.visible = active
@@ -75,16 +74,18 @@ function Tick(tick)
 				if active then
 					if combo then
 						victim = targetFind:GetLowestEHP(1200, magic)
-						if GetDistance2D(me,victim) < RangeB and GetDistance2D(me,victim) > Range and (Blink and Blink.state == -1) and aval.state == LuaEntityAbility.STATE_READY and tos.state == LuaEntityAbility.STATE_READY then
-							if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) then
-								me:SafeCastItem(Blink.name,victim.position)						
-							end
-						elseif GetDistance2D(me,victim) < Range then
-							if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) then
-								me:SafeCastAbility(aval,victim.position)
-								me:SafeCastAbility(tos,victim,true)
-								combo = false
-								Sleep(200)
+						if victim and victim.visible and victim.health > 0 then
+							if GetDistance2D(me,victim) < RangeB and GetDistance2D(me,victim) > Range and (Blink and Blink.state == -1) and aval.state == LuaEntityAbility.STATE_READY and tos.state == LuaEntityAbility.STATE_READY then
+								if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) then
+									me:SafeCastItem(Blink.name,victim.position)						
+								end
+							elseif GetDistance2D(me,victim) < Range then
+								if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) then
+									me:SafeCastAbility(aval,victim.position)
+									me:SafeCastAbility(tos,victim,true)
+									combo = false
+									Sleep(200)
+								end
 							end
 						end
 					end
