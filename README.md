@@ -12,6 +12,8 @@ Furion_Treant_Block.lua
 
 Lasthits_Denies.lua
 
+Nyx_Impale.lua
+
 Pudges_Butchery.lua
 
 ShadowFiend_Raze_Range.lua
