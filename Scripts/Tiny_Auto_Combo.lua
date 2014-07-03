@@ -76,11 +76,11 @@ function Tick(tick)
 					if combo then
 						victim = targetFind:GetLowestEHP(1200, magic)
 						if GetDistance2D(me,victim) < RangeB and GetDistance2D(me,victim) > Range and (Blink and Blink.state == -1) and aval.state == LuaEntityAbility.STATE_READY and tos.state == LuaEntityAbility.STATE_READY then
-							if me:IsMagicDmgImmune() or (NetherWard(aval,victim,me) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) then
+							if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) then
 								me:SafeCastItem(Blink.name,victim.position)						
 							end
 						elseif GetDistance2D(me,victim) < Range then
-							if me:IsMagicDmgImmune() or (NetherWard(aval,victim,me) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) then
+							if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) then
 								me:SafeCastAbility(aval,victim.position)
 								me:SafeCastAbility(tos,victim,true)
 								combo = false
@@ -100,11 +100,11 @@ function Tick(tick)
 								local healthtokill = math.floor(v.health - combodamage + CastPoint*v.healthRegen+Moprhling(v,CastPoint))
 								hero[v.handle].text = "Health to kill: "..healthtokill
 								if healthtokill < 0 and GetDistance2D(me,v) < RangeB and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) and aval.state == LuaEntityAbility.STATE_READY and tos.state == LuaEntityAbility.STATE_READY then
-									if me:IsMagicDmgImmune() or (NetherWard(aval,v,me) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,combodamage)) then
+									if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,combodamage)) then
 										me:SafeCastItem(Blink.name,v.position)						
 									end
 								elseif healthtokill < 0 and GetDistance2D(me,v) < Range then
-									if me:IsMagicDmgImmune() or (NetherWard(aval,v,me) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,combodamage)) then
+									if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,combodamage)) then
 										me:SafeCastAbility(aval,v.position)
 										me:SafeCastAbility(tos,v,true) Sleep(200) break							
 									end
