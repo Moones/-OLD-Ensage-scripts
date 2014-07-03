@@ -182,7 +182,7 @@ function GetLasthit(me)
 
 			if myhero.isRanged then
 			
-				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + myhero.attackPoint*1000 + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
+				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + myhero.attackPoint*1000 + client.latency + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
 					entityList:GetMyPlayer():Attack(creepClass.creepEntity)
 					
 					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
@@ -195,7 +195,7 @@ function GetLasthit(me)
 
 			else
 
-				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + myhero.attackPoint*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
+				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
 					entityList:GetMyPlayer():Attack(creepClass.creepEntity)
 					
 					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
@@ -302,13 +302,13 @@ end
 
 function Hero:GetAttackPoint()
 
-	return self.baseAttackPoint / (1 + (self.heroEntity.attackSpeed-100) / 100)
+	return self.baseAttackPoint / (1 + ((self.heroEntity.attackSpeed - 100) / 100))
 
 end
 
 function Hero:GetAttackRate()
 
-	return self.heroEntity.attackBaseTime / (1 + (self.heroEntity.attackSpeed-100) / 100)
+	return self.heroEntity.attackBaseTime / (1 + ((self.heroEntity.attackSpeed - 100) / 100))
 end
 
 function Hero:GetModifiers()
@@ -401,10 +401,10 @@ function Creep:GetTimeToHealth(health)
 
 				if nextAttackTickTable[2] > GetTick() then
 
-					if (hploss/#sortedTable) > 0 and (((hploss/#sortedTable) < nextAttackTickTable[1].creepEntity.dmgMin) or ((hploss/#sortedTable) > nextAttackTickTable[1].creepEntity.dmgMin and (hploss/#sortedTable) < nextAttackTickTable[1].creepEntity.dmgMax)) then
-						totalDamage = totalDamage + (math.floor((((hploss/#sortedTable) + nextAttackTickTable[1].creepEntity.dmgMax + nextAttackTickTable[1].creepEntity.dmgMin)/3) * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
+					if (hploss/nextAttackTickTable[1].baseAttackPoint) > 0 and (((hploss/nextAttackTickTable[1].baseAttackPoint) < nextAttackTickTable[1].creepEntity.dmgMin) or ((hploss/nextAttackTickTable[1].baseAttackPoint) > nextAttackTickTable[1].creepEntity.dmgMin and (hploss/nextAttackTickTable[1].baseAttackPoint) < nextAttackTickTable[1].creepEntity.dmgMax)) then
+						totalDamage = totalDamage + (math.floor((((hploss/nextAttackTickTable[1].baseAttackPoint) + nextAttackTickTable[1].creepEntity.dmgMin)/2) * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
 					end
-					if (hploss/#sortedTable) == 0 or (hploss/#sortedTable) > nextAttackTickTable[1].creepEntity.dmgMax then
+					if (hploss/nextAttackTickTable[1].baseAttackPoint) == 0 or (hploss/nextAttackTickTable[1].baseAttackPoint) > nextAttackTickTable[1].creepEntity.dmgMax then
 						totalDamage = totalDamage + (math.floor(nextAttackTickTable[1].creepEntity.dmgMin * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
 					end
 
