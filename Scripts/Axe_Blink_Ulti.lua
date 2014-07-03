@@ -1,7 +1,7 @@
 require("libs.ScriptConfig")
 require("libs.Utils")
 
-config = ScriptConfig.new()
+local config = ScriptConfig.new()
 config:SetParameter("Hotkey", "D", config.TYPE_HOTKEY)
 config:Load()
 
