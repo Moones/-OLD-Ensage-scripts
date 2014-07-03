@@ -4,7 +4,7 @@ require("libs.TargetFind")
 require("libs.SkillShot")
 require("libs.VectorOp")
 
-local config = ScriptConfig.new()
+config = ScriptConfig.new()
 config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:SetParameter("Hookkey", "D", config.TYPE_HOTKEY)
 config:SetParameter("ManualtoggleKey", "G", config.TYPE_HOTKEY)
@@ -103,14 +103,18 @@ function Main(tick)
 			victimText.text = "  Hook'em!"
 			victimText.entity = entityList:GetEntity(victim.handle)
 			victimText.entityPosition = Vector(0,0,entityList:GetEntity(victim.handle).healthbarOffset)
-			if hookem and hook.level > 0 and me.alive then Sleep(250) hookem = nil
+			if hookem and hook.level > 0 and me.alive then hookem = nil
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 1600 
-					local castPoint = hook:GetCastPoint(hook.level)+client.latency/1000	
+					local castPoint = (hook:GetCastPoint(hook.level)*1000)+client.latency
 					local distance = GetDistance2D(victim, me)
 					local xyz = SkillShot.SkillShotXYZ(me,victim,speed,castPoint)
-					if xyz and distance < 1350 then	
-					me:SafeCastAbility(hook, xyz)
+					if xyz and distance <= 1350 then	
+						if xyz:GetDistance2D(me) > 1350 then
+							xyz = (xyz - me.position) * 1200 / xyz:GetDistance2D(me) + me.position
+						end
+						me:SafeCastAbility(hook, xyz)
+						Sleep(250)
 					end
 				end
 			end
