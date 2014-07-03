@@ -1,5 +1,6 @@
 require("libs.ScriptConfig")
 require("libs.TargetFind")
+require("libs.Utils")
 
 local config = ScriptConfig.new()
 config:SetParameter("Hotkey", "E", config.TYPE_HOTKEY)
