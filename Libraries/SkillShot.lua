@@ -89,13 +89,13 @@ function SkillShot.PredictedXYZ(t,delay)
 end
 
 function SkillShot.SkillShotXYZ(source,t,speed,castpoint)
-	local sourcepos = source.position
 	if not t:CanMove() then
 		return t.position
 	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed then
 		local delay1 = castpoint + (GetDistance2D(source,t)*1000/speed)
 		local stage1 = SkillShot.PredictedXYZ(t,delay1)
 		if stage1 then
+			local sourcepos = source.position
 			local distance = stage1:GetDistance2D(sourcepos)
 			local delay2 = castpoint + (distance*1000/speed)
 			local stage2 = SkillShot.PredictedXYZ(t,delay2)
