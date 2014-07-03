@@ -40,7 +40,7 @@ require("libs.ScriptConfig")
 ]]
 
 
-config = ScriptConfig.new()
+local config = ScriptConfig.new()
 config:SetParameter("Hotkey", "L", config.TYPE_HOTKEY)
 config:SetParameter("MinimumHP", 200)
 config:Load()
