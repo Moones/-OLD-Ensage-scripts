@@ -31,7 +31,7 @@ function ArrowKey(msg,code)
 			shoot = nil
 			return true
 		end
-	elseif code == key and not active then
+	elseif code == key then
 		if not active then
 			active = true
 			statusText.text = "Shoot Arrow hit Arrow!"
