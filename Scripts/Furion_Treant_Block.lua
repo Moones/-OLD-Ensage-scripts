@@ -48,15 +48,11 @@ function Key(msg,code)
 	-- get and check the needed abilities
 	local sprout = me:GetAbility(1)
 	local call = me:GetAbility(3)
-	if not sprout or not call or 
-			sprout.level == 0 or call.level == 0 
-			or call.state ~= LuaEntityAbility.STATE_READY -- must be ready
-			or sprout.state ~= LuaEntityAbility.STATE_COOLDOWN -- must be on cooldown
-			then
+	if not sprout or not call or sprout.level == 0 or call.level == 0 or call.state ~= LuaEntityAbility.STATE_READY or sprout.state ~= LuaEntityAbility.STATE_COOLDOWN then
 		return
 	end
 	-- get a valid target
-	target = targetFind:GetClosestToMouse(500,true)
+	target = targetFind:GetClosestToMouse(500)
 	if not target then
 		return
 	end
