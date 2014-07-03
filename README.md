@@ -18,6 +18,8 @@ ShadowFiend_Raze_Range.lua
 
 Shoot_Arrow_hit_Arrow.lua
 
+Tiny_Auto_Combo.lua
+
 Libraries:
 ==============
 SkillShot.lua
