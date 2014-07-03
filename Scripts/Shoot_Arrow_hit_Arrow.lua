@@ -18,7 +18,6 @@ local myFont = drawMgr:CreateFont("Mirana","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Shoot Arrow hit Arrow!",myFont);
 local active = true
 local shoot = nil
-RangeA = 3000
 
 function ArrowKey(msg,code)	
 	if msg ~= KEY_UP or client.chat then return end
