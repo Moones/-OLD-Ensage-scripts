@@ -46,55 +46,38 @@ function Tick(tick)
 	local grow = me:GetAbility(4)
 	local Blink = me:FindItem("item_blink")
 	
-	if aval.level > 0 and tos.level > 0 then
-		if active and me.alive then
-			avalanche.textureId = drawMgr:GetTextureId("NyanUI/Spellicons/tiny_avalanche")
-			avalanche.visible = active
-			toss.textureId = drawMgr:GetTextureId("NyanUI/Spellicons/tiny_toss")
-			toss.visible = active
-			if Blink then
-				blink.textureId = drawMgr:GetTextureId("NyanUI/items/blink")
-				blink.visible = active
-			else
-				blink.visible = false
-			end
-			local Dmg = avdamage[aval.level]+(todamage[tos.level]*1.2)
-			if grow.level > 0 then
-				Dmg = avdamage[aval.level]+(todamage[tos.level]*ultibonus[grow.level])
-			end
-			if me:AghanimState() then		
-				Dmg = avdamage[aval.level]+(todamage[tos.level]*agabonus[grow.level])
-				aga.textureId = drawMgr:GetTextureId("NyanUI/items/ultimate_scepter")
-				aga.visible = active
-			end
-			local Type = DAMAGE_MAGC
-			local Range = 275
-			local RangeB = 1200
-			local CastPoint = aval:GetCastPoint(aval.level)+tos:GetCastPoint(tos.level)+client.latency/1000
-			if not me:IsChanneling() then
-				if combo then
-					victim = targetFind:GetLowestEHP(1200, magic)
-					if victim and victim.visible and victim.health > 0 then
-						if GetDistance2D(me,victim) < RangeB and GetDistance2D(me,victim) > Range and (Blink and Blink.state == -1) and aval.state == LuaEntityAbility.STATE_READY and tos.state == LuaEntityAbility.STATE_READY then
-							if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) then
-								me:SafeCastItem(Blink.name,victim.position)						
-							end
-						elseif GetDistance2D(me,victim) < Range then
-							if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) then
-								me:SafeCastAbility(aval,victim.position)
-								me:SafeCastAbility(tos,victim,true)
-								combo = false
-								Sleep(200)
-							end
-						end
+	if aval.level > 0 and tos.level > 0 then	
+		avalanche.textureId = drawMgr:GetTextureId("NyanUI/Spellicons/tiny_avalanche")
+		avalanche.visible = active
+		toss.textureId = drawMgr:GetTextureId("NyanUI/Spellicons/tiny_toss")
+		toss.visible = active
+		if Blink then
+			blink.textureId = drawMgr:GetTextureId("NyanUI/items/blink")
+			blink.visible = active
+		else
+			blink.visible = false
+		end
+		local Dmg = avdamage[aval.level]+(todamage[tos.level]*1.2)
+		if grow.level > 0 then
+			Dmg = avdamage[aval.level]+(todamage[tos.level]*ultibonus[grow.level])
+		end
+		if me:AghanimState() then		
+			Dmg = avdamage[aval.level]+(todamage[tos.level]*agabonus[grow.level])
+			aga.textureId = drawMgr:GetTextureId("NyanUI/items/ultimate_scepter")
+			aga.visible = active
+		end
+		local Type = DAMAGE_MAGC
+		local Range = 276.5625
+		local RangeB = 1325
+		local CastPoint = aval:GetCastPoint(aval.level)+tos:GetCastPoint(tos.level)+client.latency/1000
+		if not me:IsChanneling() then
+			local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team = me:GetEnemyTeam(),illusion=false})
+			for i,v in ipairs(enemies) do
+				if v.healthbarOffset ~= -1 then
+					if not hero[v.handle] then
+						hero[v.handle] = drawMgr:CreateText(-45,-55, 0xFFFFFF99, "",F14) hero[v.handle].visible = false hero[v.handle].entity = v hero[v.handle].entityPosition = Vector(0,0,v.healthbarOffset)
 					end
-				end
-				local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team = me:GetEnemyTeam(),illusion=false})
-				for i,v in ipairs(enemies) do
-					if v.healthbarOffset ~= -1 then
-						if not hero[v.handle] then
-							hero[v.handle] = drawMgr:CreateText(-45,-55, 0xFFFFFF99, "",F14) hero[v.handle].visible = false hero[v.handle].entity = v hero[v.handle].entityPosition = Vector(0,0,v.healthbarOffset)
-						end
+					if me.alive and active then
 						if v.visible and v.alive and v.health > 0 then
 							hero[v.handle].visible = active
 							local combodamage = math.floor(v:DamageTaken(Dmg,Type,me))
@@ -102,7 +85,12 @@ function Tick(tick)
 							hero[v.handle].text = "Health to kill: "..healthtokill
 							if healthtokill < 0 and GetDistance2D(me,v) < RangeB and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) and aval.state == LuaEntityAbility.STATE_READY and tos.state == LuaEntityAbility.STATE_READY then
 								if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,combodamage)) then
-									me:SafeCastItem(Blink.name,v.position)						
+									if GetDistance2D(me,v) >= 1200 then
+										local diff = GetDistance2D(me,v) - 1100
+										me:SafeCastItem(Blink.name,Vector(v.position.x - diff,v.position.y - diff,v.position.z - diff))
+									else
+										me:SafeCastItem(Blink.name,v.position)	
+									end
 								end
 							elseif healthtokill < 0 and GetDistance2D(me,v) < Range then
 								if me:IsMagicDmgImmune() or ((NetherWard(aval,v,me) and NetherWard(tos,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,combodamage)) then
@@ -113,24 +101,56 @@ function Tick(tick)
 						else
 							hero[v.handle].visible = false
 						end
+					else
+						avalanche.visible = false
+						toss.visible = false
+						blink.visible = false
+						aga.visible = false
 					end
 				end
 			end
-		else
-			avalanche.visible = false
-			toss.visible = false
-			blink.visible = false
-			aga.visible = false
 		end
 	end
 end
 
 function Key(msg,code)
-	if client.chat then return end
-	if IsKeyDown(toggleKey) then
+	if client.chat or msg ~= KEY_UP then return end
+	if code == toggleKey then
 		active = not active
-	elseif IsKeyDown(combokey) then
-		combo = true
+	elseif code == combokey then
+		if not SleepCheck() then return end
+		local me = entityList:GetMyHero()	
+		if not me then return end
+		local ID = me.classId
+		if ID ~= myhero then GameClose() end
+		local victim = targetFind:GetLowestEHP(1200, magic)
+		local aval = me:GetAbility(1)
+		local tos = me:GetAbility(2)
+		local grow = me:GetAbility(4)
+		local Blink = me:FindItem("item_blink")
+		local Range = 276.5625
+		local RangeB = 1325
+		if victim and victim.visible and victim.health > 0 then
+			if aval.state == LuaEntityAbility.STATE_READY and tos.state == LuaEntityAbility.STATE_READY then
+				if me:IsMagicDmgImmune() or ((NetherWard(aval,victim,me) and NetherWard(tos,victim,me)) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) then
+					if GetDistance2D(me,victim) <= RangeB and GetDistance2D(me,victim) > Range and (Blink and Blink.state == -1) then
+						if GetDistance2D(me,victim) > 1200 then
+							local diff = GetDistance2D(me,victim) - 1100
+							me:SafeCastItem(Blink.name,Vector(victim.position.x - diff,victim.position.y - diff,victim.position.z - diff))
+						else
+							me:SafeCastItem(Blink.name,victim.position)	
+						end
+						me:SafeCastAbility(aval,victim.position)
+						me:SafeCastAbility(tos,victim,true)
+						Sleep(200)
+					elseif GetDistance2D(me,victim) <= Range then
+						me:SafeCastAbility(aval,victim.position)
+						me:SafeCastAbility(tos,victim,true)
+						Sleep(200)			
+					end
+				end
+			end
+		end
 	end
 end
 
