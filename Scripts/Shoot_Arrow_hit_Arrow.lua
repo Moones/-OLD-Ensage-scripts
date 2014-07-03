@@ -4,7 +4,7 @@ require("libs.TargetFind")
 require("libs.SkillShot")
 require("libs.VectorOp")
 
-local config = ScriptConfig.new()
+config = ScriptConfig.new()
 config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:SetParameter("Arrowkey", "D", config.TYPE_HOTKEY)
 config:Load()
@@ -71,14 +71,18 @@ function Main(tick)
 
 		if victim and GetDistance2D(victim,me) < 3057.5 then
 			statusText.text = "Shoot: " .. client:Localize(victim.name)
-			if shoot and arrow.level > 0 and me.alive then shoot = nil 	Sleep(250)             
+			if shoot and arrow.level > 0 and me.alive then shoot = nil            
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 857 
 					local distance = GetDistance2D(victim, me)
-					local castPoint = arrow:GetCastPoint(arrow.level)
+					local castPoint = (arrow:GetCastPoint(arrow.level)*1000)+client.latency
 					local xyz = SkillShot.SkillShotXYZ(me,victim,speed,castPoint)
-					if xyz and distance < 3000 + 57.5 then  
-					me:SafeCastAbility(arrow, xyz)
+					if xyz and distance <= 3057.5 then  
+						if xyz:GetDistance2D(me) > 3057.5 then
+							xyz = (xyz - me.position) * 2900 / xyz:GetDistance2D(me) + me.position
+						end
+						me:SafeCastAbility(arrow, xyz)
+						Sleep(250)  
 					end
 				end
 			end 
