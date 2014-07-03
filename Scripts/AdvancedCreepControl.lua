@@ -4,7 +4,7 @@ require("libs.SideMessage")
 require("libs.HeroInfo")
 require("libs.EasyHUD")
 
-config = ScriptConfig.new()
+local config = ScriptConfig.new()
 config:SetParameter("CustomMove", "G", config.TYPE_HOTKEY)
 config:SetParameter("Menu", "H", config.TYPE_HOTKEY)
 config:SetParameter("Spaceformove", true)
