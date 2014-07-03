@@ -61,13 +61,14 @@ function Tick(tick)
 			local Dmg = avdamage[aval.level]+(todamage[tos.level]*1.2)
 			if grow.level > 0 then
 				Dmg = avdamage[aval.level]+(todamage[tos.level]*ultibonus[grow.level])
-			elseif me:AghanimState() then		
+			end
+			if me:AghanimState() then		
 				Dmg = avdamage[aval.level]+(todamage[tos.level]*agabonus[grow.level])
 				aga.textureId = drawMgr:GetTextureId("NyanUI/items/ultimate_scepter")
 				aga.visible = active
 			end
 			local Type = DAMAGE_MAGC
-			local Range = 300
+			local Range = 275
 			local RangeB = 1200
 			local CastPoint = aval:GetCastPoint(aval.level)+tos:GetCastPoint(tos.level)+client.latency/1000
 			if not me:IsChanneling() then
