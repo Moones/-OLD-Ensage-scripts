@@ -4,7 +4,7 @@ require("libs.TargetFind")
 require("libs.SkillShot")
 require("libs.VectorOp")
 
-config = ScriptConfig.new()
+local config = ScriptConfig.new()
 config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:SetParameter("Arrowkey", "D", config.TYPE_HOTKEY)
 config:Load()
