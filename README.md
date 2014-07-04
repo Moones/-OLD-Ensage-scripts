@@ -12,7 +12,7 @@ Furion_Treant_Block.lua
 
 Lasthits_Denies.lua
 
-Nyx_Impale.lua
+Nyx_Combo.lua
 
 Pudges_Butchery.lua
 
