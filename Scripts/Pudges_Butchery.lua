@@ -24,8 +24,8 @@ DmgD = {225,375,525} DmgR = {35,60,85,110} DmgR2 = {7,12,17,22} RangeH = {700,90
 targetText.visible = false victimText.visible = false
 
 function Key(msg,code)	
-    if client.chat then	return end
-	if IsKeyDown(togglekey) then
+    if msg ~= KEY_UP or client.chat then return end
+	if code == togglekey then
 		if not active then
 			active = true
 			statusText.text = "  Hook'em!"
@@ -34,13 +34,11 @@ function Key(msg,code)
 			statusText.text = "   OFF!"
 			victimText.visible = false
 		end
-	end
-	if IsKeyDown(hookkey) then
+	elseif code == hookkey then
 		if active then
 			hookem = not hookem
 		end
-	end
-	if IsKeyDown(manualtogglekey) then
+	elseif code == manualtogglekey then
 		if active then
 			if not manualselection then
 				manualselection = true
