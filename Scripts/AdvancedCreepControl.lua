@@ -13,6 +13,7 @@ config:SetParameter("enableDenies", true)
 config:SetParameter("AutoUnAggro", true)
 config:SetParameter("ActiveFromStart", true)
 config:SetParameter("UseAttackModifiers", true)
+config:SetParameter("ShowMenuAtStart", true)
 config:Load()
 	
 custommove = config.CustomMove
@@ -23,6 +24,7 @@ enabledenies = config.enableDenies
 autounaggro = config.AutoUnAggro
 active = config.ActiveFromStart
 attackmodifiers = config.UseAttackModifiers
+showmenu = config.ShowMenuAtStart
 
 creepTable = {} myAttackTickTable = {}
 
@@ -98,6 +100,18 @@ function mCheck()
 	end
 end
 
+function smCheck()
+	if PlayingGame() then
+		if not showmenu then
+			showmenu = true
+			GenerateSideMessage(entityList:GetMyHero().name,"      Show Menu on Start is ON!")
+		else
+			showmenu = nil
+			GenerateSideMessage(entityList:GetMyHero().name,"     Show Menu on Start is OFF!")
+		end
+	end
+end
+
 function Key(msg, code)
 	if msg ~= KEY_UP or client.chat then return end
 	if code == menu and HUD then 
@@ -127,6 +141,9 @@ function Main(tick)
 	
 	if not HUD then 
 		CreateHUD()
+		if not showmenu then
+			HUD:Close()
+		end
 	end
 
 	if HUD and HUD:IsClosed() then
@@ -670,6 +687,11 @@ function CreateHUD()
 		else
 			HUD:AddCheckbox(5*monitor,155*monitor,35*monitor,20*monitor,"ENABLE ATTACK MODIFIERS",mCheck,true)
 		end
+		if not showmenu then
+			HUD:AddCheckbox(185*monitor,95*monitor,35*monitor,20*monitor,"SHOW MENU ON START",smCheck,false)
+		else
+			HUD:AddCheckbox(185*monitor,95*monitor,35*monitor,20*monitor,"SHOW MENU ON START",smCheck,true)
+		end
 		HUD:AddButton(5*monitor,250*monitor,110*monitor,40*monitor, 0x60615FFF,"Save Settings",SaveSettings)
 	end
 end
@@ -703,10 +725,15 @@ function SaveSettings()
 		else
 			file:write("UseAttackModifiers = false \n")
 		end
-		if active then
-			file:write("Active = true \n")
+		if showmenu then
+			file:write("ShowMenuAtStart = true \n")
 		else
-			file:write("Active = false \n")
+			file:write("ShowMenuAtStart = false \n")
+		end
+		if active then
+			file:write("ActiveFromStart = true \n")
+		else
+			file:write("ActiveFromStart = false \n")
 		end
 		file:write("Menu = "..string.char(menu))
         file:close()
