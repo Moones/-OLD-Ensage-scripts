@@ -12,6 +12,7 @@ config:SetParameter("enableLasthits", true)
 config:SetParameter("enableDenies", true)
 config:SetParameter("AutoUnAggro", true)
 config:SetParameter("ActiveFromStart", true)
+config:SetParameter("UseAttackModifiers", true)
 config:Load()
 	
 custommove = config.CustomMove
@@ -21,6 +22,7 @@ enablelasthits = config.enableLasthits
 enabledenies = config.enableDenies
 autounaggro = config.AutoUnAggro
 active = config.ActiveFromStart
+attackmodifiers = config.UseAttackModifiers
 
 creepTable = {} myAttackTickTable = {}
 
@@ -156,7 +158,7 @@ function Main(tick)
 							if z.source.type ~= LuaEntity.TYPE_HERO then
 								if me.activity ~= LuaEntityNPC.ACTIVITY_ATTACK and v.team == me.team and v.visible and v.alive and tick > sleep then
 								
-									if (myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange - 50) or (not myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange + 100) then
+									if (myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange - 50) or (not myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange + 200) then
 								
 										entityList:GetMyPlayer():Attack(v)
 										me:Move(client.mousePosition)		
@@ -177,17 +179,17 @@ function GetLasthit(me)
 	for creepHandle, creepClass in pairs(creepTable) do
 
 		if (GetTick() >= myAttackTickTable.attackRateTick) and ((enablelasthits and me.team ~= creepClass.creepEntity.team) or (enabledenies and me.team == creepClass.creepEntity.team and creepClass.creepEntity.health < creepClass.creepEntity.maxHealth*0.50)) then
-			local Dmg = (math.floor(myhero.damage * armorTypeModifiers["Hero"][creepClass.armorType] * (1 - creepClass.creepEntity.dmgResist)))
+			local Dmg = myhero:GetDamage(creepClass)
 			local timeToHealth = creepClass:GetTimeToHealth(Dmg)
 
 			if myhero.isRanged then
 			
 				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + myhero.attackPoint*1000 + client.latency + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
-					entityList:GetMyPlayer():Attack(creepClass.creepEntity)
+					myhero:Hit(creepClass.creepEntity)
 					
-					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + client.latency
-
-					myAttackTickTable.attackPointTick = (GetTick() + myhero.attackPoint*1000 + client.latency + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)
+					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
+					
+					myAttackTickTable.attackPointTick = (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)
 					
 					lasthit = true
 
@@ -196,12 +198,11 @@ function GetLasthit(me)
 			else
 
 				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
-					entityList:GetMyPlayer():Attack(creepClass.creepEntity)
+					myhero:Hit(creepClass.creepEntity)
 					
-					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + client.latency
+					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 
 					myAttackTickTable.attackPointTick = (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)
-					
 
 					lasthit = true
 
@@ -246,7 +247,7 @@ function Hero:Update()
 	self.attackPoint = self:GetAttackPoint()
 	self.attackRange = self:GetAttackRange()
 	self.turnRate = self:GetTurnRate()
-	self.damage = self:GetDamage()
+
 
 end
 
@@ -302,13 +303,13 @@ end
 
 function Hero:GetAttackPoint()
 
-	return self.baseAttackPoint / (1 + ((self.heroEntity.attackSpeed - 100) / 100))
+	return self.baseAttackPoint / (1 + (self.heroEntity.attackSpeed / 100))
 
 end
 
 function Hero:GetAttackRate()
 
-	return self.heroEntity.attackBaseTime / (1 + ((self.heroEntity.attackSpeed - 100) / 100))
+	return self.heroEntity.attackBaseTime / (1 + (self.heroEntity.attackSpeed / 100))
 end
 
 function Hero:GetModifiers()
@@ -330,14 +331,93 @@ function Hero:GetModifiers()
 		end
 end
 
-function Hero:GetDamage()
-	local dmg =  self.heroEntity.dmgMin + self.heroEntity.dmgBonus
+function Hero:GetDamage(target)
+	local dmg = self.heroEntity.dmgMin + self.heroEntity.dmgBonus
 	local qblade = self.heroEntity:FindItem("item_quelling_blade")
-	if qblade then
-		return dmg*1.32
+	local magical = nil
+	if attackmodifiers and target.creepEntity.team ~= self.heroEntity.team then
+		if self.heroEntity.classId == CDOTA_Unit_Hero_Clinkz then
+		
+			local searinga = self.heroEntity:GetAbility(2)
+			searingDmg = {30,40,50,60}
+			
+			if searinga.level > 0 then
+				dmg = dmg + searingDmg[searinga.level]
+			end
+		elseif self.heroEntity.classId == CDOTA_Unit_Hero_Anti_Mage then
+		
+			local manabreak = self.heroEntity:GetAbility(1)
+			manaburned = {28,40,52,64}
+			
+			if manabreak.level > 0 and target.creepEntity.maxMana > 0 and target.creepEntity.mana > 0 then
+				dmg = dmg + manaburned[manabreak.level]*0.6
+			end
+		elseif self.heroEntity.classId == CDOTA_Unit_Hero_Viper then
+			local nethertoxin = self.heroEntity:GetAbility(2)
+			nethertoxindmg = {2.5,5,7.5,10}
+			if nethertoxin.level > 0 then
+				
+				local hplosspercent = target.creepEntity.health/(target.creepEntity.maxHealth / 100)
+				local netherdmg = nil
+				
+				if hplosspercent > 80 and hplosspercent <= 100 then
+					netherdmg = nethertoxindmg[nethertoxin.level]*0.5
+				elseif hplosspercent > 60 and hplosspercent <= 80 then
+					netherdmg = nethertoxindmg[nethertoxin.level]*1
+				elseif hplosspercent > 40 and hplosspercent <= 60 then
+					netherdmg = nethertoxindmg[nethertoxin.level]*2
+				elseif hplosspercent > 20 and hplosspercent <= 40 then
+					netherdmg = nethertoxindmg[nethertoxin.level]*4
+				elseif hplosspercent > 0 and hplosspercent <= 20 then
+					netherdmg = nethertoxindmg[nethertoxin.level]*8
+				end
+				
+				if netherdmg then
+					dmg = dmg + netherdmg
+				end
+				
+			end
+		elseif self.heroEntity.classId == CDOTA_Unit_Hero_Ursa then
+			local furyswipes = self.heroEntity:GetAbility(3)
+			local furymodif = target.creepEntity:FindModifier("modifier_ursa_fury_swipes_damage_increase")
+			furydmg = {15,20,25,30}
+			if furyswipes.level > 0 then
+				if furymodif then
+					dmg = dmg + furydmg[furyswipes.level]*furymodif.stacks
+				else
+					dmg = dmg + furydmg[furyswipes.level]
+				end
+			end
+		end
 	end
+	
+	if qblade then
+		if not self.isRanged then
+			dmg = dmg*1.32
+		else
+			dmg = dmg*1.12
+		end
+	end
+
+	dmg = (math.floor(dmg * armorTypeModifiers["Hero"][target.armorType] * (1 - target.creepEntity.dmgResist)))
+	
 	return dmg
 end 
+
+function Hero:Hit(target)
+	if attackmodifiers and target.team ~= self.heroEntity.team then
+		if self.heroEntity.classId == CDOTA_Unit_Hero_Clinkz then
+			local searinga = self.heroEntity:GetAbility(2)
+			if searinga.level > 0 then
+				self.heroEntity:SafeCastAbility(searinga, target)
+			end
+		else
+			entityList:GetMyPlayer():Attack(target)
+		end
+	else
+		entityList:GetMyPlayer():Attack(target)
+	end
+end
 
 class 'Creep'
 
@@ -401,10 +481,10 @@ function Creep:GetTimeToHealth(health)
 
 				if nextAttackTickTable[2] > GetTick() then
 
-					if (hploss/nextAttackTickTable[1].baseAttackPoint) > 0 and (((hploss/nextAttackTickTable[1].baseAttackPoint) < nextAttackTickTable[1].creepEntity.dmgMin) or ((hploss/nextAttackTickTable[1].baseAttackPoint) > nextAttackTickTable[1].creepEntity.dmgMin and (hploss/nextAttackTickTable[1].baseAttackPoint) < nextAttackTickTable[1].creepEntity.dmgMax)) then
-						totalDamage = totalDamage + (math.floor((((hploss/nextAttackTickTable[1].baseAttackPoint) + nextAttackTickTable[1].creepEntity.dmgMin)/2) * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
+					if (hploss*nextAttackTickTable[1].baseAttackPoint) > 0 and (hploss*nextAttackTickTable[1].baseAttackPoint) > nextAttackTickTable[1].creepEntity.dmgMin and (hploss*nextAttackTickTable[1].baseAttackPoint) < nextAttackTickTable[1].creepEntity.dmgMax then
+						totalDamage = totalDamage + (math.floor((((hploss*nextAttackTickTable[1].baseAttackPoint) + nextAttackTickTable[1].creepEntity.dmgMin)/2) * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
 					end
-					if (hploss/nextAttackTickTable[1].baseAttackPoint) == 0 or (hploss/nextAttackTickTable[1].baseAttackPoint) > nextAttackTickTable[1].creepEntity.dmgMax then
+					if (hploss*nextAttackTickTable[1].baseAttackPoint) == 0 or (hploss*nextAttackTickTable[1].baseAttackPoint) < nextAttackTickTable[1].creepEntity.dmgMin or (hploss*nextAttackTickTable[1].baseAttackPoint) > nextAttackTickTable[1].creepEntity.dmgMax then
 						totalDamage = totalDamage + (math.floor(nextAttackTickTable[1].creepEntity.dmgMin * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
 					end
 
