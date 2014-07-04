@@ -95,6 +95,7 @@ function Main(tick)
 			if IsKeyDown(combokey) and not client.chat and not me:DoesHaveModifier("modifier_nyx_assassin_vendetta") then
 				
 				local manaburn = me:GetAbility(2)
+				local manadmg = {3.5,4,4.5,5}
 				local dagon = me:FindDagon()
 				local ethereal = me:FindItem("item_ethereal_blade")
 				local manaboots = me:FindItem("item_arcane_boots")
@@ -104,7 +105,7 @@ function Main(tick)
 					sleeptick = tick + 400
 				end
 				
-				if me.mana < me.maxMana*0.5 then
+				if me.mana < me.maxMana*0.5 and manaboots and manaboots.cd == 0 then
 					me:SafeCastItem(manaboots.name)
 				end
 				
@@ -112,7 +113,7 @@ function Main(tick)
 					table.insert(castQueue,{100,ethereal,victim})
 				end
 				
-				if manaburn and manaburn.state == LuaEntityAbility.STATE_READY then
+				if manaburn and manaburn.state == LuaEntityAbility.STATE_READY and (victim.intellectTotal*manadmg[manaburn.level])/4 < victim.mana then
 					table.insert(castQueue,{manaburn:GetCastPoint(manaburn.level)*1000,manaburn,victim})
 				end
 				
