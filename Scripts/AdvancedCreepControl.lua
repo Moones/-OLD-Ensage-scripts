@@ -86,6 +86,18 @@ function aCheck()
 	end
 end
 
+function mCheck()
+	if PlayingGame() then
+		if not attackmodifiers then
+			attackmodifiers = true
+			GenerateSideMessage(entityList:GetMyHero().name,"    Using AttackModifiers is ON!")
+		else
+			attackmodifiers = nil
+			GenerateSideMessage(entityList:GetMyHero().name,"   Using AttackModifiers is OFF!")
+		end
+	end
+end
+
 function Key(msg, code)
 	if msg ~= KEY_UP or client.chat then return end
 	if code == menu and HUD then 
@@ -653,6 +665,11 @@ function CreateHUD()
 		else
 			HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ENABLE AUTO UNAGGRO",aCheck,true)
 		end
+		if not attackmodifiers then
+			HUD:AddCheckbox(5*monitor,155*monitor,35*monitor,20*monitor,"ENABLE ATTACK MODIFIERS",mCheck,false)
+		else
+			HUD:AddCheckbox(5*monitor,155*monitor,35*monitor,20*monitor,"ENABLE ATTACK MODIFIERS",mCheck,true)
+		end
 		HUD:AddButton(5*monitor,250*monitor,110*monitor,40*monitor, 0x60615FFF,"Save Settings",SaveSettings)
 	end
 end
@@ -681,6 +698,11 @@ function SaveSettings()
 		else
 			file:write("AutoUnAggro = false \n")
 		end
+		if attackmodifiers then
+			file:write("UseAttackModifiers = true \n")
+		else
+			file:write("UseAttackModifiers = false \n")
+		end
 		if active then
 			file:write("Active = true \n")
 		else
@@ -689,7 +711,7 @@ function SaveSettings()
 		file:write("Menu = "..string.char(menu))
         file:close()
 		if PlayingGame() then
-			GenerateSideMessage(entityList:GetMyHero().name,"          Settings succesfully saved!")
+			GenerateSideMessage(entityList:GetMyHero().name,"        Settings succesfully saved!")
 		end
     end
 end
