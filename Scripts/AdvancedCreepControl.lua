@@ -215,10 +215,9 @@ function GetLasthit(me)
 			
 				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + myhero.attackPoint*1000 + client.latency + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
 					myhero:Hit(creepClass.creepEntity)
-					
 					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 					
-					myAttackTickTable.attackPointTick = (GetTick() + myhero.baseAttackPoint / (1 + (myhero.heroEntity.attackSpeed - 50) / 100)*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)
+					myAttackTickTable.attackPointTick = (GetTick() + (myhero.attackRate - (myhero.baseAttackPoint / (1 + (myhero.heroEntity.attackSpeed - 50) / 100)))*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)
 					
 					lasthit = true
 
@@ -231,7 +230,7 @@ function GetLasthit(me)
 					
 					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 
-					myAttackTickTable.attackPointTick = (GetTick() + myhero.baseAttackPoint / (1 + (myhero.heroEntity.attackSpeed - 50) / 100)*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)
+					myAttackTickTable.attackPointTick = (GetTick() + (myhero.attackRate - (myhero.baseAttackPoint / (1 + (myhero.heroEntity.attackSpeed - 50) / 100)))*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)
 
 					lasthit = true
 
@@ -373,13 +372,14 @@ function Hero:GetDamage(target)
 			if searinga.level > 0 then
 				dmg = dmg + searingDmg[searinga.level]
 			end
-		elseif self.heroEntity.classId == CDOTA_Unit_Hero_Anti_Mage then
+		elseif self.heroEntity.classId == CDOTA_Unit_Hero_AntiMage then
 		
 			local manabreak = self.heroEntity:GetAbility(1)
 			manaburned = {28,40,52,64}
 			
 			if manabreak.level > 0 and target.creepEntity.maxMana > 0 and target.creepEntity.mana > 0 then
 				dmg = dmg + manaburned[manabreak.level]*0.6
+				print("1")
 			end
 		elseif self.heroEntity.classId == CDOTA_Unit_Hero_Viper then
 			local nethertoxin = self.heroEntity:GetAbility(2)
@@ -417,6 +417,12 @@ function Hero:GetDamage(target)
 					dmg = dmg + furydmg[furyswipes.level]
 				end
 			end
+		elseif self.heroEntity.classId == CDOTA_Unit_Hero_BountyHunter then
+			local jinada = self.heroEntity:GetAbility(2)
+			jinadadmg = {1.5,1.75,2,2.25}
+			if jinada.level > 0 and jinada.cd == 0 then
+				dmg = dmg*jinadadmg[jinada.level]
+			end
 		end
 	end
 	
@@ -446,6 +452,13 @@ function Hero:Hit(target)
 	else
 		entityList:GetMyPlayer():Attack(target)
 	end
+end
+
+function Hero:isAttacking()
+	if self.heroEntity.activity == LuaEntityNPC.ACTIVITY_ATTACK or self.heroEntity.activity == LuaEntityNPC.ACTIVITY_ATTACK1 or self.heroEntity.activity == LuaEntityNPC.ACTIVITY_ATTACK2 then
+		return true
+	end
+	return false
 end
 
 class 'Creep'
@@ -623,7 +636,7 @@ function GetHeroes(me)
 
 	myhero:Update()
 	
-	if myAttackTickTable.attackPointTick and GetTick() >= myAttackTickTable.attackPointTick then
+	if myAttackTickTable.attackPointTick and GetTick() >= myAttackTickTable.attackPointTick and not myhero:isAttacking() then
 
 		myAttackTickTable.attackPointTick = nil
 		lasthit = false
