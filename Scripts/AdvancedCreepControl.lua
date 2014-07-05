@@ -379,7 +379,6 @@ function Hero:GetDamage(target)
 			
 			if manabreak.level > 0 and target.creepEntity.maxMana > 0 and target.creepEntity.mana > 0 then
 				dmg = dmg + manaburned[manabreak.level]*0.6
-				print("1")
 			end
 		elseif self.heroEntity.classId == CDOTA_Unit_Hero_Viper then
 			local nethertoxin = self.heroEntity:GetAbility(2)
