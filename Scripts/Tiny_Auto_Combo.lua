@@ -110,7 +110,7 @@ function Tick(tick)
 								end
 								if me:IsMagicDmgImmune() or ((NetherWard(aval,victim,me) and NetherWard(tos,victim,me)) and not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(victim,me,combodamage)) and aval.state == LuaEntityAbility.STATE_READY and tos.state == LuaEntityAbility.STATE_READY then
 									
-									local turn = (math.rad(FindAngleBetween(me, victim) - 0.69, 0)/(0.5*(1/0.03)))*1000
+									local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0)/(0.5*(1/0.03)))*1000 
 									
 									if GetDistance2D(me,victim) <= RangeB and GetDistance2D(me,victim) > Range and (Blink and Blink.state == -1) then
 										
@@ -232,6 +232,14 @@ function FindAngleBetween(first, second)
 
 	return nil
 
+end
+
+function FindAngleR(entity)
+	if entity.rotR < 0 then
+		return math.abs(entity.rotR)
+	else
+		return 2 * math.pi - entity.rotR
+	end
 end
 
 function Load()
