@@ -129,7 +129,7 @@ end
 function ImpaleSkillShot(victim,me,impale)
 	local speed = 1600  
 	local distance = GetDistance2D(victim, me)
-	local turn = (math.rad(FindAngleBetween(me, victim) - 0.69, 0)/(0.5*(1/0.03)))*1000
+	local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0)/(0.5*(1/0.03)))*1000 
 	local castPoint = 400+client.latency+turn
 	local xyz = SkillShot.SkillShotXYZ(me,victim,speed,castPoint)
 	if xyz and distance <= 762.5 then  
@@ -152,6 +152,14 @@ function FindAngleBetween(first, second)
 		return xAngle + 90 + 180
 	end
 	return nil
+end
+
+function FindAngleR(entity)
+	if entity.rotR < 0 then
+		return math.abs(entity.rotR)
+	else
+		return 2 * math.pi - entity.rotR
+	end
 end
 
 function Load()
