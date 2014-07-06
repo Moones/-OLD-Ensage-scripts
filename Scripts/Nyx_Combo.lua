@@ -63,7 +63,7 @@ function Main(tick)
 	if active then  
 
 		victim = targetFind:GetLowestEHP(762.5, magic)
-		if IsKeyDown(combokey) then
+		if IsKeyDown(combokey) or me:DoesHaveModifier("modifier_nyx_assassin_vendetta") then
 			victim = targetFind:GetClosestToMouse(100)
 		end
 		if victim and GetDistance2D(victim,me) < 762.5 then
