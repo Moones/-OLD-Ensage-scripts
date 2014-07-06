@@ -52,13 +52,11 @@ function Main(tick)
 	if tick < sleeptick or client.paused or not IsIngame() or client.console then return end 
 	local me = entityList:GetMyHero() if not me then return end
 	local ID = me.classId if ID ~= myhero then GameClose() end
-
+	
+	statusText.visible = true
 	local offset = me.healthbarOffset
-
-	if not statusText.entity then
-		statusText.entity = me
-		statusText.entityPosition = Vector(0,0,offset)
-	end
+	statusText.entity = me
+	statusText.entityPosition = Vector(0,0,offset)
 
 	local impale = me:GetAbility(1)
 
@@ -131,7 +129,8 @@ end
 function ImpaleSkillShot(victim,me,impale)
 	local speed = 1600  
 	local distance = GetDistance2D(victim, me)
-	local castPoint = 400+client.latency
+	local turn = (math.rad(FindAngleBetween(me, victim) - 0.69, 0)/(0.5*(1/0.03)))*1000
+	local castPoint = 400+client.latency+turn
 	local xyz = SkillShot.SkillShotXYZ(me,victim,speed,castPoint)
 	if xyz and distance <= 762.5 then  
 		if xyz:GetDistance2D(me) > 762.5 then
@@ -141,7 +140,19 @@ function ImpaleSkillShot(victim,me,impale)
 	end
 end 
 
-
+function FindAngleBetween(first, second)
+	xAngle = math.deg(math.atan(math.abs(second.position.x - first.position.x)/math.abs(second.position.y - first.position.y)))
+	if first.position.x <= second.position.x and first.position.y >= second.position.y then
+		return 90 - xAngle
+	elseif first.position.x >= second.position.x and first.position.y >= second.position.y then
+		return xAngle + 90
+	elseif first.position.x >= second.position.x and first.position.y <= second.position.y then
+		return 90 - xAngle + 180
+	elseif first.position.x <= second.position.x and first.position.y <= second.position.y then
+		return xAngle + 90 + 180
+	end
+	return nil
+end
 
 function Load()
 	if PlayingGame() then
