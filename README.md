@@ -8,11 +8,15 @@ Auto_Armlet_Toggle.lua
 
 Axe_Blink_Ulti.lua
 
+Blind_Prediction.lua
+
 Furion_Treant_Block.lua
 
 Lasthits_Denies.lua
 
 Nyx_Combo.lua
+
+Orb_Walker.lua
 
 Pudges_Butchery.lua
 
