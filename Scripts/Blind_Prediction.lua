@@ -6,7 +6,6 @@ config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:Load()
 
 local togglekey = config.Hotkey
-
 local active = true 
 
 Prediction = {}
@@ -86,14 +85,13 @@ function Main(tick)
 	local me = entityList:GetMyHero()	
 	if not me then return end	
 	if active then	
-		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do	
-			if v.team ~= me.team then
+		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do	
+			if v.team ~= me.team and not v:IsIllusion() then
 				Prediction.BlindPrediction(v)
 			end
 		end
 	end
 end
-
 
 script:RegisterEvent(EVENT_TICK,Prediction.__TrackTick)
 script:RegisterEvent(EVENT_TICK,Main)
