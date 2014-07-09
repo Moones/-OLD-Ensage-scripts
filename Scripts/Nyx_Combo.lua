@@ -129,38 +129,12 @@ end
 function ImpaleSkillShot(victim,me,impale)
 	local speed = 1600  
 	local distance = GetDistance2D(victim, me)
-	local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0)/(0.5*(1/0.03)))*1000 
-	local castPoint = 400+client.latency+turn
-	local xyz = SkillShot.SkillShotXYZ(me,victim,speed,castPoint)
+	local delay = 400+client.latency
+	local xyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
 	if xyz and distance <= 762.5 then  
-		if xyz:GetDistance2D(me) > 762.5 then
-			xyz = (xyz - me.position) * 600 / xyz:GetDistance2D(me) + me.position
-		end
 		me:SafeCastAbility(impale, xyz)
 	end
 end 
-
-function FindAngleBetween(first, second)
-	xAngle = math.deg(math.atan(math.abs(second.position.x - first.position.x)/math.abs(second.position.y - first.position.y)))
-	if first.position.x <= second.position.x and first.position.y >= second.position.y then
-		return 90 - xAngle
-	elseif first.position.x >= second.position.x and first.position.y >= second.position.y then
-		return xAngle + 90
-	elseif first.position.x >= second.position.x and first.position.y <= second.position.y then
-		return 90 - xAngle + 180
-	elseif first.position.x <= second.position.x and first.position.y <= second.position.y then
-		return xAngle + 90 + 180
-	end
-	return nil
-end
-
-function FindAngleR(entity)
-	if entity.rotR < 0 then
-		return math.abs(entity.rotR)
-	else
-		return 2 * math.pi - entity.rotR
-	end
-end
 
 function Load()
 	if PlayingGame() then
