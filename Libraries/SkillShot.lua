@@ -75,7 +75,7 @@ function SkillShot.__Track()
 				SkillShot.trackTable[v.handle].speed = (v.position - SkillShot.trackTable[v.handle].last.pos)/(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)
 			end
 			if v.visible then
-				SkillShot.trackTable[v.handle].last = {pos = v.position:Clone(), tick = SkillShot.currentTick}
+				SkillShot.trackTable[v.handle].last = {pos = v.position:Clone(), tick = SkillShot.currentTick, move = v.movespeed}
 			end
 		end
 	end
