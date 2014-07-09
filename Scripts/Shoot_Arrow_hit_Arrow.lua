@@ -132,6 +132,18 @@ function Main(tick)
 					end
 				end
 			end
+			if v.team ~= me.team and not v.visible and arrow.level > 0 and me.alive then
+				local speed = 857 
+				local castPoint = (arrow:GetCastPoint(arrow.level) + client.latency)
+				local blindxyz = SkillShot.BlindSkillShotXYZ(me,v,speed,castPoint)
+				if blindxyz and blindxyz:GetDistance2D(me) <= 3057.5 then 
+					statusText.text = "Shoot BLIND Arrow!"
+					if shoot then shoot = nil
+						me:SafeCastAbility(arrow, blindxyz)
+						Sleep(250)
+					end
+				end
+			end
 		end
 	end
 end
