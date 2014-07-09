@@ -87,12 +87,12 @@ function Main(tick)
 			victimText.visible = false
 		end
 		
-		local victim = targetFind:GetLowestEHP(RangeH[hook.level] + aoe, magic)
+		local victim = targetFind:GetLowestEHP(RangeH[hook.level] + 100, magic)
 		if manualselection then
 			victim = targetFind:GetClosestToMouse(100)
 		end
 		
-		if victim and GetDistance2D(victim,me) <= RangeH[hook.level] + aoe then
+		if victim and GetDistance2D(victim,me) <= RangeH[hook.level] + 100 then
 			if not manualselection then
 				statusText.text = "Hook: " .. client:Localize(victim.name)
 			else
@@ -106,8 +106,8 @@ function Main(tick)
 					local speed = 1600 
 					local delay = (300+client.latency)
 					local distance = GetDistance2D(victim, me)
-					local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,aoe,true)
-					if xyz and distance <= RangeH[hook.level] + aoe then	
+					local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
+					if xyz and distance <= RangeH[hook.level] + 100 then	
 						me:SafeCastAbility(hook, xyz)
 						Sleep(250)
 					end
@@ -163,7 +163,7 @@ function Main(tick)
 					local speed = 1600 
 					local castPoint = (hook:GetCastPoint(hook.level) + client.latency)
 					local blindxyz = SkillShot.BlindSkillShotXYZ(me,v,speed,castPoint)
-					if blindxyz and blindxyz:GetDistance2D(me) <= RangeH[hook.level] + aoe then 
+					if blindxyz and blindxyz:GetDistance2D(me) <= RangeH[hook.level] + 100 then 
 						statusText.text = "Hook'em - BLIND!"
 						if hookem then hookem = nil
 							me:SafeCastAbility(hook, blindxyz)
