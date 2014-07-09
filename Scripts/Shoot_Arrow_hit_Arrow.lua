@@ -131,7 +131,7 @@ function Main(tick)
 						end
 					end
 				end
-				if v.team ~= me.team and not v.visible and arrow.level > 0 and me.alive then
+				if v.team ~= me.team and not v.visible and arrow.level > 0 and me.alive and not victim then
 					local speed = 857.14
 					local castPoint = 0.55 + client.latency/10
 					local blindxyz = SkillShot.BlindSkillShotXYZ(me,v,speed,castPoint)
