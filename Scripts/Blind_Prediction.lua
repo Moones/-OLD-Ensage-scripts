@@ -47,9 +47,6 @@ function Prediction.BlindPrediction(t)
 				if Prediction.BlindPredictionTable[t.handle].eff then
 					Prediction.BlindPredictionTable[t.handle].range = Vector(Prediction.BlindPredictionTable[t.handle].range.x + Prediction.BlindPredictionTable[t.handle].move * (distance/(1600 * math.sqrt(1 - math.pow(Prediction.BlindPredictionTable[t.handle].move/1600,2))) + cast) * math.cos(t.rotR), Prediction.BlindPredictionTable[t.handle].range.y + Prediction.BlindPredictionTable[t.handle].move * (distance/(1600 * math.sqrt(1 - math.pow(Prediction.BlindPredictionTable[t.handle].move/1600,2))) + cast) * math.sin(t.rotR),Prediction.BlindPredictionTable[t.handle].range.z)
 					Prediction.BlindPredictionTable[t.handle].eff:SetVector(0, Prediction.BlindPredictionTable[t.handle].range)
-				else	
-					Prediction.BlindPredictionTable[t.handle].eff = nil
-					collectgarbage("collect")
 				end
 			end
 		else
