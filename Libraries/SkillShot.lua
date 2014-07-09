@@ -51,9 +51,6 @@ SkillShot.BlindPredictionTable = {}
 SkillShot.lastTrackTick = 0
 SkillShot.currentTick = 0
 
-local range = nil
-local move = nil
-
 function SkillShot.__TrackTick(tick)
 	SkillShot.currentTick = tick
 	SkillShot.BlindPrediction()
@@ -74,9 +71,7 @@ function SkillShot.__Track()
 			if SkillShot.trackTable[v.handle].last ~= nil then
 				SkillShot.trackTable[v.handle].speed = (v.position - SkillShot.trackTable[v.handle].last.pos)/(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)
 			end
-			if v.visible then
-				SkillShot.trackTable[v.handle].last = {pos = v.position:Clone(), tick = SkillShot.currentTick, move = v.movespeed}
-			end
+			SkillShot.trackTable[v.handle].last = {pos = v.position:Clone(), tick = SkillShot.currentTick}
 		end
 	end
 end
@@ -122,27 +117,30 @@ function SkillShot.BlindSkillShotXYZ(source,t,speed,castpoint)
 end			
 
 function SkillShot.BlindPrediction()
-	local all = entityList:GetEntities({type = LuaEntity.TYPE_HERO})
-	for i,t in ipairs(all) do
-		if SkillShot.BlindPredictionTable[t.handle] == nil and t.alive then
-			SkillShot.BlindPredictionTable[t.handle] = {nil,nil,nil,t,nil}
-		elseif SkillShot.BlindPredictionTable[t.handle] ~= nil and not t.alive then
-			SkillShot.BlindPredictionTable[t.handle] = nil
-		elseif SkillShot.BlindPredictionTable[t.handle] and SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].last then
-			Prediction.BlindPredictionTable[t.handle].move = Prediction.trackTable[t.handle].last.move
-			local pos = SkillShot.trackTable[t.handle].last.pos local rotR = SkillShot.BlindPredictionTable[t.handle].rotR local dist = SkillShot.BlindPredictionTable[t.handle].move/(SkillShot.BlindPredictionTable[t.handle].move/50)  local speed = 1600
-			if not t.visible then
-				if not SkillShot.BlindPredictionTable[t.handle].range then
-					SkillShot.BlindPredictionTable[t.handle].range = Vector(pos.x + SkillShot.BlindPredictionTable[t.handle].move * (dist/(speed * math.sqrt(1 - math.pow(SkillShot.BlindPredictionTable[t.handle].move/speed,2)))) * math.cos(t.rotR), pos.y + SkillShot.BlindPredictionTable[t.handle].move * (dist/(speed * math.sqrt(1 - math.pow(SkillShot.BlindPredictionTable[t.handle].move/speed,2)))) * math.sin(t.rotR), pos.z)
-				else
-					if SkillShot.BlindPredictionTable[t.handle].range then
-						SkillShot.BlindPredictionTable[t.handle].range = Vector(SkillShot.BlindPredictionTable[t.handle].range.x + SkillShot.BlindPredictionTable[t.handle].move * (dist/(speed * math.sqrt(1 - math.pow(SkillShot.BlindPredictionTable[t.handle].move/speed,2)))) * math.cos(t.rotR), SkillShot.BlindPredictionTable[t.handle].range.y + SkillShot.BlindPredictionTable[t.handle].move * (dist/(speed * math.sqrt(1 - math.pow(SkillShot.BlindPredictionTable[t.handle].move/speed,2)))) * math.sin(t.rotR),SkillShot.BlindPredictionTable[t.handle].range.z)
-					else
-						SkillShot.BlindPredictionTable[t.handle].range = nil
-					end
+	for i,t in ipairs(entityList:GetEntities({type = LuaEntity.TYPE_HERO})) do
+		if not t:IsIllusion() then
+			if SkillShot.BlindPredictionTable[t.handle] == nil and t.alive then
+				SkillShot.BlindPredictionTable[t.handle] = {}
+			elseif SkillShot.BlindPredictionTable[t.handle] ~= nil and not t.alive then
+				SkillShot.BlindPredictionTable[t.handle] = nil
+			elseif SkillShot.BlindPredictionTable[t.handle] and SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].last then
+				if t.visible then
+					SkillShot.BlindPredictionTable[t.handle].move = t.movespeed
+					SkillShot.BlindPredictionTable[t.handle].lastpos = t.position
 				end
-			else
-				SkillShot.BlindPredictionTable[t.handle].range = nil
+				local pos = SkillShot.BlindPredictionTable[t.handle].lastpos
+				if not t.visible and pos and SkillShot.BlindPredictionTable[t.handle].move then
+					local rotR = SkillShot.BlindPredictionTable[t.handle].rotR local dist = SkillShot.BlindPredictionTable[t.handle].move/(SkillShot.BlindPredictionTable[t.handle].move/50) local speed = 1600
+					if not SkillShot.BlindPredictionTable[t.handle].range then
+						SkillShot.BlindPredictionTable[t.handle].range = Vector(pos.x + SkillShot.BlindPredictionTable[t.handle].move * (dist/(speed * math.sqrt(1 - math.pow(SkillShot.BlindPredictionTable[t.handle].move/speed,2)))) * math.cos(t.rotR), pos.y + SkillShot.BlindPredictionTable[t.handle].move * (dist/(speed * math.sqrt(1 - math.pow(SkillShot.BlindPredictionTable[t.handle].move/speed,2)))) * math.sin(t.rotR), pos.z)
+					else
+						if SkillShot.BlindPredictionTable[t.handle].range then
+							SkillShot.BlindPredictionTable[t.handle].range = Vector(SkillShot.BlindPredictionTable[t.handle].range.x + SkillShot.BlindPredictionTable[t.handle].move * (dist/(speed * math.sqrt(1 - math.pow(SkillShot.BlindPredictionTable[t.handle].move/speed,2)))) * math.cos(t.rotR), SkillShot.BlindPredictionTable[t.handle].range.y + SkillShot.BlindPredictionTable[t.handle].move * (dist/(speed * math.sqrt(1 - math.pow(SkillShot.BlindPredictionTable[t.handle].move/speed,2)))) * math.sin(t.rotR),SkillShot.BlindPredictionTable[t.handle].range.z)
+						end
+					end
+				else
+					SkillShot.BlindPredictionTable[t.handle].range = nil
+				end
 			end
 		end
 	end
