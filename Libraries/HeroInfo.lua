@@ -188,7 +188,7 @@ npc_dota_hero_tiny = {
  turnRate = 0.5,
  attackBackswing = 1},
 
-npc_dota_hero_vengeful_spirit = {
+npc_dota_hero_vengefulspirit = {
  attackRate = 1.7,
  attackPoint = 0.33,
  attackRange = 400,
