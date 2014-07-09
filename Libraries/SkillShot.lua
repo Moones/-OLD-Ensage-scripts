@@ -19,7 +19,7 @@ require("libs.VectorOp")
 			SkillShot.InFront(target,distance): Returns the Vector of the position in front of the target for specified distance
 			SkillShot.PredictedXYZ(target,delay): Returns the Vector of the target's predicted location after specified milisecond
 			SkillShot.SkillShotXYZ(source,target,speed,castpoint): Returns the Vector of the target's predicted location for a Source is the caster,speed is the speed of the projectile and castpoint is the casting time
-			SkillShot.BlockableSkillShotXYZ(source,target,speed,castpoint,aoe,team): Same as SkillShotXYZ, but this time it returns nil if skillshot can be blocked by a unit. AoE is aoe of the spell. Team is true if allies can block, false otherwise.
+			(Not working) SkillShot.BlockableSkillShotXYZ(source,target,speed,castpoint,aoe,team): Same as SkillShotXYZ, but this time it returns nil if skillshot can be blocked by a unit. AoE is aoe of the spell. Team is true if allies can block, false otherwise.
 
 
 		Changelog:
@@ -67,14 +67,16 @@ function SkillShot.__Track()
 	local all = entityList:GetEntities({type = LuaEntity.TYPE_HERO})
 	for i,v in ipairs(all) do
 		if SkillShot.trackTable[v.handle] == nil and v.alive then
-			SkillShot.trackTable[v.handle] = {nil,nil,nil,v,nil}
+			SkillShot.trackTable[v.handle] = {}
 		elseif SkillShot.trackTable[v.handle] ~= nil and not v.alive then
 			SkillShot.trackTable[v.handle] = nil
 		elseif SkillShot.trackTable[v.handle] and (not SkillShot.trackTable[v.handle].last or SkillShot.currentTick > SkillShot.trackTable[v.handle].last.tick) then
 			if SkillShot.trackTable[v.handle].last ~= nil then
 				SkillShot.trackTable[v.handle].speed = (v.position - SkillShot.trackTable[v.handle].last.pos)/(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)
 			end
-			SkillShot.trackTable[v.handle].last = {pos = v.position:Clone(), tick = SkillShot.currentTick}
+			if v.visible then
+				SkillShot.trackTable[v.handle].last = {pos = v.position:Clone(), tick = SkillShot.currentTick}
+			end
 		end
 	end
 end
@@ -127,7 +129,7 @@ function SkillShot.BlindPrediction()
 		elseif SkillShot.BlindPredictionTable[t.handle] ~= nil and not t.alive then
 			SkillShot.BlindPredictionTable[t.handle] = nil
 		elseif SkillShot.BlindPredictionTable[t.handle] and SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].last then
-			if SkillShot.BlindPredictionTable[t.handle].move == nil or SkillShot.BlindPredictionTable[t.handle].move < t.movespeed then SkillShot.BlindPredictionTable[t.handle].move = t.movespeed end
+			Prediction.BlindPredictionTable[t.handle].move = Prediction.trackTable[t.handle].last.move
 			local pos = SkillShot.trackTable[t.handle].last.pos local rotR = SkillShot.BlindPredictionTable[t.handle].rotR local dist = SkillShot.BlindPredictionTable[t.handle].move/(SkillShot.BlindPredictionTable[t.handle].move/50)  local speed = 1600
 			if not t.visible then
 				if not SkillShot.BlindPredictionTable[t.handle].range then
