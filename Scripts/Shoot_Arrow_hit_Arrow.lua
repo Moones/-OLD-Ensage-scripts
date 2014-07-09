@@ -90,57 +90,60 @@ function Main(tick)
 			statusText.text = "Shoot Arrow hit Arrow!"
 		end
 
-		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do
+		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do
+		
+			if not v:IsIllusion() then
 
-			if v.team ~= me.team and GetDistance2D(v,me) < 3057.5 then
+				if v.team ~= me.team and GetDistance2D(v,me) < 3057.5 then
 
-				local disruption = v:FindModifier("modifier_shadow_demon_disruption")
-				local astral = v:FindModifier("modifier_obsidian_destroyer_astral_imprisonment_prison")
-				local eul = v:FindModifier("modifier_eul_cyclone")
-				local nightmare = v:FindModifier("modifier_bane_nightmare")
-				local shackles = v:FindModifier("modifier_shadow_shaman_shackles")
+					local disruption = v:FindModifier("modifier_shadow_demon_disruption")
+					local astral = v:FindModifier("modifier_obsidian_destroyer_astral_imprisonment_prison")
+					local eul = v:FindModifier("modifier_eul_cyclone")
+					local nightmare = v:FindModifier("modifier_bane_nightmare")
+					local shackles = v:FindModifier("modifier_shadow_shaman_shackles")
 
-				if disruption then              
-					if GetDistance2D(v,me) <= 2200 then
-						if (disruption.remainingTime * 857) == GetDistance2D(v,me)+115 or ((disruption.remainingTime * 857) < GetDistance2D(v,me)+115 and (disruption.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-							me:SafeCastAbility(arrow, v.position)
+					if disruption then              
+						if GetDistance2D(v,me) <= 2200 then
+							if (disruption.remainingTime * 857) == GetDistance2D(v,me)+115 or ((disruption.remainingTime * 857) < GetDistance2D(v,me)+115 and (disruption.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+								me:SafeCastAbility(arrow, v.position)
+							end
+						end             
+					elseif astral then
+						if GetDistance2D(v,me) <= (astral.remainingTime*857+57.5) then
+							if (astral.remainingTime * 857) == GetDistance2D(v,me)+200 or ((astral.remainingTime * 857) < GetDistance2D(v,me)+200 and (astral.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+								me:SafeCastAbility(arrow, v.position)
+							end
 						end
-					end             
-				elseif astral then
-					if GetDistance2D(v,me) <= (astral.remainingTime*857+57.5) then
-						if (astral.remainingTime * 857) == GetDistance2D(v,me)+200 or ((astral.remainingTime * 857) < GetDistance2D(v,me)+200 and (astral.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-							me:SafeCastAbility(arrow, v.position)
+					elseif eul then
+						if GetDistance2D(v,me) <= ( eul.remainingTime*857+57.5) then
+							if (eul.remainingTime * 857) == GetDistance2D(v,me)+140 or (( eul.remainingTime * 857) < GetDistance2D(v,me)+140 and ( eul.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+								me:SafeCastAbility(arrow, v.position)
+							end
 						end
-					end
-				elseif eul then
-					if GetDistance2D(v,me) <= ( eul.remainingTime*857+57.5) then
-						if (eul.remainingTime * 857) == GetDistance2D(v,me)+140 or (( eul.remainingTime * 857) < GetDistance2D(v,me)+140 and ( eul.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-							me:SafeCastAbility(arrow, v.position)
+					elseif nightmare then
+						if GetDistance2D(v,me) <= ( nightmare.remainingTime*857+57.5) then
+							if (nightmare.remainingTime * 857) == GetDistance2D(v,me)+160 or (( nightmare.remainingTime * 857) < GetDistance2D(v,me)+160 and ( nightmare.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+								me:SafeCastAbility(arrow, v.position)
+							end
 						end
-					end
-				elseif nightmare then
-					if GetDistance2D(v,me) <= ( nightmare.remainingTime*857+57.5) then
-						if (nightmare.remainingTime * 857) == GetDistance2D(v,me)+160 or (( nightmare.remainingTime * 857) < GetDistance2D(v,me)+160 and ( nightmare.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-							me:SafeCastAbility(arrow, v.position)
-						end
-					end
-				elseif shackles then
-					if GetDistance2D(v,me) <= ( shackles.remainingTime*857+57.5) then
-						if (shackles.remainingTime * 857) == GetDistance2D(v,me)+180 or (( shackles.remainingTime * 857) < GetDistance2D(v,me)+180 and ( shackles.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-							me:SafeCastAbility(arrow, v.position)
+					elseif shackles then
+						if GetDistance2D(v,me) <= ( shackles.remainingTime*857+57.5) then
+							if (shackles.remainingTime * 857) == GetDistance2D(v,me)+180 or (( shackles.remainingTime * 857) < GetDistance2D(v,me)+180 and ( shackles.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+								me:SafeCastAbility(arrow, v.position)
+							end
 						end
 					end
 				end
-			end
-			if v.team ~= me.team and not v.visible and arrow.level > 0 and me.alive then
-				local speed = 857 
-				local castPoint = (arrow:GetCastPoint(arrow.level) + client.latency)
-				local blindxyz = SkillShot.BlindSkillShotXYZ(me,v,speed,castPoint)
-				if blindxyz and blindxyz:GetDistance2D(me) <= 3057.5 then 
-					statusText.text = "Shoot BLIND Arrow!"
-					if shoot then shoot = nil
-						me:SafeCastAbility(arrow, blindxyz)
-						Sleep(250)
+				if v.team ~= me.team and not v.visible and arrow.level > 0 and me.alive then
+					local speed = 857 
+					local castPoint = (arrow:GetCastPoint(arrow.level) + client.latency)
+					local blindxyz = SkillShot.BlindSkillShotXYZ(me,v,speed,castPoint)
+					if blindxyz and blindxyz:GetDistance2D(me) <= 3057.5 then 
+						statusText.text = "Shoot BLIND Arrow!"
+						if shoot then shoot = nil
+							me:SafeCastAbility(arrow, blindxyz)
+							Sleep(250)
+						end
 					end
 				end
 			end
