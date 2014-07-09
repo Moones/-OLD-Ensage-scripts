@@ -13,14 +13,14 @@ config:Load()
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
 
 sleeptick = 0 sleeptickk = 0
-targetHandle = nil local hookem = nil local manualselection = nil local active = true local aoe = 100
+targetHandle = nil local hookem = nil local manualselection = nil local active = true local victim = nil local blindxyz = nil
 
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
 local targetText = drawMgr:CreateText(-100,-5,-1,"",myFont);
 local victimText = drawMgr:CreateText(-40,-5,-1,"",myFont);
 
-DmgD = {225,375,525} DmgR = {35,60,85,110} DmgR2 = {7,12,17,22} RangeH = {700,900,1100,1300}
+local DmgD = {225,375,525} local DmgR = {35,60,85,110} local DmgR2 = {7,12,17,22} local RangeH = {700,900,1100,1300}
 targetText.visible = false victimText.visible = false
 
 function Key(msg,code)	
@@ -35,7 +35,7 @@ function Key(msg,code)
 			victimText.visible = false
 		end
 	elseif code == hookkey then
-		if active then
+		if active and ((victim and victim.visible) or blindxyz) then
 			hookem = not hookem
 		end
 	elseif code == manualtogglekey then
@@ -87,39 +87,39 @@ function Main(tick)
 			victimText.visible = false
 		end
 		
-		local victim = targetFind:GetLowestEHP(RangeH[hook.level] + 100, magic)
-		if manualselection then
-			victim = targetFind:GetClosestToMouse(100)
-		end
-		
-		if victim and GetDistance2D(victim,me) <= RangeH[hook.level] + 100 then
-			if not manualselection then
-				statusText.text = "Hook: " .. client:Localize(victim.name)
-			else
+		if hook.level > 0 then
+			victim = targetFind:GetLowestEHP(RangeH[hook.level] + 100, magic)
+			if manualselection then
+				victim = targetFind:GetClosestToMouse(100)
 				statusText.text = "Hook'em - Manual!"
 			end
-			victimText.text = "  Hook'em!"
-			victimText.entity = entityList:GetEntity(victim.handle)
-			victimText.entityPosition = Vector(0,0,entityList:GetEntity(victim.handle).healthbarOffset)
-			if hookem and hook.level > 0 and me.alive then hookem = nil
-				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
-					local speed = 1600 
-					local delay = (300+client.latency)
-					local distance = GetDistance2D(victim, me)
-					local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
-					if xyz and distance <= RangeH[hook.level] + 100 then	
-						me:SafeCastAbility(hook, xyz)
-						Sleep(250)
+			if victim then
+				local distance = GetDistance2D(victim, me)
+				if distance <= RangeH[hook.level] + 100 and victim.visible then
+					statusText.text = "Hook: " .. client:Localize(victim.name)
+					victimText.text = "  Hook'em!"
+					victimText.entity = entityList:GetEntity(victim.handle)
+					victimText.entityPosition = Vector(0,0,entityList:GetEntity(victim.handle).healthbarOffset)
+					if hookem and me.alive then hookem = nil
+						if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
+							local speed = 1600 
+							local delay = (300+client.latency)
+							local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
+							if xyz then	
+								me:SafeCastAbility(hook, xyz)
+								Sleep(250)
+							end
+						end
 					end
 				end
-			end
-		else
-			if not manualselection then
-				statusText.text = "  Hook'em!"
-				victimText.visible = false
 			else
-				statusText.text = "Hook'em - Manual!"
-				victimText.visible = false
+				if not manualselection then
+					statusText.text = "  Hook'em!"
+					victimText.visible = false
+				else
+					statusText.text = "Hook'em - Manual!"
+					victimText.visible = false
+				end
 			end
 		end
 		
@@ -162,7 +162,7 @@ function Main(tick)
 				if not v.visible and hook.level > 0 and me.alive then
 					local speed = 1600 
 					local castPoint = (hook:GetCastPoint(hook.level) + client.latency)
-					local blindxyz = SkillShot.BlindSkillShotXYZ(me,v,speed,castPoint)
+					blindxyz = SkillShot.BlindSkillShotXYZ(me,v,speed,castPoint)
 					if blindxyz and blindxyz:GetDistance2D(me) <= RangeH[hook.level] + 100 then 
 						statusText.text = "Hook'em - BLIND!"
 						if hookem then hookem = nil
