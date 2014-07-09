@@ -73,14 +73,11 @@ function Main(tick)
 			statusText.text = "Shoot: " .. client:Localize(victim.name)
 			if shoot and arrow.level > 0 and me.alive then shoot = nil            
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
-					local speed = 857 
+					local speed = 857.14 
 					local distance = GetDistance2D(victim, me)
-					local castPoint = (arrow:GetCastPoint(arrow.level)*1000)+client.latency
-					local xyz = SkillShot.SkillShotXYZ(me,victim,speed,castPoint)
+					local delay = (500+client.latency)
+					local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,115,false)
 					if xyz and distance <= 3057.5 then  
-						if xyz:GetDistance2D(me) > 3057.5 then
-							xyz = (xyz - me.position) * 2900 / xyz:GetDistance2D(me) + me.position
-						end
 						me:SafeCastAbility(arrow, xyz)
 						Sleep(250)  
 					end
@@ -150,7 +147,6 @@ function Main(tick)
 		end
 	end
 end
-
 
 script:RegisterEvent(EVENT_TICK,Main)
 script:RegisterEvent(EVENT_KEY,ArrowKey)
