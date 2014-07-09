@@ -13,7 +13,7 @@ config:Load()
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
 
 sleeptick = 0 sleeptickk = 0
-targetHandle = nil local hookem = nil local manualselection = nil local active = true 
+targetHandle = nil local hookem = nil local manualselection = nil local active = true local aoe = 100
 
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
@@ -105,7 +105,6 @@ function Main(tick)
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 1600 
 					local delay = (300+client.latency)
-					local aoe = 100
 					local distance = GetDistance2D(victim, me)
 					local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,aoe,true)
 					if xyz and distance <= RangeH[hook.level] + aoe then	
