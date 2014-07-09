@@ -67,9 +67,9 @@ function Main(tick)
 
 	if active then  
 
-		local victim = targetFind:GetLowestEHP(3057.5, magic)
+		local victim = targetFind:GetLowestEHP(3115, magic)
 
-		if victim and GetDistance2D(victim,me) < 3057.5 then
+		if victim and GetDistance2D(victim,me) < 3115 then
 			statusText.text = "Shoot: " .. client:Localize(victim.name)
 			if shoot and arrow.level > 0 and me.alive then shoot = nil            
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
@@ -77,7 +77,7 @@ function Main(tick)
 					local distance = GetDistance2D(victim, me)
 					local delay = (500+client.latency)
 					local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,115,false)
-					if xyz and distance <= 3057.5 then  
+					if xyz and distance <= 3115 then  
 						me:SafeCastAbility(arrow, xyz)
 						Sleep(250)  
 					end
@@ -91,7 +91,7 @@ function Main(tick)
 		
 			if not v:IsIllusion() then
 
-				if v.team ~= me.team and GetDistance2D(v,me) < 3057.5 then
+				if v.team ~= me.team and GetDistance2D(v,me) < 3115 then
 
 					local disruption = v:FindModifier("modifier_shadow_demon_disruption")
 					local astral = v:FindModifier("modifier_obsidian_destroyer_astral_imprisonment_prison")
@@ -132,10 +132,10 @@ function Main(tick)
 					end
 				end
 				if v.team ~= me.team and not v.visible and arrow.level > 0 and me.alive then
-					local speed = 857 
-					local castPoint = (arrow:GetCastPoint(arrow.level) + client.latency)
+					local speed = 857.14
+					local castPoint = 0.5 + client.latency/10
 					local blindxyz = SkillShot.BlindSkillShotXYZ(me,v,speed,castPoint)
-					if blindxyz and blindxyz:GetDistance2D(me) <= 3057.5 then 
+					if blindxyz and blindxyz:GetDistance2D(me) <= 3115 then 
 						statusText.text = "Shoot BLIND Arrow!"
 						if shoot then shoot = nil
 							me:SafeCastAbility(arrow, blindxyz)
