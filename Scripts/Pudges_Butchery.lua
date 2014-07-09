@@ -87,12 +87,12 @@ function Main(tick)
 			victimText.visible = false
 		end
 		
-		local victim = targetFind:GetLowestEHP(1350, magic)
+		local victim = targetFind:GetLowestEHP(1400, magic)
 		if manualselection then
 			victim = targetFind:GetClosestToMouse(100)
 		end
 		
-		if victim and GetDistance2D(victim,me) < 1350 then
+		if victim and GetDistance2D(victim,me) <= 1400 then
 			if not manualselection then
 				statusText.text = "Hook: " .. client:Localize(victim.name)
 			else
@@ -107,8 +107,9 @@ function Main(tick)
 					local castPoint = (hook:GetCastPoint(hook.level)*1000)+client.latency
 					local distance = GetDistance2D(victim, me)
 					local xyz = SkillShot.SkillShotXYZ(me,victim,speed,castPoint)
-					if xyz and distance <= 1350 then	
-						if xyz:GetDistance2D(me) > 1350 then
+					
+					if xyz and distance <= 1400 then	
+						if xyz:GetDistance2D(me) > 1400 then
 							xyz = (xyz - me.position) * 1200 / xyz:GetDistance2D(me) + me.position
 						end
 						me:SafeCastAbility(hook, xyz)
@@ -128,8 +129,8 @@ function Main(tick)
 		
 		local rot = me:GetAbility(2)
 		
-		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,illusion=false})) do	
-			if v.team ~= me.team then
+		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do	
+			if v.team ~= me.team and not v:IsIllusion() then
 				if v:DoesHaveModifier("modifier_pudge_meat_hook") then
 					targetHandle = v.handle
 					targetText.visible = true
@@ -159,6 +160,18 @@ function Main(tick)
 							if rot.toggled == false then
 								me:SafeToggleSpell(rot.name)
 							end
+						end
+					end
+				end
+				if not v.visible and hook.level > 0 and me.alive then
+					local speed = 1600 
+					local castPoint = (hook:GetCastPoint(hook.level) + client.latency)
+					local blindxyz = SkillShot.BlindSkillShotXYZ(me,v,speed,castPoint)
+					if blindxyz and blindxyz:GetDistance2D(me) <= 2000 then 
+						statusText.text = "Hook'em - BLIND!"
+						if hookem then hookem = nil
+							me:SafeCastAbility(hook, blindxyz)
+							Sleep(250)
 						end
 					end
 				end
