@@ -19,7 +19,7 @@ require("libs.VectorOp")
 			SkillShot.InFront(target,distance): Returns the Vector of the position in front of the target for specified distance
 			SkillShot.PredictedXYZ(target,delay): Returns the Vector of the target's predicted location after specified milisecond
 			SkillShot.SkillShotXYZ(source,target,speed,castpoint): Returns the Vector of the target's predicted location for a Source is the caster,speed is the speed of the projectile and castpoint is the casting time
-			(Not working) SkillShot.BlockableSkillShotXYZ(source,target,speed,castpoint,aoe,team): Same as SkillShotXYZ, but this time it returns nil if skillshot can be blocked by a unit. AoE is aoe of the spell. Team is true if allies can block, false otherwise.
+			SkillShot.BlockableSkillShotXYZ(source,target,speed,castpoint,aoe,team): Same as SkillShotXYZ, but this time it returns nil if skillshot can be blocked by a unit. AoE is aoe of the spell. Team is true if allies can block, false otherwise.
 
 
 		Changelog:
