@@ -104,14 +104,10 @@ function Main(tick)
 			if hookem and hook.level > 0 and me.alive then hookem = nil
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 1600 
-					local castPoint = (hook:GetCastPoint(hook.level)*1000)+client.latency
+					local delay = (300+client.latency)
 					local distance = GetDistance2D(victim, me)
-					local xyz = SkillShot.SkillShotXYZ(me,victim,speed,castPoint)
-					
+					local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
 					if xyz and distance <= 1400 then	
-						if xyz:GetDistance2D(me) > 1400 then
-							xyz = (xyz - me.position) * 1200 / xyz:GetDistance2D(me) + me.position
-						end
 						me:SafeCastAbility(hook, xyz)
 						Sleep(250)
 					end
@@ -179,7 +175,6 @@ function Main(tick)
 		end
 	end
 end
-
 
 function Combo(tick)
 	if tick < sleeptick or not IsIngame() or client.console or client.paused then return end
