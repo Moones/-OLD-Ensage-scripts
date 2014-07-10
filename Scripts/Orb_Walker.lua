@@ -7,18 +7,22 @@ require("libs.TargetFind")
 local config = ScriptConfig.new()
 config:SetParameter("CustomMove", "J", config.TYPE_HOTKEY)
 config:SetParameter("Menu", "H", config.TYPE_HOTKEY)
+config:SetParameter("ModifiersTogglekey", "A", config.TYPE_HOTKEY)
 config:SetParameter("Spaceformove", true)
 config:SetParameter("DontOrbwalkWhenIdle", true)
 config:SetParameter("ActiveFromStart", true)
 config:SetParameter("ShowMenuAtStart", true)
+config:SetParameter("EnableAttackModifiers", true)
 config:Load()
 	
 custommove = config.CustomMove
 menu = config.Menu
+modifhotkey = config.ModifiersTogglekey
 noorbwalkidle = config.DontOrbwalkWhenIdle
 spaceformove = config.Spaceformove
 active = config.ActiveFromStart
 showmenu = config.ShowMenuAtStart
+enablemodifiers = config.EnableAttackModifiers
 
 myAttackTickTable = {}
 
@@ -60,6 +64,17 @@ function owCheck()
 	end
 end
 
+function modCheck()
+	if PlayingGame() then
+		if not enablemodifiers then
+			enablemodifiers = true
+		else
+			enablemodifiers = false
+		end
+	end
+end
+
+
 function Key(msg, code)
 	if msg ~= KEY_UP or client.chat then return end
 	if code == menu and HUD then 
@@ -70,6 +85,8 @@ function Key(msg, code)
 			HUD:Close()
 			statusText.visible = true
 		end
+	elseif code == modifhotkey then
+		modCheck()
 	end
 end
 
@@ -138,7 +155,9 @@ function Main(tick)
 										myAttackTickTable.attackRateTick = myAttackTickTable.attackRateTick + (math.max((GetDistance2D(me, victim) - myhero.attackRange), 0)/z.speed)*1000
 									end
 								end
-							end
+							elseif not z then
+								myAttackTickTable.attackRateTick = 0
+							end							
 						end						
 					end
 					if (GetTick() >= myAttackTickTable.attackRateTick) then
@@ -210,9 +229,11 @@ class 'MyHero'
 				bonus = aimrange[aim.level]			
 			end		
 		elseif self.heroEntity.classId == CDOTA_Unit_Hero_Enchantress then
-			local impetus = self.heroEntity:GetAbility(4)
-			if impetus.level > 0 and self.heroEntity:AghanimState() then
-				bonus = 190
+			if enablemodifiers then
+				local impetus = self.heroEntity:GetAbility(4)
+				if impetus.level > 0 and self.heroEntity:AghanimState() then
+					bonus = 190
+				end
 			end
 		end
 		return self.heroEntity.attackRange + bonus
@@ -258,47 +279,51 @@ class 'MyHero'
 
 	function MyHero:Hit(target)
 		if target.team ~= self.heroEntity.team then
-			if self.heroEntity.classId == CDOTA_Unit_Hero_Clinkz then
-				local searinga = self.heroEntity:GetAbility(2)
-				if searinga.level > 0 and self.heroEntity.mana > 10 then
-					self.heroEntity:SafeCastAbility(searinga, target)
-				else entityList:GetMyPlayer():Attack(target) end
-			elseif self.heroEntity.classId == CDOTA_Unit_Hero_DrowRanger then
-				local frost = self.heroEntity:GetAbility(1)
-				if frost.level > 0 and self.heroEntity.mana > 12 then
-					self.heroEntity:SafeCastAbility(frost, target)
-				else entityList:GetMyPlayer():Attack(target) end
-			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Viper then
-				local poison = self.heroEntity:GetAbility(1)
-				if poison.level > 0 and self.heroEntity.mana > 21 then
-					self.heroEntity:SafeCastAbility(poison, target)
-				else entityList:GetMyPlayer():Attack(target) end
-			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Huskar then
-				local burning = self.heroEntity:GetAbility(2)
-				if burning.level > 0 and self.heroEntity.health > 15 then
-					self.heroEntity:SafeCastAbility(burning, target)
-				else entityList:GetMyPlayer():Attack(target) end
-			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Silencer then
-				local glaives = self.heroEntity:GetAbility(3)
-				if glaives.level > 0 and self.heroEntity.mana > 15 then
-					self.heroEntity:SafeCastAbility(glaives, target)
-				else entityList:GetMyPlayer():Attack(target) end
-			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Jakiro then
-				local liquid = self.heroEntity:GetAbility(3)
-				if liquid.level > 0 and liquid.state == LuaEntityAbilty.STATE_READY then
-					self.heroEntity:SafeCastAbility(liquid, target)
-				else entityList:GetMyPlayer():Attack(target) end
-			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Obsidian_Destroyer then
-				local arcane = self.heroEntity:GetAbility(1)
-				if arcane.level > 0 and self.heroEntity.mana > 100 then
-					self.heroEntity:SafeCastAbility(arcane, target)
-				else entityList:GetMyPlayer():Attack(target) end
-			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Enchantress then
-				local impetus = self.heroEntity:GetAbility(4)
-				local impemana = {55,60,65}
-				if impetus.level > 0 and self.heroEntity.mana > impemana[impetus.level] then
-					self.heroEntity:SafeCastAbility(impetus, target)
-				else entityList:GetMyPlayer():Attack(target) end
+			if enablemodifiers then
+				if self.heroEntity.classId == CDOTA_Unit_Hero_Clinkz then
+					local searinga = self.heroEntity:GetAbility(2)
+					if searinga.level > 0 and self.heroEntity.mana > 10 then
+						self.heroEntity:SafeCastAbility(searinga, target)
+					else entityList:GetMyPlayer():Attack(target) end
+				elseif self.heroEntity.classId == CDOTA_Unit_Hero_DrowRanger then
+					local frost = self.heroEntity:GetAbility(1)
+					if frost.level > 0 and self.heroEntity.mana > 12 then
+						self.heroEntity:SafeCastAbility(frost, target)
+					else entityList:GetMyPlayer():Attack(target) end
+				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Viper then
+					local poison = self.heroEntity:GetAbility(1)
+					if poison.level > 0 and self.heroEntity.mana > 21 then
+						self.heroEntity:SafeCastAbility(poison, target)
+					else entityList:GetMyPlayer():Attack(target) end
+				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Huskar then
+					local burning = self.heroEntity:GetAbility(2)
+					if burning.level > 0 and self.heroEntity.health > 15 then
+						self.heroEntity:SafeCastAbility(burning, target)
+					else entityList:GetMyPlayer():Attack(target) end
+				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Silencer then
+					local glaives = self.heroEntity:GetAbility(3)
+					if glaives.level > 0 and self.heroEntity.mana > 15 then
+						self.heroEntity:SafeCastAbility(glaives, target)
+					else entityList:GetMyPlayer():Attack(target) end
+				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Jakiro then
+					local liquid = self.heroEntity:GetAbility(3)
+					if liquid.level > 0 and liquid.state == LuaEntityAbilty.STATE_READY then
+						self.heroEntity:SafeCastAbility(liquid, target)
+					else entityList:GetMyPlayer():Attack(target) end
+				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Obsidian_Destroyer then
+					local arcane = self.heroEntity:GetAbility(1)
+					if arcane.level > 0 and self.heroEntity.mana > 100 then
+						self.heroEntity:SafeCastAbility(arcane, target)
+					else entityList:GetMyPlayer():Attack(target) end
+				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Enchantress then
+					local impetus = self.heroEntity:GetAbility(4)
+					local impemana = {55,60,65}
+					if impetus.level > 0 and self.heroEntity.mana > impemana[impetus.level] then
+						self.heroEntity:SafeCastAbility(impetus, target)
+					else entityList:GetMyPlayer():Attack(target) end
+				else
+					entityList:GetMyPlayer():Attack(target)
+				end
 			else
 				entityList:GetMyPlayer():Attack(target)
 			end
@@ -336,7 +361,8 @@ function CreateHUD()
 		HUD:AddCheckbox(5*monitor,50*monitor,35*monitor,20*monitor,"ENABLE SCRIPT",activeCheck,active)
 		HUD:AddText(5*monitor,75*monitor,"Script Settings:")
 		HUD:AddCheckbox(5*monitor,95*monitor,35*monitor,20*monitor,"SHOW MENU ON START",smCheck,showmenu)
-		HUD:AddCheckbox(5*monitor,115*monitor,35*monitor,20*monitor,"DISABLE WHEN ENEMY IS IDLE",owCheck,noorbwalkidle)
+		HUD:AddCheckbox(5*monitor,115*monitor,35*monitor,20*monitor,"NO OrbWalk on IDLE enemy",owCheck,noorbwalkidle)
+		HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ATTACK MODIFIERS - ToggleKey "..string.char(modifhotkey),modCheck,enablemodifiers)
 		HUD:AddButton(5*monitor,250*monitor,110*monitor,40*monitor, 0x60615FFF,"Save Settings",SaveSettings)
 	end
 end
@@ -364,6 +390,11 @@ function SaveSettings()
 			file:write("DontOrbwalkWhenIdle = true \n")
 		else
 			file:write("DontOrbwalkWhenIdle = false \n")
+		end
+		if enablemodifiers then
+			file:write("EnableAttackModifiers = true \n")
+		else
+			file:write("EnableAttackModifiers = false \n")
 		end
 		file:write("Menu = "..string.char(menu))
         file:close()
