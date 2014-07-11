@@ -14,6 +14,7 @@ config:SetParameter("AutoUnAggro", true)
 config:SetParameter("ActiveFromStart", true)
 config:SetParameter("UseAttackModifiers", true)
 config:SetParameter("ShowMenuAtStart", true)
+config:SetParameter("ShowSign", true)
 config:Load()
 	
 custommove = config.CustomMove
@@ -25,6 +26,7 @@ autounaggro = config.AutoUnAggro
 active = config.ActiveFromStart
 attackmodifiers = config.UseAttackModifiers
 showmenu = config.ShowMenuAtStart
+showsign = config.ShowSign
 
 creepTable = {} myAttackTickTable = {}
 
@@ -112,6 +114,18 @@ function smCheck()
 	end
 end
 
+function ssCheck()
+	if PlayingGame() then
+		if not showsign then
+			showsign = true
+			GenerateSideMessage(entityList:GetMyHero().name,"     You will now see the Sign!")
+		else
+			showsign = false
+			GenerateSideMessage(entityList:GetMyHero().name," You will not see the Sign now!")
+		end
+	end
+end
+
 function Key(msg, code)
 	if msg ~= KEY_UP or client.chat then return end
 	if code == menu and HUD then 
@@ -120,7 +134,9 @@ function Key(msg, code)
 			statusText.visible = false
 		else
 			HUD:Close()
-			statusText.visible = true
+			if showsign then
+				statusText.visible = true
+			end
 		end
 	end
 end
@@ -146,7 +162,7 @@ function Main(tick)
 		end
 	end
 
-	if HUD and HUD:IsClosed() then
+	if HUD and HUD:IsClosed() and showsign then
 		statusText.visible = true
 	end
 
@@ -680,6 +696,7 @@ function CreateHUD()
 		HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ENABLE AUTO UNAGGRO",aCheck,autounaggro)
 		HUD:AddCheckbox(5*monitor,155*monitor,35*monitor,20*monitor,"ENABLE ATTACK MODIFIERS",mCheck,attackmodifiers)
 		HUD:AddCheckbox(185*monitor,95*monitor,35*monitor,20*monitor,"SHOW MENU ON START",smCheck,showmenu)
+		HUD:AddCheckbox(185*monitor,115*monitor,35*monitor,20*monitor,"SHOW SIGN",ssCheck,showsign)
 		HUD:AddButton(5*monitor,250*monitor,110*monitor,40*monitor, 0x60615FFF,"Save Settings",SaveSettings)
 	end
 end
@@ -717,6 +734,11 @@ function SaveSettings()
 			file:write("ShowMenuAtStart = true \n")
 		else
 			file:write("ShowMenuAtStart = false \n")
+		end
+		if showsign then
+			file:write("ShowSign = true \n")
+		else
+			file:write("ShowSign = false \n")
 		end
 		if active then
 			file:write("ActiveFromStart = true \n")
