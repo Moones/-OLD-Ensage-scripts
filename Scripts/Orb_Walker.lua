@@ -331,7 +331,7 @@ class 'MyHero'
 						self.heroEntity:SafeCastAbility(burning, target)
 					else entityList:GetMyPlayer():Attack(target) end
 				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Silencer then
-					local glaives = self.heroEntity:GetAbility(3)
+					local glaives = self.heroEntity:GetAbility(2)
 					if glaives.level > 0 and self.heroEntity.mana > 15 then
 						self.heroEntity:SafeCastAbility(glaives, target)
 					else entityList:GetMyPlayer():Attack(target) end
