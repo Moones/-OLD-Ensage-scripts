@@ -13,6 +13,7 @@ config:SetParameter("DontOrbwalkWhenIdle", true)
 config:SetParameter("ActiveFromStart", true)
 config:SetParameter("ShowMenuAtStart", true)
 config:SetParameter("EnableAttackModifiers", true)
+config:SetParameter("ShowSign", true)
 config:Load()
 	
 custommove = config.CustomMove
@@ -23,6 +24,7 @@ spaceformove = config.Spaceformove
 active = config.ActiveFromStart
 showmenu = config.ShowMenuAtStart
 enablemodifiers = config.EnableAttackModifiers
+showSign = config.ShowSign
 
 myAttackTickTable = {}
 
@@ -74,6 +76,15 @@ function modCheck()
 	end
 end
 
+function ssCheck()
+	if PlayingGame() then
+		if not showSign then
+			showSign = true
+		else
+			showSign = false
+		end
+	end
+end
 
 function Key(msg, code)
 	if msg ~= KEY_UP or client.chat then return end
@@ -83,7 +94,9 @@ function Key(msg, code)
 			statusText.visible = false
 		else
 			HUD:Close()
-			statusText.visible = true
+			if showSign then
+				statusText.visible = true
+			end
 		end
 	elseif code == modifhotkey then
 		modCheck()
@@ -106,7 +119,7 @@ function Main(tick)
 		if not showmenu then
 			HUD:Close()
 		end
-	elseif HUD and HUD:IsClosed() then
+	elseif HUD and HUD:IsClosed() and showSign then
 		statusText.visible = true
 	end
 
@@ -131,9 +144,9 @@ function Main(tick)
 			if IsKeyDown(movetomouse) and not client.chat then
 				victim = targetFind:GetClosestToMouse(100)	
 				if not victim then
-					victim = targetFind:GetLowestEHP(myhero.attackRange + 500, phys)
+					victim = targetFind:GetLowestEHP(myhero.attackRange, phys)
 				end
-				if (not victim or GetDistance2D(me, victim) > myhero.attackRange + 500) or (not noorbwalkidle and not attacking) and tick > sleep then
+				if (not victim or GetDistance2D(me, victim) > myhero.attackRange) or (not noorbwalkidle and not attacking) and tick > sleep then
 					me:Move(client.mousePosition)
 					sleep = tick + client.latency
 				end
@@ -143,7 +156,7 @@ function Main(tick)
 						sleep = tick + client.latency
 					end
 				end
-				if victim and victim.alive and victim.visible and victim.health > 0 and me.alive and GetDistance2D(me, victim) < myhero.attackRange + 500 then
+				if victim and victim.alive and victim.visible and victim.health > 0 and me.alive and GetDistance2D(me, victim) < myhero.attackRange then
 					local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000
 					if myhero.isRanged then
 						local projectiles = entityList:GetProjectiles({target=victim})
@@ -362,6 +375,7 @@ function CreateHUD()
 		HUD:AddText(5*monitor,75*monitor,"Script Settings:")
 		HUD:AddCheckbox(5*monitor,95*monitor,35*monitor,20*monitor,"SHOW MENU ON START",smCheck,showmenu)
 		HUD:AddCheckbox(5*monitor,115*monitor,35*monitor,20*monitor,"NO OrbWalk on IDLE enemy",owCheck,noorbwalkidle)
+		HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"Show Sign",ssCheck,showSign)
 		HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ATTACK MODIFIERS - ToggleKey "..string.char(modifhotkey),modCheck,enablemodifiers)
 		HUD:AddButton(5*monitor,250*monitor,110*monitor,40*monitor, 0x60615FFF,"Save Settings",SaveSettings)
 	end
@@ -396,7 +410,13 @@ function SaveSettings()
 		else
 			file:write("EnableAttackModifiers = false \n")
 		end
+		if showSign then
+			file:write("ShowSign = true \n")
+		else
+			file:write("ShowSign = false \n")
+		end
 		file:write("Menu = "..string.char(menu))
+		file:write("ModifiersTogglekey = "..string.char(modifhotkey))
         file:close()
     end
 end
