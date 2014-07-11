@@ -375,8 +375,8 @@ function CreateHUD()
 		HUD:AddText(5*monitor,75*monitor,"Script Settings:")
 		HUD:AddCheckbox(5*monitor,95*monitor,35*monitor,20*monitor,"SHOW MENU ON START",smCheck,showmenu)
 		HUD:AddCheckbox(5*monitor,115*monitor,35*monitor,20*monitor,"NO OrbWalk on IDLE enemy",owCheck,noorbwalkidle)
-		HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"Show Sign",ssCheck,showSign)
 		HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ATTACK MODIFIERS - ToggleKey "..string.char(modifhotkey),modCheck,enablemodifiers)
+		HUD:AddCheckbox(5*monitor,155*monitor,35*monitor,20*monitor,"Show Sign",ssCheck,showSign)
 		HUD:AddButton(5*monitor,250*monitor,110*monitor,40*monitor, 0x60615FFF,"Save Settings",SaveSettings)
 	end
 end
