@@ -8,6 +8,7 @@ local config = ScriptConfig.new()
 config:SetParameter("CustomMove", "J", config.TYPE_HOTKEY)
 config:SetParameter("Menu", "H", config.TYPE_HOTKEY)
 config:SetParameter("ModifiersTogglekey", "A", config.TYPE_HOTKEY)
+config:SetParameter("AutoAttackKey", "S", config.TYPE_HOTKEY)
 config:SetParameter("Spaceformove", true)
 config:SetParameter("DontOrbwalkWhenIdle", true)
 config:SetParameter("ActiveFromStart", true)
@@ -25,6 +26,7 @@ active = config.ActiveFromStart
 showmenu = config.ShowMenuAtStart
 enablemodifiers = config.EnableAttackModifiers
 showSign = config.ShowSign
+aakey = config.AutoAttackKey
 
 myAttackTickTable = {}
 
@@ -141,31 +143,42 @@ function Main(tick)
 				attacking = false
 			end
 			
-			if IsKeyDown(movetomouse) and not client.chat then
-				victim = targetFind:GetClosestToMouse(100)	
-				if not victim then
-					victim = targetFind:GetLowestEHP(myhero.attackRange, phys)
+			if (IsKeyDown(movetomouse) or IsKeyDown(aakey)) and not client.chat then
+				if not IsKeyDown(aakey) then
+					victim = targetFind:GetClosestToMouse(100)	
+					if not victim then
+						victim = targetFind:GetLowestEHP(myhero.attackRange, phys)
+					end
 				end
-				if (not victim or GetDistance2D(me, victim) > myhero.attackRange) or (not noorbwalkidle and not attacking) and tick > sleep then
+				if not IsKeyDown(aakey) and (not victim or GetDistance2D(me, victim) > myhero.attackRange) or (not noorbwalkidle and not attacking) and tick > sleep then
 					me:Move(client.mousePosition)
 					sleep = tick + client.latency
 				end
 				if not attacking and tick > sleep then
-					if victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1) or (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE) then
+					if (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1) or (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE)) then
 						me:Move(client.mousePosition)
 						sleep = tick + client.latency
 					end
 				end
-				if victim and victim.alive and victim.visible and victim.health > 0 and me.alive and GetDistance2D(me, victim) < myhero.attackRange then
-					local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000
+				if IsKeyDown(aakey) or (victim and victim.alive and victim.visible and victim.health > 0 and GetDistance2D(me, victim) < myhero.attackRange) and me.alive then
+					if not IsKeyDown(aakey) then
+						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000
+					end
 					if myhero.isRanged then
-						local projectiles = entityList:GetProjectiles({target=victim})
+						local projectiles = entityList:GetProjectiles({source=me})
+						if not IsKeyDown(aakey) then
+							projectiles = entityList:GetProjectiles({target=victim})
+						end
 						for k,z in ipairs(projectiles) do
 							if z.source then
 								if z.source.name == me.name then							
-									if myAttackTickTable.attackPointTick == nil and myAttackTickTable.attackRateTick == 0 or myAttackTickTable.attackRateTick > GetTick() and GetDistance2D(z.position, victim) > GetDistance2D(z.position, me) then
+									if myAttackTickTable.attackPointTick == nil and myAttackTickTable.attackRateTick == 0 or myAttackTickTable.attackRateTick > GetTick() and ((victim and GetDistance2D(z.position, victim) > GetDistance2D(z.position, me)) or IsKeyDown(aakey)) then
 										myAttackTickTable.attackPointTick = GetTick()
-										myAttackTickTable.attackRateTick = myAttackTickTable.attackRateTick + (math.max((GetDistance2D(me, victim) - myhero.attackRange), 0)/z.speed)*1000
+										if not IsKeyDown(aakey) then
+											myAttackTickTable.attackRateTick = myAttackTickTable.attackRateTick + (math.max((GetDistance2D(me, victim) - myhero.attackRange), 0)/z.speed)*1000
+										else
+											myAttackTickTable.attackRateTick = myAttackTickTable.attackRateTick
+										end
 									end
 								end
 							elseif not z then
@@ -174,7 +187,11 @@ function Main(tick)
 						end						
 					end
 					if (GetTick() >= myAttackTickTable.attackRateTick) then
-						myhero:Hit(victim)
+						if not IsKeyDown(aakey) then
+							myhero:Hit(victim)
+						else
+							entityList:GetMyPlayer():AttackMove(client.mousePosition)
+						end
 						if not myhero.isRanged then
 							myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 							myAttackTickTable.attackPointTick = GetTick() + (myhero.attackRate*(myhero.baseAttackPoint/(myhero.baseAttackPoint+myhero.baseBackswing)) + myhero.attackPoint)*1000 + turn
@@ -416,6 +433,7 @@ function SaveSettings()
 			file:write("ShowSign = false \n")
 		end
 		file:write("Menu = "..string.char(menu))
+		file:write("AutoAttackKey = "..string.char(aakey))
 		file:write("ModifiersTogglekey = "..string.char(modifhotkey))
         file:close()
     end
