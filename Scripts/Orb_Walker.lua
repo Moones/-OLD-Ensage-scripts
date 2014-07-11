@@ -385,7 +385,11 @@ end
 function CreateHUD()
 	if not HUD then
 		HUD = EasyHUD.new(5*monitor,100*monitor,250*monitor,300*monitor,"Orb Walker",0x111111C0,-1,true,true)
-		HUD:AddText(5*monitor,10*monitor,"Usage: Hold SPACE.")
+		if spaceformove then
+			HUD:AddText(5*monitor,10*monitor,"Usage: Hold SPACE.(For AutoAttack hold "..string.char(aakey)..")")
+		else
+			HUD:AddText(5*monitor,10*monitor,"Usage: Hold "..string.char(movetomouse)..".(For AutoAttack hold "..string.char(aakey)..")")
+		end
 		HUD:AddText(5*monitor,30*monitor,"Orb Walker Settings:")
 		HUD:AddText(5*monitor,220*monitor,"Press " .. string.char(menu) .. " for Open / Close Menu")
 		HUD:AddCheckbox(5*monitor,50*monitor,35*monitor,20*monitor,"ENABLE SCRIPT",activeCheck,active)
