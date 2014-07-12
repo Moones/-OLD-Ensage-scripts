@@ -155,15 +155,12 @@ function Main(tick)
 					sleep = tick + client.latency
 				end
 				if not attacking and tick > sleep then
-					if (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1) or (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE)) then
+					if IsKeyDown(aakey) or (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1) or (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE)) then
 						me:Move(client.mousePosition)
 						sleep = tick + client.latency
 					end
 				end
 				if IsKeyDown(aakey) or (victim and victim.alive and victim.visible and victim.health > 0 and GetDistance2D(me, victim) < myhero.attackRange) and me.alive then
-					if not IsKeyDown(aakey) then
-						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000
-					end
 					if myhero.isRanged then
 						local projectiles = entityList:GetProjectiles({source=me})
 						if not IsKeyDown(aakey) then
@@ -195,7 +192,7 @@ function Main(tick)
 						if not myhero.isRanged then
 							myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 							if not IsKeyDown(aakey) then
-								myAttackTickTable.attackPointTick = GetTick() + (myhero.attackRate*(myhero.baseAttackPoint/(myhero.baseAttackPoint+myhero.baseBackswing)) + myhero.attackPoint)*1000 + turn
+								myAttackTickTable.attackPointTick = GetTick() + (myhero.attackRate*(myhero.baseAttackPoint/(myhero.baseAttackPoint+myhero.baseBackswing)) + myhero.attackPoint)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000
 							else
 								myAttackTickTable.attackPointTick = GetTick() + (myhero.attackRate*(myhero.baseAttackPoint/(myhero.baseAttackPoint+myhero.baseBackswing)) + myhero.attackPoint)*1000
 							end
