@@ -244,7 +244,7 @@ function GetLasthit(me)
 				
 		if not myhero.isRanged then
 			if me.activity == LuaEntityNPC.ACTIVITY_CRIT then
-				if (lhcreepclass:GetTimeToHealth(myhero:GetDamage(lhcreepclass,true)) and lhcreepclass:GetTimeToHealth(myhero:GetDamage(lhcreepclass,true)) > (GetTick() + myhero.attackPoint*1000)) and (lhcreep.health > (myhero:GetDamage(lhcreepclass,true) + myhero.attackPoint)) then
+				if (lhcreepclass:GetTimeToHealth(myhero:GetDamage(lhcreepclass,true)) and lhcreepclass:GetTimeToHealth(myhero:GetDamage(lhcreepclass,true)) > (GetTick() + myhero.attackPoint*500)) and (lhcreep.health > (myhero:GetDamage(lhcreepclass,true) + myhero.attackPoint*0.5)) then
 					if GetTick() >= myAttackTickTable.attackRateTick2 then
 						entityList:GetMyPlayer():Stop()
 						myhero:Hit(lhcreep)
