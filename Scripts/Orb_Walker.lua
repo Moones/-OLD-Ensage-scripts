@@ -194,7 +194,11 @@ function Main(tick)
 						end
 						if not myhero.isRanged then
 							myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
-							myAttackTickTable.attackPointTick = GetTick() + (myhero.attackRate*(myhero.baseAttackPoint/(myhero.baseAttackPoint+myhero.baseBackswing)) + myhero.attackPoint)*1000 + turn
+							if not IsKeyDown(aakey) then
+								myAttackTickTable.attackPointTick = GetTick() + (myhero.attackRate*(myhero.baseAttackPoint/(myhero.baseAttackPoint+myhero.baseBackswing)) + myhero.attackPoint)*1000 + turn
+							else
+								myAttackTickTable.attackPointTick = GetTick() + (myhero.attackRate*(myhero.baseAttackPoint/(myhero.baseAttackPoint+myhero.baseBackswing)) + myhero.attackPoint)*1000
+							end
 						else
 							myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 						end
