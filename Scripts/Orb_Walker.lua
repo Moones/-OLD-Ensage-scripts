@@ -36,7 +36,7 @@ local attacking = false local reg = false local HUD = nil local myhero = nil loc
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
-local statusText = drawMgr:CreateText(10*monitor,580*monitor,-1,"Orb Walker: Press " .. string.char(menu) .. " to open Menu",F14) statusText.visible = false
+local statusText = drawMgr:CreateText(10*monitor,580*monitor,-1,"",F14) statusText.visible = false
 
 function activeCheck()	
 	if PlayingGame() then
@@ -123,6 +123,12 @@ function Main(tick)
 		end
 	elseif HUD and HUD:IsClosed() and showSign then
 		statusText.visible = true
+	end
+	
+	if string.byte("A") <= menu and menu <= string.byte("Z") then
+		statusText.text = "Orb Walker: Press " .. string.char(menu) .. " to open Menu"
+	else
+		statusText.text = "Orb Walker: Press " .. menu .. " to open Menu"
 	end
 
 	if active then
@@ -387,17 +393,33 @@ function CreateHUD()
 	if not HUD then
 		HUD = EasyHUD.new(5*monitor,100*monitor,250*monitor,300*monitor,"Orb Walker",0x111111C0,-1,true,true)
 		if spaceformove then
-			HUD:AddText(5*monitor,10*monitor,"Usage: Hold SPACE.(For AutoAttack hold "..string.char(aakey)..")")
+			if string.byte("A") <= aakey and aakey <= string.byte("Z") then
+				HUD:AddText(5*monitor,10*monitor,"Usage: Hold SPACE.(For AutoAttack hold "..string.char(aakey)..")")
+			else
+				HUD:AddText(5*monitor,10*monitor,"Usage: Hold SPACE.(For AutoAttack hold "..aakey..")")
+			end
 		else
-			HUD:AddText(5*monitor,10*monitor,"Usage: Hold "..string.char(movetomouse)..".(For AutoAttack hold "..string.char(aakey)..")")
+			if string.byte("A") <= movetomouse and movetomouse <= string.byte("Z") and string.byte("A") <= aakey and aakey <= string.byte("Z") then
+				HUD:AddText(5*monitor,10*monitor,"Usage: Hold "..string.char(movetomouse)..".(For AutoAttack hold "..string.char(aakey)..")")
+			else
+				HUD:AddText(5*monitor,10*monitor,"Usage: Hold "..movetomouse..".(For AutoAttack hold "..aakey..")")
+			end
 		end
 		HUD:AddText(5*monitor,30*monitor,"Orb Walker Settings:")
-		HUD:AddText(5*monitor,220*monitor,"Press " .. string.char(menu) .. " for Open / Close Menu")
+		if string.byte("A") <= menu and menu <= string.byte("Z") then
+			HUD:AddText(5*monitor,220*monitor,"Press " .. string.char(menu) .. " for Open / Close Menu")
+		else
+			HUD:AddText(5*monitor,220*monitor,"Press " .. menu .. " for Open / Close Menu")
+		end
 		HUD:AddCheckbox(5*monitor,50*monitor,35*monitor,20*monitor,"ENABLE SCRIPT",activeCheck,active)
 		HUD:AddText(5*monitor,75*monitor,"Script Settings:")
 		HUD:AddCheckbox(5*monitor,95*monitor,35*monitor,20*monitor,"SHOW MENU ON START",smCheck,showmenu)
 		HUD:AddCheckbox(5*monitor,115*monitor,35*monitor,20*monitor,"NO OrbWalk on IDLE enemy",owCheck,noorbwalkidle)
-		HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ATTACK MODIFIERS - ToggleKey "..string.char(modifhotkey),modCheck,enablemodifiers)
+		if string.byte("A") <= modifhotkey and modifhotkey <= string.byte("Z") then
+			HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ATTACK MODIFIERS - ToggleKey "..string.char(modifhotkey),modCheck,enablemodifiers)
+		else
+			HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ATTACK MODIFIERS - ToggleKey "..modifhotkey,modCheck,enablemodifiers)
+		end
 		HUD:AddCheckbox(5*monitor,155*monitor,35*monitor,20*monitor,"Show Sign",ssCheck,showSign)
 		HUD:AddButton(5*monitor,250*monitor,110*monitor,40*monitor, 0x60615FFF,"Save Settings",SaveSettings)
 	end
@@ -406,7 +428,11 @@ end
 function SaveSettings()
 	local file = io.open(SCRIPT_PATH.."/config/Orb_Walker.txt", "w+")
 	if file then
-		file:write("CustomMove = "..string.char(custommove).."\n")
+		if string.byte("A") <= custommove and custommove <= string.byte("Z") then
+			file:write("CustomMove = "..string.char(custommove).."\n")
+		else
+			file:write("CustomMove = "..custommove.."\n")
+		end
 		if spaceformove then
 			file:write("Spaceformove = true \n")
 		else
@@ -437,9 +463,21 @@ function SaveSettings()
 		else
 			file:write("ShowSign = false \n")
 		end
-		file:write("Menu = "..string.char(menu))
-		file:write("AutoAttackKey = "..string.char(aakey))
-		file:write("ModifiersTogglekey = "..string.char(modifhotkey))
+		if string.byte("A") <= menu and menu <= string.byte("Z") then
+			file:write("Menu = "..string.char(menu))
+		else
+			file:write("Menu = "..menu)
+		end
+		if string.byte("A") <= aakey and aakey <= string.byte("Z") then
+			file:write("AutoAttackKey = "..string.char(aakey))
+		else
+			file:write("AutoAttackKey = "..aakey)
+		end
+		if string.byte("A") <= modifhotkey and modifhotkey <= string.byte("Z") then
+			file:write("ModifiersTogglekey = "..string.char(modifhotkey))
+		else
+			file:write("ModifiersTogglekey = "..modifhotkey)
+		end
         file:close()
     end
 end
