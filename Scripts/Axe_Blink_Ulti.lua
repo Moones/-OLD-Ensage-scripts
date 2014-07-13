@@ -107,12 +107,14 @@ end
 
 function Moprhling(target,value)
 	if target.classId == CDOTA_Unit_Hero_Morphling then
-		local gainLVL = target:GetAbility(3).level
-		local hp = {38,76,114,190}
-		if target:DoesHaveModifier("modifier_morphling_morph_agi") and target.strength > 1 then
-			return value*(0 - hp[gainLVL] + 1)
-		elseif target:DoesHaveModifier("modifier_morphling_morph_str") and target.agility > 1 then
-			return value*hp[gainLVL]
+		if target:GetAbility(3) then
+			local gainLVL = target:GetAbility(3).level
+			local hp = {38,76,114,190}
+			if target:DoesHaveModifier("modifier_morphling_morph_agi") and target.strength > 1 then
+				return value*(0 - hp[gainLVL] + 1)
+			elseif target:DoesHaveModifier("modifier_morphling_morph_str") and target.agility > 1 then
+				return value*hp[gainLVL]
+			end
 		end
 	end
 	return 0
