@@ -51,9 +51,9 @@ function Tick(tick)
 		local RangeB = 1200
 		local CastPoint = Cullblade:GetCastPoint(Cullblade.level)+client.latency/1000		
 		if me.alive and not me:IsChanneling() then
-			local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team = me:GetEnemyTeam(),illusion=false})
+			local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team = me:GetEnemyTeam()})
 			for i,v in ipairs(enemies) do
-				if v.healthbarOffset ~= -1 then
+				if v.healthbarOffset ~= -1 and not v:IsIllusion() then
 					if not hero[v.handle] then
 						hero[v.handle] = drawMgr:CreateText(-45,-55, 0xFFFFFF99, "",F14) hero[v.handle].visible = false hero[v.handle].entity = v hero[v.handle].entityPosition = Vector(0,0,v.healthbarOffset)
 					end
