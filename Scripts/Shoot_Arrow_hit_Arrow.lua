@@ -22,7 +22,7 @@ local shoot = nil
 function ArrowKey(msg,code)	
 	if msg ~= KEY_UP or client.chat then return end
 
-	if code == arrowkey and active then     
+	if code == arrowkey and active and ((victim and victim.visible) or blindxyz) then     
 		if not shoot then
 			shoot = true
 			return true
