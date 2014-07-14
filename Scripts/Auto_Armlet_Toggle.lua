@@ -108,6 +108,30 @@ function Tick( tick )
 			extraToggle = extraToggle - 1
 		end
 	end
+	
+	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do	
+		if v.team ~= me.team and not v:IsIllusion() then
+			if not armState and not me:DoesHaveModifier("modifier_ice_blast") then
+					
+				local distance = GetDistance2D(v,me)
+				local projectile = entityList:GetProjectiles({target=me, source=v})
+					
+				
+				if projectile and distance <= (v.attackRange + 50) then
+					for k,z in ipairs(projectile) do
+						if armlet.toggled == false then
+							me:SafeCastItem("item_armlet")
+						end
+					end
+				end
+				if distance <= (178) then
+					if armlet.toggled == false then
+						me:SafeCastItem("item_armlet")
+					end
+				end
+			end
+		end
+	end
 end
 
 script:RegisterEvent(EVENT_TICK,Tick)
