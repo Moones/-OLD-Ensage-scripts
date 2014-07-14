@@ -156,7 +156,7 @@ function Main(tick)
 						victim = targetFind:GetLowestEHP(myhero.attackRange, phys)
 					end
 				end
-				if not IsKeyDown(aakey) and (not victim or GetDistance2D(me, victim) > myhero.attackRange) or (not noorbwalkidle and not attacking) and tick > sleep then
+				if not IsKeyDown(aakey) and (not victim or victim and GetDistance2D(me, victim) > myhero.attackRange) or (not noorbwalkidle and not attacking) and tick > sleep then
 					me:Move(client.mousePosition)
 					sleep = tick + client.latency
 				end
