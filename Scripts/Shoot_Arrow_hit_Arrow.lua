@@ -68,7 +68,7 @@ function Main(tick)
 	if active then  
 
 		local victim = targetFind:GetLowestEHP(3115, magic)
-
+		if targetFind:GetLowestEHP(3115, magic) == nil then victim = nil end 
 		if victim and GetDistance2D(victim,me) < 3115 then
 			statusText.text = "Shoot: " .. client:Localize(victim.name)
 			if shoot and arrow.level > 0 and me.alive then shoot = nil            
