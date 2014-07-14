@@ -25,7 +25,7 @@ local victimText = drawMgr:CreateText(-40,-20,-1,"Nyx'em!",myFont);
 function Key(msg,code)	
 	if msg ~= KEY_UP or client.chat then return end
 
-	if code == impalekey and active then     
+	if code == impalekey and active and victim and victim.visible then     
 		if not stun then
 			stun = true
 			return true
@@ -90,7 +90,7 @@ function Main(tick)
 				end
 			end
 			
-			if IsKeyDown(combokey) and not client.chat and not me:DoesHaveModifier("modifier_nyx_assassin_vendetta") then
+			if IsKeyDown(combokey) and victim and not client.chat and not me:DoesHaveModifier("modifier_nyx_assassin_vendetta") then
 				
 				local manaburn = me:GetAbility(2)
 				local manadmg = {3.5,4,4.5,5}
