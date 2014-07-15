@@ -53,7 +53,7 @@ function Key(msg,code)
 		return
 	end
 	-- get a valid target
-	target = targetFind:GetClosestToMouse(500)
+	target = targetFind:GetClosestToMouse(500,true)
 	if not target then
 		return
 	end
