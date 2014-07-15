@@ -18,6 +18,8 @@ local myFont = drawMgr:CreateFont("Mirana","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Shoot Arrow hit Arrow!",myFont);
 local active = true
 local shoot = nil
+local victim = nil
+local timing = false
 
 function ArrowKey(msg,code)	
 	if msg ~= KEY_UP or client.chat then return end
@@ -66,12 +68,14 @@ function Main(tick)
 	local arrow = me:GetAbility(2)
 
 	if active then  
-
-		local victim = targetFind:GetLowestEHP(3115, magic)
-		if targetFind:GetLowestEHP(3115, magic) == nil then victim = nil end 
+		
+		if not timing then
+			victim = targetFind:GetLowestEHP(3115, magic)
+		end
+		
 		if victim and GetDistance2D(victim,me) < 3115 then
 			statusText.text = "Shoot: " .. client:Localize(victim.name)
-			if shoot and arrow.level > 0 and me.alive then shoot = nil            
+			if shoot and arrow.level > 0 and me.alive then shoot = nil timing = false          
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 857.14 
 					local distance = GetDistance2D(victim, me)
@@ -79,7 +83,8 @@ function Main(tick)
 					local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,115,false)
 					if xyz and distance <= 3115 then  
 						me:SafeCastAbility(arrow, xyz)
-						Sleep(250)  
+						victim = nil
+						Sleep(250) 
 					end
 				end
 			end 
@@ -98,35 +103,42 @@ function Main(tick)
 					local eul = v:FindModifier("modifier_eul_cyclone")
 					local nightmare = v:FindModifier("modifier_bane_nightmare")
 					local shackles = v:FindModifier("modifier_shadow_shaman_shackles")
+					local stunned = v:FindModifier("modifier_stunned")
 
 					if disruption then              
 						if GetDistance2D(v,me) <= 2200 then
 							if (disruption.remainingTime * 857) == GetDistance2D(v,me)+115 or ((disruption.remainingTime * 857) < GetDistance2D(v,me)+115 and (disruption.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								me:SafeCastAbility(arrow, v.position)
+								victim = v shoot = true timing = true break return
 							end
 						end             
 					elseif astral then
 						if GetDistance2D(v,me) <= (astral.remainingTime*857+57.5) then
 							if (astral.remainingTime * 857) == GetDistance2D(v,me)+200 or ((astral.remainingTime * 857) < GetDistance2D(v,me)+200 and (astral.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								me:SafeCastAbility(arrow, v.position)
+								victim = v shoot = true timing = true break return
 							end
 						end
 					elseif eul then
 						if GetDistance2D(v,me) <= ( eul.remainingTime*857+57.5) then
 							if (eul.remainingTime * 857) == GetDistance2D(v,me)+140 or (( eul.remainingTime * 857) < GetDistance2D(v,me)+140 and ( eul.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								me:SafeCastAbility(arrow, v.position)
+								victim = v shoot = true timing = true break return
 							end
 						end
 					elseif nightmare then
 						if GetDistance2D(v,me) <= ( nightmare.remainingTime*857+57.5) then
 							if (nightmare.remainingTime * 857) == GetDistance2D(v,me)+160 or (( nightmare.remainingTime * 857) < GetDistance2D(v,me)+160 and ( nightmare.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								me:SafeCastAbility(arrow, v.position)
+								victim = v shoot = true timing = true break return
 							end
 						end
 					elseif shackles then
 						if GetDistance2D(v,me) <= ( shackles.remainingTime*857+57.5) then
 							if (shackles.remainingTime * 857) == GetDistance2D(v,me)+180 or (( shackles.remainingTime * 857) < GetDistance2D(v,me)+180 and ( shackles.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								me:SafeCastAbility(arrow, v.position)
+								victim = v shoot = true timing = true break return
+							end
+						end
+					elseif stunned then
+						if GetDistance2D(v,me) <= ( stunned.remainingTime*857+57.5) then
+							if (stunned.remainingTime * 857) == GetDistance2D(v,me)+180 or (( stunned.remainingTime * 857) < GetDistance2D(v,me)+180 and ( stunned.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+								victim = v shoot = true timing = true break return
 							end
 						end
 					end
