@@ -96,7 +96,7 @@ end
 function SkillShot.SkillShotXYZ(source,t,delay,speed)	
 	if source and t then
 		local sourcepos = source.position
-		if delay then 
+		if delay and SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed then 
 			local prediction = SkillShot.PredictedXYZ(t,delay) - sourcepos
 			if speed then
 				local delay2 = prediction.x*SkillShot.trackTable[t.handle].speed.x + prediction.y*SkillShot.trackTable[t.handle].speed.y
