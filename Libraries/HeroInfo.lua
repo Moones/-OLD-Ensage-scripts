@@ -636,7 +636,7 @@ npc_dota_hero_spectre = {
  turnRate = 0.4,
  attackBackswing = 0.7},
 
-npc_dota_hero_doombringer = {
+npc_dota_hero_doom_bringer = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 150,
