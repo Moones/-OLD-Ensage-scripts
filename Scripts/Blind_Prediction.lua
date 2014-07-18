@@ -67,6 +67,7 @@ function Prediction.BlindPrediction(t)
 			Prediction.BlindPredictionTable[t.handle].icon.visible = false
 			Prediction.BlindPredictionTable[t.handle].iconmap.visible = false
 			Prediction.BlindPredictionTable[t.handle].range = nil
+			collectgarbage("collect")
 		end
 	end
 end
