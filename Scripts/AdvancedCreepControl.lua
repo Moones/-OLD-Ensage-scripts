@@ -3,6 +3,7 @@ require("libs.Utils")
 require("libs.SideMessage")
 require("libs.HeroInfo")
 require("libs.EasyHUD")
+require("libs.VectorOp")
 
 local config = ScriptConfig.new()
 config:SetParameter("CustomMove", "G", config.TYPE_HOTKEY)
@@ -30,9 +31,9 @@ showsign = config.ShowSign
 
 creepTable = {} myAttackTickTable = {}
 
-sleep = 0 myAttackTickTable.attackRateTick = 0 myAttackTickTable.attackRateTick2 = 0
+sleep = 0 sleepaggro = 0 myAttackTickTable.attackRateTick = 0 myAttackTickTable.attackRateTick2 = 0
 
-local myhero = nil local lasthit = false local reg = false local HUD = nil local lhcreep = nil local myId = nil local lhcreepclass = nil local lh = nil
+local myhero = nil local lasthit = false local reg = false local HUD = nil local lhcreep = nil local myId = nil local lhcreepclass = nil local lh = nil local geminate_attack = 0 local lhtime = 0
 
 local monitor = client.screenSize.x/1600
 local F15 = drawMgr:CreateFont("F15","Tahoma",15*monitor,550*monitor)
@@ -183,12 +184,12 @@ function Main(tick)
 				for i,v in ipairs(entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane})) do				
 					for k,z in ipairs(entityList:GetProjectiles({target=me})) do
 						if z.source then
-							if z.source.type ~= LuaEntity.TYPE_HERO then
-								if me.activity ~= LuaEntityNPC.ACTIVITY_ATTACK and v.team == me.team and v.visible and v.alive and tick > sleep then								
-									if (myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange - 50) or (not myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange + 200) then								
+							if z.source.classId == CDOTA_BaseNPC_Creep_Lane or z.source.classId == CDOTA_BaseNPC_Tower then
+								if not isAttacking(me) and v.team == me.team and v.visible and v.alive and tick > sleepaggro and v.health > (v.health/100)*5 then								
+									if (myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange) or (not myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange + 200) then								
 										entityList:GetMyPlayer():Attack(v)
 										me:Move(client.mousePosition)		
-										sleep = tick + 100										
+										sleepaggro = tick + 200										
 									end
 								end
 							end
@@ -204,95 +205,47 @@ function GetLasthit(me)
 	for creepHandle, creepClass in pairs(creepTable) do	
 		local Dmg = myhero:GetDamage(creepClass,true)
 		local timeToHealth = creepClass:GetTimeToHealth(Dmg)
-		local nocritDmg = myhero:GetDamage(creepClass,false)
+		local nocritDmg = (myhero:GetDamage(creepClass,false))*3
 		local nocrittimeToHealth = creepClass:GetTimeToHealth(nocritDmg)
 		if (GetTick() >= myAttackTickTable.attackRateTick) and ((enablelasthits and me.team ~= creepClass.creepEntity.team) or (enabledenies and not lh and me.team == creepClass.creepEntity.team and creepClass.creepEntity.health < creepClass.creepEntity.maxHealth*0.50)) then
 			if myhero.isRanged then
-				if creepClass.creepEntity.team ~= me.team and (creepClass.creepEntity.health <= nocritDmg or (nocrittimeToHealth and (nocrittimeToHealth/myhero.attackRate*0.5) < (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000))) then
+				if creepClass.creepEntity.team ~= me.team and (creepClass.creepEntity.health <= nocritDmg or (nocrittimeToHealth and (nocrittimeToHealth) < (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000))) then
 					lh = true
 				end
-				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth < (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
+				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + myhero.attackPoint*1000 + client.latency + geminate_attack + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
 					myhero:Hit(creepClass.creepEntity)
-					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 					lasthit = true
 					lhcreep = creepClass.creepEntity
 					lhcreepclass = creepClass
+					lhtime = timeToHealth
 					if creepClass.creepEntity.team ~= me.team then
 						lh = true
 					end
+					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 				end
 			else
-				if creepClass.creepEntity.team ~= me.team and (creepClass.creepEntity.health <= Dmg or (timeToHealth and (timeToHealth/myhero.attackRate*0.2) < (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000))) then
+				if creepClass.creepEntity.team ~= me.team and (creepClass.creepEntity.health <= nocritDmg or (nocrittimeToHealth and (nocrittimeToHealth) < (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000))) then
 					lh = true
 				end
-				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth < (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
+				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
 					myhero:Hit(creepClass.creepEntity)
-					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 					lasthit = true					
 					lhcreep = creepClass.creepEntity
 					lhcreepclass = creepClass
 					if creepClass.creepEntity.team ~= me.team then
 						lh = true
 					end
+					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 				end
 			end
 		end
 	end
-	if lhcreep and lasthit then
-		local Dmg2 = myhero:GetDamage(lhcreepclass,false)
-		local timeToHealth2 = lhcreepclass:GetTimeToHealth(Dmg2)
-				
-		if not myhero.isRanged then
-			if me.activity == LuaEntityNPC.ACTIVITY_CRIT then
-				if (lhcreepclass:GetTimeToHealth(myhero:GetDamage(lhcreepclass,true)) and lhcreepclass:GetTimeToHealth(myhero:GetDamage(lhcreepclass,true)) > (GetTick() + myhero.attackPoint*900)) and (lhcreep.health > (myhero:GetDamage(lhcreepclass,true) + myhero.attackPoint*9)) then
-					if GetTick() >= myAttackTickTable.attackRateTick2 then
-						entityList:GetMyPlayer():Stop()
-						myhero:Hit(lhcreep)
-						myAttackTickTable.attackRateTick2 = GetTick() + myhero.attackPoint*1000
-					end
-					lhcreep = lhcreep
-					lhcreepclass = lhcreepclass
-					lasthit = true
-					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
-					if lhcreep.team ~= me.team then
-						lh = true
-					end
-				end
-			elseif myhero:isAttacking() then
-				if (timeToHealth2 and timeToHealth2 > (GetTick() + myhero.attackPoint*1000)) and (lhcreep.health > (Dmg2 + myhero.attackPoint*10)) then
-					if GetTick() >= myAttackTickTable.attackRateTick2 then
-						entityList:GetMyPlayer():Stop()
-						myhero:Hit(lhcreep)
-						myAttackTickTable.attackRateTick2 = GetTick() + myhero.attackPoint*1000
-					end
-					lhcreep = lhcreep
-					lhcreepclass = lhcreepclass
-					lasthit = true
-					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
-					if lhcreep.team ~= me.team then
-						lh = true
-					end
-				end
-			end
-		else
-			if myhero:isAttacking() and (timeToHealth2 and timeToHealth2 > (GetTick() + myhero.attackPoint*1000 + ((GetDistance2D(me, lhcreep)-math.max((GetDistance2D(me, lhcreep) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000)) and (lhcreep.health > (Dmg2 + myhero.attackPoint*10 + ((GetDistance2D(me, lhcreep)-math.max((GetDistance2D(me, lhcreep) - myhero.attackRange), 0))/myhero.projectileSpeed)*10)) then
-				if GetTick() >= myAttackTickTable.attackRateTick2 then
-					entityList:GetMyPlayer():Stop()
-					myhero:Hit(lhcreep)
-					myAttackTickTable.attackRateTick2 = GetTick() + myhero.attackPoint*1000
-				end
-				lhcreep = lhcreep
-				lhcreepclass = lhcreepclass
-				lasthit = true
-				myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
-				if lhcreep.team ~= me.team then
-					lh = true
-				end
-			end
+	if lasthit or isAttacking(me) or (lhcreep and GetDistance2D(me, lhcreep) <= myhero.attackRange) then
+		if lhcreep and lhcreep.alive and lhcreepclass then
+			myhero:StopAttack(lhcreep,lhcreepclass)
 		end
 	end
 end
-
 
 class 'Hero'
 
@@ -357,7 +310,7 @@ class 'Hero'
 
 		local bonus = 0
 
-		if self.heroEntity.name == "npc_dota_hero_templar_assassin" then
+		if self.heroEntity.classId == CDOTA_Unit_Hero_TemplarAssassin then
 		
 			local psy = self.heroEntity:GetAbility(3)
 			psyrange = {60,120,180,240}
@@ -368,7 +321,7 @@ class 'Hero'
 				
 			end
 			
-		elseif self.heroEntity.name == "npc_dota_hero_sniper" then
+		elseif self.heroEntity.classId == CDOTA_Unit_Hero_Sniper then
 		
 			local aim = self.heroEntity:GetAbility(3)
 			aimrange = {100,200,300,400}
@@ -386,7 +339,7 @@ class 'Hero'
 	end
 
 	function Hero:GetAttackPoint()
-		return self.baseAttackPoint / (1 + (self.heroEntity.attackSpeed / 100))
+		return self.baseAttackPoint / (1 + (self.heroEntity.attackSpeed) / 100)
 	end
 
 	function Hero:GetAttackRate()
@@ -473,34 +426,34 @@ class 'Hero'
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_BountyHunter then
 				local jinada = self.heroEntity:GetAbility(2)
 				jinadadmg = {1.5,1.75,2,2.25}
-				if jinada.level > 0 and jinada.cd == (self.attackPoint + client.latency/1000 + (math.max((GetDistance2D(self.heroEntity, target.creepEntity) - self.attackRange), 0)/self.heroEntity.movespeed) + (math.max(math.abs(FindAngleR(self.heroEntity) - math.rad(FindAngleBetween(self.heroEntity, target.creepEntity))) - 0.69, 0)/(self.turnRate*(1/0.03)))) then
-					dmg = dmg*jinadadmg[jinada.level]
+				if jinada.level > 0 and crit and jinada.cd < (self.attackPoint/1.1 + client.latency/1100 + (math.max((GetDistance2D(self.heroEntity, target.creepEntity) - self.attackRange), 0)/self.heroEntity.movespeed)/1.1) then
+					crit = nil
+					dmg = dmg*(jinadadmg[jinada.level]-0.2)
 				end
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Weaver then
 				local geminate = self.heroEntity:GetAbility(3)
-				if geminate.level > 0 and geminate.cd < (self.attackPoint + client.latency/1000 + (math.max((GetDistance2D(self.heroEntity, target.creepEntity) - self.attackRange), 0)/self.heroEntity.movespeed) + (math.max(math.abs(FindAngleR(self.heroEntity) - math.rad(FindAngleBetween(self.heroEntity, target.creepEntity))) - 0.69, 0)/(self.turnRate*(1/0.03))) + ((GetDistance2D(self.heroEntity, target.creepEntity)-math.max((GetDistance2D(self.heroEntity, target.creepEntity) - self.attackRange), 0))/self.projectileSpeed)) then
-					local delay = self.attackPoint + client.latency/1000
-					dmg = dmg*(2+delay)
+				if geminate.level > 0 and target.creepEntity.health > dmg*1.3 and geminate.cd < (self.attackPoint/1.1 + client.latency/1100 + (math.max((GetDistance2D(self.heroEntity, target.creepEntity) - self.attackRange), 0)/self.heroEntity.movespeed) + ((GetDistance2D(self.heroEntity, target.creepEntity)-math.max((GetDistance2D(self.heroEntity, target.creepEntity) - self.attackRange), 0))/self.projectileSpeed)/1.1) then
+					geminate_attack = ((GetDistance2D(self.heroEntity, target.creepEntity)-math.max((GetDistance2D(self.heroEntity, target.creepEntity) - self.attackRange), 0))/self.projectileSpeed)*1000 + geminate.cd*100 + self.attackPoint*500
+					dmg = dmg*2
+				else
+					geminate_attack = 0
 				end
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Juggernaut or self.heroEntity.classId == CDOTA_Unit_Hero_Brewmaster then
 				local doublecrit = self.heroEntity:GetAbility(3)
-				if doublecrit.level > 0 and crit then
-					criter = true
-					dmg = dmg*2
+				if doublecrit.level > 0 and crit then crit = nil
+					dmg = dmg*1.8
 				end
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_ChaosKnight or self.heroEntity.classId == CDOTA_Unit_Hero_SkeletonKing then
 				local lowcrit = self.heroEntity:GetAbility(3)
 				lowcritdmg = {1.5,2,2.5,3}
-				if lowcrit.level > 0 and crit then
-					criter = true
-					dmg = dmg*lowcritdmg[lowcrit.level]
+				if lowcrit.level > 0 and crit then crit = nil
+					dmg = dmg*(lowcritdmg[lowcrit.level]-0.2)
 				end
 			elseif self.heroEntity.classId == CDOTA_Unit_Hero_PhantomAssassin then
 				local highcrit = self.heroEntity:GetAbility(4)
 				highcritdmg = {2.5,3.5,4.5}
-				if highcrit.level > 0 and crit then
-					criter = true
-					dmg = dmg*highcritdmg[highcrit.level]
+				if highcrit.level > 0 and crit then crit = nil
+					dmg = dmg*(highcritdmg[highcrit.level]-0.2)
 				end
 			end
 			if qblade then
@@ -515,8 +468,8 @@ class 'Hero'
 		if self.heroEntity.classId == CDOTA_Unit_Hero_Kunkka then
 			local tidebringer = self.heroEntity:GetAbility(2)
 			tidebringerdmg = {15,30,45,60}
-			if tidebringer.level > 0 and tidebringer.cd < (self.attackPoint + client.latency/1000 + (math.max((GetDistance2D(self.heroEntity, target.creepEntity) - self.attackRange), 0)/self.heroEntity.movespeed) + (math.max(math.abs(FindAngleR(self.heroEntity) - math.rad(FindAngleBetween(self.heroEntity, target.creepEntity))) - 0.69, 0)/(self.turnRate*(1/0.03)))) then
-				dmg = dmg+tidebringerdmg[tidebringer.level]
+			if tidebringer.level > 0 and tidebringer.cd < (self.attackPoint/1.1 + client.latency/1100 + (math.max((GetDistance2D(self.heroEntity, target.creepEntity) - self.attackRange), 0)/self.heroEntity.movespeed)/1.1) then
+				dmg = dmg+(tidebringerdmg[tidebringer.level]/1.1)
 			end
 		end
 		dmg = (math.floor(dmg * armorTypeModifiers["Hero"][target.armorType] * (1 - target.creepEntity.dmgResist)))		
@@ -539,12 +492,33 @@ class 'Hero'
 			entityList:GetMyPlayer():Attack(target)
 		end
 	end
-
-	function Hero:isAttacking()
-		if self.heroEntity.activity == LuaEntityNPC.ACTIVITY_ATTACK or self.heroEntity.activity == LuaEntityNPC.ACTIVITY_ATTACK1 or self.heroEntity.activity == LuaEntityNPC.ACTIVITY_ATTACK2 then
-			return true
+	
+	function Hero:StopAttack(target,lhcreepclass)
+		if target.alive and ((target.team == self.heroEntity.team and not lh) or target.team ~= self.heroEntity.team) then
+			local Dmg2 = myhero:GetDamage(lhcreepclass,false)
+			local timeToHealth2 = lhcreepclass:GetTimeToHealth(Dmg2)
+			if not self.isRanged and self.heroEntity.activity ~= LuaEntityNPC.ACTIVITY_CRIT then
+				if (timeToHealth2 and timeToHealth2 > (GetTick() + self.attackPoint*1000 + (math.max((GetDistance2D(self.heroEntity, lhcreepclass.creepEntity) - self.attackRange), 0)/self.heroEntity.movespeed)*1000)) and (target.health > Dmg2) then
+					if GetTick() > myAttackTickTable.attackRateTick2 then 
+						entityList:GetMyPlayer():Stop()
+						self:Hit(target)
+						myAttackTickTable.attackRateTick2 = GetTick() + self.attackPoint*1000
+					end
+					myAttackTickTable.attackRateTick = GetTick() + self.attackRate*1000
+					lasthit = true
+				end
+			elseif self.isRanged then
+				if (lhtime and lhtime > (GetTick() + self.attackPoint*1000 + geminate_attack + ((GetDistance2D(self.heroEntity, target)-math.max((GetDistance2D(self.heroEntity, target) - self.attackRange), 0))/self.projectileSpeed)*1000)) and (target.health > Dmg2) then
+					if GetTick() > myAttackTickTable.attackRateTick2 then
+						entityList:GetMyPlayer():Stop()
+						self:Hit(target)
+						myAttackTickTable.attackRateTick2 = GetTick() + self.attackPoint*500
+					end
+				end
+				myAttackTickTable.attackRateTick = GetTick() + self.attackRate*1000
+				lasthit = true
+			end
 		end
-		return false
 	end
 
 class 'Creep'
@@ -553,7 +527,7 @@ class 'Creep'
 
 		self.creepEntity = creepEntity
 		self.HP = {}
-
+		
 		if self.creepEntity.classId == CDOTA_BaseNPC_Creep_Siege then
 			self.creepType = "Siege Creep"
 			self.attackType = "Siege"
@@ -561,7 +535,7 @@ class 'Creep'
 			self.isRanged = true
 			self.baseAttackPoint = 0.7
 			self.baseAttackRate = 2.7
-			self.attackRange = creepEntity.attackRange + 25
+			self.attackRange = creepEntity.attackRange
 			self.projectileSpeed = 1100
 		elseif self.creepEntity.classId == CDOTA_BaseNPC_Creep_Lane and (self.creepEntity.armor == 0 or self.creepEntity.armor == 1) then
 			self.creepType = "Ranged Creep"
@@ -570,7 +544,7 @@ class 'Creep'
 			self.isRanged = true
 			self.baseAttackPoint = 0.5
 			self.baseAttackRate = 1
-			self.attackRange = creepEntity.attackRange + 25
+			self.attackRange = creepEntity.attackRange
 			self.projectileSpeed = 900
 		elseif self.creepEntity.classId == CDOTA_BaseNPC_Creep_Lane and (self.creepEntity.armor == 2 or self.creepEntity.armor == 3) then
 			self.creepType = "Melee Creep"
@@ -579,7 +553,7 @@ class 'Creep'
 			self.isRanged = false
 			self.baseAttackPoint = 0.467
 			self.baseAttackRate = 1
-			self.attackRange = creepEntity.attackRange + 25
+			self.attackRange = creepEntity.attackRange
 		elseif self.creepEntity.classId == CDOTA_BaseNPC_Venomancer_PlagueWard and self.creepEntity.armor == 0 then
 			self.creepType = "Plague Ward"
 			self.attackType = "Pierce"
@@ -587,9 +561,43 @@ class 'Creep'
 			self.isRanged = true
 			self.baseAttackPoint = 0.3
 			self.baseAttackRate = 1.5
-			self.attackRange = 600 + 25
+			self.attackRange = creepEntity.attackRange
+			self.projectileSpeed = 1900
+		elseif self.creepEntity.classId == CDOTA_BaseNPC_Tower then
+			self.creepType = "Tower"
+			self.attackType = "Siege"
+			self.armorType = "Fortified"
+			self.isRanged = true
+			self.baseAttackPoint = 0
+			self.baseAttackRate = 1
+			self.attackRange = creepEntity.attackRange
+			self.projectileSpeed = 750
+		elseif self.creepEntity.classId == CDOTA_BaseNPC_Hero then
+			self.creepType = "Hero"
+			self.attackType = "Hero"
+			self.armorType = "Hero"
+			if not heroInfo[self.creepEntity.name].projectileSpeed then
+				self.isRanged = false
+			else
+				self.isRanged = true
+				self.projectileSpeed = heroInfo[self.creepEntity.name].projectileSpeed
+			end
+			self.baseAttackRate = heroInfo[self.creepEntity.name].attackRate
+			self.baseAttackPoint = heroInfo[self.creepEntity.name].attackPoint
+			self.attackRange = self.creepEntity.attackRange
+		elseif self.creepEntity.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit then
+			self.creepType = "Forged Spirit"
+			self.attackType = "Chaos"
+			self.armorType = "Unarmored"
+			self.isRanged = true
+			self.baseAttackPoint = 0.2
+			self.baseAttackRate = 1.5
+			self.attackRange = creepEntity.attackRange
+			self.projectileSpeed = 1000
 		end
 
+		self.attackRate = self:GetAttackRate()
+		self.attackPoint = self:GetAttackPoint()
 		self.nextAttackTicks = {}
 
 	end
@@ -609,26 +617,29 @@ class 'Creep'
 			table.sort(sortedTable, function(a,b) return a[2] < b[2] end)
 			
 			local totalDamage = 0
-
-			for i = 0, 2 do
+			local totalTime = 0
+			
+			for i = 1, 8 do
 				for _, nextAttackTickTable in ipairs(sortedTable) do
 					
 					local hploss = (self.HP.previous - self.HP.current)
-
-					if nextAttackTickTable[2] > GetTick() then
-
-						if (hploss) > 0 and (hploss) > nextAttackTickTable[1].creepEntity.dmgMin and (hploss) < nextAttackTickTable[1].creepEntity.dmgMax then
-							totalDamage = totalDamage + (math.floor((hploss + nextAttackTickTable[1].creepEntity.dmgMin)/2 * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
+						if nextAttackTickTable[2] > GetTick() and nextAttackTickTable[1].creepEntity.alive then
+							--if #sortedTable > 3 then
+								--totalDamage = totalDamage + (math.floor(((hploss/#sortedTable) + nextAttackTickTable[1].creepEntity.dmgMin + nextAttackTickTable[1].creepEntity.dmgBonus)/2 * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
+							--else
+								totalDamage = totalDamage + (math.floor((nextAttackTickTable[1].creepEntity.dmgMin + nextAttackTickTable[1].creepEntity.dmgBonus) * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
+								totalTime = totalTime + nextAttackTickTable[2] + nextAttackTickTable[4]
+							--end
+						--	if self.HP.previous > 0 then
+								--if (self.HP.previous + hploss - totalDamage) <= health then
+									--return nextAttackTickTable[2] + (nextAttackTickTable[4] * i)
+							--	end
+						--	else
+						
+							if (self.creepEntity.health - totalDamage) < health then
+								return (nextAttackTickTable[2]*i) + (nextAttackTickTable[4]/i)
+							end
 						end
-						if (hploss) == 0 or (hploss) < nextAttackTickTable[1].creepEntity.dmgMin or (hploss) > nextAttackTickTable[1].creepEntity.dmgMax or (hploss) == nil then
-							totalDamage = totalDamage + (math.floor(nextAttackTickTable[1].creepEntity.dmgMin * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
-						end
-
-						if (self.creepEntity.health - totalDamage) <= health then
-							return nextAttackTickTable[2] + (nextAttackTickTable[4] * i)
-						end
-					end
-
 				end
 			end
 		end
@@ -640,11 +651,12 @@ class 'Creep'
 	function Creep:Update()
 
 		self.attackRate = self:GetAttackRate()
+		self.attackPoint = self:GetAttackPoint()
 
 		self:UpdateHealth()
 
 		for k, nextAttackTickTable in pairs(self.nextAttackTicks) do
-			if (GetTick() >= nextAttackTickTable[3]-25) then
+			if (GetTick() > nextAttackTickTable[3]) or not nextAttackTickTable[1].creepEntity.alive then
 				self.nextAttackTicks[k] = nil
 			end
 		end
@@ -655,29 +667,45 @@ class 'Creep'
 
 	function Creep:GetAttackRate()
 
-		return self.baseAttackRate / (1 + (self.creepEntity.attackSpeed-100) / 100)
+		return self.creepEntity.attackBaseTime / (1 + (self.creepEntity.attackSpeed - 100) / 100)
+
+	end
+	
+	function Creep:GetAttackPoint()
+
+		return self.baseAttackPoint / (1 + (self.creepEntity.attackSpeed - 100) / 100)
 
 	end
 
 	function Creep:MapDamageSources()
 
 		for creepHandle, creepClass in pairs(creepTable) do
-			if creepClass.baseAttackRate ~= nil and self.creepEntity.team ~= creepClass.creepEntity.team and creepClass.creepEntity.alive and GetDistance2D(self.creepEntity, creepClass.creepEntity) <= creepClass.attackRange then
-				if math.abs(FindAngleR(creepClass.creepEntity) - math.rad(FindAngleBetween(creepClass.creepEntity, self.creepEntity))) < 0.015 then
+			if self.creepEntity.team ~= creepClass.creepEntity.team and creepClass.creepEntity.alive then
+				local timeToDamageHit = 0
+				local nextAttackTick = 0
+				for k,z in ipairs(entityList:GetProjectiles({source=creepClass.creepEntity,target=self.creepEntity})) do
 					if not self.nextAttackTicks[creepClass.creepEntity.handle] then
-
-						local nextAttackTick = creepClass.baseAttackRate*1000
-
-						local timeToDamageHit = (((creepClass.projectileSpeed) and ((GetDistance2D(creepClass.creepEntity, self.creepEntity)/creepClass.projectileSpeed)*1000)) or 0) + GetTick() + creepClass.baseAttackPoint*1000
-
-						self.nextAttackTicks[creepClass.creepEntity.handle] = {creepClass, timeToDamageHit, GetTick() + nextAttackTick, nextAttackTick}
-					
+						nextAttackTick = (creepClass.attackRate/2 - creepClass.attackPoint)*1000
+						timeToDamageHit = (GetDistance2D(z.position, self.creepEntity)/z.speed)*1000 + GetTick()
+						self.nextAttackTicks[creepClass.creepEntity.handle] = {creepClass, timeToDamageHit, GetTick() + nextAttackTick, nextAttackTick,true}						
+					end
+				end
+				if math.abs(FindAngleR(creepClass.creepEntity) - math.rad(FindAngleBetween(creepClass.creepEntity, self.creepEntity))) < 0.014 then
+					if not self.nextAttackTicks[creepClass.creepEntity.handle] then
+						if GetDistance2D(creepClass.creepEntity, self.creepEntity) <= 153 then
+							nextAttackTick = (creepClass.attackRate/2 - creepClass.attackPoint)*1000
+							timeToDamageHit = (math.max(GetDistance2D(creepClass.creepEntity, self.creepEntity) - creepClass.attackRange,0)/creepClass.creepEntity.movespeed)*1000 + (((creepClass.projectileSpeed) and ((GetDistance2D(creepClass.creepEntity, self.creepEntity)/creepClass.projectileSpeed)*1000)) or 0) + GetTick() + (creepClass.attackRate/2 - creepClass.attackPoint)*1000
+							self.nextAttackTicks[creepClass.creepEntity.handle] = {creepClass, timeToDamageHit, GetTick() + nextAttackTick, nextAttackTick,false}		
+						elseif not creepClass.isRanged and GetDistance2D(creepClass.creepEntity, self.creepEntity) > 153 and not isAttacking(creepClass.creepEntity) then 
+							nextAttackTick = (creepClass.attackRate/2 - creepClass.attackPoint)*1000 + (math.max(GetDistance2D(creepClass.creepEntity, self.creepEntity) - creepClass.attackRange,0)/creepClass.creepEntity.movespeed)*1000
+							timeToDamageHit = (math.max(GetDistance2D(creepClass.creepEntity, self.creepEntity) - creepClass.attackRange,0)/creepClass.creepEntity.movespeed)*1000 + GetTick() + creepClass.attackPoint*1000
+							self.nextAttackTicks[creepClass.creepEntity.handle] = {creepClass, timeToDamageHit, GetTick() + nextAttackTick, nextAttackTick,false}
+						end
 					end
 				end
 			end
 		end
 		
-
 	end
 
 	function Creep:UpdateHealth()
@@ -712,7 +740,7 @@ end
 function GetHeroes(me)
 	myhero:Update()	
 	local myprojectiles = entityList:GetProjectiles({source=me})
-	if myprojectiles ~= nil and myhero.isRanged then
+	if myhero.isRanged then
 		for k,z in ipairs(myprojectiles) do
 			if lasthit then							
 				lasthit = false		
@@ -739,22 +767,38 @@ function GetHeroes(me)
 end
 
 function GetCreeps(me)
-	local entities = entityList:GetEntities({alive=true, visible=true, distance={me, myhero.aggroRange}})
+	local entities = {}
+	local creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true})
+	local siege = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Siege,alive=true,visible=true})
+	local forge = entityList:GetEntities({classId=CDOTA_BaseNPC_Invoker_Forged_Spirit,alive=true,visible=true})
+	local towers = entityList:GetEntities({classId=CDOTA_BaseNPC_Tower,alive=true,visible=true})
+	local wards = entityList:GetEntities({classId=CDOTA_BaseNPC_Venomancer_PlagueWard,alive=true,visible=true})
+	local heros = entityList:GetEntities({classId=CDOTA_BaseNPC_Hero,alive=true,visible=true})
+	for k,v in pairs(creeps) do if v.spawned then entities[#entities + 1] = v end end
+	for k,v in pairs(siege) do if v.spawned then entities[#entities + 1] = v end end
+	for k,v in pairs(forge) do entities[#entities + 1] = v end
+	for k,v in pairs(towers) do entities[#entities + 1] = v end
+	for k,v in pairs(wards) do entities[#entities + 1] = v end
+	for k,v in pairs(heros) do entities[#entities + 1] = v end
 	for _, dEntity in ipairs(entities) do
-		if ((dEntity.classId == CDOTA_BaseNPC_Creep_Lane and (dEntity.armor >= 0 or dEntity.armor <= 3)) or (dEntity.classId == CDOTA_BaseNPC_Creep_Siege) or (dEntity.classId == CDOTA_BaseNPC_Venomancer_PlagueWard)) and not creepTable[dEntity.handle] then
+		if GetDistance2D(me, dEntity) < math.max(myhero.attackRange, 800) and not creepTable[dEntity.handle] then
 			creepTable[dEntity.handle] = Creep(dEntity)
-		end
+		end	
 	end
-
 	for creepHandle, creepClass in pairs(creepTable) do
-
-		if not creepClass.creepEntity.alive or GetDistance2D(me, creepClass.creepEntity) > myhero.attackRange + 100 then
+		if not creepClass.creepEntity.alive or GetDistance2D(me, creepClass.creepEntity) > math.max(myhero.attackRange, 800) then
 			creepTable[creepHandle] = nil
 		else
-
 			creepClass:Update()
 		end
 	end
+end
+
+function isAttacking(ent)
+	if ent.activity == LuaEntityNPC.ACTIVITY_ATTACK or ent.activity == LuaEntityNPC.ACTIVITY_ATTACK1 or ent.activity == LuaEntityNPC.ACTIVITY_ATTACK2 then
+		return true
+	end
+	return false
 end
 
 function GenerateSideMessage(heroname,msg)
@@ -853,6 +897,7 @@ function Load()
 			lasthit = false
 			lh = false
 			creepTable = {}
+			geminate_attack = 0
 			if active then
 				GenerateSideMessage(entityList:GetMyHero().name,"     Advanced CreepControl is ON!")
 			end
