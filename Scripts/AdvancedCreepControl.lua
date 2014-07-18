@@ -3,7 +3,6 @@ require("libs.Utils")
 require("libs.SideMessage")
 require("libs.HeroInfo")
 require("libs.EasyHUD")
-require("libs.VectorOp")
 
 local config = ScriptConfig.new()
 config:SetParameter("CustomMove", "G", config.TYPE_HOTKEY)
@@ -209,7 +208,7 @@ function GetLasthit(me)
 		local nocrittimeToHealth = creepClass:GetTimeToHealth(nocritDmg)
 		if (GetTick() >= myAttackTickTable.attackRateTick) and ((enablelasthits and me.team ~= creepClass.creepEntity.team) or (enabledenies and not lh and me.team == creepClass.creepEntity.team and creepClass.creepEntity.health < creepClass.creepEntity.maxHealth*0.50)) then
 			if myhero.isRanged then
-				if creepClass.creepEntity.team ~= me.team and (creepClass.creepEntity.health <= nocritDmg or (nocrittimeToHealth and (nocrittimeToHealth) < (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000))) then
+				if creepClass.creepEntity.team ~= me.team and (nocrittimeToHealth and (nocrittimeToHealth) < (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
 					lh = true
 				end
 				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + myhero.attackPoint*1000 + client.latency + geminate_attack + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
@@ -224,7 +223,7 @@ function GetLasthit(me)
 					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
 				end
 			else
-				if creepClass.creepEntity.team ~= me.team and (creepClass.creepEntity.health <= nocritDmg or (nocrittimeToHealth and (nocrittimeToHealth) < (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000))) then
+				if creepClass.creepEntity.team ~= me.team and (nocrittimeToHealth and (nocrittimeToHealth) < (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
 					lh = true
 				end
 				if Dmg >= creepClass.creepEntity.health or (timeToHealth and timeToHealth <= (GetTick() + myhero.attackPoint*1000 + client.latency + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
@@ -603,49 +602,31 @@ class 'Creep'
 	end
 
 	function Creep:GetTimeToHealth(health)
-
 		numItems = 0
 		for k,v in pairs(self.nextAttackTicks) do
 			numItems = numItems + 1
 		end
-
 		if numItems > 0 then
-
 			local sortedTable = { }
 			for k, v in pairs(self.nextAttackTicks) do table.insert(sortedTable, v) end
-
 			table.sort(sortedTable, function(a,b) return a[2] < b[2] end)
 			
 			local totalDamage = 0
 			local totalTime = 0
 			
 			for i = 1, 8 do
-				for _, nextAttackTickTable in ipairs(sortedTable) do
-					
+				for _, nextAttackTickTable in ipairs(sortedTable) do					
 					local hploss = (self.HP.previous - self.HP.current)
-						if nextAttackTickTable[2] > GetTick() and nextAttackTickTable[1].creepEntity.alive then
-							--if #sortedTable > 3 then
-								--totalDamage = totalDamage + (math.floor(((hploss/#sortedTable) + nextAttackTickTable[1].creepEntity.dmgMin + nextAttackTickTable[1].creepEntity.dmgBonus)/2 * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
-							--else
-								totalDamage = totalDamage + (math.floor((nextAttackTickTable[1].creepEntity.dmgMin + nextAttackTickTable[1].creepEntity.dmgBonus) * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))
-								totalTime = totalTime + nextAttackTickTable[2] + nextAttackTickTable[4]
-							--end
-						--	if self.HP.previous > 0 then
-								--if (self.HP.previous + hploss - totalDamage) <= health then
-									--return nextAttackTickTable[2] + (nextAttackTickTable[4] * i)
-							--	end
-						--	else
-						
-							if (self.creepEntity.health - totalDamage) < health then
-								return (nextAttackTickTable[2]*i) + (nextAttackTickTable[4]/i)
-							end
+					if nextAttackTickTable[2] > GetTick() and nextAttackTickTable[1].creepEntity.alive then
+						totalDamage = totalDamage + (math.floor((nextAttackTickTable[1].creepEntity.dmgMin + nextAttackTickTable[1].creepEntity.dmgBonus) * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))						
+						if (self.creepEntity.health - totalDamage) < health then
+							return (nextAttackTickTable[2]*i) + (nextAttackTickTable[4]/i)
 						end
+					end
 				end
 			end
 		end
-
 		return nil
-
 	end
 
 	function Creep:Update()
@@ -666,15 +647,11 @@ class 'Creep'
 	end
 
 	function Creep:GetAttackRate()
-
 		return self.creepEntity.attackBaseTime / (1 + (self.creepEntity.attackSpeed - 100) / 100)
-
 	end
 	
 	function Creep:GetAttackPoint()
-
 		return self.baseAttackPoint / (1 + (self.creepEntity.attackSpeed - 100) / 100)
-
 	end
 
 	function Creep:MapDamageSources()
