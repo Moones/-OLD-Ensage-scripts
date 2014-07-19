@@ -184,7 +184,7 @@ function Main(tick)
 					for k,z in ipairs(entityList:GetProjectiles({target=me})) do
 						if z.source then
 							if z.source.classId == CDOTA_BaseNPC_Creep_Lane or z.source.classId == CDOTA_BaseNPC_Tower then
-								if not isAttacking(me) and v.team == me.team and v.visible and v.alive and tick > sleepaggro and v.health > (v.health/100)*5 then								
+								if not isAttacking(me) and v.team == me.team and v.visible and v.alive and tick > sleepaggro and v.health > (v.health/100)*5 and GetDistance2D(z.source,me) <= z.source.attackRange + 25 then								
 									if (myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange) or (not myhero.isRanged and GetDistance2D(v,me) < myhero.attackRange + 200) then								
 										entityList:GetMyPlayer():Attack(v)
 										me:Move(client.mousePosition)		
