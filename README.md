@@ -1,7 +1,7 @@
 Lua scripts for Ensage
 ==============
 Scripts:
-==============
+-----------
 AdvancedCreepControl.lua
 
 Auto_Armlet_Toggle.lua
@@ -27,7 +27,7 @@ Shoot_Arrow_hit_Arrow.lua
 Tiny_Auto_Combo.lua
 
 Libraries:
-==============
+-----------
 SkillShot.lua
 
 HeroInfo.lua
