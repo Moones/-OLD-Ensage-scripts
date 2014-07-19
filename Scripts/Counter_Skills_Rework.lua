@@ -9,7 +9,7 @@ function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
 	if sleepTick and sleepTick > tick then return end
 	activated = 0	
-    me = entityList:GetMyHero()	if not me then return end
+	local me = entityList:GetMyHero() if not me then return end
 	
 	--Dodge by checking animations--
 	
