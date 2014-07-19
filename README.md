@@ -1,30 +1,14 @@
 Lua scripts for Ensage
 ==============
-Scripts:
------------
-AdvancedCreepControl.lua
-
-Auto_Armlet_Toggle.lua
-
-Axe_Blink_Ulti.lua
-
-Blind_Prediction.lua
-
-Furion_Treant_Block.lua
-
-Lasthits_Denies.lua
-
-Nyx_Combo.lua
-
-Orb_Walker.lua
-
-Pudges_Butchery.lua
-
-ShadowFiend_Raze_Range.lua
-
-Shoot_Arrow_hit_Arrow.lua
-
-Tiny_Auto_Combo.lua
+Hero Scripts:               | Other Scripts:
+-----------                 | -----------
+Axe_Blink_Ulti.lua          | AdvancedCreepControl.lua                          
+Furion_Treant_Block.lua     | Auto_Armlet_Toggle.lua
+Nyx_Combo.lua               | Blind_Prediction.lua 
+Pudges_Butchery.lua         | Lasthits_Denies.lua
+ShadowFiend_Raze_Range.lua  | Orb_Walker.lua
+Shoot_Arrow_hit_Arrow.lua   |
+Tiny_Auto_Combo.lua         |
 
 Libraries:
 -----------
