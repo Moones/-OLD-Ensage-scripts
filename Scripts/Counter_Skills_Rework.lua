@@ -13,7 +13,7 @@ function Tick( tick )
 	
 	--Dodge by checking animations--
 	
-    for i,v in ipairs(entityList:FindEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})) do
+	for i,v in ipairs(entityList:FindEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})) do
 		if v.team ~= me.team and not v:IsIllusion() then
 			if v.name == "npc_dota_hero_shadow_shaman" then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 13 then
