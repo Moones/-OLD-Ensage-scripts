@@ -1,7 +1,7 @@
 Lua scripts for Ensage
 ==============
 Hero Scripts:               | Other Scripts:            | Libraries:
------------                 | -----------               | ----------
+:-----------                 | :-----------:               | ----------:
 Axe_Blink_Ulti.lua          | AdvancedCreepControl.lua  | SkillShot.lua                    
 Furion_Treant_Block.lua     | Auto_Armlet_Toggle.lua    | HeroInfo.lua
 Nyx_Combo.lua               | Blind_Prediction.lua 
