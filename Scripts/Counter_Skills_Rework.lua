@@ -9,11 +9,11 @@ function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
 	if sleepTick and sleepTick > tick then return end
 	activated = 0	
-	local me = entityList:GetMyHero() if not me then return end
+	me = entityList:GetMyHero() if not me then return end
 	
 	--Dodge by checking animations--
 	
-	for i,v in ipairs(entityList:FindEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})) do
+	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})) do
 		if v.team ~= me.team and not v:IsIllusion() then
 			if v.name == "npc_dota_hero_shadow_shaman" then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 13 then
@@ -608,33 +608,32 @@ function Tick( tick )
 				for t = 1, 6 do
 					if v:GetAbility(t) and v:GetAbility(t).name == "lina_laguna_blade" then
 						target = v
-							TusksnowballTarget()
-							local lionultdamage = 0
-							if v:GetAbility(t).level == 1 then
-								lionultdamage = 450*3/4
-							elseif v:GetAbility(t).level == 2 then
-								lionultdamage = 675*3/4
-							elseif v:GetAbility(t).level == 3 then
-								lionultdamage = 950*3/4
+						TusksnowballTarget()
+						local lionultdamage = 0
+						if v:GetAbility(t).level == 1 then
+							lionultdamage = 450*3/4
+						elseif v:GetAbility(t).level == 2 then
+							lionultdamage = 675*3/4
+						elseif v:GetAbility(t).level == 3 then
+							lionultdamage = 950*3/4
+						end
+						for d = 1, 6 do
+							if v:HasItem(d) and v:GetItem(d).name == "item_ultimate_scepter" then
+								scepter = 1
+								if v:GetAbility(t).level == 1 then
+									lionultdamage = 600*3/4
+								elseif v:GetAbility(t).level == 2 then
+									lionultdamage = 925*3/4
+								elseif v:GetAbility(t).level == 3 then
+									lionultdamage = 1250*3/4
+								end
 							end
-							for d = 1, 6 do
-								if v:HasItem(d) and v:GetItem(d).name == "item_ultimate_scepter" then
-									scepter = 1
-									if v:GetAbility(t).level == 1 then
-										lionultdamage = 600*3/4
-									elseif v:GetAbility(t).level == 2 then
-										lionultdamage = 925*3/4
-									elseif v:GetAbility(t).level == 3 then
-										lionultdamage = 1250*3/4
-									end
-								end
-								if lionultdamage > me.health then
-									Phoenixsupernova()
-									Abaddonult()
-									UseBloodStone()
-								else
-									sleepTick= GetTick() + 550	
-								end
+							if lionultdamage > me.health then
+								Phoenixsupernova()
+								Abaddonult()
+								UseBloodStone()
+							else
+								sleepTick= GetTick() + 550	
 							end
 						end
 					end
@@ -663,9 +662,7 @@ function Tick( tick )
 			elseif me:DoesHaveModifier("modifier_pugna_life_drain") then  
 				Nyx()
 				Puck()				
-			end
-			
-			if me:DoesHaveModifier("modifier_lion_finger_of_death") then    
+			elseif me:DoesHaveModifier("modifier_lion_finger_of_death") then    
 				Nyx()
 				Jugernautfury()
 				Puck()
@@ -698,19 +695,19 @@ function Tick( tick )
 									lionultdamage = 1025*3/4
 								end
 							end
-						if lionultdamage > me.health then
-							Phoenixsupernova()
-							Abaddonult()
-							UseBloodStone()
-						else
-							sleepTick= GetTick() +550	
+							if lionultdamage > me.health then
+								Phoenixsupernova()
+								Abaddonult()
+								UseBloodStone()
+							else
+								sleepTick= GetTick() +550	
+							end
 						end
 					end
 				end
 				UseBladeMail()
 				return		
 			end
-			
 			--ARROW DODGER--
 
 			local cast = entityList:GetEntities({classId=282})
@@ -746,7 +743,6 @@ function Tick( tick )
 			end
 			
 			--Initiation dodge--
-		
 			local blink = v:FindItem("item_blink")
 			if blink and blink.cd > 11.9 then                                 
 				for s = 1, 6 do
@@ -945,557 +941,600 @@ function Tick( tick )
 						return					
 					end
 				end
-			
+			end
 
 			--Checking if skill was already casted--
-
-				for t = 1, 4 do 
-					if v:GetAbility(t) and v:GetAbility(t).level > 0 then
-						if v:GetAbility(t).name == "tidehunter_ravage" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1025 then
+			for t = 1, 4 do 
+				if v:GetAbility(t) and v:GetAbility(t).level > 0 then
+					if v:GetAbility(t).name == "tidehunter_ravage" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1025 then
+								Embersleighttargetcal()
+								Jugernautfury()
+								Nyx()
+								Puck()
+								TusksnowballTarget()
+								UseEulScepterSelf()
+								UseBlinkDagger()
+								UseShadowBlade()
+								Useshadowamulet()
+							end
+						end
+					elseif v:GetAbility(t).name == "luna_eclipse" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 675 then
+								NyxVendetta()
+								BountyhunterWindwalk()
+								WeaverShukuchi()
+								PhantomlancerDoppelwalk()
+								SandkinSandstorm()
+								UseShadowBlade()
+								TusksnowballTarget()
+								SlarkShadowDance()
+								TemplarMeld()
+								Useshadowamulet()
+							end
+						end
+					elseif v:GetAbility(t).name == "venomancer_poison_nova" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1025 then
+								Jugernautfury()
+								Puck()
+								UseBlinkDagger()
+							end
+						end
+					elseif v:GetAbility(t).name == "sven_storm_bolt" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 680 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									UseBlinkDagger()
+									TemplarMeld()
+									Jugernautfury()
+									Nyx()
+									LoneDruidUlt()
+									AlchemistRage()
+									Embersleighttargetcal()
+									UseEulScepterSelf()
+									UseShadowBlade()
+									Useshadowamulet()
+									UseManta()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "phantom_assassin_phantom_strike" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1100 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									UseEulScepterTarget()
+									UseEtherealtarget()
+									UseBlinkDagger()
+									UseShadowBlade()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "tiny_avalanche" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 900 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									UseEulScepterSelf()
+									UseShadowBlade()
+									UseBlinkDagger()
 									Embersleighttargetcal()
 									Jugernautfury()
 									Nyx()
+									Useshadowamulet()						
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "pugna_nether_blast" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 750 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.70, 0))
+								if turntime == 0 then
+									Nyx()	
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "dazzle_poison_touch" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 650 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									UseBlinkDagger()
 									Puck()
-									TusksnowballTarget()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "sniper_assassinate" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 4000 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									UseBlinkDagger()
+									TemplarRefraction()
+									AlchemistRage()
+									Jugernautfury()
+									Nyx()
+									UseEulScepterSelf()
+									LoneDruidUlt()
+									SlarkPounce()
+									UseManta()
+									local sniperultdamage = 0
+									if v:GetAbility(4).level == 1 then
+										sniperultdamage = 350*3/4
+									end
+									if v:GetAbility(4).level == 2 then
+										sniperultdamage = 505*3/4
+									end
+									if v:GetAbility(4).level == 3 then
+										sniperultdamage = 655*3/4
+									end
+									if sniperultdamage > me.health then
+										if GetDistance2D(v,me) > 1000 then
+											ShadowdemonDisruptionself()
+											ObsidianImprisonmentself()
+										end
+										Phoenixsupernova()
+										UseBloodStone()
+									end
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "skeleton_king_hellfire_blast" then 
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 600 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									SlarkDarkPact()
+									Puck()
+									UseBlinkDagger()
+									AlchemistRage()
+									Jugernautfury()
+									Embersleighttargetcal()
+									Nyx()
+									LoneDruidUlt()
+									UseEulScepterSelf()
+									UseShadowBlade()
+									Useshadowamulet()
+									UseManta()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "medusa_mystic_snake" then
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 800 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									UseShadowBlade()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "pudge_meat_hook" then
+						if math.ceil(v:GetAbility(t).cd) <=  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) and math.ceil(v:GetAbility(t).cd) >=  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level))-2 then
+							if GetDistance2D(v,me) < 1300 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
+								if turntime == 0 then
+									Nyx()
+									Jugernautfury()
+									Puck()
+									UseBlinkDagger()							
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "rattletrap_hookshot" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 3000 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Nyx()
+									Jugernautfury()
+									Puck()
+									UseBlinkDagger()
+									Useshadowamulet()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "dragon_knight_breathe_fire" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 620 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Nyx()
+									Puck()
+									Jugernautfury()
+									UseBlinkDagger()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "huskar_life_break" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 580 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then									
+									Puck()
+									Nyx()
+									SlarkShadowDance()
+									Jugernautfury()
+									Lifestealerrage()
+									Embersleighttargetcal()
 									UseEulScepterSelf()
 									UseBlinkDagger()
 									UseShadowBlade()
 									Useshadowamulet()
+									Useblackking()
 								end
 							end
-						elseif v:GetAbility(t).name == "luna_eclipse" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 675 then
-									NyxVendetta()
-									BountyhunterWindwalk()
-									WeaverShukuchi()
-									PhantomlancerDoppelwalk()
-									SandkinSandstorm()
+						end
+					elseif v:GetAbility(t).name == "chaos_knight_chaos_bolt" then
+						if math.ceil(v:GetAbility(t).cd - 0.7) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 580 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									LoneDruidUlt()
+									UseBlinkDaggerfront()
+									AlchemistRage()
+									Nyx()
+									SlarkDarkPact()
+									Embersleighttargetcal()
+									UseEulScepterSelf()
 									UseShadowBlade()
-									TusksnowballTarget()
+									Useshadowamulet()
+									UseManta()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "shredder_timber_chain" then
+						if math.ceil(v:GetAbility(t).cd-0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)-0.1) then
+							if GetDistance2D(v,me) < 1400 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Nyx()
+									Jugernautfury()
+									Puck()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "magnataur_shockwave" then
+						if math.ceil(v:GetAbility(t).cd + 0.3) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1160 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
+								if turntime == 0 then
+									Nyx()
+									Puck()
+								end
+							end
+						elseif math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 600 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
+								if turntime == 0 then
+									Nyx()
+									Puck()
+								end
+							end	
+						end				
+					elseif v:GetAbility(t).name == "nyx_assassin_impale" then
+						if math.ceil(v:GetAbility(t).cd - 12.9) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 800 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
+								if turntime == 0 then
+									Puck()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "magnataur_skewer" then
+						if math.ceil(v:GetAbility(t).cd - 0.8) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 900 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.80, 0))
+								if turntime == 0 then
+									Nyx()
+									Puck()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "phantom_lancer_spirit_lance" then
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 820 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then						
+									Nyx()
+									Puck()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "slark_pounce" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 600 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
+								if turntime == 0 then
+									Nyx()
+									Puck()
+									UseShadowBlade()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "vengefulspirit_magic_missile" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 550 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Nyx()
+									Puck()
+									LoneDruidUlt()
+									UseBlinkDaggerfront()
+									AlchemistRage()
+									UseManta()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "bounty_hunter_shuriken_toss" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 750 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Nyx()
+									Puck()
+									LoneDruidUlt()
+									SlarkPounce()
+									Embersleighttargetcal()
+									UseBlinkDaggerfront()
+									AlchemistRage()
+									UseShadowBlade()
+									UseManta()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "viper_viper_strike" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 910 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									UseBlinkDagger()
+									SlarkPounce()
+									LoneDruidUlt()
+									Embersleighttargetcal()
+									UseManta()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "naga_siren_ensnare" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 670 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									UseBlinkDaggerfront()
+									Puck()
+									SlarkDarkPact()
+									Embersleighttargetcal()
+									if v:GetAbility(t).level >= 2 then
+										LoneDruidUlt()
+									end
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "witch_doctor_paralyzing_cask" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 720 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									Embersleighttargetcal()
+									if v:GetAbility(t).level >= 2 then
+										LoneDruidUlt()
+									end
+									UseShadowBlade()	
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "spectre_spectral_dagger" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1000 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									Nyx()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "windrunner_shackleshot" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 900 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									Nyx()
+									UseBlinkDagger()
+									UseShadowBlade()
+									SlarkDarkPact()
+									SlarkPounce()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "lich_chain_frost" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 900 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Nyx()
+									Puck()
+									UseShadowBlade()
 									SlarkShadowDance()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "juggernaut_omni_slash" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 900 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
 									TemplarMeld()
+									PhantomlancerDoppelwalk()
+									NyxVendetta()
+									WeaverShukuchi()
+									BountyhunterWindwalk()
+									UseGhostScepter()
+									UseShadowBlade()
+									UseEulScepterSelf()
+									SlarkShadowDance()
+									UseShadowBlade()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "death_prophet_carrion_swarm" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1100 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
+								if turntime == 0 then
+									Nyx()
+									Puck()
+									Embersleighttargetcal()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "invoker_deafening_blast" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1100 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then									
+									Nyx()
+									Puck()
+									UseShadowBlade()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "skywrath_mage_concussive_shot" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1600 then
+								Puck()
+							end
+						end
+					elseif v:GetAbility(t).name == "skywrath_mage_mystic_flare" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1250 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									UseEulScepterSelf()
+									UseManta()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "puck_illusory_orb" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 750 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									Nyx()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "tinker_heat_seeking_missile" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 2500 then
+								Nyx()
+								Puck()
+								TemplarMeld()
+								Embersleighttargetcal()
+								LoneDruidUlt()
+								UseBlinkDaggerfront()
+								UseShadowBlade()
+								Embersleighttargetcal()
+							end
+						end
+					elseif v:GetAbility(t).name == "windrunner_powershot" then
+						if math.ceil(v:GetAbility(t).cd + 0.9) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1500 then
+									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+									if turntime == 0 then
+										Nyx()
+										Puck()
+									end
+								end
+							end
+					elseif v:GetAbility(t).name == "alchemist_unstable_concoction" then
+						if math.ceil(v:GetAbility(t).cd - 14.9) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1000 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									Nyx()
+									Embersleighttargetcal()
+									UseBlinkDagger()
+									Jugernautfury()
+									UseEulScepterSelf()
+									UseShadowBlade()
 									Useshadowamulet()
 								end
 							end
-						elseif v:GetAbility(t).name == "venomancer_poison_nova" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1025 then
-									Jugernautfury()
-									Puck()
-									UseBlinkDagger()
-								end
-							end
-						elseif v:GetAbility(t).name == "sven_storm_bolt" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 680 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										UseBlinkDagger()
-										TemplarMeld()
-										Jugernautfury()
-										Nyx()
-										LoneDruidUlt()
-										AlchemistRage()
-										Embersleighttargetcal()
-										UseEulScepterSelf()
-										UseShadowBlade()
-										Useshadowamulet()
-										UseManta()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "phantom_assassin_phantom_strike" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1100 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										UseEulScepterTarget()
-										UseEtherealtarget()
-										UseBlinkDagger()
-										UseShadowBlade()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "tiny_avalanche" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 900 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										UseEulScepterSelf()
-										UseShadowBlade()
-										UseBlinkDagger()
-										Embersleighttargetcal()
-										Jugernautfury()
-										Nyx()
-										Useshadowamulet()						
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "pugna_nether_blast" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 750 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.70, 0))
-									if turntime == 0 then
-										Nyx()	
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "dazzle_poison_touch" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 650 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										UseBlinkDagger()
-										Puck()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "sniper_assassinate" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 4000 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										UseBlinkDagger()
-										TemplarRefraction()
-										AlchemistRage()
-										Jugernautfury()
-										Nyx()
-										UseEulScepterSelf()
-										LoneDruidUlt()
-										SlarkPounce()
-										UseManta()
-										local sniperultdamage = 0
-										if v:GetAbility(4).level == 1 then
-											sniperultdamage = 350*3/4
-										end
-										if v:GetAbility(4).level == 2 then
-											sniperultdamage = 505*3/4
-										end
-										if v:GetAbility(4).level == 3 then
-											sniperultdamage = 655*3/4
-										end
-										if sniperultdamage > me.health then
-											if GetDistance2D(v,me) > 1000 then
-												ShadowdemonDisruptionself()
-												ObsidianImprisonmentself()
-											end
-											Phoenixsupernova()
-											UseBloodStone()
-										end
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "skeleton_king_hellfire_blast" then 
-							if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 600 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										SlarkDarkPact()
-										Puck()
-										UseBlinkDagger()
-										AlchemistRage()
-										Jugernautfury()
-										Embersleighttargetcal()
-										Nyx()
-										LoneDruidUlt()
-										UseEulScepterSelf()
-										UseShadowBlade()
-										Useshadowamulet()
-										UseManta()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "medusa_mystic_snake" then
-							if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 800 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										UseShadowBlade()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "pudge_meat_hook" then
-							if math.ceil(v:GetAbility(t).cd) <=  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) and math.ceil(v:GetAbility(t).cd) >=  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level))-2 then
-								if GetDistance2D(v,me) < 1300 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
-									if turntime == 0 then
-										Nyx()
-										Jugernautfury()
-										Puck()
-										UseBlinkDagger()							
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "rattletrap_hookshot" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 3000 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Nyx()
-										Jugernautfury()
-										Puck()
-										UseBlinkDagger()
-										Useshadowamulet()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "dragon_knight_breathe_fire" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 620 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Nyx()
-										Puck()
-										Jugernautfury()
-										UseBlinkDagger()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "huskar_life_break" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 580 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then									
-										Puck()
-										Nyx()
-										SlarkShadowDance()
-										Jugernautfury()
-										Lifestealerrage()
-										Embersleighttargetcal()
-										UseEulScepterSelf()
-										UseBlinkDagger()
-										UseShadowBlade()
-										Useshadowamulet()
-										Useblackking()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "chaos_knight_chaos_bolt" then
-							if math.ceil(v:GetAbility(t).cd - 0.7) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 580 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										LoneDruidUlt()
-										UseBlinkDaggerfront()
-										AlchemistRage()
-										Nyx()
-										SlarkDarkPact()
-										Embersleighttargetcal()
-										UseEulScepterSelf()
-										UseShadowBlade()
-										Useshadowamulet()
-										UseManta()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "shredder_timber_chain" then
-							if math.ceil(v:GetAbility(t).cd-0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)-0.1) then
-								if GetDistance2D(v,me) < 1400 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Nyx()
-										Jugernautfury()
-										Puck()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "magnataur_shockwave" then
-							if math.ceil(v:GetAbility(t).cd + 0.3) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1160 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
-									if turntime == 0 then
-										Nyx()
-										Puck()
-									end
-								end
-							elseif math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 600 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
-									if turntime == 0 then
-										Nyx()
-										Puck()
-									end
-								end	
-							end				
-						elseif v:GetAbility(t).name == "nyx_assassin_impale" then
-							if math.ceil(v:GetAbility(t).cd - 12.9) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 800 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
-									if turntime == 0 then
-										Puck()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "magnataur_skewer" then
-							if math.ceil(v:GetAbility(t).cd - 0.8) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 900 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.80, 0))
-									if turntime == 0 then
-										Nyx()
-										Puck()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "phantom_lancer_spirit_lance" then
-							if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 820 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then						
-										Nyx()
-										Puck()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "slark_pounce" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 600 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
-									if turntime == 0 then
-										Nyx()
-										Puck()
-										UseShadowBlade()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "vengefulspirit_magic_missile" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 550 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Nyx()
-										Puck()
-										LoneDruidUlt()
-										UseBlinkDaggerfront()
-										AlchemistRage()
-										UseManta()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "bounty_hunter_shuriken_toss" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 750 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Nyx()
-										Puck()
-										LoneDruidUlt()
-										SlarkPounce()
-										Embersleighttargetcal()
-										UseBlinkDaggerfront()
-										AlchemistRage()
-										UseShadowBlade()
-										UseManta()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "viper_viper_strike" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 910 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										UseBlinkDagger()
-										SlarkPounce()
-										LoneDruidUlt()
-										Embersleighttargetcal()
-										UseManta()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "naga_siren_ensnare" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 670 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										UseBlinkDaggerfront()
-										Puck()
-										SlarkDarkPact()
-										Embersleighttargetcal()
-										if v:GetAbility(t).level >= 2 then
-											LoneDruidUlt()
-										end
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "witch_doctor_paralyzing_cask" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 720 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										Embersleighttargetcal()
-										if v:GetAbility(t).level >= 2 then
-											LoneDruidUlt()
-										end
-										UseShadowBlade()	
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "spectre_spectral_dagger" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1000 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										Nyx()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "windrunner_shackleshot" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 900 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										Nyx()
-										UseBlinkDagger()
-										UseShadowBlade()
-										SlarkDarkPact()
-										SlarkPounce()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "lich_chain_frost" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 900 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Nyx()
-										Puck()
-										UseShadowBlade()
-										SlarkShadowDance()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "juggernaut_omni_slash" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 900 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										TemplarMeld()
-										PhantomlancerDoppelwalk()
-										NyxVendetta()
-										WeaverShukuchi()
-										BountyhunterWindwalk()
-										UseGhostScepter()
-										UseShadowBlade()
-										UseEulScepterSelf()
-										SlarkShadowDance()
-										UseShadowBlade()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "death_prophet_carrion_swarm" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1100 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
-									if turntime == 0 then
-										Nyx()
-										Puck()
-										Embersleighttargetcal()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "invoker_deafening_blast" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1100 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then									
-										Nyx()
-										Puck()
-										UseShadowBlade()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "skywrath_mage_concussive_shot" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1600 then
-									Puck()
-								end
-							end
-						elseif v:GetAbility(t).name == "skywrath_mage_mystic_flare" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1250 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										UseEulScepterSelf()
-										UseManta()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "puck_illusory_orb" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 750 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										Nyx()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "tinker_heat_seeking_missile" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 2500 then
-									Nyx()
-									Puck()
-									TemplarMeld()
-									Embersleighttargetcal()
-									LoneDruidUlt()
+						end
+					elseif v:GetAbility(t).name == "queenofpain_shadow_strike" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 625 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
 									UseBlinkDaggerfront()
-									UseShadowBlade()
+									Puck()
 									Embersleighttargetcal()
+									UseShadowBlade()
 								end
 							end
-						elseif v:GetAbility(t).name == "windrunner_powershot" then
-							if math.ceil(v:GetAbility(t).cd + 0.9) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1500 then
-										turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-										if turntime == 0 then
-											Nyx()
-											Puck()
-										end
-									end
-								end
-						elseif v:GetAbility(t).name == "alchemist_unstable_concoction" then
-							if math.ceil(v:GetAbility(t).cd - 14.9) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1000 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										Puck()
-										Nyx()
-										Embersleighttargetcal()
-										UseBlinkDagger()
-										Jugernautfury()
-										UseEulScepterSelf()
-										UseShadowBlade()
-										Useshadowamulet()
-									end
+						end
+					elseif v:GetAbility(t).name == "queenofpain_blink" then
+						if math.ceil(v:GetAbility(t).cd - 0.8) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 500 then
+								if GetDistance2D(v,me) < 400 then
+									PuckW()
+									UseSheepStickTarget()
+									UseOrchidtarget()
+									UseEulScepterTarget()
+									Emberchains()
+								else
+									Silencerult()
+									TusksnowballTarget()
+									UseSheepStickTarget()
+									UseOrchidtarget()
+									UseEulScepterTarget()
+									Puck()
 								end
 							end
-						elseif v:GetAbility(t).name == "queenofpain_shadow_strike" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 625 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										UseBlinkDaggerfront()
-										Puck()
-										Embersleighttargetcal()
-										UseShadowBlade()
-									end
+						end
+					elseif v:GetAbility(t).name == "queenofpain_sonic_wave" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1300 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
+								if turntime == 0 then
+									Nyx()
+									UseBlinkDagger()
+									Jugernautfury()
+									Embersleighttargetcal()
+									Puck()
 								end
 							end
-						elseif v:GetAbility(t).name == "queenofpain_blink" then
-							if math.ceil(v:GetAbility(t).cd - 0.8) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 500 then
+						end
+					elseif v:GetAbility(t).name == "disruptor_glimpse" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 2000 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									UseEulScepterSelf()
+									UseShadowBlade()
+									Useshadowamulet()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "faceless_void_time_walk" then
+						if GetDistance2D(v,me) < 1050 then
+							for t = 1, 4 do
+								if v:GetAbility(t).name == "faceless_void_chronosphere" and v:GetAbility(t).state == -1 then
 									if GetDistance2D(v,me) < 400 then
 										PuckW()
 										UseSheepStickTarget()
@@ -1509,52 +1548,7 @@ function Tick( tick )
 										UseOrchidtarget()
 										UseEulScepterTarget()
 										Puck()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "queenofpain_sonic_wave" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 1300 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
-									if turntime == 0 then
-										Nyx()
 										UseBlinkDagger()
-										Jugernautfury()
-										Embersleighttargetcal()
-										Puck()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "disruptor_glimpse" then
-							if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-								if GetDistance2D(v,me) < 2000 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-									if turntime == 0 then
-										UseEulScepterSelf()
-										UseShadowBlade()
-										Useshadowamulet()
-									end
-								end
-							end
-						elseif v:GetAbility(t).name == "faceless_void_time_walk" then
-							if GetDistance2D(v,me) < 1050 then
-								for t = 1, 4 do
-									if v:GetAbility(t).name == "faceless_void_chronosphere" and v:GetAbility(t).state == -1 then
-										if GetDistance2D(v,me) < 400 then
-											PuckW()
-											UseSheepStickTarget()
-											UseOrchidtarget()
-											UseEulScepterTarget()
-											Emberchains()
-										else
-											Silencerult()
-											TusksnowballTarget()
-											UseSheepStickTarget()
-											UseOrchidtarget()
-											UseEulScepterTarget()
-											Puck()
-											UseBlinkDagger()
-										end
 									end
 								end
 							end
