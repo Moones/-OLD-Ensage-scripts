@@ -1535,7 +1535,7 @@ function Tick( tick )
 						if GetDistance2D(v,me) < 1050 then
 							for t = 1, 4 do
 								if v:GetAbility(t).name == "faceless_void_chronosphere" and v:GetAbility(t).state == -1 then
-									if GetDistance2D(v,me) < 400 then
+									if GetDistance2D(v,me) < 825 then
 										PuckW()
 										UseSheepStickTarget()
 										UseOrchidtarget()
@@ -2300,7 +2300,7 @@ end
 function UseBlinkDagger() --use blink to home
 	if activated == 0 then
 
-		local BlinkDagger = me:FindItem(t)
+		local BlinkDagger = me:FindItem("item_blink")
 		if BlinkDagger ~= nil and BlinkDagger.cd == 0 then
 			local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
 			me:CastItem(BlinkDagger.name,Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z))
