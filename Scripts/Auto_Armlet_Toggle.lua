@@ -109,7 +109,7 @@ function Tick( tick )
 		end
 	end
 	
-	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do	
+	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})) do	
 		if v.team ~= me.team and not v:IsIllusion() then
 			if not armState and not me:DoesHaveModifier("modifier_ice_blast") then
 					
