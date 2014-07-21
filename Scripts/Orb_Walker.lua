@@ -511,8 +511,6 @@ function Close()
 	victim = nil
 	myId = nil
 	
-	SaveSettings()
-	
 	if HUD then
 		HUD:Close()	
 		HUD = nil
