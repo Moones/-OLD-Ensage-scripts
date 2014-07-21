@@ -433,6 +433,7 @@ function OnLoadTick()
 				end
 			end		
 			script:RegisterEvent(EVENT_TICK, MainTick)	
+			script:UnregisterEvent(OnLoadTick)
 		end
 	end
 end
