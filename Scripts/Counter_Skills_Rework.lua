@@ -2619,15 +2619,15 @@ function Useshadowamulettarget()--target
 end
 
 function qna(tick)
-	client:ExecuteCmd("+sixense_left_shift")
-	if aa == nil then
+   client:ExecuteCmd("+sixense_left_shift")
+   if aa == nil then
 		sleep = tick + 1000
 		aa = 1
 	end
 	if tick > sleep then
-		client:ExecuteCmd("-sixense_left_shift")
-    		aa = nil
-		script:UnregisterEvent(qna)
+   client:ExecuteCmd("-sixense_left_shift")
+    aa = nil
+	script:UnregisterEvent(qna)
 	end
 	
 end   
