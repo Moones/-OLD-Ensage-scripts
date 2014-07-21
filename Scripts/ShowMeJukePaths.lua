@@ -422,7 +422,7 @@ function OnLoadTick()
 	if PlayingGame() then
 		local me = entityList:GetMyHero()
 		if not me then 
-			script:Disable()
+			return
 		else
 			if #jukeSpotClasses == 0 then
 				for i = 1, #jukeSpotTables do
