@@ -1410,12 +1410,12 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "skywrath_mage_concussive_shot" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1600 then
-								Puck()
-							end
-						end
+					-- elseif v:GetAbility(t).name == "skywrath_mage_concussive_shot" then
+						-- if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							-- if GetDistance2D(v,me) < 1600 then
+								-- Puck()
+							-- end
+						-- end
 					elseif v:GetAbility(t).name == "skywrath_mage_mystic_flare" then
 						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 1250 then
