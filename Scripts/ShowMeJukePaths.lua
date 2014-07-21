@@ -174,7 +174,7 @@ local jukeSpotTables = {
 	
 }
 
-local jukeSpotClasses = {}
+local jukeSpotClasses = {} local reg = false
 
 -- Preload stuff --
 
@@ -432,6 +432,7 @@ function OnLoadTick()
 					jukeSpotClasses[#jukeSpotClasses+1] = JukeSpot(jukeSpotTables[i])
 				end
 			end		
+			reg = true
 			script:RegisterEvent(EVENT_TICK, MainTick)	
 			script:UnregisterEvent(OnLoadTick)
 		end
@@ -445,6 +446,11 @@ function Close()
 		else
 			collectgarbage("collect")
 		end
+	end
+	if reg then
+		script:UnregisterEvent(MainTick)
+		script:RegisterEvent(EVENT_TICK, OnLoadTick)
+		reg = false
 	end
 end
 
