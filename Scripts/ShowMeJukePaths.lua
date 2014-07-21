@@ -304,21 +304,18 @@ class 'JukeSpot'
 
 	function JukeSpot:RemoveEffects()
 		for i = 1, #self.brushTable do
-
 			self.brushTable[i] = nil
-
 		end
 		
 		for i = 1, #self.treeCutSpots do
 			self.treeCutEffectTable[""..self.treeCutSpots[i].x..self.treeCutSpots[i].y..self.treeCutSpots[i].z..""] = nil
-			collectgarbage("collect")
 		end
 		
 		for i = 1, #self.hideSpots do
 			self.hideSpotEffectTable[""..self.hideSpots[i].x..self.hideSpots[i].y..self.hideSpots[i].z..""] = nil
-			collectgarbage("collect")
 		end
-		
+		-- collecting once is enough
+		collectgarbage("collect")
 		self.hasParticles = false	
 	end
 
@@ -443,10 +440,9 @@ function Close()
 	for i = 1, #jukeSpotClasses do
 		if jukeSpotClasses[i].hasParticles then
 			jukeSpotClasses[i]:RemoveEffects()
-		else
-			collectgarbage("collect")
 		end
 	end
+	collectgarbage("collect")
 	if reg then
 		script:UnregisterEvent(MainTick)
 		script:RegisterEvent(EVENT_TICK, OnLoadTick)
