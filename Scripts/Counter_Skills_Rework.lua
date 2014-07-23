@@ -984,8 +984,8 @@ function Tick( tick )
 							end
 						end
 					elseif v:GetAbility(t).name == "sven_storm_bolt" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 680 then
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < (600 + me.movespeed*((GetDistance2D(v,me)/v:GetAbility(t):GetSpecialData("bolt_speed",v:GetAbility(t).level)) + 1)) then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 								if turntime == 0 then
 									Puck()
@@ -1051,7 +1051,7 @@ function Tick( tick )
 							end
 						end
 					elseif v:GetAbility(t).name == "sniper_assassinate" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+						if math.ceil(v:GetAbility(t).cd + math.max((GetDistance2D(v,me)/v:GetAbility(t):GetSpecialData("projectile_speed",v:GetAbility(t).level)) - client.latency/1000, 0) - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 4000 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 								if turntime == 0 then
@@ -2299,14 +2299,13 @@ end
 --useitem--------------------------------------------------------------------------------------------------------------------------------------
 function UseBlinkDagger() --use blink to home
 	if activated == 0 then
-
 		local BlinkDagger = me:FindItem("item_blink")
 		if BlinkDagger ~= nil and BlinkDagger.cd == 0 then
 			local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
 			me:CastItem(BlinkDagger.name,Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z))
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
-		activated=1
-		sleepTick= GetTick() +500
 	end
 
 end
@@ -2369,17 +2368,13 @@ function UseGhostScepter()
 	end
 end
 
-function UseEulScepterSelf()--self
-	for t = 1, 6 do
-		if me:HasItem(t) and me:GetItem(t).name == "item_cyclone" then
-			UseEulScepter = me:GetItem(t)
-		end
-	end
+function UseEulScepterSelf()--self	
+	local euls = me:FindItem("item_cyclone")
 	if activated == 0 then
-		if UseEulScepter and UseEulScepter and UseEulScepter.state==-1 then
-			me:CastAbility(UseEulScepter,me)
-			activated=1
-			sleepTick= GetTick() +500
+		if euls and euls.cd == 0 then
+			me:SafeCastItem(euls.name,me)
+			activated = 1
+			sleepTick = GetTick() + 500
 			return
 		end
 	end
