@@ -161,12 +161,12 @@ end
 function Heal(me,ability,amount,range,target,id,excludeme)
 	local heal = me:GetAbility(ability)
 	if heal and heal.state == LuaEntityAbility.STATE_READY then
-		local healthAmount = GetHeal(heal.level,me,amount,id)		
+		local healthAmount = GetHeal(heal.level,me,amount,id)
 		local Range = (range) or (heal.castRange + 50)			
 		if me.alive and not me:IsChanneling() then
 			local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 			for i,v in ipairs(allies) do
-				if v.healthbarOffset ~= -1 and not v:IsIllusion() then
+				if v.healthbarOffset ~= -1 and not v:IsIllusion() and healthAmount > 0 then
 					if v.alive and v.health > 0 and (not excludeme or v ~= me) and NetherWard(heal,v,me) then
 						if activ then
 							if ((v.maxHealth - v.health) >= healthAmount or v.health < ClosestHeroDmg(v)) and GetDistance2D(me,v) <= Range then								
