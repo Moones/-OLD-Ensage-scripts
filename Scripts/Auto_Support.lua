@@ -19,32 +19,34 @@ function SupportTick(tick)
 	local meka = me:FindItem("item_mekansm") local urn = me:FindItem("item_urn_of_shadows") local manaboots = me:FindItem("item_arcane_boots") local needmana = nil local needmeka = nil
 	local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 	for i,v in ipairs(allies) do
-		local distance = GetDistance2D(me,v)
-		if meka and meka.cd == 0 then
-			if (v.maxHealth - v.health) >= 250 and distance <= 2000 and me.mana >= 150 then
-				if not needmeka or (needmeka and GetDistance2D(needmeka,me) <= 750) then
-					needmeka = v
-				end
-				if GetDistance2D(needmeka,me) <= 750 then
-					me:CastItem(meka.name)
+		if me.alive and not me:IsChanneling() then
+			local distance = GetDistance2D(me,v)
+			if meka and meka.cd == 0 then
+				if (v.maxHealth - v.health) >= 250 and distance <= 2000 and me.mana >= 150 then
+					if not needmeka or (needmeka and GetDistance2D(needmeka,me) <= 750) then
+						needmeka = v
+					end
+					if GetDistance2D(needmeka,me) <= 750 then
+						me:CastItem(meka.name)
+					end
 				end
 			end
-		end
-		if urn and urn.cd == 0 and urn.charges > 0 and not v:DoesHaveModifier("modifier_item_urn_heal") then
-			if (v.maxHealth - v.health) >= 400 and distance <= 950 and not IsInDanger(v) then
-				me:CastItem(urn.name,v)
-			end
-			if me:DoesHaveModifier("modifier_wisp_tether") and (v.maxHealth - v.health) >= 600 then
-				me:CastItem(urn.name,me)
-			end
-		end
-		if manaboots and manaboots.cd == 0 then
-			if (v.maxMana - v.mana) >= 135 and distance < 2000 and me.mana >= 35 then
-				if not needmana or (needmana and GetDistance2D(needmana,me) <= 600) then
-					needmana = v
+			if urn and urn.cd == 0 and urn.charges > 0 and not v:DoesHaveModifier("modifier_item_urn_heal") then
+				if (v.maxHealth - v.health) >= 400 and distance <= 950 and not IsInDanger(v) then
+					me:CastItem(urn.name,v)
 				end
-				if GetDistance2D(needmana,me) <= 600 then
-					me:CastItem(manaboots.name)
+				if me:DoesHaveModifier("modifier_wisp_tether") and (v.maxHealth - v.health) >= 600 then
+					me:CastItem(urn.name,me)
+				end
+			end
+			if manaboots and manaboots.cd == 0 then
+				if (v.maxMana - v.mana) >= 135 and distance < 2000 and me.mana >= 35 then
+					if not needmana or (needmana and GetDistance2D(needmana,me) <= 600) then
+						needmana = v
+					end
+					if GetDistance2D(needmana,me) <= 600 then
+						me:CastItem(manaboots.name)
+					end
 				end
 			end
 		end
