@@ -21,7 +21,7 @@ function SupportTick(tick)
 	for i,v in ipairs(allies) do
 		local distance = GetDistance2D(me,v)
 		if meka and meka.cd == 0 then
-			if (v.maxHealth - v.health) >= 250 and distance <= 2000 then
+			if (v.maxHealth - v.health) >= 250 and distance <= 2000 and me.mana >= 150 then
 				if not needmeka or (needmeka and GetDistance2D(needmeka,me) <= 750) then
 					needmeka = v
 				end
@@ -39,7 +39,7 @@ function SupportTick(tick)
 			end
 		end
 		if manaboots and manaboots.cd == 0 then
-			if (v.maxMana - v.mana) >= 135 and distance < 2000 then
+			if (v.maxMana - v.mana) >= 135 and distance < 2000 and me.mana >= 35 then
 				if not needmana or (needmana and GetDistance2D(needmana,me) <= 600) then
 					needmana = v
 				end
