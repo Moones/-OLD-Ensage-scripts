@@ -114,7 +114,7 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration)
 						if activ then
 							if type(tresh) == "table" then
 								if treshspell and type(treshspell) == "number" then treshspell = me:GetAbility(treshspell) end
-								if target == 2 then
+								if target == 2 and save2:CanBeCasted() then
 									local needsave = nil
 									if treshspell and treshspell.level > 0 and IsInDanger(v) and save2 and save2.level > 0 and save2:CanBeCasted() and GetDistance2D(me,v) <= Range then
 										if not needsave or (needsave and (v.maxHealth - v.health) > (needsave.maxHealth - needsave.health)) then
@@ -138,14 +138,14 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration)
 								end									
 							else
 								local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
-								if v.health < tresh and not IsInDanger(v) and GetDistance2D(v,fountain) > GetDistance2D(me,fountain) and (GetDistance2D(v,fountain) - GetDistance2D(me,fountain)) > 1000 and not v:IsChanneling() then
+								if save1:CanBeCasted() and v.health < tresh and not IsInDanger(v) and GetDistance2D(v,fountain) > GetDistance2D(me,fountain) and (GetDistance2D(v,fountain) - GetDistance2D(me,fountain)) > 1000 and not v:IsChanneling() then
 									me:CastAbility(save1)
-									if save2 then
+									if save2 and save2:CanBeCasted() then
 										me:CastAbility(save2,v)
 									end
 								end
 								if save1.name == "centaur_stampede" then
-									if v.health < tresh and not v:IsChanneling() and IsInDanger(v) then
+									if save1:CanBeCasted() and v.health < tresh and not v:IsChanneling() and IsInDanger(v) then
 										me:CastAbility(save1)
 									end
 								end
