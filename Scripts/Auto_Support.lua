@@ -53,41 +53,41 @@ function SupportTick(tick)
 		if ID == CDOTA_Unit_Hero_KeeperOfTheLight then
 			Save(me,6,4,nil,nil)
 		elseif ID == CDOTA_Unit_Hero_Dazzle then
-			Heal(false,me,3,{80, 100, 120, 140},nil,nil,1)
+			Heal(me,3,{80, 100, 120, 140},nil,1)
 			Save(me,nil,2,nil,nil,{80, 100, 120, 140},3,{0.5,0.5,0.5,0.5})
 		elseif ID == CDOTA_Unit_Hero_Enchantress then		
-			Heal(false,me,3,{300,500,700,900},nil,300,3)
+			Heal(me,3,{300,500,700,900},300,3)
 		elseif ID == CDOTA_Unit_Hero_Legion_Commander then
-			Heal(false,me,2,{150, 200, 250, 300},nil,nil,1)
+			Heal(me,2,{150, 200, 250, 300},nil,1)
 		elseif ID == CDOTA_Unit_Hero_Abaddon then
-			Heal(false,me,1,{100, 150, 200, 250},nil,nil,1,nil,true)
+			Heal(me,1,{100, 150, 200, 250},nil,1,nil,true)
 			Save(me,nil,2,nil,2,{100, 150, 200, 250},1)
 		elseif ID == CDOTA_Unit_Hero_Omniknight then
-			Heal(false,me,1,{90, 180, 270, 360},nil,nil,1)
+			Heal(me,1,{90, 180, 270, 360},nil,1)
 			Save(me,nil,2,nil,2,{90, 180, 270, 360},1)
 		elseif ID == CDOTA_Unit_Hero_Treant then
-			Heal(false,me,3,{60, 105, 150, 195},nil,2200000,1)
+			Heal(me,3,{60, 105, 150, 195},2200000,1)
 		elseif ID == CDOTA_Unit_Hero_Chen then
-			Heal(false,me,5,{200, 300, 400},nil,2200000,3,{6,5,4,3})
+			Heal(me,5,{200, 300, 400},2200000,3,{6,5,4,3})
 			Save(me,nil,3,nil,nil,{200, 300, 400},5)
 		elseif ID == CDOTA_Unit_Hero_Wisp then	
 			if me:GetAbility(1).name == "wisp_tether" then
-				Heal(false,me,1,me.healthRegen*18,nil,1800,1,nil,true)
+				Heal(me,1,me.healthRegen*18,1800,1,nil,true)
 			elseif me:GetAbility(2).name == "wisp_tether" then
-				Heal(false,me,2,me.healthRegen*18,nil,1800,1,nil,true)
+				Heal(me,2,me.healthRegen*18,1800,1,nil,true)
 			end
 		elseif ID == CDOTA_Unit_Hero_Centaur then		
 			Save(me,4,nil,2200000)
 		elseif ID == CDOTA_Unit_Hero_WitchDoctor then
-			Heal(false,me,2,{16,24,32,40},nil,550,4)
+			Heal(me,2,{16,24,32,40},550,4)
 		elseif ID == CDOTA_Unit_Hero_Necrolyte then
-			Heal(false,me,1,{70,90,110,130},nil,500,3)
+			Heal(me,1,{70,90,110,130},500,3)
 		elseif ID == CDOTA_Unit_Hero_Warlock then
-			Heal(false,me,2,{165,275,385,495},nil,nil,1)
+			Heal(me,2,{165,275,385,495},nil,1)
 		--elseif ID == CDOTA_Unit_Hero_Rubick then -- Rubick spell steals not implemented yet
 			--Heal()
 		elseif ID == CDOTA_Unit_Hero_Undying then
-			Heal(false,me,2,{5,10,15,20},nil,nil,1,ID)
+			Heal(me,2,{5,10,15,20},nil,1,ID)
 		end
 	end
 end
@@ -158,10 +158,10 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration)
 	end
 end
 
-function Heal(comp,me,ability,damage,adamage,range,target,id,excludeme)
+function Heal(me,ability,amount,range,target,id,excludeme)
 	local heal = me:GetAbility(ability)
 	if heal and heal.state == LuaEntityAbility.STATE_READY then
-		local healthAmount = GetHeal(heal.level,me,damage,id)		
+		local healthAmount = GetHeal(heal.level,me,amount,id)		
 		local Range = (range) or (heal.castRange + 50)			
 		if me.alive and not me:IsChanneling() then
 			local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
