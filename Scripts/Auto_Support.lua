@@ -30,7 +30,7 @@ function SupportTick(tick)
 				end
 			end
 		end
-		if urn and urn.cd == 0 and urn.charges > 0 then
+		if urn and urn.cd == 0 and urn.charges > 0 and not v:DoesHaveModifier("modifier_item_urn_heal") then
 			if (v.maxHealth - v.health) >= 400 and distance <= 950 and not IsInDanger(v) then
 				me:CastItem(urn.name,v)
 			end
