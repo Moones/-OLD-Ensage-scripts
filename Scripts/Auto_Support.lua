@@ -20,7 +20,7 @@ function SupportTick(tick)
 	local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 	local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
 	for i,v in ipairs(allies) do
-		if me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 1500 and not me:DoesHaveModifier("modifier_fountain_aura_buff") then
+		if me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 1500 and not me:IsInvisible() then
 			local distance = GetDistance2D(me,v)
 			if meka and meka.cd == 0 then
 				if (v.maxHealth - v.health) >= 250 and distance <= 2000 and me.mana >= 150 then
@@ -109,7 +109,7 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration)
 	if (save1 and save1.level > 0) or (save2 and save2.level > 0) then
 		if tresh == nil then tresh = 200 end
 		local Range = range or (save2.castRange+50)
-		if me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 1500 and not me:DoesHaveModifier("modifier_fountain_aura_buff") then
+		if me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 1500 and not me:IsInvisible() then
 			local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 			for i,v in ipairs(allies) do
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() then
@@ -166,7 +166,7 @@ function Heal(me,ability,amount,range,target,id,excludeme)
 	if heal and heal.state == LuaEntityAbility.STATE_READY then
 		local healthAmount = GetHeal(heal.level,me,amount,id)
 		local Range = (range) or (heal.castRange + 50)			
-		if me.alive and not me:IsChanneling() then
+		if me.alive and not me:IsChanneling() and not me:IsInvisible() and GetDistance2D(me,fountain) > 1500 then
 			local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 			for i,v in ipairs(allies) do
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() and healthAmount > 0 then
