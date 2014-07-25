@@ -35,11 +35,28 @@ function Tick( tick )
 						TemplarRefraction()
 					end
 				end
+			elseif v.name == "npc_dota_hero_slardar" then
+				if v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase  then
+					if GetDistance2D(v,me) < 350 then
+						Nyx()
+						UseBlinkDagger()
+						UseEulScepterTarget()
+						TemplarRefraction()
+						Puck()
+						Useblackking()
+						Lifestealerrage()
+						UseSheepStickTarget()
+						UseOrchidtarget()
+					end
+				end
 			elseif v.name == "npc_dota_hero_doom_bringer" then
 				if v:GetAbility(6) and v:GetAbility(6).level > 0 and v:GetAbility(6).abilityPhase then
 					if GetDistance2D(v,me) < 680 then
 						if GetDistance2D(v,me) < 400 then
 							PuckW()
+							UseEulScepterTarget()
+							UseSheepStickTarget()
+							UseOrchidtarget()
 						end
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -48,6 +65,7 @@ function Tick( tick )
 							UseShadowBlade()
 							Puck()
 							Useblackking()
+							Lifestealerrage()
 						end
 					end
 				end
@@ -1183,6 +1201,34 @@ function Tick( tick )
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 								if turntime == 0 then
 									UseShadowBlade()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "lina_light_strike_array" then
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 712.5 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									UseEulScepterSelf()
+									UseBlinkDagger()
+									Jugernautfury()
+									Nyx()
+									SlarkDarkPact()
+									UseShadowBlade()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "lina_dragon_slave" then
+						if math.ceil(v:GetAbility(t).cd + 0.3) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1275 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Puck()
+									UseEulScepterSelf()
+									UseBlinkDagger()
+									Jugernautfury()
+									Nyx()
 								end
 							end
 						end
