@@ -1210,7 +1210,9 @@ function Tick( tick )
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 								if turntime == 0 then
 									Puck()
-									UseEulScepterSelf()
+									if v:GetAbility(t):GetDamage(v:GetAbility(t).level) * (1 - me.magicDmgResist) > me.health then
+										UseEulScepterSelf()
+									end
 									UseBlinkDagger()
 									Jugernautfury()
 									Nyx()
