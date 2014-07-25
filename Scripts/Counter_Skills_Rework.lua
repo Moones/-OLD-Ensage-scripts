@@ -15,6 +15,7 @@ function Tick( tick )
 	
 	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})) do
 		if v.team ~= me.team and not v:IsIllusion() then
+			target = v
 			if v.name == "npc_dota_hero_shadow_shaman" then
 				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
 					if GetDistance2D(v,me) < 610 then
@@ -452,19 +453,19 @@ function Tick( tick )
 					end
 				end
 			elseif v.name == "npc_dota_hero_obsidian_destroyer" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 11 then
-					if GetDistance2D(v,me) < 1275 then
+				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
+				Radius = {375,475,575}
+					if GetDistance2D(v,me) < v:GetAbility(4):GetCastRange(v:GetAbility(4).level)+Radius[v:GetAbility(4).level]/2 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.70, 0))
 						if turntime == 0 then
-							if wait == 0 then
-								waittime = GetTick() + 100 - (client.avgLatency / 1000)
-								wait = 1 
-							else
-								if GetTick() > waittime then
-									Nyx()
-									wait = 0
-								end
-							end
+							Nyx()
+							PuckW()
+							UseEulScepterSelf()
+							UseBlinkDagger()
+							Useblackking()
+							Lifestealerrage()
+							UseSheepStickTarget()
+							UseOrchidtarget()
 						end
 					end
 				end
