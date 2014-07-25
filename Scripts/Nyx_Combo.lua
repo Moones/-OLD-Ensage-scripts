@@ -90,7 +90,7 @@ function Main(tick)
 				end
 			end
 			
-			if IsKeyDown(combokey) and victim and not client.chat and not me:DoesHaveModifier("modifier_nyx_assassin_vendetta") then
+			if IsKeyDown(combokey) and victim and not client.chat and not me:DoesHaveModifier("modifier_nyx_assassin_vendetta") and (me:GetAbility(4) and me:GetAbility(4).level > 0 and not me:GetAbility(4).abilityPhase) then
 				
 				local manaburn = me:GetAbility(2)
 				local manadmg = {3.5,4,4.5,5}
