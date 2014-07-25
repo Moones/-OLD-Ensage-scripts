@@ -25,6 +25,15 @@ function Tick( tick )
 						end
 					end
 				end
+			elseif v.name == "npc_dota_hero_puck" then
+				if v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase then
+					if GetDistance2D(v,me) < 400 then
+						Nyx()
+						UseBlinkDagger()
+						UseEulScepterSelf()
+						TemplarRefraction()
+					end
+				end
 			elseif v.name == "npc_dota_hero_doom_bringer" then
 				if v:GetAbility(6) and v:GetAbility(6).level > 0 and v:GetAbility(6).abilityPhase then
 					if GetDistance2D(v,me) < 680 then
@@ -671,7 +680,8 @@ function Tick( tick )
 				UseBladeMail()
 				return		
 			end
-			--ARROW DODGER--
+			
+			--Projectile dodge--
 
 			local cast = entityList:GetEntities({classId=282})
 			local projectile = entityList:GetEntities({classId=CDOTA_BaseNPC})
@@ -690,10 +700,21 @@ function Tick( tick )
 							UseBlinkDagger()							
 						end
 					end
+				elseif z.dayVision == 1000 and z:DoesHaveModifier("modifier_truesight") then
+					if GetDistance2D(z,me) < 300 then
+						if GetDistance2D(z,me) < 200 + client.latency then
+							Puck()
+							Lifestealerrage()
+							Jugernautfury()
+							UseEulScepterSelf()
+							SlarkDarkPact()
+							SlarkPounce()						
+						else
+							UseBlinkDagger()							
+						end
+					end
 				end
 			end	
-			
-			--Rocket dodger--
 			
 			for i, z in ipairs(projectile) do
 				if z.team ~= me.team and z:DoesHaveModifier("modifier_rattletrap_rocket_flare") then
@@ -1395,7 +1416,9 @@ function Tick( tick )
 								if turntime == 0 then
 									Nyx()
 									Puck()
+									UseBlinkDagger()
 									UseShadowBlade()
+									UseEulScepterSelf()
 									SlarkShadowDance()
 								end
 							end
