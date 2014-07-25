@@ -26,7 +26,7 @@ function Tick( tick )
 					end
 				end
 			elseif v.name == "npc_dota_hero_puck" then
-				if v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase then
+				if v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase  then
 					if GetDistance2D(v,me) < 400 then
 						Nyx()
 						UseBlinkDagger()
@@ -925,7 +925,7 @@ function Tick( tick )
 						elseif v:GetAbility(s).name == "earthshaker_echo_slam" and GetDistance2D(v,me) < 575 and v:GetAbility(s).state == -1 then
 							PuckW()
 							Emberchains()
-							UseEulScepterTarget()
+							UseEulScepterSelf()
 							UseSheepStickTarget()
 							UseOrchidtarget()
 							Silencerult()
