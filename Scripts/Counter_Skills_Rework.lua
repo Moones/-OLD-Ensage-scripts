@@ -4,11 +4,11 @@ wait = 0
 waittime = 0
 sleepTick = nil
 sleep1 = 0 
+local activated = 0
 
 function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
-	if sleepTick and sleepTick > tick then return end
-	activated = 0	
+	if sleepTick and sleepTick > tick then activated = 1 return end	
 	me = entityList:GetMyHero() if not me then return end
 	
 	--Dodge by checking animations--
@@ -22,6 +22,22 @@ function Tick( tick )
 						if turntime == 0 then
 							Nyx()
 							TemplarRefraction()
+						end
+					end
+				end
+			elseif v.name == "npc_dota_hero_doom_bringer" then
+				if v:GetAbility(6) and v:GetAbility(6).level > 0 and v:GetAbility(6).abilityPhase then
+					if GetDistance2D(v,me) < 680 then
+						if GetDistance2D(v,me) < 400 then
+							PuckW()
+						end
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						if turntime == 0 then
+							Nyx()
+							Useshadowamulet()
+							UseShadowBlade()
+							Puck()
+							Useblackking()
 						end
 					end
 				end
@@ -99,8 +115,18 @@ function Tick( tick )
 						Nyx()
 					end
 				elseif v:GetProperty("CBaseAnimating","m_nSequence") == 21 then
+					if GetDistance2D(v,me) < 400 then
+						PuckW()	
+					end
 					if GetDistance2D(v,me) < 420 then
-						Puck()						
+						target = v
+						Puck()
+						UseShadowBlade()
+						Useblackking()
+						UseEulScepterSelf()
+						UseBlinkDagger()
+						UseSheepStickTarget()
+						UseOrchidtarget()
 					end
 				end
 			elseif v.name == "npc_dota_hero_tinker" then
@@ -925,21 +951,6 @@ function Tick( tick )
 								UseBlinkDagger()
 								UseShadowBlade()
 								Useshadowamulet()
-							end
-						end
-					elseif v:GetAbility(t).name == "doom_bringer_doom" then
-						if v:GetAbility(t).abilityPhase then
-							if GetDistance2D(v,me) < 400 then
-								PuckW()
-							end
-							target = v
-							UseOrchidtarget()
-							UseSheepStickTarget()
-							UseEulScepterTarget()
-							turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-							if turntime == 0 then
-								UseShadowBlade()
-								Useblackking()
 							end
 						end
 					elseif v:GetAbility(t).name == "sandking_epicenter" then
