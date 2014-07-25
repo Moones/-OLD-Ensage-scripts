@@ -986,6 +986,9 @@ function Tick( tick )
 					elseif v:GetAbility(t).name == "luna_eclipse" then
 						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 675 then
+								Puck()
+								UseBlinkDagger()
+								UseEulScepterSelf()
 								NyxVendetta()
 								BountyhunterWindwalk()
 								WeaverShukuchi()
