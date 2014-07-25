@@ -860,7 +860,7 @@ function Tick( tick )
 							PuckW()
 							UseBlinkDagger()
 							return 
-						elseif v:GetAbility(s).name == "batrider_flaming_lasso" and GetDistance2D(v,me) < 200 then
+						elseif v:GetAbility(s).name == "batrider_flaming_lasso" and GetDistance2D(v,me) < 300 then
 							Emberchains()
 							Silencerult()
 							UseEulScepterTarget()
@@ -2146,7 +2146,7 @@ function Puck()
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t) and me:GetAbility(t).name == "puck_phase_shift" and me:GetAbility(t).state == -1 then
+				if me:GetAbility(t) and me:GetAbility(t).name == "puck_phase_shift" and me:GetAbility(t).level > 0 and me:GetAbility(t).state == LuaEntityAbility.STATE_READY then
 					me:CastAbility(me:GetAbility(t))
 					activated = 1
 					pstime = {750,1500,2250,3250}
@@ -2163,11 +2163,11 @@ function PuckW()
 	if activated == 0 then
 		for v=1,6 do
 			if me:GetAbility(v) ~= nil then
-				if me:GetAbility(v) and me:GetAbility(v).name == "puck_waning_rift" and me:GetAbility(v).state ~= -1 then
+				if me:GetAbility(v) and me:GetAbility(v).name == "puck_waning_rift" and (me:GetAbility(v).level == 0 or me:GetAbility(v).state ~= LuaEntityAbility.STATE_READY) then
 				 Puck()	
-				elseif me:GetAbility(v) and me:GetAbility(v).name == "puck_waning_rift" and me:GetAbility(v).state == -1 then
+				elseif me:GetAbility(v) and me:GetAbility(v).name == "puck_waning_rift" and me:GetAbility(v).level > 0 and me:GetAbility(v).state == LuaEntityAbility.STATE_READY then
 					me:CastAbility(me:GetAbility(v))
-					activated=1
+					activated = 1
 					sleepTick= GetTick() + 500
 					return 		
 				end
