@@ -160,7 +160,7 @@ function Tick( tick )
 					if wait == 0 then					
 						waittime = GetTick() + 100 - (client.avgLatency/1000)
 						wait = 1 						
-					elseif GetTick() > waittime then					
+					elseif GetTick() > waittime then
 						Nyx()
 						UseShadowBlade()
 						TemplarMeld()
