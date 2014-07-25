@@ -127,7 +127,7 @@ function ssCheck()
 end
 
 function Key(msg, code)
-	if msg ~= KEY_UP or client.chat then return end
+	if msg ~= KEY_UP or client.chat or client.console then return end
 	if code == menu and HUD then 
 		if HUD:IsClosed() then
 			HUD:Open()
