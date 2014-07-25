@@ -678,7 +678,20 @@ function Tick( tick )
 					end
 				end
 				UseBladeMail()
-				return		
+				return	
+			elseif me:DoesHaveModifier("modifier_spirit_breaker_charge_of_darkness_vision") then	
+				if v.classId == CDOTA_Unit_Hero_SpiritBreaker then
+					if GetDistance2D(v,me) < 700 then
+						if GetDistance2D(v,me) < 400 then
+							Puck()
+						end
+						UseEulScepterTarget()
+						UseSheepStickTarget()
+						UseOrchidtarget()
+						UseShadowBlade()
+						Nyx()
+					end
+				end
 			end
 			
 			--Projectile dodge--
@@ -711,6 +724,16 @@ function Tick( tick )
 							SlarkPounce()						
 						else
 							UseBlinkDagger()							
+						end
+					end
+				elseif z.dayVision == 0 and z.unitState == 59802112 then
+					if GetDistance2D(z,me) < 700 then
+						if v.classId == CDOTA_Unit_Hero_SpiritBreaker then
+							if GetDistance2D(v,me) < 900 then
+								target = v 
+								UseEulScepterTarget()
+								UseSheepStickTarget()
+							end
 						end
 					end
 				end
