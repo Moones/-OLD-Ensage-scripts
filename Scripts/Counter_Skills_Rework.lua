@@ -8,7 +8,7 @@ local activated = 0
 
 function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
-	if sleepTick and sleepTick > tick then activated = 1 return end	
+	if sleepTick and sleepTick > tick then return end	
 	me = entityList:GetMyHero() if not me then return end
 	
 	--Dodge by checking animations--
@@ -1601,7 +1601,7 @@ function Tick( tick )
 			end
 		end
 	end
-	activated =0
+	activated = 0
 end
 
 function GameClose()
@@ -2149,8 +2149,9 @@ function Puck()
 				if me:GetAbility(t) and me:GetAbility(t).name == "puck_phase_shift" and me:GetAbility(t).state == -1 then
 					me:CastAbility(me:GetAbility(t))
 					activated = 1
+					pstime = {750,1500,2250,3250}
+					sleepTick = GetTick() + pstime[me:GetAbility(t).level]
 					script:RegisterEvent(EVENT_TICK,qna)
-					sleepTick = GetTick() +500
 					return 
 				end
 			end
@@ -2167,7 +2168,7 @@ function PuckW()
 				elseif me:GetAbility(v) and me:GetAbility(v).name == "puck_waning_rift" and me:GetAbility(v).state == -1 then
 					me:CastAbility(me:GetAbility(v))
 					activated=1
-					sleepTick= GetTick() +500
+					sleepTick= GetTick() + 500
 					return 		
 				end
 			end
@@ -2431,7 +2432,7 @@ function UseEulScepterSelf()--self
 		if euls and euls.cd == 0 then
 			me:SafeCastItem(euls.name,me)
 			activated = 1
-			sleepTick = GetTick() + 500
+			sleepTick = GetTick() + 2700
 			return
 		end
 	end
