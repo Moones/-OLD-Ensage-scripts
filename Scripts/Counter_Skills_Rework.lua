@@ -1672,22 +1672,24 @@ function Tick( tick )
 							end
 						end
 					elseif v:GetAbility(t).name == "faceless_void_time_walk" then
-						if GetDistance2D(v,me) < 1050 and v:CanCast() then
-							if v:GetAbility(4).name == "faceless_void_chronosphere" and v:GetAbility(4).state == LuaEntityAbility.STATE_READY then
-								if GetDistance2D(v,me) < 400 then
-									PuckW()
-									UseSheepStickTarget()
-									UseOrchidtarget()
-									UseEulScepterTarget()
-									Emberchains()
-								else
-									Silencerult()
-									TusksnowballTarget()
-									UseSheepStickTarget()
-									UseOrchidtarget()
-									UseEulScepterTarget()
-									Puck()
-									UseBlinkDagger()
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1050 and v:CanCast() then
+								if v:GetAbility(4).name == "faceless_void_chronosphere" and v:GetAbility(4).state == LuaEntityAbility.STATE_READY then
+									if GetDistance2D(v,me) < 400 then
+										PuckW()
+										UseSheepStickTarget()
+										UseOrchidtarget()
+										UseEulScepterTarget()
+										Emberchains()
+									else
+										Silencerult()
+										TusksnowballTarget()
+										UseSheepStickTarget()
+										UseOrchidtarget()
+										UseEulScepterTarget()
+										Puck()
+										UseBlinkDagger()
+									end
 								end
 							end
 						end
