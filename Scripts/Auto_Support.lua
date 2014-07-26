@@ -62,6 +62,8 @@ function SupportTick(tick)
 			Heal(me,3,{300,500,700,900},300,3)
 		elseif ID == CDOTA_Unit_Hero_Legion_Commander then
 			Heal(me,2,{150, 200, 250, 300},nil,1)
+		elseif ID == CDOTA_Unit_Hero_Huskar then
+			Heal(me,1,{32, 64, 96, 128},nil,1,ID)
 		elseif ID == CDOTA_Unit_Hero_Abaddon then
 			Heal(me,1,{100, 150, 200, 250},nil,1,nil,true)
 			Save(me,nil,2,nil,2,{100, 150, 200, 250},1)
@@ -161,15 +163,15 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration)
 	end
 end
 
-function Heal(me,ability,amount,range,target,id,excludeme)
+function Heal(me,ability,amount,range,target,id,excludeme,special)
 	local heal = me:GetAbility(ability)
 	if heal and heal.level > 0 and heal.state == LuaEntityAbility.STATE_READY then
-		local healthAmount = GetHeal(heal.level,me,amount,id)
 		local Range = (range) or (heal.castRange + 50)		
 		local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
 		if me.alive and not me:IsChanneling() and not me:IsInvisible() and GetDistance2D(me,fountain) > 1300 then
 			local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 			for i,v in ipairs(allies) do
+				local healthAmount = GetHeal(heal.level,me,amount,id,v)
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() and healthAmount > 0 then
 					if v.alive and v.health > 0 and (not excludeme or v ~= me) and NetherWard(heal,v,me) then
 						if activ then
@@ -192,7 +194,7 @@ function Heal(me,ability,amount,range,target,id,excludeme)
 	end
 end
 
-function GetHeal(lvl,me,tab1,id)
+function GetHeal(lvl,me,tab1,id,target)
 	local bheal = 0
 	if type(tab1) == "number" then
 		bheal = tab1
@@ -207,6 +209,19 @@ function GetHeal(lvl,me,tab1,id)
 		else
 			return bheal * 24
 		end
+	elseif id == CDOTA_Unit_Hero_Huskar then
+		local attribute_percentage = {0.05,0.10,0.15,0.20}
+		local mainattribute = 0
+		local attributes = {target.agility,target.intellect,target.strenght}
+		table.sort(attributes, function (a,b) return a > b end)
+		if attributes[1] == target.ability then
+			mainattribute = target.agilityTotal
+		elseif attributes[1] == target.intellect then
+			mainattribute = target.intellectTotal
+		elseif attributes[1] == target.strenght then
+			mainattribute = target.strenghtTotal
+		end
+		return bheal + mainattribute*attribute_percentage[lvl]*16
 	end
 	return bheal	
 end
@@ -293,7 +308,7 @@ function NetherWard(skill,hero,me)
 end
 
 function Support(hId)
-	if hId == CDOTA_Unit_Hero_KeeperOfTheLight or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Chen or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Enchantress or hId == CDOTA_Unit_Hero_Legion_Commander or hId == CDOTA_Unit_Hero_Abaddon or hId == CDOTA_Unit_Hero_Omniknight or hId == CDOTA_Unit_Hero_Treant or hId == CDOTA_Unit_Hero_Wisp or hId == CDOTA_Unit_Hero_Centaur or hId == CDOTA_Unit_Hero_Undying or hId == CDOTA_Unit_Hero_WitchDoctor or hId == CDOTA_Unit_Hero_Necrolyte or hId == CDOTA_Unit_Hero_Warlock or hId == CDOTA_Unit_Hero_Rubick then
+	if hId == CDOTA_Unit_Hero_KeeperOfTheLight or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Chen or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Enchantress or hId == CDOTA_Unit_Hero_Legion_Commander or hId == CDOTA_Unit_Hero_Abaddon or hId == CDOTA_Unit_Hero_Omniknight or hId == CDOTA_Unit_Hero_Treant or hId == CDOTA_Unit_Hero_Wisp or hId == CDOTA_Unit_Hero_Centaur or hId == CDOTA_Unit_Hero_Undying or hId == CDOTA_Unit_Hero_WitchDoctor or hId == CDOTA_Unit_Hero_Necrolyte or hId == CDOTA_Unit_Hero_Warlock or hId == CDOTA_Unit_Hero_Rubick or hId == CDOTA_Unit_Hero_Huskar then
 		return true
 	else
 		return false
