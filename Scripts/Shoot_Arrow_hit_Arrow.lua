@@ -101,9 +101,9 @@ function Main(tick)
 					local disruption = v:FindModifier("modifier_shadow_demon_disruption")
 					local astral = v:FindModifier("modifier_obsidian_destroyer_astral_imprisonment_prison")
 					local eul = v:FindModifier("modifier_eul_cyclone")
+					local tornado = v:FindModifier("modifier_invoker_tornado")
 					local nightmare = v:FindModifier("modifier_bane_nightmare")
 					local shackles = v:FindModifier("modifier_shadow_shaman_shackles")
-					local stunned = v:FindModifier("modifier_stunned")
 
 					if disruption then              
 						if GetDistance2D(v,me) <= 2200 then
@@ -123,22 +123,25 @@ function Main(tick)
 								victim = v shoot = true timing = true break return
 							end
 						end
+					elseif tornado then
+						if GetDistance2D(v,me) <= ( tornado.remainingTime*857+57.5) then
+							if (tornado.remainingTime * 857) == GetDistance2D(v,me)+140 or (( tornado.remainingTime * 857) < GetDistance2D(v,me)+140 and ( tornado.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+								victim = v shoot = true timing = true break return
+							end
+						end
 					elseif nightmare then
 						if GetDistance2D(v,me) <= ( nightmare.remainingTime*857+57.5) then
 							if (nightmare.remainingTime * 857) == GetDistance2D(v,me)+160 or (( nightmare.remainingTime * 857) < GetDistance2D(v,me)+160 and ( nightmare.remainingTime * 857)+25 > GetDistance2D(v,me)) then
 								victim = v shoot = true timing = true break return
 							end
-						end
-					elseif shackles then
-						if GetDistance2D(v,me) <= ( shackles.remainingTime*857+57.5) then
-							if (shackles.remainingTime * 857) == GetDistance2D(v,me)+180 or (( shackles.remainingTime * 857) < GetDistance2D(v,me)+180 and ( shackles.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								victim = v shoot = true timing = true break return
-							end
-						end
-					elseif stunned then
-						if GetDistance2D(v,me) <= ( stunned.remainingTime*857+57.5) then
-							if (stunned.remainingTime * 857) == GetDistance2D(v,me)+180 or (( stunned.remainingTime * 857) < GetDistance2D(v,me)+180 and ( stunned.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								victim = v shoot = true timing = true break return
+						end	
+					end
+					for i,m in ipairs(v.modifiers) do
+						if m and m.stunDebuff then
+							if GetDistance2D(v,me) <= ( m.remainingTime*857+57.5) then
+								if (m.remainingTime * 857) == GetDistance2D(v,me)+180 or (( m.remainingTime * 857) < GetDistance2D(v,me)+180 and ( m.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+									victim = v shoot = true timing = true break return
+								end
 							end
 						end
 					end
