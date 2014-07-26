@@ -66,7 +66,7 @@ function SupportTick(tick)
 			Heal(me,1,{32, 64, 96, 128},nil,1,ID)
 		elseif ID == CDOTA_Unit_Hero_Abaddon then
 			Heal(me,1,{100, 150, 200, 250},nil,1,nil,true)
-			Save(me,nil,2,nil,2,{100, 150, 200, 250},1)
+			Save(me,nil,2,nil,2,{100, 150, 200, 250},1,nil,1)
 		elseif ID == CDOTA_Unit_Hero_Omniknight then
 			Heal(me,1,{90, 180, 270, 360},nil,1)
 			Save(me,nil,2,nil,2,{90, 180, 270, 360},1)
@@ -102,13 +102,13 @@ function Key(msg,code)
 	activ = not activ
 end
 
-function Save(me,ability1,ability2,range,target,tresh,treshspell,duration)
+function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,special)
 	if excludeme == nil then excludeme = false end
 	if duration == nil then duration = {1,1,1,1} end
 	local save1,save2 = nil,nil
 	if ability1 then save1 = me:GetAbility(ability1) end
 	if ability2 then save2 = me:GetAbility(ability2) end
-	if (save1 and save1.level > 0 and save1.state == LuaEntityAbility.STATE_READY) or (save2 and save2.level > 0 and save2.state == LuaEntityAbility.STATE_READY) then
+	if (save1 and save1.level > 0 and save1:CanBeCasted()) or (save2 and save2.level > 0 and save2:CanBeCasted()) then
 		if tresh == nil then tresh = 200 end
 		local Range = range or (save2.castRange+50)
 		local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
@@ -120,9 +120,9 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration)
 						if activ then
 							if type(tresh) == "table" then
 								if treshspell and type(treshspell) == "number" then treshspell = me:GetAbility(treshspell) end
-								if target == 2 and save2:CanBeCasted() then
+								if target == 2 then
 									local needsave = nil
-									if treshspell and treshspell.level > 0 and IsInDanger(v) and save2 and save2.level > 0 and save2:CanBeCasted() and GetDistance2D(me,v) <= Range then
+									if treshspell and treshspell.level > 0 and IsInDanger(v) and GetDistance2D(me,v) <= Range then
 										if not needsave or (needsave and (v.maxHealth - v.health) > (needsave.maxHealth - needsave.health)) then
 											needsave = v
 										end
@@ -133,25 +133,30 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration)
 								else
 									local ch = ClosestHero(v)
 									if ch then
-										if v.health <= ClosestHeroDmg(v)*(ch.attackBaseTime/1+(ch.attackSpeed/100))*duration[save2.level] or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]) and IsInDanger(v) and save2 and save2.level > 0 and save2:CanBeCasted() and GetDistance2D(me,v) <= Range then
+										if v.health <= ClosestHeroDmg(v)*(ch.attackBaseTime/1+(ch.attackSpeed/100))*duration[save2.level] or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
 											me:CastAbility(save2,v)
 										end	
 									else
-										if v.health <= ClosestHeroDmg(v) or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]) and IsInDanger(v) and save2 and save2.level > 0 and save2:CanBeCasted() and GetDistance2D(me,v) <= Range then
+										if v.health <= ClosestHeroDmg(v) or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
 											me:CastAbility(save2,v)
 										end	
 									end
 								end									
 							else
-								if save1:CanBeCasted() and v.health < tresh and not IsInDanger(v) and GetDistance2D(v,fountain) > GetDistance2D(me,fountain) and (GetDistance2D(v,fountain) - GetDistance2D(me,fountain)) > 1000 and not v:IsChanneling() then
+								if v.health < tresh and not IsInDanger(v) and GetDistance2D(v,fountain) > GetDistance2D(me,fountain) and (GetDistance2D(v,fountain) - GetDistance2D(me,fountain)) > 1000 and not v:IsChanneling() then
 									me:CastAbility(save1)
-									if save2 and save2:CanBeCasted() then
-										me:CastAbility(save2,v)
-									end
+									me:CastAbility(save2,v)
 								end
 								if save1.name == "centaur_stampede" then
-									if save1:CanBeCasted() and v.health < tresh and not v:IsChanneling() and IsInDanger(v) then
+									if v.health < tresh and not v:IsChanneling() and IsInDanger(v) then
 										me:CastAbility(save1)
+									end
+								end
+							end
+							if special == 1 then
+								for i,m in ipairs(v.modifiers) do
+									if m and m.stunDebuff then
+										me:CastAbility(save2,v)
 									end
 								end
 							end
