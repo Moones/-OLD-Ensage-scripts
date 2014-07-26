@@ -1700,8 +1700,6 @@ function Tick( tick )
 end
 
 function GameClose()
-	start = nil
-	hero = {} ls = {} ult = {}
 	script:Reload()
 end
 
