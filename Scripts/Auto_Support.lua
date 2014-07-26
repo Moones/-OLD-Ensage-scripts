@@ -112,13 +112,13 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,specia
 		if tresh == nil then tresh = 200 end
 		local Range = range or (save2.castRange+50)
 		local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
-		if me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 1300 and not me:IsInvisible() then
+		if me.alive and not me:IsChanneling() and not me:IsInvisible() then
 			local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 			for i,v in ipairs(allies) do
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() then
 					if v.alive and v.health > 0 and v ~= me and NetherWard(save2,v,me) then
 						if activ then
-							if type(tresh) == "table" then
+							if type(tresh) == "table" and GetDistance2D(me,fountain) > 1300 then
 								if treshspell and type(treshspell) == "number" then treshspell = me:GetAbility(treshspell) end
 								if target == 2 then
 									local needsave = nil
