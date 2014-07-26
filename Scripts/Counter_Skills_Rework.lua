@@ -774,7 +774,7 @@ function Tick( tick )
 			
 			--Initiation dodge--
 			local blink = v:FindItem("item_blink")
-			if blink and blink.cd > 11.9 then                                 
+			if blink and blink.cd > 11.9 and v:CanCast() then                                 
 				for s = 1, 6 do
 					target = v
 					if v:GetAbility(s) ~= nil and v:GetAbility(s).state == LuaEntityAbility.STATE_READY then
@@ -1672,7 +1672,7 @@ function Tick( tick )
 							end
 						end
 					elseif v:GetAbility(t).name == "faceless_void_time_walk" then
-						if GetDistance2D(v,me) < 1050 then
+						if GetDistance2D(v,me) < 1050 and v:CanCast() then
 							if v:GetAbility(4).name == "faceless_void_chronosphere" and v:GetAbility(4).state == LuaEntityAbility.STATE_READY then
 								if GetDistance2D(v,me) < 400 then
 									PuckW()
@@ -2743,7 +2743,6 @@ function Useshadowamulettarget()--target
 	if activated == 0 then
 		if item_shadow_amulet and item_shadow_amulet.state==-1 then
 			if target and GetDistance2D(me,target) < 600 then
-
 				me:CastAbility(item_shadow_amulet,target)
 				activated=1
 				sleepTick= GetTick() +500
