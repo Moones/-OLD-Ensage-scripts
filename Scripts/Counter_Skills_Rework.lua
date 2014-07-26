@@ -16,8 +16,9 @@ function Tick( tick )
 	me = entityList:GetMyHero() if not me then return end
 
 	--Dodge by checking animations--
-	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})) do
-		if v.team ~= me.team and not v:IsIllusion() then
+	local enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, alive = true, visible = true, team = me:GetEnemyTeam()})
+	for i,v in ipairs(enemies) do
+		if not v:IsIllusion() then
 			target = v
 			if v.name == "npc_dota_hero_shadow_shaman" then
 				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
