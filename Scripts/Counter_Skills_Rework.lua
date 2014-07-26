@@ -4,15 +4,18 @@ wait = 0
 waittime = 0
 sleepTick = nil
 sleep1 = 0 
+sleepk = 0
+tt = nil
+aa = nil
+
 local activated = 0
 
 function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
 	if sleepTick and sleepTick > tick then return end	
 	me = entityList:GetMyHero() if not me then return end
-	
+
 	--Dodge by checking animations--
-	
 	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})) do
 		if v.team ~= me.team and not v:IsIllusion() then
 			target = v
@@ -653,7 +656,7 @@ function Tick( tick )
 					end
 				end
 				if not v:AghanimState() then
-					Jugernautfury()
+					Juggernautfury()
 					Lifestealerrage()
 				end
 				UseBladeMail()
@@ -676,7 +679,7 @@ function Tick( tick )
 				Puck()				
 			elseif me:DoesHaveModifier("modifier_lion_finger_of_death") then    
 				Nyx()
-				Jugernautfury()
+				Juggernautfury()
 				Puck()
 				Lifestealerrage()
 				TemplarRefraction()
@@ -724,7 +727,7 @@ function Tick( tick )
 						if GetDistance2D(z,me) < 200 + client.latency then
 							Puck()
 							Lifestealerrage()
-							Jugernautfury()
+							Juggernautfury()
 							UseEulScepterSelf()
 							SlarkDarkPact()
 							SlarkPounce()						
@@ -737,7 +740,7 @@ function Tick( tick )
 						if GetDistance2D(z,me) < 200 + client.latency then
 							Puck()
 							Lifestealerrage()
-							Jugernautfury()
+							Juggernautfury()
 							UseEulScepterSelf()
 							SlarkDarkPact()
 							SlarkPounce()						
@@ -786,7 +789,7 @@ function Tick( tick )
 							UseBlinkDagger()
 							Slardar()
 							UseEulScepterTarget()
-							Jugernautfury()
+							Juggernautfury()
 							return 
 						elseif v:GetAbility(s).name == "tidehunter_ravage" and GetDistance2D(v,me) < 1050 then
 							if GetDistance2D(v,me) < 400 then
@@ -842,7 +845,7 @@ function Tick( tick )
 							Emberchains()
 							UseEulScepterTarget()
 							UseBlinkDagger()
-							Jugernautfury()
+							Juggernautfury()
 							return 	
 						elseif v:GetAbility(s).name == "slardar_slithereen_crush" and GetDistance2D(v,me) < 350 then
 							PuckW()	
@@ -852,7 +855,7 @@ function Tick( tick )
 							UseEulScepterTarget()
 							UseBlinkDagger()
 							UseBlinkDagger()
-							Jugernautfury()
+							Juggernautfury()
 							return 	
 						elseif v:GetAbility(s).name == "brewmaster_thunder_clap" and GetDistance2D(v,me) < 400 then
 							PuckW()
@@ -861,7 +864,7 @@ function Tick( tick )
 							UseOrchidtarget()
 							UseEulScepterTarget()
 							UseBlinkDagger()
-							Jugernautfury()
+							Juggernautfury()
 							return 		
 						elseif v:GetAbility(s).name == "venomancer_poison_nova" and GetDistance2D(v,me) < 830 then
 							Emberchains()
@@ -871,7 +874,7 @@ function Tick( tick )
 							UseEulScepterTarget()
 							Puck()
 							UseBlinkDagger()
-							Jugernautfury()
+							Juggernautfury()
 							return 	
 						elseif v:GetAbility(s).name == "magnataur_reverse_polarity" and GetDistance2D(v,me) < 410 then
 							if GetDistance2D(v,me) < 400 then
@@ -931,7 +934,7 @@ function Tick( tick )
 							UseOrchidtarget()
 							PuckW()
 							UseBlinkDagger()
-							Jugernautfury()
+							Juggernautfury()
 							UseShadowBlade()
 							return 	
 						elseif v:GetAbility(s).name == "pudge_dismember" and GetDistance2D(v,me) < 200 then
@@ -943,7 +946,7 @@ function Tick( tick )
 							PuckW()
 							UseBlinkDagger()
 							UseBlinkDagger()
-							Jugernautfury()
+							Juggernautfury()
 							return 	
 						elseif v:GetAbility(s).name == "axe_berserkers_call" and GetDistance2D(v,me) < 300 then
 							Emberchains()
@@ -953,7 +956,7 @@ function Tick( tick )
 							UseOrchidtarget()
 							UseBlinkDagger()
 							UseBlinkDagger()
-							Jugernautfury()
+							Juggernautfury()
 							return 	
 						elseif v:GetAbility(s).name == "legion_commander_duel" and GetDistance2D(v,me) < 250 then
 							PuckW()
@@ -1006,7 +1009,7 @@ function Tick( tick )
 						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 1025 then
 								Embersleighttargetcal()
-								Jugernautfury()
+								Juggernautfury()
 								Nyx()
 								Puck()
 								TusksnowballTarget()
@@ -1065,9 +1068,9 @@ function Tick( tick )
 							end
 						end
 					elseif v:GetAbility(t).name == "venomancer_poison_nova" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 1025 then
-								Jugernautfury()
+								Juggernautfury()
 								Puck()
 								UseBlinkDagger()
 							end
@@ -1080,7 +1083,7 @@ function Tick( tick )
 									Puck()
 									UseBlinkDagger()
 									TemplarMeld()
-									Jugernautfury()
+									Juggernautfury()
 									Nyx()
 									LoneDruidUlt()
 									AlchemistRage()
@@ -1114,7 +1117,7 @@ function Tick( tick )
 									UseShadowBlade()
 									UseBlinkDagger()
 									Embersleighttargetcal()
-									Jugernautfury()
+									Juggernautfury()
 									Nyx()
 									Useshadowamulet()						
 								end
@@ -1148,7 +1151,7 @@ function Tick( tick )
 									UseBlinkDagger()
 									TemplarRefraction()
 									AlchemistRage()
-									Jugernautfury()
+									Juggernautfury()
 									Nyx()
 									UseEulScepterSelf()
 									LoneDruidUlt()
@@ -1184,7 +1187,7 @@ function Tick( tick )
 									Puck()
 									UseBlinkDagger()
 									AlchemistRage()
-									Jugernautfury()
+									Juggernautfury()
 									Embersleighttargetcal()
 									Nyx()
 									LoneDruidUlt()
@@ -1214,7 +1217,7 @@ function Tick( tick )
 										UseEulScepterSelf()
 									end
 									UseBlinkDagger()
-									Jugernautfury()
+									Juggernautfury()
 									Nyx()
 									SlarkDarkPact()
 									UseShadowBlade()
@@ -1222,25 +1225,25 @@ function Tick( tick )
 							end
 						end
 					elseif v:GetAbility(t).name == "lina_dragon_slave" then
-						if math.ceil(v:GetAbility(t).cd + 0.3) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 1275 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 								if turntime == 0 then
 									Puck()
 									UseEulScepterSelf()
 									UseBlinkDagger()
-									Jugernautfury()
+									Juggernautfury()
 									Nyx()
 								end
 							end
 						end
 					elseif v:GetAbility(t).name == "pudge_meat_hook" then
-						if math.ceil(v:GetAbility(t).cd) <=  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) and math.ceil(v:GetAbility(t).cd) >=  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level))-2 then
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 1300 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
 								if turntime == 0 then
 									Nyx()
-									Jugernautfury()
+									Juggernautfury()
 									Puck()
 									UseBlinkDagger()							
 								end
@@ -1252,7 +1255,7 @@ function Tick( tick )
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 								if turntime == 0 then
 									Nyx()
-									Jugernautfury()
+									Juggernautfury()
 									Puck()
 									UseBlinkDagger()
 									Useshadowamulet()
@@ -1266,7 +1269,7 @@ function Tick( tick )
 								if turntime == 0 then
 									Nyx()
 									Puck()
-									Jugernautfury()
+									Juggernautfury()
 									UseBlinkDagger()
 								end
 							end
@@ -1279,7 +1282,7 @@ function Tick( tick )
 									Puck()
 									Nyx()
 									SlarkShadowDance()
-									Jugernautfury()
+									Juggernautfury()
 									Lifestealerrage()
 									Embersleighttargetcal()
 									UseEulScepterSelf()
@@ -1307,13 +1310,13 @@ function Tick( tick )
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 								if turntime == 0 then
 									Nyx()
-									Jugernautfury()
+									Juggernautfury()
 									Puck()
 								end
 							end
 						end
 					elseif v:GetAbility(t).name == "magnataur_shockwave" then
-						if math.ceil(v:GetAbility(t).cd + 0.3) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 1160 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
 								if turntime == 0 then
@@ -1610,7 +1613,7 @@ function Tick( tick )
 									Nyx()
 									Embersleighttargetcal()
 									UseBlinkDagger()
-									Jugernautfury()
+									Juggernautfury()
 									UseEulScepterSelf()
 									UseShadowBlade()
 									Useshadowamulet()
@@ -1655,14 +1658,14 @@ function Tick( tick )
 								if turntime == 0 then
 									Nyx()
 									UseBlinkDagger()
-									Jugernautfury()
+									Juggernautfury()
 									Embersleighttargetcal()
 									Puck()
 								end
 							end
 						end
 					elseif v:GetAbility(t).name == "disruptor_glimpse" then
-						if math.ceil(v:GetAbility(t).cd + 0.4) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 2000 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 								if turntime == 0 then
@@ -1729,240 +1732,173 @@ end
 
 function Lifestealerrage()
 	if activated == 0 then
-		for t = 1, 6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "life_stealer_rage" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local rage = me:GetAbility(1)
+		if rage and rage.level > 0 and rage:CanBeCasted() and me:CanCast() then
+			me:CastAbility(rage)
+			activated = 1
+			sleepTick = GetTick() + 500
+			return 
 		end
 	end
 end
 
 function LoneDruidUlt()
 	if activated == 0 then
-
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "lone_druid_true_form" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-				if me:GetAbility(t).name == "lone_druid_true_form_druid" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-
-
-			end
+		local trueform1 = me:GetAbility(5)
+		local trueform2 = me:GetAbility(6)
+		if trueform1 and trueform1.level > 0 and trueform1:CanBeCasted() and me:CanCast() then
+			me:CastAbility(trueform1)
+			activated = 1
+			sleepTick = GetTick() + 500
+		elseif trueform2 and trueform2.level > 0 and trueform2:CanBeCasted() and me:CanCast() then
+			me:CastAbility(trueform2)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
-
-
 	end
 end
 
-function Jugernautfury()
+function Juggernautfury()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "juggernaut_blade_fury" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local fury = me:GetAbility(1)
+		if fury and fury.level > 0 and fury:CanBeCasted() and me:CanCast() then
+			me:CastAbility(fury)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
 	end
 end
 
 function Phoenixsupernova()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "phoenix_supernova" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local supernova = me:GetAbility(5)
+		if supernova and supernova.level > 0 and supernova:CanBeCasted() and me:CanCast() then	
+			me:CastAbility(supernova)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
 	end
 end
 
 function TemplarMeld()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "templar_assassin_meld" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					script:RegisterEvent(EVENT_TICK,qna)
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local meld = me:GetAbility(2)
+		if meld and meld.level > 0 and meld:CanBeCasted() and me:CanCast() then
+			me:CastAbility(meld)
+			activated = 1
+			sleepTick = GetTick() + 500
+			script:RegisterEvent(EVENT_TICK,qna)
 		end
 	end
 end
 
 function TemplarRefraction()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "templar_assassin_refraction" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					--QueueNextAction()
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local refraction = me:GetAbility(1)
+		if refraction and refraction.level > 0 and refraction:CanBeCasted() and me:CanCast() then
+			me:CastAbility(refraction)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
 	end
 end
 
 function NyxVendetta()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "nyx_assassin_vendetta" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local vendetta = me:GetAbility(4)
+		if vendetta and vendetta.level > 0 and vendetta:CanBeCasted() and me:CanCast() then
+			me:CastAbility(vendetta)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
 	end
 end
 
 function WeaverShukuchi()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "weaver_shukuchi" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local shukuchi = me:GetAbility(2)
+		if shukuchi and shukuchi.level > 0 and shukuchi:CanBeCasted() and me:CanCast() then
+			me:CastAbility(shukuchi)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
 	end
 end
 
 function SandkinSandstorm()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "sandking_sand_storm" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local sandstorm = me:GetAbility(2)
+		if sandstorm and sandstorm.level > 0 and sandstorm:CanBeCasted() and me:CanCast() then
+			me:CastAbility(sandstorm)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
 	end
 end
 
 function ClinkzWindwalk()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "clinkz_wind_walk" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local windwalk = me:GetAbility(2)
+		if windwalk and windwalk.level > 0 and windwalk:CanBeCasted() and me:CanCast() then
+			me:CastAbility(windwalk)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
 	end
 end
 
 function PhantomlancerDoppelwalk()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "phantom_lancer_doppelwalk" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local dopplewalk = me:GetAbility(2)
+		if dopplewalk and dopplewalk.level > 0 and dopplewalk:CanBeCasted() and me:CanCast() then
+			me:CastAbility(dopplewalk)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
 	end
 end
 
 function BountyhunterWindwalk()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "bounty_hunter_wind_walk" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local windwalk = me:GetAbility(3)
+		if windwalk and windwalk.level > 0 and windwalk:CanBeCasted() and me:CanCast() then
+			me:CastAbility(windwalk)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
 	end
 end
 
 function AlchemistRage()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "alchemist_chemical_rage" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local rage = me:GetAbility(4)
+		if rage and rage.level > 0 and rage:CanBeCasted() and me:CanCast() then
+			me:CastAbility(rage)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
 	end
 end
 
 function NagaMirror()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "naga_siren_mirror_image" and me:GetAbility(t).state == -1 then
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local mirror = me:GetAbility(1)
+		if rage and rage.level > 0 and rage:CanBeCasted() and me:CanCast() then
+			me:CastAbility(rage)
+			activated = 1
+			sleepTick = GetTick() + 500
 		end
 	end
 end
 
 function TusksnowballTarget()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "tusk_snowball" and me:GetAbility(t).state == -1 then
-					if target and GetDistance2D(me,target) < 1250 then
-						tusk_snowball=me:GetAbility(t)
-						me:CastAbility(tusk_snowball,target)
-						activated=1
-						sleepTick= GetTick() +500
-						return
-					end
-				end
+		local snowball = me:GetAbility(2)
+		if snowball and snowball.level > 0 and snowball:CanBeCasted() and me:CanCast() then
+			if target and GetDistance2D(me,target) < 1250 then
+				me:CastAbility(snowball,target)
+				activated = 1
+				sleepTick = GetTick() + 500
 			end
 		end
 	end
@@ -1970,17 +1906,12 @@ end
 
 function Jugernautomnitarget()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "juggernaut_omni_slash" and me:GetAbility(t).state == -1 then
-					if target and GetDistance2D(me,target) < 450 then
-						juggernaut_omni_slash=me:GetAbility(t)
-						me:CastAbility(juggernaut_omni_slash,target)
-						activated=1
-						sleepTick= GetTick() +500
-						return
-					end
-				end
+		local omni = me:GetAbility(4)
+		if omni and omni.level > 0 and omni:CanBeCasted() and me:CanCast() then
+			if target and GetDistance2D(me,target) < 450 then
+				me:CastAbility(omni,target)
+				activated = 1
+				sleepTick = GetTick() + 500
 			end
 		end
 	end
@@ -1988,17 +1919,12 @@ end
 
 function Doom()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "doom_bringer_doom" and me:GetAbility(t).state == -1 then
-					if target and GetDistance2D(me,target) < 560 then
-						doom_bringer_doom=me:GetAbility(t)
-						me:CastAbility(doom_bringer_doom,target)
-						activated=1
-						sleepTick= GetTick() +500
-						return
-					end
-				end
+		local doom = me:GetAbility(6)
+		if doom and doom.level > 0 and doom:CanBeCasted() and me:CanCast() then
+			if target and GetDistance2D(me,target) < 560 then
+				me:CastAbility(doom,target)
+				activated = 1
+				sleepTick = GetTick() + 500
 			end
 		end
 	end
@@ -2006,17 +1932,12 @@ end
 
 function Emberchains()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "ember_spirit_searing_chains" and me:GetAbility(t).state == -1 then
-					if target and GetDistance2D(me,target) < 400 then
-
-					me:CastAbility(me:GetAbility(t))
-					activated=1
-					sleepTick= GetTick() +500
-					return 
-				end
-			end
+		local chains = me:GetAbility(6)
+		if chains and chains.level > 0 and chains:CanBeCasted() and me:CanCast() then
+			if target and GetDistance2D(me,target) < 400 then
+				me:CastAbility(chains)
+				activated = 1
+				sleepTick = GetTick() + 500
 			end
 		end
 	end
@@ -2024,17 +1945,12 @@ end
 
 function Embersleighttarget()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "ember_spirit_sleight_of_fist" and me:GetAbility(t).state == -1 then
-					if target and GetDistance2D(me,target) < 710 then
-						ember_spirit_sleight_of_fist=me:GetAbility(t)
-						me:CastAbility(ember_spirit_sleight_of_fist,target.x,target.y,target.z)
-						activated=1
-						sleepTick= GetTick() +500
-						return
-					end
-				end
+		local sleight = me:GetAbility(6)
+		if sleight and sleight.level > 0 and sleight:CanBeCasted() and me:CanCast() then
+			if target and GetDistance2D(me,target) < 710 then
+				me:CastAbility(sleight,target.position)
+				activated = 1
+				sleepTick = GetTick() + 500
 			end
 		end
 	end
@@ -2239,33 +2155,29 @@ end
 
 function Puck()
 	if activated == 0 then
-		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t) and me:GetAbility(t).name == "puck_phase_shift" and me:GetAbility(t).level > 0 and me:GetAbility(t).state == LuaEntityAbility.STATE_READY then
-					me:CastAbility(me:GetAbility(t))
-					activated = 1
-					pstime = {750,1500,2250,3250}
-					sleepTick = GetTick() + pstime[me:GetAbility(t).level]
-					script:RegisterEvent(EVENT_TICK,qna)
-					return 
-				end
-			end
+		local phase = me:GetAbility(3)
+		if phase and phase.level > 0 and phase:CanBeCasted() and me:CanCast() then
+			me:CastAbility(phase)
+			activated = 1
+			pstime = {750,1500,2250,3250}
+			sleepTick = GetTick() + pstime[phase.level]
+			script:RegisterEvent(EVENT_TICK,qna)
 		end
 	end
 end
 
 function PuckW()
 	if activated == 0 then
-		for v=1,6 do
-			if me:GetAbility(v) ~= nil then
-				if me:GetAbility(v) and me:GetAbility(v).name == "puck_waning_rift" and (me:GetAbility(v).level == 0 or me:GetAbility(v).state ~= LuaEntityAbility.STATE_READY) then
-				 Puck()	
-				elseif me:GetAbility(v) and me:GetAbility(v).name == "puck_waning_rift" and me:GetAbility(v).level > 0 and me:GetAbility(v).state == LuaEntityAbility.STATE_READY then
-					me:CastAbility(me:GetAbility(v))
+		local rift = me:GetAbility(2)
+		if me:CanCast() then
+			if rift and rift.level > 0 and rift:CanBeCasted() then
+				if target and GetDistance2D(me,target) < 410 then
+					me:CastAbility(rift)
 					activated = 1
-					sleepTick= GetTick() + 500
-					return 		
+					sleepTick = GetTick() + 500
 				end
+			else
+				Puck()
 			end
 		end
 	end
@@ -2434,11 +2346,11 @@ function Useblackking()
 end
 
 function ChaosKnightChaosBolt(tick)
-	if tt == nil and target:GetAbility(1).abilityPhase then
-		sleep = tick + target:GetAbility(1):GetCastPoint(target:GetAbility(1).level)*1000 + 7
+	if tt == nil then
+		sleepk = tick + 300
 		tt = 1
 	end
-	if tick > sleep then
+	if tick > sleepk then
 		Puck()
 		LoneDruidUlt()
 		UseBlinkDaggerfront()
