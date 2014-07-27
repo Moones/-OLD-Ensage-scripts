@@ -13,7 +13,7 @@ config:Load()
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
 
 sleeptick = 0 sleeptickk = 0
-targetHandle = nil local hookem = nil local manualselection = false local active = true local victim = nil local blindxyz = nil
+targetHandle = nil local hookem = nil local manualselection = false local active = true local victim = nil local blindxyz = nil local blind = false
 
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
@@ -35,7 +35,7 @@ function Key(msg,code)
 			victimText.visible = false
 		end
 	elseif code == hookkey then
-		if active and ((victim and victim.visible) or blindxyz) then
+		if active and ((victim and victim.visible) or blind) then
 			hookem = not hookem
 		end
 	elseif code == manualtogglekey then
@@ -162,13 +162,20 @@ function Main(tick)
 				if not v.visible and hook.level > 0 and me.alive and not victim then
 					local speed = 1600 
 					local castPoint = (0.35 + client.latency/1000)
-					blindxyz = SkillShot.BlindSkillShotXYZ(me,v,speed,castPoint)
+					local blindvictim
+					if not blindvictim or v.health < blindvictim.health then
+						blindvictim = v
+					end
+					blindxyz = SkillShot.BlindSkillShotXYZ(me,blindvictim,speed,castPoint)
 					if blindxyz and blindxyz:GetDistance2D(me) <= RangeH[hook.level] + 100 then 
 						statusText.text = "Hook'em - BLIND!"
+						blind = true
 						if hookem then hookem = nil
 							me:SafeCastAbility(hook, blindxyz)
 							Sleep(250)
 						end
+					else
+						blind = false
 					end
 				end
 			end
