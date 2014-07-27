@@ -118,30 +118,32 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,specia
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() then
 					if v.alive and v.health > 0 and v ~= me and NetherWard(save2,v,me) then
 						if activ then
-							if type(tresh) == "table" and GetDistance2D(me,fountain) > 1300 then
-								if treshspell and type(treshspell) == "number" then treshspell = me:GetAbility(treshspell) end
-								if target == 2 then
-									local needsave = nil
-									if treshspell and treshspell.level > 0 and IsInDanger(v) and GetDistance2D(me,v) <= Range then
-										if not needsave or (needsave and (v.maxHealth - v.health) > (needsave.maxHealth - needsave.health)) then
-											needsave = v
+							if type(tresh) == "table" then
+								if GetDistance2D(me,fountain) > 1300 then
+									if treshspell and type(treshspell) == "number" then treshspell = me:GetAbility(treshspell) end
+									if target == 2 then
+										local needsave = nil
+										if treshspell and treshspell.level > 0 and IsInDanger(v) and GetDistance2D(me,v) <= Range then
+											if not needsave or (needsave and (v.maxHealth - v.health) > (needsave.maxHealth - needsave.health)) then
+												needsave = v
+											end
+											if needsave and (treshspell.cd ~= 0 or (treshspell.cd > treshspell:GetCooldown(treshspell.level)/2)) then
+												me:CastAbility(save2,needsave)
+											end
 										end
-										if needsave and (treshspell.cd ~= 0 or (treshspell.cd > treshspell:GetCooldown(treshspell.level)/2)) then
-											me:CastAbility(save2,needsave)
-										end
-									end
-								else
-									local ch = ClosestHero(v)
-									if ch then
-										if v.health <= ClosestHeroDmg(v)*(ch.attackBaseTime/1+(ch.attackSpeed/100))*duration[save2.level] or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
-											me:CastAbility(save2,v)
-										end	
 									else
-										if v.health <= ClosestHeroDmg(v) or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
-											me:CastAbility(save2,v)
-										end	
-									end
-								end									
+										local ch = ClosestHero(v)
+										if ch then
+											if v.health <= ClosestHeroDmg(v)*(ch.attackBaseTime/1+(ch.attackSpeed/100))*duration[save2.level] or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
+												me:CastAbility(save2,v)
+											end	
+										else
+											if v.health <= ClosestHeroDmg(v) or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
+												me:CastAbility(save2,v)
+											end	
+										end
+									end	
+								end
 							else
 								if v.health < tresh and not IsInDanger(v) and GetDistance2D(v,fountain) > GetDistance2D(me,fountain) and (GetDistance2D(v,fountain) - GetDistance2D(me,fountain)) > 1000 and not v:IsChanneling() then
 									me:CastAbility(save1)
