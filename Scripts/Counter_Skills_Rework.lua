@@ -1228,21 +1228,6 @@ function Tick( tick )
 								end
 							end
 						end
-					-- elseif v:GetAbility(t).name == "lina_light_strike_array" then
-						-- if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							-- if GetDistance2D(v,me) < 712.5 then
-								-- turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-								-- if turntime == 0 then
-									-- Puck()
-									-- UseEulScepterSelf()
-									-- UseBlinkDagger()
-									-- Juggernautfury()
-									-- Nyx()
-									-- SlarkDarkPact()
-									-- UseShadowBlade()
-								-- end
-							-- end
-						-- end
 					elseif v:GetAbility(t).name == "lina_dragon_slave" then
 						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 1275 then
