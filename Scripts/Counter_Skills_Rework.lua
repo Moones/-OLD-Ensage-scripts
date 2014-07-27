@@ -1,13 +1,6 @@
 require("libs.Utils")
 
-wait = 0
-waittime = 0
-sleepTick = nil
-sleep1 = 0 
-sleepk = 0
-tt = nil
-aa = nil
-
+wait = 0 waittime = 0 sleepTick = nil sleep1 = 0  sleepk = 0 tt = nil aa = nil
 local activated = 0
 
 function Tick( tick )
@@ -57,7 +50,7 @@ function Tick( tick )
 				if v:GetAbility(6) and v:GetAbility(6).level > 0 and v:GetAbility(6).abilityPhase then
 					if GetDistance2D(v,me) < 680 then
 						if GetDistance2D(v,me) < 400 then
-							PuckW()
+							PuckW(false)
 							UseEulScepterTarget()
 							UseSheepStickTarget()
 							UseOrchidtarget()
@@ -148,7 +141,7 @@ function Tick( tick )
 					end
 				elseif v:GetProperty("CBaseAnimating","m_nSequence") == 21 then
 					if GetDistance2D(v,me) < 400 then
-						PuckW()	
+						PuckW(true)	
 					end
 					if GetDistance2D(v,me) < 420 then
 						target = v
@@ -481,7 +474,11 @@ function Tick( tick )
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.70, 0))
 						if turntime == 0 then
 							Nyx()
-							PuckW()
+							if GetDistance2D(v,me) < 400 then
+								PuckW(true)
+							else
+								Puck()
+							end
 							UseEulScepterSelf()
 							UseBlinkDagger()
 							Useblackking()
@@ -665,7 +662,7 @@ function Tick( tick )
 			elseif me:DoesHaveModifier("modifier_pudge_meat_hook") then                                                      
 				if v:GetAbility(1) and v:GetAbility(1).name == "pudge_meat_hook" then
 					target = v
-					PuckW()
+					PuckW(false)
 					UseEulScepterTarget()
 					UseOrchidtarget()
 					UseSheepStickTarget()	
@@ -721,6 +718,7 @@ function Tick( tick )
 
 			local cast = entityList:GetEntities({classId=282})
 			local projectile = entityList:GetEntities({classId=CDOTA_BaseNPC})
+			local notvisible_enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, alive = true, team = me:GetEnemyTeam()})
 			
 			for i, z in ipairs(cast) do
 				if z.team ~= me.team and z.dayVision == 650 then
@@ -759,6 +757,30 @@ function Tick( tick )
 							end
 						end
 					end
+				elseif z:DoesHaveModifier("modifier_lina_light_strike_array") then
+					for i,k in ipairs(notvisible_enemies) do
+						if k.classId == CDOTA_Unit_Hero_Lina and GetDistance2D(z,me) < 250 then
+							Puck()
+							UseBlinkDagger()
+							Lifestealerrage()
+							Juggernautfury()
+							UseEulScepterSelf()
+							SlarkDarkPact()
+							SlarkPounce()	
+						end
+					end
+				elseif z:DoesHaveModifier("modifier_leshrac_split_earth_thinker") then
+					for i,k in ipairs(notvisible_enemies) do
+						if k.classId == CDOTA_Unit_Hero_Leshrac and GetDistance2D(z,me) < GetSpecial(k:GetAbility(1),"radius",k:GetAbility(1).level+0)+25 then
+							Puck()
+							UseBlinkDagger()
+							Lifestealerrage()
+							Juggernautfury()
+							UseEulScepterSelf()
+							SlarkDarkPact()
+							SlarkPounce()	
+						end
+					end
 				end
 			end	
 			
@@ -794,7 +816,7 @@ function Tick( tick )
 							return 
 						elseif v:GetAbility(s).name == "tidehunter_ravage" and GetDistance2D(v,me) < 1050 then
 							if GetDistance2D(v,me) < 400 then
-								PuckW()
+								PuckW(true)
 								UseSheepStickTarget()
 								UseOrchidtarget()
 								UseEulScepterTarget()
@@ -821,7 +843,7 @@ function Tick( tick )
 							return 
 						elseif v:GetAbility(s).name == "treant_overgrowth" and GetDistance2D(v,me) < 625 then
 							if GetDistance2D(v,me) < 400 then
-								PuckW()
+								PuckW(true)
 								Emberchains()
 								UseSheepStickTarget()
 								UseOrchidtarget()
@@ -839,7 +861,7 @@ function Tick( tick )
 							end
 							return 
 						elseif v:GetAbility(s).name == "centaur_hoof_stomp" and GetDistance2D(v,me) < 320 then
-							PuckW()
+							PuckW(true)
 							Silencerult()
 							UseSheepStickTarget()
 							UseOrchidtarget()
@@ -849,7 +871,7 @@ function Tick( tick )
 							Juggernautfury()
 							return 	
 						elseif v:GetAbility(s).name == "slardar_slithereen_crush" and GetDistance2D(v,me) < 350 then
-							PuckW()	
+							PuckW(true)	
 							Emberchains()
 							UseSheepStickTarget()
 							UseOrchidtarget()
@@ -859,7 +881,7 @@ function Tick( tick )
 							Juggernautfury()
 							return 	
 						elseif v:GetAbility(s).name == "brewmaster_thunder_clap" and GetDistance2D(v,me) < 400 then
-							PuckW()
+							PuckW(true)
 							Emberchains()
 							UseSheepStickTarget()
 							UseOrchidtarget()
@@ -879,7 +901,7 @@ function Tick( tick )
 							return 	
 						elseif v:GetAbility(s).name == "magnataur_reverse_polarity" and GetDistance2D(v,me) < 410 then
 							if GetDistance2D(v,me) < 400 then
-								PuckW()
+								PuckW(true)
 								Emberchains()
 								Silencerult()
 								UseSheepStickTarget()
@@ -900,7 +922,7 @@ function Tick( tick )
 							return 	
 						elseif v:GetAbility(s).name == "enigma_black_hole" and GetDistance2D(v,me) < 700 then
 							if GetDistance2D(v,me) < 400 then
-								PuckW()
+								PuckW(true)
 								Emberchains()
 								Silencerult()
 								UseSheepStickTarget()
@@ -924,7 +946,7 @@ function Tick( tick )
 							UseEulScepterTarget()
 							UseSheepStickTarget()
 							UseOrchidtarget()
-							PuckW()
+							PuckW(true)
 							UseBlinkDagger()
 							return 
 						elseif v:GetAbility(s).name == "batrider_flaming_lasso" and GetDistance2D(v,me) < 300 then
@@ -933,7 +955,7 @@ function Tick( tick )
 							UseEulScepterTarget()
 							UseSheepStickTarget()
 							UseOrchidtarget()
-							PuckW()
+							PuckW(true)
 							UseBlinkDagger()
 							Juggernautfury()
 							UseShadowBlade()
@@ -944,23 +966,21 @@ function Tick( tick )
 							UseEulScepterTarget()
 							UseSheepStickTarget()
 							UseOrchidtarget()
-							PuckW()
-							UseBlinkDagger()
+							PuckW(false)
 							UseBlinkDagger()
 							Juggernautfury()
 							return 	
 						elseif v:GetAbility(s).name == "axe_berserkers_call" and GetDistance2D(v,me) < 300 then
 							Emberchains()
-							PuckW()
+							PuckW(true)
 							UseEulScepterTarget()
 							UseSheepStickTarget()
 							UseOrchidtarget()
 							UseBlinkDagger()
-							UseBlinkDagger()
 							Juggernautfury()
 							return 	
 						elseif v:GetAbility(s).name == "legion_commander_duel" and GetDistance2D(v,me) < 250 then
-							PuckW()
+							PuckW(true)
 							Emberchains()
 							UseEulScepterTarget()
 							UseSheepStickTarget()
@@ -969,7 +989,7 @@ function Tick( tick )
 							UseBlinkDagger()
 							return 
 						elseif v:GetAbility(s).name == "earthshaker_echo_slam" and GetDistance2D(v,me) < 575 and v:GetAbility(s).state == -1 then
-							PuckW()
+							PuckW(true)
 							Emberchains()
 							UseEulScepterSelf()
 							UseSheepStickTarget()
@@ -1023,7 +1043,7 @@ function Tick( tick )
 					elseif v:GetAbility(t).name == "sandking_epicenter" then
 						if v:GetAbility(t).channelTime > 0 then
 							if GetDistance2D(v,me) < 400 then
-								PuckW()
+								PuckW(false)
 							end
 							target = v
 							UseOrchidtarget()
@@ -1033,7 +1053,7 @@ function Tick( tick )
 					elseif v:GetAbility(t).name == "bane_fiends_grip" then
 						if v:GetAbility(t).channelTime > 0 then
 							if GetDistance2D(v,me) < 400 then
-								PuckW()
+								PuckW(false)
 							end
 							target = v
 							UseOrchidtarget()
@@ -1043,7 +1063,7 @@ function Tick( tick )
 					elseif v:GetAbility(t).name == "shadow_shaman_shackles" then
 						if v:GetAbility(t).channelTime > 0 then
 							if GetDistance2D(v,me) < 400 then
-								PuckW()
+								PuckW(false)
 							end
 							target = v
 							UseOrchidtarget()
@@ -1208,29 +1228,30 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "lina_light_strike_array" then
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 712.5 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-								if turntime == 0 then
-									Puck()
-									if v:GetAbility(t):GetDamage(v:GetAbility(t).level) * (1 - me.magicDmgResist) > me.health then
-										UseEulScepterSelf()
-									end
-									UseBlinkDagger()
-									Juggernautfury()
-									Nyx()
-									SlarkDarkPact()
-									UseShadowBlade()
-								end
-							end
-						end
+					-- elseif v:GetAbility(t).name == "lina_light_strike_array" then
+						-- if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							-- if GetDistance2D(v,me) < 712.5 then
+								-- turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								-- if turntime == 0 then
+									-- Puck()
+									-- UseEulScepterSelf()
+									-- UseBlinkDagger()
+									-- Juggernautfury()
+									-- Nyx()
+									-- SlarkDarkPact()
+									-- UseShadowBlade()
+								-- end
+							-- end
+						-- end
 					elseif v:GetAbility(t).name == "lina_dragon_slave" then
 						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 1275 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 								if turntime == 0 then
 									Puck()
+									if v:GetAbility(t):GetDamage(v:GetAbility(t).level) * (1 - me.magicDmgResist) > me.health then
+										UseEulScepterSelf()
+									end
 									UseEulScepterSelf()
 									UseBlinkDagger()
 									Juggernautfury()
@@ -1637,7 +1658,7 @@ function Tick( tick )
 						if math.ceil(v:GetAbility(t).cd - 0.8) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 500 then
 								if GetDistance2D(v,me) < 400 then
-									PuckW()
+									PuckW(true)
 									UseSheepStickTarget()
 									UseOrchidtarget()
 									UseEulScepterTarget()
@@ -1680,7 +1701,8 @@ function Tick( tick )
 							if GetDistance2D(v,me) < 1050 and v:CanCast() then
 								if v:GetAbility(4).name == "faceless_void_chronosphere" and v:GetAbility(4).state == LuaEntityAbility.STATE_READY then
 									if GetDistance2D(v,me) < 400 then
-										PuckW()
+										UseBlinkDagger()
+										PuckW(true)
 										UseSheepStickTarget()
 										UseOrchidtarget()
 										UseEulScepterTarget()
@@ -1706,7 +1728,14 @@ function Tick( tick )
 end
 
 function GameClose()
-	script:Reload()
+	target = nil
+	wait = 0
+	waittime = 0
+	sleepTick = nil
+	sleep1 = 0 
+	sleepk = 0
+	tt = nil
+	aa = nil	
 end
 
 function FindAngleR(entity)
@@ -2167,7 +2196,7 @@ function Puck()
 	end
 end
 
-function PuckW()
+function PuckW(ps)
 	if activated == 0 then
 		local rift = me:GetAbility(2)
 		if me:CanCast() then
@@ -2177,7 +2206,7 @@ function PuckW()
 					activated = 1
 					sleepTick = GetTick() + 500
 				end
-			else
+			elseif ps then
 				Puck()
 			end
 		end
@@ -2676,6 +2705,15 @@ function qna(tick)
 		aa = nil
 		script:UnregisterEvent(qna)
 	end	
+end
+
+function GetSpecial(spell,Name,lvl)
+	local specials = spell.specials
+	for _,v in ipairs(specials) do
+		if v.name == Name then
+			return v:GetData( math.min(v.dataCount,lvl) )
+		end
+	end
 end    
 
 script:RegisterEvent(EVENT_CLOSE, GameClose)
