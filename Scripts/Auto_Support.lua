@@ -84,7 +84,7 @@ function SupportTick(tick)
 		elseif ID == CDOTA_Unit_Hero_Centaur then		
 			Save(me,4,nil,2200000)
 		elseif ID == CDOTA_Unit_Hero_WitchDoctor then
-			Heal(me,2,{16,24,32,40},550,4)
+			Heal(me,2,{16,24,32,40},550,4,ID)
 		elseif ID == CDOTA_Unit_Hero_Necrolyte then
 			Heal(me,1,{70,90,110,130},500,3)
 		elseif ID == CDOTA_Unit_Hero_Warlock then
@@ -190,7 +190,7 @@ function Heal(me,ability,amount,range,target,id,excludeme,special)
 								elseif target == 3 then
 									ExecuteHeal(heal,nil,me) break
 								elseif target == 4 then
-									ExecuteHeal(heal,nil,me,true) break
+									ExecuteHeal(heal,nil,me,true) Sleep(1000) break
 								end
 							end
 						end
@@ -229,6 +229,8 @@ function GetHeal(lvl,me,tab1,id,target)
 			mainattribute = target.strenghtTotal
 		end
 		return bheal + mainattribute*attribute_percentage[lvl]*16
+	elseif id == CDOTA_Unit_Hero_WitchDoctor then
+		return (bheal+((me.mana)/(bheal/2))+target.healthRegen)*3
 	end
 	return bheal	
 end
