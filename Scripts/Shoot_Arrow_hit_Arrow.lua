@@ -20,12 +20,11 @@ local active = true
 local shoot = nil
 local victim = nil
 local timing = false
-local blind = false
 
 function ArrowKey(msg,code)	
 	if msg ~= KEY_UP or client.chat then return end
 
-	if code == arrowkey and active and ((victim and victim.visible) or blind) then     
+	if code == arrowkey and active and victim and victim.visible then     
 		if not shoot then
 			shoot = true
 			return true
@@ -156,14 +155,11 @@ function Main(tick)
 					end
 					local blindxyz = SkillShot.BlindSkillShotXYZ(me,blindvictim,speed,castPoint)
 					if blindxyz and blindxyz:GetDistance2D(me) <= 3115 then 
-						blind = true
 						statusText.text = "Shoot BLIND Arrow!"
-						if shoot then shoot = nil
+						if IsKeyDown(arrowkey) then
 							me:SafeCastAbility(arrow, blindxyz)
 							Sleep(250)
 						end
-					else
-						blind = false
 					end
 				end
 			end
