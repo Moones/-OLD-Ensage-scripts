@@ -1245,7 +1245,7 @@ function Tick( tick )
 							end
 						end
 					elseif v:GetAbility(t).name == "pudge_meat_hook" then
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+						if math.ceil(v:GetAbility(t).cd) == math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) and not me:DoesHaveModifier("pudge_meat_hook") then
 							if GetDistance2D(v,me) < 1300 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
 								if turntime == 0 then
