@@ -66,6 +66,23 @@ function Tick( tick )
 						end
 					end
 				end
+			elseif v.name == "npc_dota_hero_nevermore" then
+				if v:GetAbility(6) and v:GetAbility(6).level > 0 and v:GetAbility(6).abilityPhase then
+					if GetDistance2D(v,me) < 900 then
+						if GetDistance2D(v,me) < 400 then
+							PuckW(true)
+						end
+						Nyx()
+						Useshadowamulet()
+						UseShadowBlade()
+						Puck()
+						UseSheepStickTarget()
+						UseEulScepterTarget()
+						Useblackking()
+						Lifestealerrage()
+						UseBlinkDagger()
+					end
+				end
 			elseif v.name == "npc_dota_hero_sven" then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 15 then
 					if GetDistance2D(v,me) < 680 then
@@ -717,7 +734,8 @@ function Tick( tick )
 			--Projectile dodge--
 
 			local cast = entityList:GetEntities({classId=282})
-			local projectile = entityList:GetEntities({classId=CDOTA_BaseNPC})
+			local rocket = entityList:GetEntities({classId=CDOTA_BaseNPC})
+			local hit = entityList:GetProjectiles({source=v,target=me})
 			local notvisible_enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, alive = true, team = me:GetEnemyTeam()})
 			
 			for i, z in ipairs(cast) do
@@ -784,7 +802,7 @@ function Tick( tick )
 				end
 			end	
 			
-			for i, z in ipairs(projectile) do
+			for i, z in ipairs(rocket) do
 				if z.team ~= me.team and z:DoesHaveModifier("modifier_rattletrap_rocket_flare") then
 					if GetDistance2D(z,me) < 650 then
 						Puck()
@@ -795,6 +813,20 @@ function Tick( tick )
 							end
 						end
 					end
+				end
+			end
+			
+			for i, z in ipairs(hit) do
+				local ShadowBlade = v:FindItem("item_invis_sword")
+				if ShadowBlade and ShadowBlade.cd > 14 then
+					target = v
+					Puck()
+					UseBlinkDagger()
+					UseEulScepterTarget()
+					UseSheepStickTarget()
+					UseOrchidtarget()
+					UseShadowBlade()
+					SlarkPounce()
 				end
 			end
 			
@@ -1366,6 +1398,23 @@ function Tick( tick )
 								if turntime == 0 then						
 									Nyx()
 									Puck()
+								end
+							end
+						end
+					elseif v:GetAbility(t).name == "jakiro_ice_path" then
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 1200 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									Nyx()
+									Useshadowamulet()
+									UseShadowBlade()
+									Puck()
+									UseSheepStickTarget()
+									UseEulScepterTarget()
+									Useblackking()
+									Lifestealerrage()
+									UseBlinkDagger()
 								end
 							end
 						end
