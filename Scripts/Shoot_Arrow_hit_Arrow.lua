@@ -20,11 +20,12 @@ local active = true
 local shoot = nil
 local victim = nil
 local timing = false
+local blind = false
 
 function ArrowKey(msg,code)	
 	if msg ~= KEY_UP or client.chat then return end
 
-	if code == arrowkey and active and ((victim and victim.visible) or blindxyz) then     
+	if code == arrowkey and active and ((victim and victim.visible) or blind) then     
 		if not shoot then
 			shoot = true
 			return true
@@ -149,13 +150,20 @@ function Main(tick)
 				if v.team ~= me.team and not v.visible and arrow.level > 0 and me.alive and not victim then
 					local speed = 857.14
 					local castPoint = 0.55 + client.latency/10
-					local blindxyz = SkillShot.BlindSkillShotXYZ(me,v,speed,castPoint)
+					local blindvictim
+					if not blindvictim or v.health < blindvictim.health then
+						blindvictim = v
+					end
+					local blindxyz = SkillShot.BlindSkillShotXYZ(me,blindvictim,speed,castPoint)
 					if blindxyz and blindxyz:GetDistance2D(me) <= 3115 then 
+						blind = true
 						statusText.text = "Shoot BLIND Arrow!"
 						if shoot then shoot = nil
 							me:SafeCastAbility(arrow, blindxyz)
 							Sleep(250)
 						end
+					else
+						blind = false
 					end
 				end
 			end
