@@ -1796,7 +1796,7 @@ end
 
 function Lifestealerrage()
 	if activated == 0 then
-		local rage = me:GetAbility(1)
+		local rage = me:FindSpell("lifestealer_rage")
 		if rage and rage.level > 0 and rage:CanBeCasted() and me:CanCast() then
 			me:CastAbility(rage)
 			activated = 1
@@ -1808,8 +1808,8 @@ end
 
 function LoneDruidUlt()
 	if activated == 0 then
-		local trueform1 = me:GetAbility(5)
-		local trueform2 = me:GetAbility(6)
+		local trueform1 = me:FindSpell("lone_druid_true_form")
+		local trueform2 = me:FindSpell("lone_druid_true_form_druid")
 		if trueform1 and trueform1.level > 0 and trueform1:CanBeCasted() and me:CanCast() then
 			me:CastAbility(trueform1)
 			activated = 1
@@ -1824,7 +1824,7 @@ end
 
 function Juggernautfury()
 	if activated == 0 then
-		local fury = me:GetAbility(1)
+		local fury = me:FindSpell("juggernaut_blade_fury")
 		if fury and fury.level > 0 and fury:CanBeCasted() and me:CanCast() then
 			me:CastAbility(fury)
 			activated = 1
@@ -1835,7 +1835,7 @@ end
 
 function Phoenixsupernova()
 	if activated == 0 then
-		local supernova = me:GetAbility(5)
+		local supernova = me:FindSpell("phoenix_supernova")
 		if supernova and supernova.level > 0 and supernova:CanBeCasted() and me:CanCast() then	
 			me:CastAbility(supernova)
 			activated = 1
@@ -1846,7 +1846,7 @@ end
 
 function TemplarMeld()
 	if activated == 0 then
-		local meld = me:GetAbility(2)
+		local meld = me:FindSpell("templar_assassin_meld")
 		if meld and meld.level > 0 and meld:CanBeCasted() and me:CanCast() then
 			me:CastAbility(meld)
 			activated = 1
@@ -1858,7 +1858,7 @@ end
 
 function TemplarRefraction()
 	if activated == 0 then
-		local refraction = me:GetAbility(1)
+		local refraction = me:FindSpell("templar_assassin_refraction")
 		if refraction and refraction.level > 0 and refraction:CanBeCasted() and me:CanCast() then
 			me:CastAbility(refraction)
 			activated = 1
@@ -1869,7 +1869,7 @@ end
 
 function NyxVendetta()
 	if activated == 0 then
-		local vendetta = me:GetAbility(4)
+		local vendetta = me:FindSpell("nyx_assassin_vendetta")
 		if vendetta and vendetta.level > 0 and vendetta:CanBeCasted() and me:CanCast() then
 			me:CastAbility(vendetta)
 			activated = 1
@@ -1880,7 +1880,7 @@ end
 
 function WeaverShukuchi()
 	if activated == 0 then
-		local shukuchi = me:GetAbility(2)
+		local shukuchi = me:FindSpell("weaver_shukuchi")
 		if shukuchi and shukuchi.level > 0 and shukuchi:CanBeCasted() and me:CanCast() then
 			me:CastAbility(shukuchi)
 			activated = 1
@@ -1891,7 +1891,7 @@ end
 
 function SandkinSandstorm()
 	if activated == 0 then
-		local sandstorm = me:GetAbility(2)
+		local sandstorm = me:FindSpell("sandking_sandstorm")
 		if sandstorm and sandstorm.level > 0 and sandstorm:CanBeCasted() and me:CanCast() then
 			me:CastAbility(sandstorm)
 			activated = 1
@@ -1902,7 +1902,7 @@ end
 
 function ClinkzWindwalk()
 	if activated == 0 then
-		local windwalk = me:GetAbility(2)
+		local windwalk = me:FindSpell("clinkz_skeleton_walk")
 		if windwalk and windwalk.level > 0 and windwalk:CanBeCasted() and me:CanCast() then
 			me:CastAbility(windwalk)
 			activated = 1
@@ -1913,7 +1913,7 @@ end
 
 function PhantomlancerDoppelwalk()
 	if activated == 0 then
-		local dopplewalk = me:GetAbility(2)
+		local dopplewalk = me:FindSpell("phantom_lancer_dopple_walk")
 		if dopplewalk and dopplewalk.level > 0 and dopplewalk:CanBeCasted() and me:CanCast() then
 			me:CastAbility(dopplewalk)
 			activated = 1
@@ -1924,7 +1924,7 @@ end
 
 function BountyhunterWindwalk()
 	if activated == 0 then
-		local windwalk = me:GetAbility(3)
+		local windwalk = me:FindSpell("bounty_hunter_shadow_walk")
 		if windwalk and windwalk.level > 0 and windwalk:CanBeCasted() and me:CanCast() then
 			me:CastAbility(windwalk)
 			activated = 1
@@ -1935,7 +1935,7 @@ end
 
 function AlchemistRage()
 	if activated == 0 then
-		local rage = me:GetAbility(4)
+		local rage = me:FindSpell("alchemist_rage")
 		if rage and rage.level > 0 and rage:CanBeCasted() and me:CanCast() then
 			me:CastAbility(rage)
 			activated = 1
@@ -1946,7 +1946,7 @@ end
 
 function NagaMirror()
 	if activated == 0 then
-		local mirror = me:GetAbility(1)
+		local mirror = me:FindSpell("naga_siren_mirror_image")
 		if rage and rage.level > 0 and rage:CanBeCasted() and me:CanCast() then
 			me:CastAbility(rage)
 			activated = 1
@@ -1957,7 +1957,7 @@ end
 
 function TusksnowballTarget()
 	if activated == 0 then
-		local snowball = me:GetAbility(2)
+		local snowball = me:FindSpell("tusk_snowball")
 		if snowball and snowball.level > 0 and snowball:CanBeCasted() and me:CanCast() then
 			if target and GetDistance2D(me,target) < 1250 then
 				me:CastAbility(snowball,target)
@@ -1970,7 +1970,7 @@ end
 
 function Jugernautomnitarget()
 	if activated == 0 then
-		local omni = me:GetAbility(4)
+		local omni = me:FindSpell("juggernaut_omni_slash")
 		if omni and omni.level > 0 and omni:CanBeCasted() and me:CanCast() then
 			if target and GetDistance2D(me,target) < 450 then
 				me:CastAbility(omni,target)
@@ -1983,7 +1983,7 @@ end
 
 function Doom()
 	if activated == 0 then
-		local doom = me:GetAbility(6)
+		local doom = me:FindSpell("doombringer_doom")
 		if doom and doom.level > 0 and doom:CanBeCasted() and me:CanCast() then
 			if target and GetDistance2D(me,target) < 560 then
 				me:CastAbility(doom,target)
@@ -1996,7 +1996,7 @@ end
 
 function Emberchains()
 	if activated == 0 then
-		local chains = me:GetAbility(6)
+		local chains = me:FindSpell("ember_spirit_searing_chains")
 		if chains and chains.level > 0 and chains:CanBeCasted() and me:CanCast() then
 			if target and GetDistance2D(me,target) < 400 then
 				me:CastAbility(chains)
@@ -2009,7 +2009,7 @@ end
 
 function Embersleighttarget()
 	if activated == 0 then
-		local sleight = me:GetAbility(6)
+		local sleight = me:FindSpell("ember_spirit_sleight_of_fist")
 		if sleight and sleight.level > 0 and sleight:CanBeCasted() and me:CanCast() then
 			if target and GetDistance2D(me,target) < 710 then
 				me:CastAbility(sleight,target.position)
@@ -2219,7 +2219,7 @@ end
 
 function Puck()
 	if activated == 0 then
-		local phase = me:GetAbility(3)
+		local phase = me:FindSpell("puck_phase_shift")
 		if phase and phase.level > 0 and phase:CanBeCasted() and me:CanCast() then
 			me:CastAbility(phase)
 			activated = 1
@@ -2232,7 +2232,7 @@ end
 
 function PuckW(ps)
 	if activated == 0 then
-		local rift = me:GetAbility(2)
+		local rift = me:FindSpell("puck_waning_rift")
 		if me:CanCast() then
 			if rift and rift.level > 0 and rift:CanBeCasted() then
 				if target and GetDistance2D(me,target) < 410 then
@@ -2384,8 +2384,9 @@ end
 
 function Nyx()
 	if activated == 0 then
-		if me:GetAbility(3) and me:GetAbility(3).name == "nyx_assassin_spiked_carapace" and me:GetAbility(3).state == LuaEntityAbility.STATE_READY and not me:DoesHaveModifier("modifier_nyx_assassin_vendetta") then
-			me:CastAbility(me:GetAbility(3))
+		local carapace = me:FindSpell("nyx_assassin_spiked_carapace")
+		if carapace and carapace:CanBeCasted() and not me:DoesHaveModifier("nyx_assassin_vendetta") and not me:IsInvisible() then
+			me:CastAbility(carapace)
 			activated = 1
 			sleepTick = GetTick() + 500
 			return 
