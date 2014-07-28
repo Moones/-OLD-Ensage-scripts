@@ -15,8 +15,8 @@ local skillshotkey = config.SkillShotKey
 victimHandle = nil
 
 local myFont = drawMgr:CreateFont("GlobalSkillShot","Tahoma",14,550)
-local statusText = drawMgr:CreateText(-40,-20,-1,"Global SkillShot!",myFont);
-local victimText = drawMgr:CreateText(-20,-10,-1,"Shoot!",myFont);
+local statusText = drawMgr:CreateText(-40,-20,-1,"Global SkillShot!",myFont); statusText.visible = false
+local victimText = drawMgr:CreateText(-20,-10,-1,"Shoot!",myFont); victimText.visible = false
 local active = true
 local shoot = false
 local victim = nil
@@ -74,7 +74,11 @@ function Main(tick)
 	end
 
 	local offset = me.healthbarOffset
-
+	if me.alive then
+		statusText.visible = true
+	else	
+		statusText.visible = false
+	end
 	statusText.entity = me
 	statusText.entityPosition = Vector(0,0,offset)
 	
@@ -86,18 +90,17 @@ function Main(tick)
 				victimText.entity = victim
 				victimText.entityPosition = Vector(0,0,victim.healthbarOffset)
 				victimText.visible = true
-				statusText.text = "Shoot: " .. client:Localize(victim.name)
+				statusText.text = "Shoot: "..client:Localize(victim.name)
 				if shoot and me.alive then shoot = false    
 					local speed = spell:GetSpecialData(v.speed,spell.level)
 					local delay = (spell:GetCastPoint(spell.level)+client.latency+v.extratime)*1000
 					local xyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
 					if xyz then  
 						me:SafeCastAbility(spell, xyz)
-						victim = nil
 						Sleep(250) 
 					end
 				end 
-			else
+			elseif not (victim and victim.visible and victim.alive) or not victim or not me.alive then
 				statusText.text = "Global SkillShot!"
 				victimText.visible = false
 			end
