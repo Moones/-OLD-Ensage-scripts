@@ -157,7 +157,7 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,specia
 							end
 							if special == 1 then
 								for i,m in ipairs(v.modifiers) do
-									if m and m.stunDebuff then
+									if m and m.stunDebuff and GetDistance2D(me,v) <= Range then
 										me:CastAbility(save2,v)
 									end
 								end
@@ -182,7 +182,7 @@ function Heal(me,ability,amount,range,target,id,excludeme,special)
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() and healthAmount > 0 then
 					if v.alive and v.health > 0 and (not excludeme or v ~= me) and NetherWard(heal,v,me) then
 						if activ then
-							if ((v.maxHealth - v.health) >= healthAmount or v.health < ClosestHeroDmg(v)) and GetDistance2D(me,v) <= Range then								
+							if ((v.maxHealth - v.health) >= math.max(healthAmount,150) or v.health < ClosestHeroDmg(v)) and GetDistance2D(me,v) <= Range then								
 								if target == 1 then
 									ExecuteHeal(heal,v,me)	break
 								elseif target == 2 then
