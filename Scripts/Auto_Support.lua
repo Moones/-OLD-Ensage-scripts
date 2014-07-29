@@ -20,7 +20,7 @@ function SupportTick(tick)
 	local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 	local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
 	for i,v in ipairs(allies) do
-		if me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 2000 and not me:IsInvisible() and activ then
+		if v.alive and v.health > 0 and me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 2000 and not me:IsInvisible() and activ then
 			local distance = GetDistance2D(me,v)
 			if meka and meka.cd == 0 then
 				if (v.maxHealth - v.health) >= 250 and distance <= 2000 and me.mana >= 150 then
