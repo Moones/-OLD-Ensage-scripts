@@ -20,7 +20,7 @@ function SupportTick(tick)
 	local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 	local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
 	for i,v in ipairs(allies) do
-		if me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 1300 and not me:IsInvisible() and activ then
+		if me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 2000 and not me:IsInvisible() and activ then
 			local distance = GetDistance2D(me,v)
 			if meka and meka.cd == 0 then
 				if (v.maxHealth - v.health) >= 250 and distance <= 2000 and me.mana >= 150 then
@@ -119,7 +119,7 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,specia
 					if v.alive and v.health > 0 and v ~= me and NetherWard(save2,v,me) then
 						if activ then
 							if type(tresh) == "table" then
-								if GetDistance2D(me,fountain) > 1300 then
+								if GetDistance2D(me,fountain) > 2000 then
 									if treshspell and type(treshspell) == "number" then treshspell = me:GetAbility(treshspell) end
 									if target == 2 then
 										local needsave = nil
@@ -175,7 +175,7 @@ function Heal(me,ability,amount,range,target,id,excludeme,special)
 	if heal and heal.level > 0 and heal.state == LuaEntityAbility.STATE_READY then
 		local Range = (range) or (heal.castRange + 50)		
 		local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
-		if me.alive and not me:IsChanneling() and not me:IsInvisible() and GetDistance2D(me,fountain) > 1300 then
+		if me.alive and not me:IsChanneling() and not me:IsInvisible() and GetDistance2D(me,fountain) > 2000 then
 			local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 			for i,v in ipairs(allies) do
 				local healthAmount = GetHeal(heal.level,me,amount,id,v)
