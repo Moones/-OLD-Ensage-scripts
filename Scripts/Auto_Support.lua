@@ -182,7 +182,7 @@ function Heal(me,ability,amount,range,target,id,excludeme,special)
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() and healthAmount > 0 then
 					if v.alive and v.health > 0 and (not excludeme or v ~= me) and NetherWard(heal,v,me) then
 						if activ then
-							if ((v.maxHealth - v.health) >= math.max(healthAmount,150) or v.health < ClosestHeroDmg(v)) and GetDistance2D(me,v) <= Range then								
+							if ((v.maxHealth - v.health) > math.max(healthAmount,150) or v.health < ClosestHeroDmg(v)) and GetDistance2D(me,v) <= Range and IsInDanger(v) then								
 								if target == 1 then
 									ExecuteHeal(heal,v,me)	break
 								elseif target == 2 then
