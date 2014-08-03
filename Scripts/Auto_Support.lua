@@ -23,7 +23,7 @@ function SupportTick(tick)
 		if v.alive and v.health > 0 and me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 2000 and not me:IsInvisible() and activ then
 			local distance = GetDistance2D(me,v)
 			if meka and meka.cd == 0 then
-				if (v.maxHealth - v.health) >= 250 and distance <= 2000 and me.mana >= 150 then
+				if (v.maxHealth - v.health) > (350 + v.healthRegen*10) and distance <= 2000 and me.mana >= 150 then
 					if not needmeka or (needmeka and GetDistance2D(needmeka,me) <= 750) then
 						needmeka = v
 					end
@@ -33,7 +33,7 @@ function SupportTick(tick)
 				end
 			end
 			if urn and urn.cd == 0 and urn.charges > 0 and not v:DoesHaveModifier("modifier_item_urn_heal") then
-				if (v.maxHealth - v.health) >= 400 and distance <= 950 and not IsInDanger(v) then
+				if (v.maxHealth - v.health) > (400  + v.healthRegen*10) and distance <= 950 and not IsInDanger(v) then
 					me:CastItem(urn.name,v) return
 				end
 				if me:DoesHaveModifier("modifier_wisp_tether") and (v.maxHealth - v.health) >= 600 then
@@ -182,7 +182,7 @@ function Heal(me,ability,amount,range,target,id,excludeme,special)
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() and healthAmount > 0 then
 					if v.alive and v.health > 0 and (not excludeme or v ~= me) and NetherWard(heal,v,me) then
 						if activ then
-							if ((v.maxHealth - v.health) > math.max(healthAmount,150) or v.health < ClosestHeroDmg(v)) and GetDistance2D(me,v) <= Range and IsInDanger(v) then								
+							if ((v.maxHealth - v.health) > (math.max(healthAmount,150) + v.healthRegen*10) or v.health < ClosestHeroDmg(v)) and GetDistance2D(me,v) <= Range and IsInDanger(v) then								
 								if target == 1 then
 									ExecuteHeal(heal,v,me)	break
 								elseif target == 2 then
