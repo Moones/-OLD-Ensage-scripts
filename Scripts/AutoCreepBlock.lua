@@ -7,7 +7,7 @@ config:Load()
 	
 creepblockkey = config.CreepBlockKey
 
-local reg = false local myId = nil local firstmove = false local closestCreep = nil local blocksleep = 0 local creepTable = {}
+local reg = false local myId = nil local firstmove = false local closestCreep = nil local blocksleep = 0
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
@@ -25,18 +25,19 @@ function Main(tick)
 	if client.gameTime > 0 then 
 		disableText.visible = true
 		disableText.text = "Disable in " .. math.floor(25 - client.gameTime) .. " seconds."
+	else
+		disableText.visible = false
+		disableText.text = ""
 	end
 	if client.gameTime >= 25 then
 		disableText.visible = false
 		statusText.visible = false
 		myId = nil
 		closestCreep = nil
-		creepTable = {}
 		script:Disable()
 	else
 		statusText.visible = true
-	end
-	GetCreeps(me)		
+	end	
 	if IsKeyDown(creepblockkey) and not client.chat then
 		CreepBlock(me)
 	end
@@ -59,10 +60,10 @@ function CreepBlock(me)
 		if not firstmove then 
 			me:Move(startingpoint2) 
 		else
-			for creepHandle, creepClass in pairs(creepTable) do	
-				if creepClass.spawned and creepClass.alive and creepClass.team == me.team and creepClass.health > 0 then
-					if not closestCreep or (GetDistance2D(creepClass,endingpoint) - 25) < GetDistance2D(closestCreep,endingpoint) then
-						closestCreep = creepClass
+			for creepHandle, creep in pairs(entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true,team=me.team})) do	
+				if creep.spawned and creep.health > 0 and GetDistance2D(me,creep) < 500 then
+					if not closestCreep or (GetDistance2D(creep,endingpoint) - 25) < GetDistance2D(closestCreep,endingpoint) then
+						closestCreep = creep
 					end
 					if closestCreep and GetDistance2D(me,closestCreep) <= 500 then
 						local alfa = closestCreep.rotR
@@ -83,20 +84,6 @@ function CreepBlock(me)
 	end
 end
 
-function GetCreeps(me)
-	local creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true})
-	for _, dEntity in ipairs(creeps) do
-		if dEntity.spawned and GetDistance2D(me, dEntity) < math.max(me.attackRange, 800) and not creepTable[dEntity.handle] then
-			creepTable[dEntity.handle] = dEntity
-		end	
-	end
-	for creepHandle, creepClass in pairs(creepTable) do
-		if not creepClass.alive or GetDistance2D(me, creepClass) > math.max(me.attackRange, 800) then
-			creepTable[creepHandle] = nil
-		end
-	end
-end
-
 function Load()
 	if PlayingGame() then
 		local me = entityList:GetMyHero()
@@ -109,7 +96,6 @@ function Load()
 			myId = me.classId
 			firstmove = false
 			closestCreep = nil
-			creepTable = {}
 			script:RegisterEvent(EVENT_TICK, Main)
 			script:UnregisterEvent(Load)
 		end
@@ -121,7 +107,6 @@ function Close()
 	disableText.visible = false
 	myId = nil
 	closestCreep = nil
-	creepTable = {}
 	if reg then
 		script:UnregisterEvent(Main)
 		script:RegisterEvent(EVENT_TICK, Load)	
