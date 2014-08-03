@@ -8,6 +8,6 @@ Nyx_Combo.lua             | Blind_Prediction.lua
 Pudges_Butchery.lua       | Lasthits_Denies.lua
 ShadowFiend_Raze_Range.lua| Orb_Walker.lua
 Shoot_Arrow_hit_Arrow.lua | ShowMeJukePaths.lua
-Tiny_Auto_Combo.lua       |
+Tiny_Auto_Combo.lua       | AutoCreepBlock.lua
 Auto_Support.lua          |
 Global_Skillshots.lua     |
