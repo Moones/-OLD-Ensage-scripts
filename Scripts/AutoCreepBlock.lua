@@ -48,14 +48,14 @@ function CreepBlock(me)
 		endingpoint = Vector(116,250,127)
 	end
 	if client.gameTime >= (1.48 - client.latency/1000) and GetTick() > blocksleep then
-		blocksleep = GetTick() + me.movespeed/2 - client.latency/1000
+		blocksleep = GetTick() + me.movespeed/2 - client.latency/500
 		if me.position == startingpoint2 or GetDistance2D(me,startingpoint2) < 50 or GetDistance2D(endingpoint,me) < 4000 then
 			firstmove = true
 		end
 		if not firstmove then 
 			me:Move(startingpoint2) 
 		else
-			for creepHandle, creep in pairs(entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true,team=me.team})) do	
+			for creepHandle, creep in ipairs(entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true,team=me.team})) do	
 				if creep.spawned and creep.health > 0 and GetDistance2D(me,creep) < 500 then
 					if not closestCreep or (GetDistance2D(creep,endingpoint) - 25) < GetDistance2D(closestCreep,endingpoint) then
 						closestCreep = creep
