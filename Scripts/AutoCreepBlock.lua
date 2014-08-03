@@ -1,23 +1,18 @@
 require("libs.ScriptConfig")
 require("libs.Utils")
-
 local config = ScriptConfig.new()
 config:SetParameter("CreepBlockKey", "N", config.TYPE_HOTKEY)
-config:Load()
-	
+config:Load()	
 creepblockkey = config.CreepBlockKey
-
-local reg = false local myId = nil local firstmove = false local closestCreep = nil local blocksleep = 0
-
+local reg = false local firstmove = false local closestCreep = nil local blocksleep = 0
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
 local statusText = drawMgr:CreateText(-50,-25,-1,"AutoBlock: Hold ''" .. string.char(creepblockkey) .. "''",F14) statusText.visible = false
 local disableText = drawMgr:CreateText(-50,-15,-1,"",F14) disableText.visible = false
 
 function Main(tick)
-	if not PlayingGame() or client.paused then return end	
-	local me = entityList:GetMyHero() if not me then return end	
-	local ID = me.classId if ID ~= myId then Close() end			
+	local me = entityList:GetMyHero()
+	if not PlayingGame() or client.paused or not me then return end				
 	statusText.entity = me
 	statusText.entityPosition = Vector(0,0,me.healthbarOffset)
 	disableText.entity = me
@@ -93,7 +88,6 @@ function Load()
 			statusText.visible = false
 			disableText.visible = false
 			reg = true
-			myId = me.classId
 			firstmove = false
 			closestCreep = nil
 			script:RegisterEvent(EVENT_TICK, Main)
@@ -105,7 +99,6 @@ end
 function Close()
 	statusText.visible = false
 	disableText.visible = false
-	myId = nil
 	closestCreep = nil
 	if reg then
 		script:UnregisterEvent(Main)
