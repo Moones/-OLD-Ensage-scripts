@@ -25,13 +25,12 @@ function Tick( tick )
 				end
 			elseif v.name == "npc_dota_hero_axe" then
 				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 150 then
+					if GetDistance2D(v,me) < 200 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
-							UseShadowBlade()
 							UseBlinkDagger()
 							UseEulScepterTarget()
-							PuckW()
+							PuckW(true)
 							UseSheepStickTarget()
 							UseOrchidtarget()
 						end
