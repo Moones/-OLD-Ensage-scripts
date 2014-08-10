@@ -137,7 +137,7 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,specia
 											me:CastAbility(save2,v)
 										end	
 									else
-										if v.health <= ClosestHeroDmg(v) or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
+										if v.health <= ClosestHeroDmg(v) or (treshspell and treshspell.level > 0 and v.health <= tresh[treshspell.level]) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
 											me:CastAbility(save2,v)
 										end	
 									end
