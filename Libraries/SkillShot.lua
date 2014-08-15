@@ -174,7 +174,6 @@ function SkillShot.__GetBlock(v1,v2,target,aoe,team)
 		golem = entityList:GetEntities({classId=CDOTA_BaseNPC_Warlock_Golem,alive=true,visible=true})
 	end
 	for k,v in pairs(creeps) do block[#block + 1] = v end
-	for k,v in pairs(siege) do block[#block + 1] = v end
 	for k,v in pairs(forge) do block[#block + 1] = v end
 	for k,v in pairs(hero) do block[#block + 1] = v end
 	for k,v in pairs(golem) do block[#block + 1] = v end	
