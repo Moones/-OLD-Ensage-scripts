@@ -10,6 +10,10 @@ local toggleKey = config.Active
 local reg = false local activ = true 
 local myhero = nil local onlyitems = false
 
+local monitor = client.screenSize.x/1600
+local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
+local statusText = drawMgr:CreateText(10*monitor,580*monitor,-1,"Auto Support: ON - Hotkey: ''"..string.char(toggleKey).."''",F14) statusText.visible = false
+
 function SupportTick(tick)
 	if not SleepCheck() then return end Sleep(200)
 	local me = entityList:GetMyHero()	
@@ -20,7 +24,7 @@ function SupportTick(tick)
 	local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 	local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
 	for i,v in ipairs(allies) do
-		if not v:IsIllusion() and v.alive and v.health > 0 and me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 2000 and not me:IsInvisible() and activ then
+		if not v:IsIllusion() and v.alive and v.health > 0 and me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 2000 and (not me:IsInvisible() or me:DoesHaveModifier("modifier_treant_natures_guise")) and activ then
 			local distance = GetDistance2D(me,v)
 			if meka and meka.cd == 0 then
 				if (v.maxHealth - v.health) > (450 + v.healthRegen*10) and distance <= 2000 and me.mana >= 150 then
@@ -100,6 +104,7 @@ end
 function Key(msg,code)
 	if client.chat or client.console or code ~= toggleKey or msg ~= KEY_UP then return end
 	activ = not activ
+	statusText.text = "Auto Support: "..Activ(activ).." - Hotkey: ''"..string.char(toggleKey).."''"
 end
 
 function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,special)
@@ -112,7 +117,7 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,specia
 		if tresh == nil then tresh = 200 end
 		local Range = range or (save2.castRange+50)
 		local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
-		if me.alive and not me:IsChanneling() and not me:IsInvisible() then
+		if me.alive and not me:IsChanneling() and (not me:IsInvisible() or me:DoesHaveModifier("modifier_treant_natures_guise")) then
 			local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 			for i,v in ipairs(allies) do
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() then
@@ -175,7 +180,7 @@ function Heal(me,ability,amount,range,target,id,excludeme,special)
 	if heal and heal.level > 0 and heal.state == LuaEntityAbility.STATE_READY then
 		local Range = (range) or (heal.castRange + 50)		
 		local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
-		if me.alive and not me:IsChanneling() and not me:IsInvisible() and GetDistance2D(me,fountain) > 2000 then
+		if me.alive and not me:IsChanneling() and (not me:IsInvisible() or me:DoesHaveModifier("modifier_treant_natures_guise")) and GetDistance2D(me,fountain) > 2000 then
 			local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 			for i,v in ipairs(allies) do
 				local healthAmount = GetHeal(heal.level,me,amount,id,v)
@@ -322,9 +327,18 @@ function Support(hId)
 	end
 end
 
+function Activ(a)
+	if a == true then
+		return "ON"
+	else
+		return "OFF"
+	end
+end
+
 function Load()
 	if PlayingGame() then
 		local me = entityList:GetMyHero()
+		statusText.visible = true
 		reg = true
 		save1,save2 = nil,nil
 		myhero = me.classId
