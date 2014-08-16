@@ -132,6 +132,8 @@ function Main(tick)
 		statusText.visible = false
 		script:Disable()
 		return
+	else
+		statusText.visible = true
 	end
 	local offset = me.healthbarOffset
 	if not statusText.entity then
