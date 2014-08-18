@@ -134,6 +134,8 @@ function Main(tick)
 		return
 	else
 		statusText.visible = true
+		script:RegisterEvent(EVENT_MODIFIER_ADD,ModifierAdd)
+		script:RegisterEvent(EVENT_MODIFIER_REMOVE,ModifierRemove)
 	end
 	local offset = me.healthbarOffset
 	if not statusText.entity then
@@ -335,6 +337,7 @@ function CanEscape(who)
 end
 
 function ModifierAdd(v,modifier)
+	if not PlayingGame() or client.console then return end	
 	local me = entityList:GetMyHero()
 	if active then
 		if modifier.name == "modifier_pudge_rot" and v.classId == me.classId then
@@ -357,6 +360,7 @@ function ModifierAdd(v,modifier)
 end
 
 function ModifierRemove(v,modifier)
+	if not PlayingGame() or client.console then return end	
 	local me = entityList:GetMyHero()
 	if active then
 		if modifier.name == "modifier_pudge_rot" and v.classId == me.classId then
@@ -369,7 +373,5 @@ function ModifierRemove(v,modifier)
 	end
 end
 
-script:RegisterEvent(EVENT_MODIFIER_ADD,ModifierAdd)
-script:RegisterEvent(EVENT_MODIFIER_REMOVE,ModifierRemove)
 script:RegisterEvent(EVENT_TICK,Main)
 script:RegisterEvent(EVENT_KEY,Key)
