@@ -77,7 +77,7 @@ config:SetParameter("ManualtoggleKey", "G", config.TYPE_HOTKEY)
 config:Load()
 
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
-local sleeptick = 0 local targetHandle = nil local manualselection = false local active = true local victim = nil local blindxyz = nil local rottoggled = false local count = 0 local hooked = false local urned = false
+local sleeptick = 0 local targetHandle = nil local manualselection = false local active = true local victim = nil local blindxyz = nil local rottoggled = false local count = 0 local hooked = false local urned = false local reg = false
 
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
@@ -88,7 +88,7 @@ local DmgD = {225,375,525} local DmgR = {35,60,85,110} local DmgR2 = {7,12,17,22
 targetText.visible = false victimText.visible = false
 
 function Key(msg,code)	
-    if client.chat then return end
+    if client.chat or not PlayingGame() then return end
 	if msg == KEY_UP then
 		if code == togglekey then
 			if not active then
@@ -126,27 +126,7 @@ end
 function Main(tick)
 	if not PlayingGame() or client.console then return end	
 	local me = entityList:GetMyHero()
-	if not me then return end
-	if me.classId ~= CDOTA_Unit_Hero_Pudge then
-		targetText.visible = false
-		statusText.visible = false
-		script:Disable()
-		return
-	else
-		statusText.visible = true
-		script:RegisterEvent(EVENT_MODIFIER_ADD,ModifierAdd)
-		script:RegisterEvent(EVENT_MODIFIER_REMOVE,ModifierRemove)
-	end
-	local offset = me.healthbarOffset
-	if not statusText.entity then
-		statusText.entity = me
-		statusText.entityPosition = Vector(0,0,offset)
-	end
-	if not targetText.entity then
-		targetText.entity = me
-		targetText.entityPosition = Vector(0,0,offset)
-	end	
-	
+
 	local hook = me:GetAbility(1)
 	local rot = me:GetAbility(2)	
 	
@@ -187,17 +167,19 @@ function Main(tick)
 					local speed = 1600 
 					local castPoint = (0.35 + client.latency/1000)
 					local blindvictim
-					if not blindvictim or v.health < blindvictim.health then
+					if not blindvictim or v.health < blindvictim.health or blindvictim.visible then
 						blindvictim = v
 					end
 					blindxyz = SkillShot.BlindSkillShotXYZ(me,blindvictim,speed,castPoint)
 					if blindxyz and blindxyz:GetDistance2D(me) <= RangeH[hook.level] + 100 then 
 						statusText.text = "Hook'em - BLIND!"
-						if IsKeyDown(hookkey) and SleepCheck() and not client.chat then
+						if IsKeyDown(hookkey) and SleepCheck("hook") and not client.chat then
 							me:SafeCastAbility(hook, blindxyz)
-							Sleep(100+client.latency)
+							Sleep(100+client.latency,"hook")
 						end
 					end
+				else
+					blindvictim = nil
 				end
 			end
 		end
@@ -224,14 +206,14 @@ function Main(tick)
 							local speed = 1600 
 							local delay = (300+client.latency)
 							local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
-							if xyz and SleepCheck() then	
+							if xyz and SleepCheck("hook") then	
 								me:SafeCastAbility(hook, xyz)
-								Sleep(100+client.latency)
+								Sleep(100+client.latency,"hook")
 							end
 						end
 					end
 				end
-			else
+			elseif not blindvictim then
 				if not manualselection then
 					statusText.text = "  Hook'em!"
 					victimText.visible = false
@@ -246,12 +228,8 @@ end
 
 function Combo(tick)
 	if tick < sleeptick or not PlayingGame() or client.console or client.paused then return end
-	
 	sleeptick = tick + 30 + client.latency
-	
 	local me = entityList:GetMyHero()
-	
-	if not me then return end
 	
 	local target = entityList:GetEntity(targetHandle)
 	local distance = me:GetDistance2D(target)
@@ -260,7 +238,7 @@ function Combo(tick)
 	local W = abilities[2]
 	local R = abilities[4]
 	
-	if not target or not target.visible or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) or (distance > minRange and not hooked) or count == 2 then
+	if not target or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) or (distance > minRange and not hooked) or count == 2 then
 		targetHandle = nil
 		targetText.visible = false
 		if not manualselection then
@@ -343,7 +321,7 @@ function ModifierAdd(v,modifier)
 		if modifier.name == "modifier_pudge_rot" and v.classId == me.classId then
 			rottoggled = true
 		elseif modifier.name == "modifier_pudge_meat_hook" then
-			if v.team ~= me.team and not v:IsIllusion() then
+			if v.hero and v.team ~= me.team and not v:IsIllusion() then
 				targetHandle = v.handle
 				targetText.visible = true
 				targetText.text = "Eating " .. client:Localize(v.name) .. ". Press " .. string.char(togglekey) .. " to cancel."
@@ -373,5 +351,65 @@ function ModifierRemove(v,modifier)
 	end
 end
 
-script:RegisterEvent(EVENT_TICK,Main)
-script:RegisterEvent(EVENT_KEY,Key)
+function Load()
+	if PlayingGame() then
+		local me = entityList:GetMyHero()
+		if not me or me.classId ~= CDOTA_Unit_Hero_Pudge then 
+			script:Disable()
+		else
+			targetHandle = nil
+			manualselection = false
+			local offset = me.healthbarOffset
+			if not statusText.entity then
+				statusText.entity = me
+				statusText.entityPosition = Vector(0,0,offset)
+			end
+			if not targetText.entity then
+				targetText.entity = me
+				targetText.entityPosition = Vector(0,0,offset)
+			end
+			statusText.visible = true
+			targetText.visible = false
+			active = true
+			victim = nil
+			blindxyz = nil
+			rottoggled = false
+			count = 0
+			hooked = false
+			urned = false
+			reg = true
+			blindvictim = nil
+			script:RegisterEvent(EVENT_TICK, Main)
+			script:RegisterEvent(EVENT_KEY, Key)
+			script:RegisterEvent(EVENT_MODIFIER_ADD, ModifierAdd)
+			script:RegisterEvent(EVENT_MODIFIER_REMOVE, ModifierRemove)
+			script:UnregisterEvent(Load)
+		end
+	end	
+end
+
+function Close()
+	targetHandle = nil
+	manualselection = false
+	statusText.visible = false
+	targetText.visible = false
+	active = true
+	victim = nil
+	blindxyz = nil
+	rottoggled = false
+	count = 0
+	hooked = false
+	urned = false
+	reg = true
+	if reg then
+		script:UnregisterEvent(Main)
+		script:UnregisterEvent(Key)
+		script:UnregisterEvent(ModifierAdd)
+		script:UnregisterEvent(ModifierRemove)
+		script:RegisterEvent(EVENT_TICK, Load)	
+		reg = false
+	end
+end
+
+script:RegisterEvent(EVENT_TICK, Load)	
+script:RegisterEvent(EVENT_CLOSE, Close)
