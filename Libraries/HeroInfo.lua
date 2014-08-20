@@ -568,7 +568,7 @@ npc_dota_hero_huskar = {
  turnRate = 0.5,
  attackBackswing = 0.5},
 
-npc_dota_hero_nightstalker = {
+npc_dota_hero_night_stalker = {
  attackRate = 1.7,
  attackPoint = 0.55,
  attackRange = 128,
