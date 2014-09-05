@@ -9,7 +9,7 @@
 	------------
 	
 		Auto Dodge of any SkillShot:
-			- this script tries to run away from any skillshot 
+			- This script tries to move perpendicular to avid any skillshot.
 			
 ]]--
 
