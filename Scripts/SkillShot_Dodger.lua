@@ -97,12 +97,12 @@ local SkillShotList = {
 function Main(tick)
 	if not PlayingGame() or client.console or not SleepCheck() then return end
 	local me = entityList:GetMyHero()
-	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team=me:GetEnemyTeam(),illusion=false})
+	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team=me:GetEnemyTeam(),visible=true})
 	local cast = entityList:GetEntities({classId=CDOTA_BaseNPC})	
 	for i,v in ipairs(enemies) do
 		for z, skillshot in ipairs(SkillShotList) do
 			spell = v:FindSpell(skillshot.spellName)
-			if spell then
+			if spell and not v:IsIllusion() then
 				if spell.abilityPhase then
 					radius = spell:GetSpecialData(skillshot.radius)
 					distance = (spell:GetSpecialData(skillshot.distance,spell.level) or skillshot.distance)  + radius
