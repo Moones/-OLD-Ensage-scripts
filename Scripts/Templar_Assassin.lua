@@ -4,7 +4,7 @@ require("libs.HeroInfo")
 require("libs.TargetFind")
 
 local config = ScriptConfig.new()
-config:SetParameter("Move", "G", config.TYPE_HOTKEY)
+config:SetParameter("Move", 32, config.TYPE_HOTKEY)
 config:SetParameter("Hotkey", "N", config.TYPE_HOTKEY)
 config:SetParameter("ActiveFromStart", true)
 config:SetParameter("ShowSign", true)
