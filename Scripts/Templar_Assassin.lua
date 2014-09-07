@@ -161,7 +161,7 @@ function OrbWalk(me)
 			enemies[i] = enemies[i+1]
 		end
 	end	
-	if victim and enemies[2] and GetDistance2D(enemies[2], me) < (myhero.attackRange + 1200) then
+	if (victim and GetDistance2D(me,victim) > (myhero.attackRange + 25)) and enemies[2] and GetDistance2D(enemies[2], me) < (myhero.attackRange + 1200) then
 		victim = targetFind:GetLowestEHP(1200 + myhero.attackRange, phys)
 	end	
 	--local psiUnits = entityList:GetEntities({classId={CDOTA_BaseNPC_Hero or CDOTA_BaseNPC_Creep_Neutral or CDOTA_BaseNPC_Creep_Lane or CDOTA_BaseNPC_Creep_Siege or CDOTA_BaseNPC_Invoker_Forged_Spirit or CDOTA_BaseNPC_Creep or CDOTA_BaseNPC_Warlock_Golem},alive=true,visible=true})
@@ -181,7 +181,7 @@ function OrbWalk(me)
 	for k,v in pairs(others) do if GetDistance2D(me, v) < myhero.attackRange+500 then farm[#farm + 1] = v end end
 	table.sort( farm, function (a,b) return GetDistance2D(a,me) < GetDistance2D(b,me) end )
 	if not victim or GetDistance2D(me, victim) > myhero.attackRange+500 or not victim.alive then
-		if farm[1] then
+		if farm[1] and GetDistance2D(client.mousePosition, farm[1]) < 300 then
 			victim = farm[1]
 		end
 	end
