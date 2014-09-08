@@ -210,7 +210,7 @@ function OrbWalk(me)
 			end
 		end
 	end
-	if SleepCheck("psi") and psivictim and (GetDistance2D(psivictim,me) > myhero.attackRange+50 or not AngleBelow(me,psivictim,victim,5.5) or not psivictim.alive or not psivictim.visible) then
+	if SleepCheck("psi") and psivictim and (GetDistance2D(psivictim,me) > myhero.attackRange+50 or not (victim and AngleBelow(me,psivictim,victim,5.5)) or not psivictim.alive or not psivictim.visible) then
 		psivictim = nil
 		psi = false
 	end
@@ -218,8 +218,8 @@ function OrbWalk(me)
 		victim = courier
 	end
 	local meld = me:GetAbility(2)	
-	if ((victim and victim.alive and victim.health > 0 and GetDistance2D(me, victim) <= myhero.attackRange) or (psivictim and psivictim.alive and psivictim.health > 0 and GetDistance2D(me, psivictim) <= myhero.attackRange)) and me.alive and (not meld or meld.state ~= LuaEntityAbility.STATE_READY or victim.health <= ((dmg)*(1-victim.dmgResist)+1) or psivictim or (victim.classId == CDOTA_BaseNPC_Tower or victim.classId == CDOTA_BaseNPC_Barracks or victim.classId == CDOTA_BaseNPC_Building)) then			
-		if (GetTick() >= myAttackTickTable.attackRateTick) and me:CanAttack() and not victim:IsAttackImmune() then
+	if ((victim and victim.alive and victim.health > 0 and GetDistance2D(me, victim) <= myhero.attackRange) or (psivictim and psivictim.alive and psivictim.health > 0 and GetDistance2D(me, psivictim) <= myhero.attackRange)) and me.alive and (not meld or meld.state ~= LuaEntityAbility.STATE_READY or (victim and victim.health <= ((dmg)*(1-victim.dmgResist)+1)) or psivictim or (victim and (victim.classId == CDOTA_BaseNPC_Tower or victim.classId == CDOTA_BaseNPC_Barracks or victim.classId == CDOTA_BaseNPC_Building))) then			
+		if (GetTick() >= myAttackTickTable.attackRateTick) and me:CanAttack() and not (victim and victim:IsAttackImmune()) then
 			if psivictim then
 				myhero:Hit(psivictim)
 			else
