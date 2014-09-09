@@ -923,7 +923,7 @@ npc_dota_hero_skywrath_mage = {
  turnRate = 0.5,
  attackBackswing = 0.78},
 
-npc_dota_hero_elder_eitan = {
+npc_dota_hero_elder_titan = {
  attackRate = 1.7,
  attackPoint = 0.35,
  attackRange = 128,
