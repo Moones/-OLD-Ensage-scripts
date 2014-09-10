@@ -38,7 +38,7 @@ local SkillShotList = {
 		radius = "arrow_width";
 		speed = "arrow_speed";
 		block = true;
-		team = false;
+		team = "ally";
 	};
 	{
 		spellName = "nyx_assassin_impale";
@@ -92,6 +92,11 @@ local SkillShotList = {
 		distance = "dragon_slave_distance";
 		radius = "dragon_slave_width_initial";
 	};
+	{ 
+		spellName = "jakiro_ice_path";
+		distance = 1100;
+		radius = "path_radius";
+	};
 }
 		
 function Main(tick)
@@ -105,7 +110,13 @@ function Main(tick)
 				local spell = v:FindSpell(skillshot.spellName)
 				if spell and spell.abilityPhase then
 					local radius = spell:GetSpecialData(skillshot.radius)
-					local distance = (spell:GetSpecialData(skillshot.distance,spell.level) or skillshot.distance)  + radius
+					local distance
+					if type(skillshot.distance) == "string" then
+						distance = spell:GetSpecialData(skillshot.distance,spell.level)
+					else
+						distance = skillshot.distance
+					end
+					distance = distance + radius
 					local team = skillshot.team or nil
 					local block = skillshot.block or false
 					if GetDistance2D(v,me) < distance then
@@ -134,7 +145,7 @@ function Main(tick)
 		end
 		if start and vec then
 			if WillHit(Arrow,me,115,false) and GetDistance2D(Arrow,start) < GetDistance2D(me,start) then
-				LineDodge((FindAB(start,vec,GetDistance2D(me,start)*10)), start, 375, me)
+				LineDodge((FindAB(start,vec,GetDistance2D(me,start)*10)), start, 287.5, me)
 				Sleep(125)
 			end
 		end
