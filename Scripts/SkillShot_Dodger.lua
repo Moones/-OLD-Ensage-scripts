@@ -17,7 +17,7 @@ require("libs.Utils")
 require("libs.VectorOp")
 require("libs.SkillShot")
 
-local reg = false local spell = nil local distance = nil local radius = nil local start, vec = nil, nil local ArrowHandle = nil
+local reg = false local start, vec = nil, nil
 
 local SkillShotList = {
 	{ 
@@ -32,14 +32,14 @@ local SkillShotList = {
 		distance = "arrow_range";
 		radius = "arrow_width";
 	};	
-	{ 
+	--[[{ 
 		spellName = "mirana_arrow";
 		distance = "arrow_range";
 		radius = "arrow_width";
 		speed = "arrow_speed";
 		block = true;
 		team = false;
-	};	
+	};	]]
 	{ 
 		spellName = "nyx_assassin_impale";
 		distance = "length";
@@ -97,54 +97,49 @@ local SkillShotList = {
 function Main(tick)
 	if not PlayingGame() or client.console or not SleepCheck() then return end
 	local me = entityList:GetMyHero()
-	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team=me:GetEnemyTeam(),visible=true})
-	local cast = entityList:GetEntities({classId=CDOTA_BaseNPC})	
+	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team=me:GetEnemyTeam(),visible=true,alive=true})	
+	--default spell
 	for i,v in ipairs(enemies) do
-		for z, skillshot in ipairs(SkillShotList) do
-			spell = v:FindSpell(skillshot.spellName)
-			if spell and not v:IsIllusion() then
-				if spell.abilityPhase then
-					radius = spell:GetSpecialData(skillshot.radius)
-					distance = (spell:GetSpecialData(skillshot.distance,spell.level) or skillshot.distance)  + radius
+		if not v:IsIllusion() then
+			for z, skillshot in ipairs(SkillShotList) do
+				local spell = v:FindSpell(skillshot.spellName)
+				if spell and spell.abilityPhase then
+					local radius = spell:GetSpecialData(skillshot.radius)
+					local distance = (spell:GetSpecialData(skillshot.distance,spell.level) or skillshot.distance)  + radius
 					local team = skillshot.team or nil
 					local block = skillshot.block or false
 					if GetDistance2D(v,me) < distance then
-						if (block and WillHit(v,me,radius,team)) or not block then
+						if (block and WillHit(v,me,radius,team)) or not block then						
 							LineDodge(Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), v.position, radius*2.5, me)	
 							Sleep(125)
+							break
 						end
 					end
 				end
-			end
-			local Arrow
-			ArrowHandle = FindArrowHandle(cast,me)
-			if ArrowHandle then 
-				Arrow = entityList:GetEntity(ArrowHandle)
-				ArrowHandle = nil
-			end
-			if Arrow and Arrow.alive then
-				if spell and skillshot.spellName == "mirana_arrow" then
-					if not start then
-						start = Arrow.position
-					end
-					if Arrow.visibleToEnemy and not vec then
-						vec = Arrow.position
-						if GetDistance2D(vec,start) < 50 then
-							vec = nil
-						end
-					end
-					if start and vec then
-						radius = spell:GetSpecialData(skillshot.radius)
-						if WillHit(Arrow,me,radius,false) and GetDistance2D(Arrow,start) < GetDistance2D(me,start) then
-							LineDodge((FindAB(start,vec,GetDistance2D(me,start)*10)), start, radius*2.5, me)
-							Sleep(125)
-						end
-					end
-				end
-			elseif start then	
-				start,vec,ArrowHandle = nil,nil,nil
 			end
 		end
+	end
+	--other spell
+	local cast = entityList:GetEntities({classId=CDOTA_BaseNPC})
+	local Arrow = FindArrowHandle(cast,me)
+	if Arrow then
+		if not start then
+			start = Arrow.position
+		end
+		if Arrow.visibleToEnemy and not vec then
+			vec = Arrow.position
+			if GetDistance2D(vec,start) < 50 then
+				vec = nil
+			end
+		end
+		if start and vec then
+			if WillHit(Arrow,me,115,false) and GetDistance2D(Arrow,start) < GetDistance2D(me,start) then
+				LineDodge((FindAB(start,vec,GetDistance2D(me,start)*10)), start, 375, me)
+				Sleep(125)
+			end
+		end
+	elseif start then	
+		start,vec,ArrowHandle = nil,nil,nil
 	end
 end
 
@@ -160,7 +155,7 @@ end
 function FindArrowHandle(cast,me)
 	for i, z in ipairs(cast) do
 		if z.team ~= me.team and z.dayVision == 650 then
-			return z.handle
+			return z
 		end
 	end
 	return nil
@@ -227,11 +222,7 @@ function Load()
 			script:Disable()
 		else			
 			reg = true
-			spell = nil
-			distance = nil
-			radius = nil
 			start, vec = nil, nil
-			ArrowHandle = nil
 			script:RegisterEvent(EVENT_TICK, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:UnregisterEvent(Load)
@@ -241,10 +232,7 @@ end
 
 function Close()
 	reg = true
-	spell = nil
-	radius = nil
 	start, vec = nil, nil
-	ArrowHandle = nil
 	if reg then
 		script:UnregisterEvent(Main)
 		script:UnregisterEvent(Key)
