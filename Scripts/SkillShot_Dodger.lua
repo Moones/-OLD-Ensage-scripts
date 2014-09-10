@@ -31,16 +31,16 @@ local SkillShotList = {
 		spellName = "windrunner_powershot";
 		distance = "arrow_range";
 		radius = "arrow_width";
-	};	
-	--[[{ 
+	};	 
+	{
 		spellName = "mirana_arrow";
 		distance = "arrow_range";
 		radius = "arrow_width";
 		speed = "arrow_speed";
 		block = true;
 		team = false;
-	};	]]
-	{ 
+	};
+	{
 		spellName = "nyx_assassin_impale";
 		distance = "length";
 		radius = "width";
