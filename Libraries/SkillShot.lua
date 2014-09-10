@@ -167,11 +167,16 @@ function SkillShot.__GetBlock(v1,v2,target,aoe,team)
 	local hero = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,team=enemyTeam,visible=true})
 	local neutrals = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Neutral,alive=true,visible=true})
 	local golem = entityList:GetEntities({classId=CDOTA_BaseNPC_Warlock_Golem,alive=true,team=enemyTeam,visible=true})
-	if team then
+	if team == true then
 		creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true})
 		forge = entityList:GetEntities({classId=CDOTA_BaseNPC_Invoker_Forged_Spirit,alive=true,visible=true})
 		hero = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})
 		golem = entityList:GetEntities({classId=CDOTA_BaseNPC_Warlock_Golem,alive=true,visible=true})
+	elseif team == "ally" then
+		creeps = entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Lane,alive=true,visible=true,team=me.team})
+		forge = entityList:GetEntities({classId=CDOTA_BaseNPC_Invoker_Forged_Spirit,alive=true,visible=true,team=me.team})
+		hero = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=me.team})
+		golem = entityList:GetEntities({classId=CDOTA_BaseNPC_Warlock_Golem,alive=true,visible=true,team=me.team})
 	end
 	for k,v in pairs(creeps) do block[#block + 1] = v end
 	for k,v in pairs(forge) do block[#block + 1] = v end
