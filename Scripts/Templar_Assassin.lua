@@ -125,22 +125,28 @@ function Main(tick)
 								me:SafeCastAbility(blink, bpos)
 							end
 							sleep = tick + turn
+							Sleep(blink:FindCastPoint() + client.latency/1000 + turn, "move")
 						end
 						--activate close trap or put another
-						if victim and victim.hero and GetDistance2D(me,victim) <= trap.castRange then
+						if victim and victim.hero and GetDistance2D(me,victim) <= trap.castRange+375 and CanBeSlowed(victim) then
 							local trapslow = victim:FindModifier("modifier_templar_assassin_trap_slow")
 							if (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE and (not trapslow or trapslow.remainingTime <= 0.3)) and ((closestTrap and GetDistance2D(closestTrap, victim) <= 400) or trap.state == LuaEntityAbility.STATE_READY) then
 								if closestTrap then
 									closestTrap:SafeCastAbility(closestTrap:GetAbility(1))
-								elseif SleepCheck("trap") then
-									me:SafeCastAbility(trap, victim.position)
+								end
+								if SleepCheck("trap") then
+									local p = Vector(victim.position.x + (victim.movespeed * (trap:FindCastPoint() + client.latency/1000) + 100) * math.cos(victim.rotR), victim.position.y + (victim.movespeed * (trap:FindCastPoint() + client.latency/1000) + 100) * math.sin(victim.rotR), victim.position.z)
+									me:SafeCastAbility(trap, p)
+									Sleep(trap:FindCastPoint() + client.latency/1000, "move")
 									Sleep(250, "trap")
 								end
 							end
 						end
 						--move to mouse position
-						me:Move(client.mousePosition)
-						sleep = tick + 30 + client.latency
+						if SleepCheck("move") then
+							me:Move(client.mousePosition)
+							sleep = tick + 30 + client.latency
+						end
 					end
 				end
 				--perfect meld strikes
@@ -792,6 +798,10 @@ function IsActive(lh)
 			return "OFF"
 		end
 	end
+end
+
+function CanBeSlowed(target)
+	return not target:IsMagicImmune() and not target:IsInvul() and not target:DoesHaveModifier("modifier_rune_haste") and not target:DoesHaveModifier("modifier_lycan_shapeshift") and not target:DoesHaveModifier("modifier_centaur_stampede")
 end
 
 function Load()
