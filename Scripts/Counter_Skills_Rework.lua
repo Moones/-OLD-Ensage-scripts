@@ -2056,11 +2056,11 @@ function Embersleighttargetcal()
 					if target and GetDistance2D(me,target) < 750 + addrange then
 
 						ember_spirit_sleight_of_fist=me:GetAbility(t)
-						local p = Vector((me.x - target.x) * addrange / GetDistance2D(target,me) + target.x,(me.y - target.y) * addrange / GetDistance2D(target,me) + target.y,target.z)
+						local p = Vector((me.x - target.x) * addrange / GetDistance2D(target,me) + target.position.x,(me.position.y - target.position.y) * addrange / GetDistance2D(target,me) + target.position.y,target.position.z)
 						local close = math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, target))))
 						local far = math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, p))))
 						if GetDistance2D(me,target) < 720 and close < far then
-							me:CastAbility(ember_spirit_sleight_of_fist,target.x,target.y,target.z)
+							me:CastAbility(ember_spirit_sleight_of_fist,target.position.x,target.position.y,target.position.z)
 						else
 							me:CastAbility(ember_spirit_sleight_of_fist,p)
 						end
