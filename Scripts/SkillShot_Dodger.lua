@@ -493,17 +493,30 @@ end
 config:Load()
 	
 function Main(tick)
-	if not PlayingGame() or client.console or not SleepCheck() then return end
+	if not PlayingGame() or client.console then return end
+	
+	local player = entityList:GetMyPlayer()
 	local me = entityList:GetMyHero()
-	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team=me:GetEnemyTeam(),alive=true})	
-	local cast = entityList:GetEntities({classId=CDOTA_BaseNPC})
-	--Line SkillShots
+	
+	--Replacing users moving orders to ensure avoid
+	if dodgevector and player.orderId and player.orderPosition ~= dodgevector and player.orderPosition ~= Vector(0,0,0) and GetDistance2D(player.orderPosition, dodgevector) > 100 then
+		me:Stop()
+		me:Move(dodgevector)
+	end
+	
+	--If we already are in dodge position we are good to go
 	if dodgevector and (isPosEqual(me.position, dodgevector, 5) or GetDistance2D(me,dodgevector) < 100) then 
 		dodgevector = nil
 		dodging = false
 		dodged = false
 		return 	
 	end
+	
+	if not SleepCheck() then return end
+	
+	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team=me:GetEnemyTeam(),alive=true})	
+	local cast = entityList:GetEntities({classId=CDOTA_BaseNPC})	
+	
 	for i,v in ipairs(enemies) do
 		if not v:IsIllusion() then
 		
@@ -514,97 +527,99 @@ function Main(tick)
 					local name = skillshot.spellName:gsub("_","")
 					if config:GetParameter(name, true) then
 						local spell = v:FindSpell(skillshot.spellName)
-
-						--Checking by entity
+						if spell and spell.level > 0 then
 						
-						if skillshot.entity and (not dodgingname or dodgingname == skillshot.spellName) then
-							local u1, u2, m1 = skillshot.u1 or nil, skillshot.u2 or nil, skillshot.m1 or nil
-							local entity = FindEntity(cast,me,skillshot.dayvision,u1,u2,m1)
-							if entity and not dodging then
-								dodgingname = skillshot.spellName
-								if not start then
-									start = entity.position
-								end
-								if entity.visibleToEnemy and not vec then
-									vec = entity.position
-									if GetDistance2D(vec,start) < 50 then
-										vec = nil
+							--Checking by entity
+							
+							if skillshot.entity and (not dodgingname or dodgingname == skillshot.spellName) then
+								local u1, u2, m1 = skillshot.u1 or nil, skillshot.u2 or nil, skillshot.m1 or nil
+								local entity = FindEntity(cast,me,skillshot.dayvision,u1,u2,m1)
+								if entity and not dodging then
+									dodgingname = skillshot.spellName
+									if not start then
+										start = entity.position
 									end
-								end
-								if start and vec then
-									local radius
-									if type(skillshot.radius) == "string" then
-										radius = spell:GetSpecialData(skillshot.radius)
-									else
-										radius = skillshot.radius
-									end
-									local team = skillshot.team or nil
-									local block = skillshot.block or false
-									local speed
-									if skillshot.speed then
-										if type(skillshot.speed) == "string" then
-											speed = spell:GetSpecialData(skillshot.speed,spell.level)
-										else
-											speed = skillshot.speed
+									if entity.visibleToEnemy and not vec then
+										vec = entity.position
+										if GetDistance2D(vec,start) < 50 then
+											vec = nil
 										end
-									else
-										speed = 0
 									end
-									if ((block and WillHit(entity,me,radius,team)) or not block) and GetDistance2D(entity,start) < GetDistance2D(me,start) then
-										LineDodge((FindAB(start,vec,GetDistance2D(me,start)*10)), start, radius*2.5, me, skillshot.cdodge, speed, 0)
+									if start and vec then
+										local radius
+										if type(skillshot.radius) == "string" then
+											radius = spell:GetSpecialData(skillshot.radius)
+										else
+											radius = skillshot.radius
+										end
+										local team = skillshot.team or nil
+										local block = skillshot.block or false
+										local speed
+										if skillshot.speed then
+											if type(skillshot.speed) == "string" then
+												speed = spell:GetSpecialData(skillshot.speed,spell.level)
+											else
+												speed = skillshot.speed
+											end
+										else
+											speed = 0
+										end
+										if ((block and WillHit(entity,me,radius,team)) or not block) and GetDistance2D(entity,start) < GetDistance2D(me,start) then
+											LineDodge((FindAB(start,vec,GetDistance2D(me,start)*10)), start, radius*2.5, me, skillshot.cdodge, speed, 0)
+										end
 									end
+								elseif start then	
+									start,vec,entity,dodged,dodging,dodgingname = nil,nil,nil,false,false,nil
 								end
-							elseif start then	
-								start,vec,entity,dodgevector,dodged,dodging,dodgingname = nil,nil,nil,nil,false,false,nil
 							end
-						end
-						
-						--Checking by animations
-						
-						if v.visible and spell and spell.level > 0 and (spell.abilityPhase or math.ceil(spell.cd) ==  math.ceil(spell:GetCooldown(spell.level))) then
-							local radius
-							if type(skillshot.radius) == "string" then
-								radius = spell:GetSpecialData(skillshot.radius)
-							else
-								radius = skillshot.radius
-							end
-							local distance
-							local spelllevel = spell.level
-							if skillshot.spellName == "invoker_chaos_meteor" or skillshot.spellName == "invoker_tornado" then
-								spelllevel = v:GetAbility(2).level
-							end
-							if type(skillshot.distance) == "string" then
-								distance = spell:GetSpecialData(skillshot.distance,spelllevel)
-							else
-								distance = skillshot.distance
-							end
-							if v:AghanimState() and skillshot.agadistance then
-								distance = spell:GetSpecialData(skillshot.agadistance,spelllevel)
-							end
-							distance = distance + radius
-							local team = skillshot.team or nil
-							local block = skillshot.block or false
-							local speed
-							if skillshot.speed then
-								if type(skillshot.speed) == "string" then
-									speed = spell:GetSpecialData(skillshot.speed,spell.level)
+							
+							--Checking by animations
+							
+							if v.visible and (spell.abilityPhase or math.ceil(spell.cd) ==  math.ceil(spell:GetCooldown(spell.level))) then
+								local radius
+								if type(skillshot.radius) == "string" then
+									radius = spell:GetSpecialData(skillshot.radius)
 								else
-									speed = skillshot.speed
+									radius = skillshot.radius
 								end
-							else
-								speed = 0
-							end
-							if GetDistance2D(v,me) <= distance then
-								if (block and WillHit(v,me,radius,team)) or not block then						
-									LineDodge(Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), v.position, radius*2.5, me, skillshot.cdodge, speed, spell:FindCastPoint())	
-									dodging = true
+								local distance
+								local spelllevel = spell.level
+								if skillshot.spellName == "invoker_chaos_meteor" or skillshot.spellName == "invoker_tornado" then
+									spelllevel = v:GetAbility(2).level
 								end
+								if type(skillshot.distance) == "string" then
+									distance = spell:GetSpecialData(skillshot.distance,spelllevel)
+								else
+									distance = skillshot.distance
+								end
+								if v:AghanimState() and skillshot.agadistance then
+									distance = spell:GetSpecialData(skillshot.agadistance,spelllevel)
+								end
+								distance = distance + radius
+								local team = skillshot.team or nil
+								local block = skillshot.block or false
+								local speed
+								if skillshot.speed then
+									if type(skillshot.speed) == "string" then
+										speed = spell:GetSpecialData(skillshot.speed,spell.level)
+									else
+										speed = skillshot.speed
+									end
+								else
+									speed = 0
+								end
+								if GetDistance2D(v,me) <= distance then
+									if (block and WillHit(v,me,radius,team)) or not block then						
+										LineDodge(Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), v.position, radius*2.5, me, skillshot.cdodge, speed, spell:FindCastPoint())	
+										dodging = true
+									end
+								end
+							elseif math.ceil(spell.cd+2) ==  math.ceil(spell:GetCooldown(spell.level)) or (spell.state == LuaEntityAbility.STATE_READY == 0 and not spell.abilityPhase) then
+								dodgevector = nil
+								dodging = false
+								dodged = false
+								return 	
 							end
-						elseif spell and spell.level > 0 and math.ceil(spell.cd+2) ==  math.ceil(spell:GetCooldown(spell.level)) then
-							dodgevector = nil
-							dodging = false
-							dodged = false
-							return 	
 						end
 					end
 				end
@@ -617,49 +632,48 @@ function Main(tick)
 					local name = skillshot.spellName:gsub("_","")
 					if config:GetParameter(name, true) then
 						local spell = v:FindSpell(skillshot.spellName)
-						
-						--Checking by entity
-						
-						if skillshot.entity then
-							local u1, u2, m1, dayvision = skillshot.u1 or nil, skillshot.u2 or nil, skillshot.m1 or nil, skillshot.dayvision or nil
-							local entity = FindEntity(cast,me,dayvision,u1,u2,m1)
-							if entity then
-								start = entity.position
-								local radius
-								if type(skillshot.radius) == "string" then
-									radius = spell:GetSpecialData(skillshot.radius)
-								else
-									radius = skillshot.radius
+						if spell and spell.level > 0 then
+							
+							--Checking by entity
+							
+							if skillshot.entity then
+								local u1, u2, m1, dayvision = skillshot.u1 or nil, skillshot.u2 or nil, skillshot.m1 or nil, skillshot.dayvision or nil
+								local entity = FindEntity(cast,me,dayvision,u1,u2,m1)
+								if entity then
+									local radius
+									if type(skillshot.radius) == "string" then
+										radius = spell:GetSpecialData(skillshot.radius)
+									else
+										radius = skillshot.radius
+									end
+									AOEDodge(entity.position, entity.position, radius*1.5, me, 0)
 								end
-								AOEDodge(start, start, radius*1.5, me, 0)
-							elseif start then	
-								start,entity,dodgevector,dodged,dodging = nil,nil,nil,false,false
 							end
-						end
-						
-						--Checking by animations
-						
-						if skillshot.fixedPosition and v.visible and spell and spell.level > 0 and (spell.abilityPhase or math.ceil(spell.cd) ==  math.ceil(spell:GetCooldown(spell.level))) then
-							local radius = spell:GetSpecialData(skillshot.radius)
-							local distance
-							local spelllevel = spell.level
-							if type(skillshot.distance) == "string" then
-								distance = spell:GetSpecialData(skillshot.distance,spelllevel)
-							else
-								distance = skillshot.distance
+							
+							--Checking by animations
+							
+							if skillshot.fixedPosition and v.visible and (spell.abilityPhase or math.ceil(spell.cd) ==  math.ceil(spell:GetCooldown(spell.level))) then
+								local radius = spell:GetSpecialData(skillshot.radius)
+								local distance
+								local spelllevel = spell.level
+								if type(skillshot.distance) == "string" then
+									distance = spell:GetSpecialData(skillshot.distance,spelllevel)
+								else
+									distance = skillshot.distance
+								end
+								if v:AghanimState() and skillshot.agadistance then
+									distance = spell:GetSpecialData(skillshot.agadistance,spelllevel)
+								end
+								if GetDistance2D(v,me) <= (distance + radius) then	
+									AOEDodge(v.position, Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), radius*1.5, me, spell:FindCastPoint())	
+									dodging = true
+								end
+							elseif math.ceil(spell.cd+2) ==  math.ceil(spell:GetCooldown(spell.level)) or (spell.state == LuaEntityAbility.STATE_READY and not spell.abilityPhase) then
+								dodgevector = nil
+								dodging = false
+								dodged = false
+								return 	
 							end
-							if v:AghanimState() and skillshot.agadistance then
-								distance = spell:GetSpecialData(skillshot.agadistance,spelllevel)
-							end
-							if GetDistance2D(v,me) <= (distance + radius) then	
-								AOEDodge(v.position, Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), radius*1.5, me, spell:FindCastPoint())	
-								dodging = true
-							end
-						elseif spell and spell.level > 0 and math.ceil(spell.cd+2) ==  math.ceil(spell:GetCooldown(spell.level)) then
-							dodgevector = nil
-							dodging = false
-							dodged = false
-							return 	
 						end
 					end
 				end
