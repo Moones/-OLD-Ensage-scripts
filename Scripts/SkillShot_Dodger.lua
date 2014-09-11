@@ -548,7 +548,9 @@ function Main(tick)
 										else
 											speed = 0
 										end
+										--check for block
 										if ((block and WillHit(entity,me,radius,team)) or not block) and GetDistance2D(entity,start) < GetDistance2D(me,start) then
+											--dodge
 											LineDodge((FindAB(start,vec,GetDistance2D(me,start)*10)), start, radius*2.5, me, skillshot.cdodge, speed, 0)
 										end
 									end
@@ -592,11 +594,11 @@ function Main(tick)
 								else
 									speed = 0
 								end
-								if GetDistance2D(v,me) <= distance then
-									if (block and WillHit(v,me,radius,team)) or not block then						
-										LineDodge(Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), v.position, radius*2.5, me, skillshot.cdodge, speed, spell:FindCastPoint())	
-										dodging = true
-									end
+								--check for if any unit could block the skillshot
+								if (block and WillHit(v,me,radius,team)) or not block then						
+									--dodge skillshot
+									LineDodge(Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), v.position, radius*2.5, me, skillshot.cdodge, speed, spell:FindCastPoint())	
+									dodging = true
 								end
 							elseif math.ceil(spell.cd+2) ==  math.ceil(spell:GetCooldown(spell.level)) or (spell.state == LuaEntityAbility.STATE_READY == 0 and not spell.abilityPhase) then
 								dodgevector = nil
