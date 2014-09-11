@@ -72,7 +72,7 @@ require("libs.SkillShot")
 require("libs.ScriptConfig")
 require("libs.HeroInfo")
 
-local reg = false local start, vec = nil, nil local dodgevector = nil local dodging = false local dodged = false local dodgingname = nil
+local reg = false local start, vec = nil, nil local dodgevector = nil local dodging = false local dodged = false local dodgingname = nil local config = ScriptConfig.new()
 
 local LineSkillShotList = {
 	{ 
@@ -475,22 +475,6 @@ local AOESkillShotList = {
 }
 
 local dodgeAbilitiesList = {slark_pounce = {target = false, name = "slark_pounce"},mirana_leap = {target = false, name = "mirana_leap"},faceless_void_time_walk = {target = true, position = true, name = "faceless_void_time_walk", distance = "tooltip_range"},item_force_staff = {target = true, name = "item_force_staff"}}
-
---Config--
-local config = ScriptConfig.new()
-for z, skillshot in ipairs(LineSkillShotList) do
-	local name = skillshot.spellName:gsub("_","")
-	if config:GetParameter(name, true) == nil then
-		config:SetParameter(name, true)
-	end
-end
-for z, skillshot in ipairs(AOESkillShotList) do
-	local name = skillshot.spellName:gsub("_","")
-	if config:GetParameter(name, true) == nil then
-		config:SetParameter(name, true)
-	end
-end
-config:Load()
 	
 function Main(tick)
 	if not PlayingGame() or client.console then return end
@@ -847,6 +831,23 @@ function Load()
 			dodging = false
 			dodged = false
 			dodgingname = nil
+			
+			--Config--
+			config = ScriptConfig.new()
+			for z, skillshot in ipairs(LineSkillShotList) do
+				local name = skillshot.spellName:gsub("_","")
+				if config:GetParameter(name, true) == nil then
+					config:SetParameter(name, true)
+				end
+			end
+			for z, skillshot in ipairs(AOESkillShotList) do
+				local name = skillshot.spellName:gsub("_","")
+				if config:GetParameter(name, true) == nil then
+					config:SetParameter(name, true)
+				end
+			end
+			config:Load()
+			
 			script:RegisterEvent(EVENT_TICK, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:UnregisterEvent(Load)
