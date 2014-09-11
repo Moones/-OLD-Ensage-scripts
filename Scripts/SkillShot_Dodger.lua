@@ -9,13 +9,30 @@
 	------------
 	
 		Auto Dodge of any SkillShot:
-			- This script tries to move perpendicular to avid any skillshot, only when you see the enemy hero(except Mirana Arrow).
-			- It checks if given Skillshot will hit you and if it is not blocked by any unit.
-			- If you cannot dodge SkillShot with your movespeed it will use leap abilities.
-			- You can enable/disable dodging of any skillshot in Scripts/config/Skillshot_dodger.txt file.
+			 - This script tries to move perpendicular to avid any skillshot.
+			 - Only abilities with green color in list are dodged when casted from fog.
+			 - It checks if given Skillshot will hit you and if it is not blocked by any unit.
+			 - If you cannot dodge SkillShot with your movespeed it will use leap abilities.
+			 - You can enable/disable dodging of any skillshot in Scripts/config/Skillshot_dodger.txt file.
 			
 	Changelog:
 	----------
+	
+		Update 1.2:
+			Added:
+				Clockwerk - Rocket Flare
+				Lina - Light Strike Array
+				Leshrac - Split Earth
+				Pugna - Nether Blast
+				Skywrath Mage - Mystic Flare
+				Invoker - EMP
+				Ancient Apparition - Ice Blast
+				Shadow Fiend - Shadow Raze
+				Invoker - Sun Strike
+				Kunkka - Torrent
+				
+			- More abilities will be now dodged when casted from fog, these will be marked with green color.
+			- Added AOE dodge calculation
 	
 		Update 1.1:
 			Added:
@@ -55,9 +72,9 @@ require("libs.SkillShot")
 require("libs.ScriptConfig")
 require("libs.HeroInfo")
 
-local reg = false local start, vec = nil, nil local dodgevector = nil local dodging = false local dodged = false
+local reg = false local start, vec = nil, nil local dodgevector = nil local dodging = false local dodged = false local dodgingname = nil
 
-local SkillShotList = {
+local LineSkillShotList = {
 	{ 
 		spellName = "pudge_meat_hook";
 		heroId = CDOTA_Unit_Hero_Pudge;
@@ -74,6 +91,8 @@ local SkillShotList = {
 		distance = "arrow_range";
 		speed = "arrow_speed";
 		radius = "arrow_width";
+		entity = true;
+		dayvision = 800;
 	};	 
 	{
 		spellName = "mirana_arrow";
@@ -84,6 +103,8 @@ local SkillShotList = {
 		block = true;
 		team = "ally";
 		cdodge = true;
+		entity = true;
+		dayvision = 650;
 	};
 	{
 		spellName = "nyx_assassin_impale";
@@ -124,6 +145,18 @@ local SkillShotList = {
 		team = true;
 		cdodge = true;
 		speed = "speed";
+		entity = true;
+		dayvision = 100;
+		m1 = "modifier_invisible";
+	};
+	{ 
+		spellName = "rattletrap_rocket_flare";
+		heroId = CDOTA_Unit_Hero_Rattletrap;
+		distance = 22000;
+		radius = "radius";
+		speed = "speed";
+		entity = true;
+		dayvision = 600;
 	};
 	{ 
 		spellName = "earthshaker_fissure";
@@ -147,6 +180,8 @@ local SkillShotList = {
 		radius = "shard_width";
 		cdodge = true;
 		speed = "shard_speed";
+		entity = true;
+		dayvision = 200;
 	};
 	{ 
 		spellName = "puck_illusory_orb";
@@ -154,6 +189,10 @@ local SkillShotList = {
 		distance = "max_distance";
 		radius = "radius";
 		speed = "orb_speed";
+		entity = true;
+		dayvision = 800;
+		u1 = 59802112;
+		m1 = "modifier_truesight";
 	};
 	{ 
 		spellName = "lina_dragon_slave";
@@ -161,6 +200,30 @@ local SkillShotList = {
 		distance = "dragon_slave_distance";
 		radius = "dragon_slave_width_initial";
 		speed = "dragon_slave_speed";
+	};
+	{ 
+		spellName = "lina_light_strike_array";
+		heroId = CDOTA_Unit_Hero_Lina;
+		distance = 600;
+		radius = "light_strike_array_aoe";
+	};
+	{ 
+		spellName = "leshrac_split_earth";
+		heroId = CDOTA_Unit_Hero_Leshrac;
+		distance = 750;
+		radius = "radius";
+	};
+	{ 
+		spellName = "pugna_nether_blast";
+		heroId = CDOTA_Unit_Hero_Pugna;
+		distance = 400;
+		radius = 200;
+	};
+	{ 
+		spellName = "skywrath_mage_mystic_flare";
+		heroId = CDOTA_Unit_Hero_Skywrath_Mage;
+		radius = 100;
+		distance = 1200;
 	};
 	{ 
 		spellName = "jakiro_ice_path";
@@ -183,6 +246,8 @@ local SkillShotList = {
 		distance = "travel_distance";
 		radius = "area_of_effect";
 		speed = "travel_speed";
+		entity = true;
+		dayvision = 500;
 	};
 	{ 
 		spellName = "invoker_deafening_blast";
@@ -199,13 +264,23 @@ local SkillShotList = {
 		radius = "area_of_effect";
 		speed = "travel_speed";
 		cdodge = true;
+		entity = true;
+		dayvision = 1200;
 	};
 	{ 
+		spellName = "invoker_emp";
+		heroId = CDOTA_Unit_Hero_Invoker;
+		distance = 950;
+		radius = 300;
+	};	
+	{ 
 		spellName = "shadow_demon_shadow_poison";
-		heroId = CDOTA_Unit_Hero_ShadowDemon;
+		heroId = CDOTA_Unit_Hero_Shadow_Demon;
 		distance = 1500;
 		radius = "radius";
 		speed = "speed";
+		entity = true;
+		dayvision = 400;
 	};
 	{ 
 		spellName = "magnataur_skewer";
@@ -221,6 +296,8 @@ local SkillShotList = {
 		distance = "tooltip_range";
 		radius = "radius";
 		speed = "speed";
+		entity = true;
+		dayvision = 300;
 	};
 	{ 
 		spellName = "spectre_spectral_dagger";
@@ -242,6 +319,9 @@ local SkillShotList = {
 		distance = 1200;
 		radius = "radius";
 		speed = "speed";
+		entity = true;
+		dayvision = 0;
+		m1 = "modifier_projectile_vision";
 	};
 	{ 
 		spellName = "weaver_the_swarm";
@@ -249,6 +329,8 @@ local SkillShotList = {
 		distance = 3000;
 		radius = "spawn_radius";
 		speed = "speed";
+		entity = true;
+		dayvision = 100;
 	};
 	{ 
 		spellName = "jakiro_dual_breath";
@@ -322,12 +404,87 @@ local SkillShotList = {
 		radius = "explosion_radius";
 		speed = "speed";
 	};
+	{ 
+		spellName = "ancient_apparition_ice_blast";
+		heroId = CDOTA_Unit_Hero_AncientApparition;
+		distance = 22000;
+		radius = "radius_min";
+		speed = "speed";
+		entity = true;
+		dayvision = 550;
+	};
+}	
+
+local AOESkillShotList = {
+	{ 
+		spellName = "nevermore_shadowraze1";
+		heroId = CDOTA_Unit_Hero_Nevermore;
+		distance = "shadowraze_range";
+		radius = "shadowraze_radius";
+		fixedPosition = true;
+	};	
+	{ 
+		spellName = "nevermore_shadowraze2";
+		heroId = CDOTA_Unit_Hero_Nevermore;
+		distance = "shadowraze_range";
+		radius = "shadowraze_radius";
+		fixedPosition = true;
+	};	
+	{ 
+		spellName = "nevermore_shadowraze3";
+		heroId = CDOTA_Unit_Hero_Nevermore;
+		distance = "shadowraze_range";
+		radius = "shadowraze_radius";
+		fixedPosition = true;
+	};
+	{ 
+		spellName = "lina_light_strike_array";
+		heroId = CDOTA_Unit_Hero_Lina;
+		radius = "light_strike_array_aoe";
+		entity = true;
+		m1 = "modifier_lina_light_strike_array";
+	};
+	{ 
+		spellName = "leshrac_split_earth";
+		heroId = CDOTA_Unit_Hero_Leshrac;
+		radius = "radius";
+		entity = true;
+		m1 = "modifier_leshrac_split_earth_thinker";
+	};
+	{ 
+		spellName = "invoker_sun_strike";
+		heroId = CDOTA_Unit_Hero_Invoker;
+		radius = "area_of_effect";
+		entity = true;
+		m1 = "modifier_invoker_sun_strike";
+	};
+	{ 
+		spellName = "kunkka_torrent";
+		heroId = CDOTA_Unit_Hero_Kunkka;
+		radius = "radius";
+		entity = true;
+		m1 = "modifier_kunkka_torrent_thinker";
+	};
+	{ 
+		spellName = "skywrath_mage_mystic_flare";
+		heroId = CDOTA_Unit_Hero_Skywrath_Mage;
+		radius = 200;
+		entity = true;
+		m1 = "modifier_skywrath_mage_mystic_flare";
+	};
 }
 
 local dodgeAbilitiesList = {slark_pounce = {target = false, name = "slark_pounce"},mirana_leap = {target = false, name = "mirana_leap"},faceless_void_time_walk = {target = true, position = true, name = "faceless_void_time_walk", distance = "tooltip_range"},item_force_staff = {target = true, name = "item_force_staff"}}
 
+--Config--
 local config = ScriptConfig.new()
-for z, skillshot in ipairs(SkillShotList) do
+for z, skillshot in ipairs(LineSkillShotList) do
+	local name = skillshot.spellName:gsub("_","")
+	if config:GetParameter(name, true) == nil then
+		config:SetParameter(name, true)
+	end
+end
+for z, skillshot in ipairs(AOESkillShotList) do
 	local name = skillshot.spellName:gsub("_","")
 	if config:GetParameter(name, true) == nil then
 		config:SetParameter(name, true)
@@ -338,8 +495,9 @@ config:Load()
 function Main(tick)
 	if not PlayingGame() or client.console or not SleepCheck() then return end
 	local me = entityList:GetMyHero()
-	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team=me:GetEnemyTeam(),visible=true,alive=true})	
-	--default spells
+	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team=me:GetEnemyTeam(),alive=true})	
+	local cast = entityList:GetEntities({classId=CDOTA_BaseNPC})
+	--Line SkillShots
 	if dodgevector and (isPosEqual(me.position, dodgevector, 5) or GetDistance2D(me,dodgevector) < 100) then 
 		dodgevector = nil
 		dodging = false
@@ -348,13 +506,68 @@ function Main(tick)
 	end
 	for i,v in ipairs(enemies) do
 		if not v:IsIllusion() then
-			for z, skillshot in ipairs(SkillShotList) do
+		
+			--==LINE SKILLSHOTS==--
+			
+			for z, skillshot in ipairs(LineSkillShotList) do
 				if v.classId == skillshot.heroId or v.classId == CDOTA_Unit_Hero_Rubick then
 					local name = skillshot.spellName:gsub("_","")
 					if config:GetParameter(name, true) then
 						local spell = v:FindSpell(skillshot.spellName)
-						if spell and spell.level > 0 and (spell.abilityPhase or math.ceil(spell.cd) ==  math.ceil(spell:GetCooldown(spell.level))) then
-							local radius = spell:GetSpecialData(skillshot.radius)
+
+						--Checking by entity
+						
+						if skillshot.entity and (not dodgingname or dodgingname == skillshot.spellName) then
+							local u1, u2, m1 = skillshot.u1 or nil, skillshot.u2 or nil, skillshot.m1 or nil
+							local entity = FindEntity(cast,me,skillshot.dayvision,u1,u2,m1)
+							if entity and not dodging then
+								dodgingname = skillshot.spellName
+								if not start then
+									start = entity.position
+								end
+								if entity.visibleToEnemy and not vec then
+									vec = entity.position
+									if GetDistance2D(vec,start) < 50 then
+										vec = nil
+									end
+								end
+								if start and vec then
+									local radius
+									if type(skillshot.radius) == "string" then
+										radius = spell:GetSpecialData(skillshot.radius)
+									else
+										radius = skillshot.radius
+									end
+									local team = skillshot.team or nil
+									local block = skillshot.block or false
+									local speed
+									if skillshot.speed then
+										if type(skillshot.speed) == "string" then
+											speed = spell:GetSpecialData(skillshot.speed,spell.level)
+										else
+											speed = skillshot.speed
+										end
+									else
+										speed = 0
+									end
+									if ((block and WillHit(entity,me,radius,team)) or not block) and GetDistance2D(entity,start) < GetDistance2D(me,start) then
+										LineDodge((FindAB(start,vec,GetDistance2D(me,start)*10)), start, radius*2.5, me, skillshot.cdodge, speed, 0)
+									end
+								end
+							elseif start then	
+								start,vec,entity,dodgevector,dodged,dodging,dodgingname = nil,nil,nil,nil,false,false,nil
+							end
+						end
+						
+						--Checking by animations
+						
+						if v.visible and spell and spell.level > 0 and (spell.abilityPhase or math.ceil(spell.cd) ==  math.ceil(spell:GetCooldown(spell.level))) then
+							local radius
+							if type(skillshot.radius) == "string" then
+								radius = spell:GetSpecialData(skillshot.radius)
+							else
+								radius = skillshot.radius
+							end
 							local distance
 							local spelllevel = spell.level
 							if skillshot.spellName == "invoker_chaos_meteor" or skillshot.spellName == "invoker_tornado" then
@@ -381,13 +594,68 @@ function Main(tick)
 							else
 								speed = 0
 							end
-							if GetDistance2D(v,me) < distance then
+							if GetDistance2D(v,me) <= distance then
 								if (block and WillHit(v,me,radius,team)) or not block then						
 									LineDodge(Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), v.position, radius*2.5, me, skillshot.cdodge, speed, spell:FindCastPoint())	
 									dodging = true
 								end
 							end
-						elseif math.ceil(spell.cd+2) ==  math.ceil(spell:GetCooldown(spell.level)) then
+						elseif spell and spell.level > 0 and math.ceil(spell.cd+2) ==  math.ceil(spell:GetCooldown(spell.level)) then
+							dodgevector = nil
+							dodging = false
+							dodged = false
+							return 	
+						end
+					end
+				end
+			end
+			
+			--==AOE SKILSHOTS==--
+						
+			for z, skillshot in ipairs(AOESkillShotList) do
+				if v.classId == skillshot.heroId or v.classId == CDOTA_Unit_Hero_Rubick then
+					local name = skillshot.spellName:gsub("_","")
+					if config:GetParameter(name, true) then
+						local spell = v:FindSpell(skillshot.spellName)
+						
+						--Checking by entity
+						
+						if skillshot.entity then
+							local u1, u2, m1, dayvision = skillshot.u1 or nil, skillshot.u2 or nil, skillshot.m1 or nil, skillshot.dayvision or nil
+							local entity = FindEntity(cast,me,dayvision,u1,u2,m1)
+							if entity then
+								start = entity.position
+								local radius
+								if type(skillshot.radius) == "string" then
+									radius = spell:GetSpecialData(skillshot.radius)
+								else
+									radius = skillshot.radius
+								end
+								AOEDodge(start, start, radius*1.5, me, 0)
+							elseif start then	
+								start,entity,dodgevector,dodged,dodging = nil,nil,nil,false,false
+							end
+						end
+						
+						--Checking by animations
+						
+						if skillshot.fixedPosition and v.visible and spell and spell.level > 0 and (spell.abilityPhase or math.ceil(spell.cd) ==  math.ceil(spell:GetCooldown(spell.level))) then
+							local radius = spell:GetSpecialData(skillshot.radius)
+							local distance
+							local spelllevel = spell.level
+							if type(skillshot.distance) == "string" then
+								distance = spell:GetSpecialData(skillshot.distance,spelllevel)
+							else
+								distance = skillshot.distance
+							end
+							if v:AghanimState() and skillshot.agadistance then
+								distance = spell:GetSpecialData(skillshot.agadistance,spelllevel)
+							end
+							if GetDistance2D(v,me) <= (distance + radius) then	
+								AOEDodge(v.position, Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), radius*1.5, me, spell:FindCastPoint())	
+								dodging = true
+							end
+						elseif spell and spell.level > 0 and math.ceil(spell.cd+2) ==  math.ceil(spell:GetCooldown(spell.level)) then
 							dodgevector = nil
 							dodging = false
 							dodged = false
@@ -397,28 +665,7 @@ function Main(tick)
 				end
 			end
 		end
-	end
-	--other spells
-	local cast = entityList:GetEntities({classId=CDOTA_BaseNPC})
-	local Arrow = FindArrowHandle(cast,me)
-	if Arrow and not dodging then
-		if not start then
-			start = Arrow.position
-		end
-		if Arrow.visibleToEnemy and not vec then
-			vec = Arrow.position
-			if GetDistance2D(vec,start) < 50 then
-				vec = nil
-			end
-		end
-		if start and vec then
-			if WillHit(Arrow,me,115,"ally") and GetDistance2D(Arrow,start) < GetDistance2D(me,start) then
-				LineDodge((FindAB(start,vec,GetDistance2D(me,start)*10)), start, 287.5, me, true, 857, 0)
-			end
-		end
-	elseif start then	
-		start,vec,ArrowHandle,dodgevector,dodged = nil,nil,nil,nil,false
-	end
+	end	
 end
 
 function Key(msg,code) 
@@ -427,14 +674,19 @@ function Key(msg,code)
 		if dodgevector and not SleepCheck() then
 			entityList:GetMyHero():Move(dodgevector)
 			return true
+		else
+			dodgevector = nil
+			return false
 		end
 	end
 end
 
-function FindArrowHandle(cast,me)
+function FindEntity(cast,me,dayvision,u1,u2,m1)
 	for i, z in ipairs(cast) do
-		if z.team ~= me.team and z.dayVision == 650 then
-			return z
+		if z.team ~= me.team then
+			if (not u1 or z.unitState == u1) and (not u2 or z.unitState == u2) and (not m1 or (#z.modifiers > 0 and z:DoesHaveModifier(m1))) and (not dayvision or z.dayVision == dayvision) then
+				return z
+			end
 		end
 	end
 	return nil
@@ -490,21 +742,31 @@ function LineDodge(pos1, pos2, radius, me, cdodge, speed, delay)
 				end
 			end
 		end	
-		Sleep(math.max(delay*1000, 125))
+		Sleep(math.max(delay*1000 + client.latency, 125))
 	else
 		dodgevector = nil
 	end
 end
 
--- function AoeDodge(pos1, pos2, radius, me)
-	-- local calc = (math.floor(math.sqrt((pos2.x-me.position.x)^2 + (pos2.y-me.position.y)^2)))
-	-- local dodgex, dodgey
-	-- dodgex = pos2.x + (radius/calc)*(me.position.x-pos2.x)
-	-- dodgey = pos2.y + (radius/calc)*(me.position.y-pos2.y)
-	-- if calc < radius then
-		-- me:Move(Vector(dodgex,dodgey,me.position.z))
-	-- end
--- end
+function AOEDodge(pos1, pos2, radius, me, delay)
+	local calc = (math.floor(math.sqrt((pos2.x-me.position.x)^2 + (pos2.y-me.position.y)^2)))
+	local dodgex, dodgey
+	dodgex = pos2.x + (radius/calc)*(me.position.x-pos2.x)
+	dodgey = pos2.y + (radius/calc)*(me.position.y-pos2.y)
+	if calc < radius then
+		dodgevector = Vector(dodgex,dodgey,me.position.z)
+		if isPosEqual(me.position, dodgevector, 5) or GetDistance2D(me,dodgevector) < 100 then 
+			dodgevector = nil
+			dodging = false
+			dodged = false
+			return 	
+		end
+		me:Move(dodgevector)
+		Sleep(math.max(delay*1000 + client.latency,  125))
+	else
+		dodgevector = nil
+	end
+end
 
 function FindAB(first, second, distance)
 	local xAngle = math.deg(math.atan(math.abs(second.x - first.x)/math.abs(second.y - first.y)))
@@ -570,6 +832,7 @@ function Load()
 			dodgevector = nil
 			dodging = false
 			dodged = false
+			dodgingname = nil
 			script:RegisterEvent(EVENT_TICK, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:UnregisterEvent(Load)
@@ -583,6 +846,7 @@ function Close()
 	dodgevector = nil
 	dodging = false
 	dodged = false
+	dodgingname = nil
 	if reg then
 		script:UnregisterEvent(Main)
 		script:UnregisterEvent(Key)
