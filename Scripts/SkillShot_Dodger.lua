@@ -841,7 +841,6 @@ function Load()
 end
 
 function Close()
-	reg = true
 	start, vec = nil, nil
 	dodgevector = nil
 	dodging = false
