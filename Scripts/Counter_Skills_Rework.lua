@@ -1158,6 +1158,7 @@ function Tick( tick )
 									UseShadowBlade()
 									Useshadowamulet()
 									UseManta()
+									SlarkPounce()
 								end
 							end
 						end
@@ -1223,6 +1224,7 @@ function Tick( tick )
 									LoneDruidUlt()
 									SlarkPounce()
 									UseManta()
+									UseBladeMail()
 									local sniperultdamage = 0
 									if v:GetAbility(4).level == 1 then
 										sniperultdamage = 350*3/4
@@ -1342,6 +1344,7 @@ function Tick( tick )
 									UseShadowBlade()
 									Useshadowamulet()
 									Useblackking()
+									UseBladeMail()
 								end
 							end
 						end
@@ -1453,6 +1456,7 @@ function Tick( tick )
 									UseBlinkDaggerfront()
 									AlchemistRage()
 									UseManta()
+									SlarkPounce()
 								end
 							end
 						end
@@ -1470,6 +1474,7 @@ function Tick( tick )
 									AlchemistRage()
 									UseShadowBlade()
 									UseManta()
+									SlarkPounce()
 								end
 							end
 						end
@@ -2593,7 +2598,7 @@ end
 function UseOrchidtarget()--target
 	for t = 1, 6 do
 		if me:HasItem(t) and me:GetItem(t).name == "item_orchid" then
-			UseEulScepter = me:GetItem(t)
+			item_orchid = me:GetItem(t)
 		end
 	end
 	if activated == 0 then
@@ -2612,7 +2617,7 @@ end
 function UseAbyssaltarget()--target
 	for t = 1, 6 do
 		if me:HasItem(t) and me:GetItem(t).name == "item_abyssal_blade" then
-			UseEulScepter = me:GetItem(t)
+			item_abyssal_blade = me:GetItem(t)
 		end
 	end
 	if activated == 0 then
@@ -2631,7 +2636,7 @@ end
 function UseHalberdtarget()--target
 	for t = 1, 6 do
 		if me:HasItem(t) and me:GetItem(t).name == "item_heavens_halberd" then
-			UseEulScepter = me:GetItem(t)
+			item_heavens_halberd = me:GetItem(t)
 		end
 	end
 	if activated == 0 then
@@ -2650,7 +2655,7 @@ end
 function UseEtherealtarget()--target
 	for t = 1, 6 do
 		if me:HasItem(t) and me:GetItem(t).name == "item_ethereal_blade" then
-			UseEulScepter = me:GetItem(t)
+			item_ethereal_blade = me:GetItem(t)
 		end
 	end
 	if activated == 0 then
