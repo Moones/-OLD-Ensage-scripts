@@ -548,10 +548,11 @@ function Main(tick)
 										else
 											speed = 0
 										end
+										local distance = FindAB(start,vec,GetDistance2D(me,start)*10)
 										--check for block
-										if ((block and WillHit(entity,me,radius,team)) or not block) and GetDistance2D(entity,start) <= GetDistance2D(me,start) then
+										if GetDistance2D(me, start) <= (GetDistance2D(start,distance) + radius) and ((block and WillHit(entity,me,radius,team)) or not block) and GetDistance2D(entity,start) <= GetDistance2D(me,start) then
 											--dodge
-											LineDodge((FindAB(start,vec,GetDistance2D(me,start)*10)), start, radius*2.5, me, skillshot.cdodge, speed, 0)
+											LineDodge(distance, start, radius*2.5, me, skillshot.cdodge, speed, 0)
 										end
 									end
 								elseif start then	
@@ -634,7 +635,9 @@ function Main(tick)
 									else
 										radius = skillshot.radius
 									end
-									AOEDodge(entity.position, entity.position, radius*1.5, me, 0)
+									if GetDistance2D(me, entity) <= radius + 50 then
+										AOEDodge(entity.position, entity.position, radius*1.5, me, 0)
+									end
 								end
 							end
 							
