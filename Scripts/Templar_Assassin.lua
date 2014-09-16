@@ -212,7 +212,7 @@ function OrbWalk(me)
 		harras = false
 	end
 	--if we dont have victim and there are creeps around then farm them
-	if farm and #farm > 0 and not harras and not lhcreep and not lh then
+	if farm and #farm > 0 and not harras and not lhcreep and not lh and lasthitting then
 		table.sort( farm, function (a,b) return a and b and (GetDistance2D(a,me) < GetDistance2D(b,me)) end )
 		if (not victim or GetDistance2D(me, victim) > myhero.attackRange+500 or not victim.alive) then
 			if farm[1] and GetDistance2D(client.mousePosition, farm[1]) < 800 and not farm[1]:IsAttackImmune() then
