@@ -236,7 +236,7 @@ function OrbWalk(me)
 	--getting psi blades target
 	local psi = me:GetAbility(3)
 	local psirange = psi:GetSpecialData("attack_spill_range",psi.level)
-	if victim and not lh then
+	if victim then
 		for i, v in pairs(creepTable) do
 			if psi and psi.level > 0 and GetDistance2D(v.creepEntity,victim) <= psirange and GetDistance2D(me,victim) > GetDistance2D(me,v.creepEntity) and not v.nopsi and v.creepEntity.health > 0 and v.creepEntity.alive and (v.creepEntity.team == me:GetEnemyTeam() or (v.creepEntity.team == me.team and v.creepEntity.health < v.creepEntity.maxHealth*0.5)) and GetDistance2D(me,v.creepEntity) <= myhero.attackRange+150 and (not psivictim or GetDistance2D(psivictim,me) > myhero.attackRange+50) and victim.team ~= me.team and victim.classId ~= CDOTA_BaseNPC_Creep_Siege then
 				if AngleBelow(me,v.creepEntity,victim,5) then
