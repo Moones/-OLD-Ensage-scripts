@@ -153,7 +153,12 @@ function Main(tick)
 					end
 				end
 				--perfect meld strikes
-				if victim then				
+				if victim then	
+					if GetDistance2D(me,victim) <= myhero.attackRange then
+						if refraction and refraction.state == LuaEntityAbility.STATE_READY then
+							me:SafeCastAbility(refraction)
+						end
+					end
 					if me:DoesHaveModifier("modifier_templar_assassin_meld") and SleepCheck("meld") and me:CanAttack() and not victim:IsAttackImmune() then
 						entityList:GetMyPlayer():Attack(victim)
 						attacking = true
