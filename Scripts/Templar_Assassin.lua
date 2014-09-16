@@ -523,9 +523,13 @@ class 'Creep'
 			self.nolh = true
 		elseif self.creepEntity.classId == CDOTA_BaseNPC_Creep then
 			self.attackRange = creepEntity.attackRange
+			self.attackType = "Normal"
+			self.armorType = "Unarmored"
 		elseif self.creepEntity.classId == CDOTA_BaseNPC_Warlock_Golem then
 			self.attackRange = creepEntity.attackRange
 			self.nolh = true
+			self.attackType = "Chaos"
+			self.armorType = "Fortified"
 		end
 		self.attackRate = self:GetAttackRate()
 		self.attackPoint = self:GetAttackPoint()
