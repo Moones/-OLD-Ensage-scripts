@@ -937,7 +937,7 @@ npc_dota_hero_abaddon = {
  attackRange = 128,
  movementSpeed = 310,
  turnRate = 0.5,
- attackBackswing = 0.41}
+ attackBackswing = 0.41},
  
  npc_dota_hero_techies = {
  attackRate = 1.7,
