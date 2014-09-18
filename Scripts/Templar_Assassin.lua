@@ -147,9 +147,8 @@ function Main(tick)
 							if victim and (GetDistance2D(client.mousePosition, victim) <= 10 or entityList:GetMouseover() == victim) then
 								me:Move(victim.position)
 							else
-								if not moveposition or GetDistance2D(client.mousePosition, moveposition) > 100 then 
+								if GetDistance2D(me, moveposition) > 50 then 
 									me:Move(client.mousePosition)
-									moveposition = client.mousePosition
 								end
 							end
 							sleep = tick + 30 + client.latency
