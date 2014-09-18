@@ -421,7 +421,7 @@ class 'Hero'
 	function Hero:StopAttack(target,lhcreepclass)
 		if target.alive and (GetDistance2D(entityList:GetMyHero(),target) <= self.attackRange or (psivictim and psivictim.alive and GetDistance2D(entityList:GetMyHero(),psivictim) <= self.attackRange)) then
 			local me = entityList:GetMyHero()
-			local Dmg2 = myhero:GetDamage(lhcreepclass)
+			local Dmg2 = self:GetDamage(lhcreepclass)
 			local meld = me:GetAbility(2)	
 			local meldDmg = meld:GetSpecialData("bonus_damage", meld.level)
 			if target.classId == CDOTA_BaseNPC_Creep_Siege and meld and meld.level > 0 and meld.state == LuaEntityAbility.STATE_READY then			
@@ -432,8 +432,8 @@ class 'Hero'
 			if (lhtime and (lhtime) > (GetTick() + client.latency + self.attackPoint*1000 + ((GetDistance2D(self.heroEntity, target)-math.max((GetDistance2D(self.heroEntity, target) - self.attackRange), 0))/self.projectileSpeed)*1000)) and (lhcreep.health > Dmg2) then
 				if GetTick() > myAttackTickTable.attackRateTick2 then
 					entityList:GetMyPlayer():Stop()
-					myhero:Hit(target)
-					myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + (math.max((GetDistance2D(me, target) - myhero.attackRange), 0)/me.movespeed)*1000							
+					self:Hit(target)
+					myAttackTickTable.attackRateTick = GetTick() + self.attackRate*1000 + (math.max((GetDistance2D(me, target) - self.attackRange), 0)/me.movespeed)*1000							
 					myAttackTickTable.attackRateTick2 = GetTick() + self.attackPoint*500
 				end
 			end
