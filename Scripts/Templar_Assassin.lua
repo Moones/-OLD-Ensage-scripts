@@ -147,7 +147,7 @@ function Main(tick)
 							if victim and (GetDistance2D(client.mousePosition, victim) <= 10 or entityList:GetMouseover() == victim) then
 								me:Move(victim.position)
 							else
-								if GetDistance2D(me, moveposition) > 50 then 
+								if GetDistance2D(me, client.mousePosition) > 50 then 
 									me:Move(client.mousePosition)
 								end
 							end
