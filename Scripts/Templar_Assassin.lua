@@ -552,7 +552,7 @@ class 'Creep'
 			for i = 1, 8 do
 				for _, nextAttackTickTable in ipairs(sortedTable) do					
 					local hploss = (self.HP.previous - self.HP.current)
-					if nextAttackTickTable[2] > GetTick() and nextAttackTickTable[1].creepEntity.alive then
+					if nextAttackTickTable[2] > GetTick() and nextAttackTickTable[1].creepEntity.alive and nextAttackTickTable[1].attackType and self.armorType then
 						totalDamage = totalDamage + (math.floor((nextAttackTickTable[1].creepEntity.dmgMin + nextAttackTickTable[1].creepEntity.dmgBonus) * armorTypeModifiers[nextAttackTickTable[1].attackType][self.armorType] * (1 - self.creepEntity.dmgResist)))						
 						if (self.creepEntity.health - totalDamage) < health then
 							return (nextAttackTickTable[2]*i) + (nextAttackTickTable[4]/i)
