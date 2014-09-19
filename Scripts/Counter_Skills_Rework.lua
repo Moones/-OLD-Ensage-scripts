@@ -1799,6 +1799,7 @@ function FindAngleR(entity)
 end
 
 function FindAngleBetween(first, second)
+	if second.position == nil then second.position = second end
 	xAngle = math.deg(math.atan(math.abs(second.position.x - first.position.x)/math.abs(second.position.y - first.position.y)))
 	if first.position.x <= second.position.x and first.position.y >= second.position.y then
 		return 90 - xAngle
@@ -2056,11 +2057,11 @@ function Embersleighttargetcal()
 					if target and GetDistance2D(me,target) < 750 + addrange then
 
 						ember_spirit_sleight_of_fist=me:GetAbility(t)
-						local p = Vector((me.x - target.x) * addrange / GetDistance2D(target,me) + target.position.x,(me.position.y - target.position.y) * addrange / GetDistance2D(target,me) + target.position.y,target.position.z)
+						local p = Vector((me.position.x - target.position.x) * addrange / GetDistance2D(target,me) + target.position.x,(me.position.y - target.position.y) * addrange / GetDistance2D(target,me) + target.position.y,target.position.z)
 						local close = math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, target))))
 						local far = math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, p))))
 						if GetDistance2D(me,target) < 720 and close < far then
-							me:CastAbility(ember_spirit_sleight_of_fist,target.position.x,target.position.y,target.position.z)
+							me:CastAbility(ember_spirit_sleight_of_fist,target.position)
 						else
 							me:CastAbility(ember_spirit_sleight_of_fist,p)
 						end
@@ -2095,7 +2096,7 @@ function Emberremnantnow()
 			if me:GetAbility(t) ~= nil then
 				if me:GetAbility(t).name == "ember_spirit_activate_fire_remnant" and me:GetAbility(t).state == -1 then
 						alfa = me.rotR
-						local p = Vector(me.x + 100 * math.cos(alfa), me.y + 100 * math.sin(alfa), me.z) 
+						local p = Vector(me.position.x + 100 * math.cos(alfa), me.position.y + 100 * math.sin(alfa), me.position.z) 
 
 						ember_spirit_fire_remnant=me:GetAbility(5)
 						me:CastAbility(ember_spirit_fire_remnant,p)
