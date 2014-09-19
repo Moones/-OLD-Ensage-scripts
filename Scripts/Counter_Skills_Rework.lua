@@ -1302,7 +1302,10 @@ function Tick( tick )
 									Nyx()
 									Juggernautfury()
 									Puck()
-									UseBlinkDagger()							
+									UseBlinkDagger()
+									Emberremnantnow()
+									Embersleighttargetcal()
+									Emberguard()
 								end
 							end
 						end
