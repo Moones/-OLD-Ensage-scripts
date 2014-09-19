@@ -695,7 +695,8 @@ function Tick( tick )
 					PuckW(false)
 					UseEulScepterTarget()
 					UseOrchidtarget()
-					UseSheepStickTarget()	
+					Emberremnantnow()
+					UseSheepStickTarget()					
 				end
 				UseShadowBlade()
 				UseManta()
@@ -1154,6 +1155,7 @@ function Tick( tick )
 									LoneDruidUlt()
 									AlchemistRage()
 									Embersleighttargetcal()
+									EmberGuard()
 									UseEulScepterSelf()
 									UseShadowBlade()
 									Useshadowamulet()
@@ -1225,6 +1227,7 @@ function Tick( tick )
 									SlarkPounce()
 									UseManta()
 									UseBladeMail()
+									EmberGuard()
 									local sniperultdamage = 0
 									if v:GetAbility(4).level == 1 then
 										sniperultdamage = 350*3/4
@@ -1457,6 +1460,8 @@ function Tick( tick )
 									AlchemistRage()
 									UseManta()
 									SlarkPounce()
+									Embersleighttargetcal()
+									EmberGuard()
 								end
 							end
 						end
@@ -2093,18 +2098,11 @@ end
 function Emberremnantnow()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "ember_spirit_activate_fire_remnant" and me:GetAbility(t).state == -1 then
-						alfa = me.rotR
-						local p = Vector(me.position.x + 100 * math.cos(alfa), me.position.y + 100 * math.sin(alfa), me.position.z) 
-
-						ember_spirit_fire_remnant=me:GetAbility(5)
-						me:CastAbility(ember_spirit_fire_remnant,p)
-						activated=1
-						remnant = 1
-						sleepTick= GetTick() +160
-						return
-				end
+			if me:GetAbility(t) and me:GetAbility(t).name == "ember_spirit_activate_fire_remnant" and me:GetAbility(t).state == -1 then
+				me:CastAbility(me:GetAbility(t))
+				activated=1
+				sleepTick= GetTick() +160
+				return 
 			end
 		end
 	end
