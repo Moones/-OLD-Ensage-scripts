@@ -11,3 +11,4 @@ Shoot_Arrow_hit_Arrow.lua | ShowMeJukePaths.lua
 Tiny_Auto_Combo.lua       | AutoCreepBlock.lua
 Auto_Support.lua          |
 Global_Skillshots.lua     |
+Templar_Assassin.lua      |
