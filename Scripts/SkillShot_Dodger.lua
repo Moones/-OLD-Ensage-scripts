@@ -550,7 +550,7 @@ function Main(tick)
 										end
 										local distance = FindAB(start,vec,GetDistance2D(me,start)*10)
 										--check for block
-										if GetDistance2D(me, start) <= (GetDistance2D(start,distance) + radius) and ((block and WillHit(entity,me,radius,team)) or not block) and GetDistance2D(entity,start) <= GetDistance2D(me,start) then
+										if GetDistance2D(me, start) <= (GetDistance2D(start,distance) + radius + 25) and ((block and WillHit(entity,me,radius,team)) or not block) and GetDistance2D(entity,start) <= GetDistance2D(me,start) then
 											--dodge
 											LineDodge(distance, start, radius*2.5, me, skillshot.cdodge, speed, 0)
 										end
@@ -596,7 +596,7 @@ function Main(tick)
 									speed = 0
 								end
 								--check for if any unit could block the skillshot
-								if GetDistance2D(v,me) <= distance then	
+								if GetDistance2D(v,me) <= distance+25 then	
 									if (block and WillHit(v,me,radius,team)) or not block then						
 										--dodge skillshot
 										LineDodge(Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), v.position, radius*2.5, me, skillshot.cdodge, speed, spell:FindCastPoint())	
@@ -606,8 +606,7 @@ function Main(tick)
 							elseif math.ceil(spell.cd+2) ==  math.ceil(spell:GetCooldown(spell.level)) or (spell.state == LuaEntityAbility.STATE_READY == 0 and not spell.abilityPhase) then
 								dodgevector = nil
 								dodging = false
-								dodged = false
-								return 	
+								dodged = false	
 							end
 						end
 					end
@@ -615,7 +614,7 @@ function Main(tick)
 			end
 			
 			--==AOE SKILSHOTS==--
-						
+			
 			for z, skillshot in ipairs(AOESkillShotList) do
 				if v.classId == skillshot.heroId or v.classId == CDOTA_Unit_Hero_Rubick then
 					local name = skillshot.spellName:gsub("_","")
@@ -655,15 +654,14 @@ function Main(tick)
 								if v:AghanimState() and skillshot.agadistance then
 									distance = spell:GetSpecialData(skillshot.agadistance,spelllevel)
 								end
-								if GetDistance2D(v,me) <= (distance + radius) then	
+								if GetDistance2D(v,me) <= (distance + radius + 25) then	
 									AOEDodge(v.position, Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), radius*1.5, me, spell:FindCastPoint())	
 									dodging = true
 								end
 							elseif math.ceil(spell.cd+2) ==  math.ceil(spell:GetCooldown(spell.level)) or (spell.state == LuaEntityAbility.STATE_READY and not spell.abilityPhase) then
 								dodgevector = nil
 								dodging = false
-								dodged = false
-								return 	
+								dodged = false	
 							end
 						end
 					end
