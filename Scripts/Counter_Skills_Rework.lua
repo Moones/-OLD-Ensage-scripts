@@ -1305,7 +1305,7 @@ function Tick( tick )
 									UseBlinkDagger()
 									Emberremnantnow()
 									Embersleighttargetcal()
-									Emberguard()
+									EmberGuard()
 								end
 							end
 						end
