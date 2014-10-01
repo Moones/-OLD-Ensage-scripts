@@ -1064,6 +1064,12 @@ function Tick( tick )
 						UseBlinkDagger()
 						Puck()
 						return					
+					elseif GetDistance2D(v,me) <= v.attackRange then
+						UseBlinkDagger()
+						UseEulScepterTarget()
+						UseSheepStickTarget()
+						UseOrchidtarget()
+						return
 					end
 				end
 			end
