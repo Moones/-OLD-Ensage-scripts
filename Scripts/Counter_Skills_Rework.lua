@@ -1,4 +1,5 @@
 require("libs.Utils")
+require("libs.HeroInfo")
 
 wait = 0 waittime = 0 sleepTick = nil sleep1 = 0  sleepk = 0 tt = nil aa = nil
 local activated = 0
@@ -22,6 +23,32 @@ function Tick( tick )
 							TemplarRefraction()
 						end
 					end
+				end
+			elseif v.name == "npc_dota_hero_skeleton_king" then
+				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
+					if GetDistance2D(v,me) < 600 then
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, UseBlinkDaggervec()))), 0)/(heroInfo[me.name].turnRate*(1/0.03)))
+						if GetDistance2D(v,me) < 240 and turntime == 0 then
+							UseBlinkDagger()
+							UseEulScepterTarget()
+							PuckW(true)
+							UseSheepStickTarget()
+							UseOrchidtarget()
+						end
+						if not time then
+							time = client.gameTime
+						elseif turntime == 0 and client.gameTime >= time+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000 then
+							UseBlinkDagger()
+							UseEulScepterSelf()
+							Puck()
+							UseSheepStickTarget()
+							UseOrchidtarget()
+							time = nil
+						end
+					end	
+				else
+					time = nil
 				end
 			elseif v.name == "npc_dota_hero_axe" then
 				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
@@ -2472,9 +2499,15 @@ function UseBlinkDagger() --use blink to home
 			me:CastItem(BlinkDagger.name,Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z))
 			activated = 1
 			sleepTick = GetTick() + 500
+			return Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
 		end
 	end
+	return me.position
+end
 
+function UseBlinkDaggervec() --use blink to home
+	local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
+	return Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
 end
 
 function UseBlinkDaggerfront()--use blink to front of hero distance 100 
