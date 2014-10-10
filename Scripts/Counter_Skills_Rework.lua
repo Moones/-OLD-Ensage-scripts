@@ -52,6 +52,24 @@ function Tick( tick )
 				else
 					time = nil
 				end
+			elseif v.name == "npc_dota_hero_earthshaker" then
+				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
+					if GetDistance2D(v,me) < 1625 then
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, UseBlinkDaggervec()))), 0)/(heroInfo[me.name].turnRate*(1/0.03)))
+						if not time then
+							time = client.gameTime
+						elseif turntime == 0 and client.gameTime >= time+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000-0.1 then
+							UseBlinkDagger()
+							UseEulScepterSelf()
+							Puck()
+							UseShadowBlade()
+							time = nil
+						end
+					end	
+				else
+					time = nil
+				end
 			elseif v.name == "npc_dota_hero_axe" then
 				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
 					if GetDistance2D(v,me) < 200 then
@@ -81,7 +99,7 @@ function Tick( tick )
 						UseBlinkDagger()
 						UseEulScepterTarget()
 						TemplarRefraction()
-						Puck()
+						PuckW(true)
 						Useblackking()
 						Lifestealerrage()
 						UseSheepStickTarget()
@@ -226,23 +244,6 @@ function Tick( tick )
 								Nyx()
 								Puck()
 								Lifestealerrage()
-								wait = 0								
-							end
-						end
-					end
-				end
-			elseif v.name == "npc_dota_hero_earthshaker" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 10 then
-					if GetDistance2D(v,me) < 1400 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
-						if turntime == 0 then
-							if wait == 0 then
-								waittime = GetTick() + 400 - (client.avgLatency/1000)
-								wait = 1 								
-							elseif GetTick() > waittime then							
-								Nyx()
-								Puck()
-								Useshadowamulet()
 								wait = 0								
 							end
 						end
@@ -788,7 +789,7 @@ function Tick( tick )
 			local projs = entityList:GetProjectiles({})
 			for i,k in ipairs(projs) do
 				if (k.source and k.source.hero) or not k.source then
-					print(k.name)
+					print(k.name, k.speed, k.target.name)
 				end
 				if k.target == me then
 					if k.name == "tinker_missile" then
@@ -800,6 +801,21 @@ function Tick( tick )
 						UseBlinkDaggerfront()
 						UseShadowBlade()
 						Embersleighttargetcal()
+					elseif k.speed == 1000 and v:GetAbility(4).name == "huskar_life_break" then
+						if math.ceil(v:GetAbility(4).cd - 0.1) == math.ceil(v:GetAbility(4):GetCooldown(v:GetAbility(4).level)) then									
+							Puck()
+							Nyx()
+							SlarkShadowDance()
+							Juggernautfury()
+							Lifestealerrage()
+							Embersleighttargetcal()
+							UseEulScepterSelf()
+							UseBlinkDagger()
+							UseShadowBlade()
+							Useshadowamulet()
+							Useblackking()
+							UseBladeMail()
+						end
 					elseif k.name == "sniper_assassinate" and v:GetAbility(4).name == "sniper_assassinate" then
 						Puck()
 						UseBlinkDagger()
@@ -842,7 +858,7 @@ function Tick( tick )
 					SlarkPounce()
 				end
 			end
-			for i, z in ipairs(cast) do
+			for i, z in ipairs(rocket) do
 				if z.team ~= me.team and z.dayVision == 650 then
 					if GetDistance2D(z,me) < 650 then
 						if GetDistance2D(z,me) < 200 + client.latency then
@@ -1202,6 +1218,23 @@ function Tick( tick )
 							UseSheepStickTarget()
 							UseEulScepterTarget()
 						end
+					elseif v:GetAbility(t).name == "drow_ranger_wave_of_silence" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
+							if GetDistance2D(v,me) < 1150 and turntime == 0 then
+								Puck()
+								UseBlinkDagger()
+								Juggernautfury()
+								Nyx()
+								AlchemistRage()
+								Embersleighttargetcal()
+								EmberGuard()
+								UseEulScepterTarget()
+								UseShadowBlade()
+								Useshadowamulet()
+								SlarkPounce()
+							end
+						end	
 					elseif v:GetAbility(t).name == "shadow_shaman_shackles" then
 						if v:GetAbility(t).channelTime > 0 then
 							if GetDistance2D(v,me) < 400 then
@@ -1219,6 +1252,24 @@ function Tick( tick )
 								UseBlinkDagger()
 								UseEulScepterSelf()
 								NyxVendetta()
+								BountyhunterWindwalk()
+								WeaverShukuchi()
+								PhantomlancerDoppelwalk()
+								SandkinSandstorm()
+								UseShadowBlade()
+								TusksnowballTarget()
+								SlarkShadowDance()
+								TemplarMeld()
+								Useshadowamulet()
+							end
+						end
+					elseif v:GetAbility(t).name == "mirana_starfall" then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 625 then
+								Puck()
+								UseBlinkDagger()
+								UseEulScepterSelf()
+								Nyx()
 								BountyhunterWindwalk()
 								WeaverShukuchi()
 								PhantomlancerDoppelwalk()
@@ -1327,6 +1378,26 @@ function Tick( tick )
 								end
 							end
 						end
+					elseif v:GetAbility(t).name == "sandking_burrowstrike" then 
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 600 then
+								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+								if turntime == 0 then
+									SlarkDarkPact()
+									Puck()
+									UseBlinkDagger()
+									AlchemistRage()
+									Juggernautfury()
+									Embersleighttargetcal()
+									Nyx()
+									LoneDruidUlt()
+									UseEulScepterSelf()
+									UseShadowBlade()
+									Useshadowamulet()
+									UseManta()
+								end
+							end
+						end
 					elseif v:GetAbility(t).name == "medusa_mystic_snake" then
 						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 800 then
@@ -1389,26 +1460,6 @@ function Tick( tick )
 									Puck()
 									Juggernautfury()
 									UseBlinkDagger()
-								end
-							end
-						end
-					elseif v:GetAbility(t).name == "huskar_life_break" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 580 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-								if turntime == 0 then									
-									Puck()
-									Nyx()
-									SlarkShadowDance()
-									Juggernautfury()
-									Lifestealerrage()
-									Embersleighttargetcal()
-									UseEulScepterSelf()
-									UseBlinkDagger()
-									UseShadowBlade()
-									Useshadowamulet()
-									Useblackking()
-									UseBladeMail()
 								end
 							end
 						end
