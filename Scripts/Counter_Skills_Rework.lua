@@ -788,9 +788,6 @@ function Tick( tick )
 			local notvisible_enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, alive = true, team = me:GetEnemyTeam()})
 			local projs = entityList:GetProjectiles({})
 			for i,k in ipairs(projs) do
-				if (k.source and k.source.hero) or not k.source then
-					print(k.name, k.speed, k.target.name)
-				end
 				if k.target == me then
 					if k.name == "tinker_missile" then
 						Nyx()
