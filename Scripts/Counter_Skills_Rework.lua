@@ -705,7 +705,12 @@ function Tick( tick )
 				Useblackking()
 			elseif me:DoesHaveModifier("modifier_pugna_life_drain") then  
 				Nyx()
-				Puck()				
+				Puck()
+			elseif me:DoesHaveModifier("modifier_orchid_malevolence_debuff") then  
+				UseBlinkDagger()
+				UseEulScepterTarget()	
+				UseSheepStickTarget()
+				UseOrchidtarget()
 			elseif me:DoesHaveModifier("modifier_lion_finger_of_death") then    
 				Nyx()
 				Juggernautfury()
