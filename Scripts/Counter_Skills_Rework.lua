@@ -14,6 +14,10 @@ function Tick( tick )
 	for i,v in ipairs(enemies) do
 		if not v:IsIllusion() then
 			target = v
+			if GotHex(v) and ((v:FindItem("item_sheepstick") and GetDistance2D(me,v) <= 900) or GetDistance2D(v,me) <= 500) then
+				UseBlinkDagger()
+				SlarkDarkPact()
+			end
 			if v.name == "npc_dota_hero_shadow_shaman" then
 				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
 					if GetDistance2D(v,me) < 610 then
@@ -1907,6 +1911,10 @@ function FindAngleBetween(first, second)
 		return xAngle + 90 + 180
 	end
 	return nil
+end
+
+function GotHex(hero)
+	return (hero:FindItem("item_sheepstick") and hero:FindItem("item_sheepstick").state == LuaEntityAbility.STATE_READY) or (hero:FindSpell("lion_voodoo") and hero:FindSpell("lion_voodoo").state == LuaEntityAbility.STATE_READY) or (hero:FindSpell("shadow_shaman_voodoo") and hero:FindSpell("shadow_shaman_voodoo").state == LuaEntityAbility.STATE_READY)
 end
 
 function Lifestealerrage()
