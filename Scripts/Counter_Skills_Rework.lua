@@ -35,6 +35,7 @@ function Tick( tick )
 							PuckW(true)
 							UseSheepStickTarget()
 							UseOrchidtarget()
+							UseShadowBlade()
 						end
 						if not time then
 							time = client.gameTime
@@ -44,6 +45,7 @@ function Tick( tick )
 							Puck()
 							UseSheepStickTarget()
 							UseOrchidtarget()
+							UseShadowBlade()
 							time = nil
 						end
 					end	
@@ -783,7 +785,63 @@ function Tick( tick )
 			local rocket = entityList:GetEntities({classId=CDOTA_BaseNPC})
 			local hit = entityList:GetProjectiles({source=v,target=me})
 			local notvisible_enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, alive = true, team = me:GetEnemyTeam()})
-			
+			local projs = entityList:GetProjectiles({})
+			for i,k in ipairs(projs) do
+				if (k.source and k.source.hero) or not k.source then
+					print(k.name)
+				end
+				if k.target == me then
+					if k.name == "tinker_missile" then
+						Nyx()
+						Puck()
+						TemplarMeld()
+						Embersleighttargetcal()
+						LoneDruidUlt()
+						UseBlinkDaggerfront()
+						UseShadowBlade()
+						Embersleighttargetcal()
+					elseif k.name == "sniper_assassinate" and v:GetAbility(4).name == "sniper_assassinate" then
+						Puck()
+						UseBlinkDagger()
+						TemplarRefraction()
+						AlchemistRage()
+						Juggernautfury()
+						Nyx()
+						UseEulScepterSelf()
+						LoneDruidUlt()
+						SlarkPounce()
+						UseManta()
+						UseBladeMail()
+						EmberGuard()
+						local sniperultdamage = 0
+						if v:GetAbility(4).level == 1 then
+							sniperultdamage = 350*3/4
+						end
+						if v:GetAbility(4).level == 2 then
+							sniperultdamage = 505*3/4
+						end
+						if v:GetAbility(4).level == 3 then
+							sniperultdamage = 655*3/4
+						end
+						if sniperultdamage > me.health then
+							if GetDistance2D(v,me) > 1000 then
+								ShadowdemonDisruptionself()
+								ObsidianImprisonmentself()
+							end
+							Phoenixsupernova()
+							UseBloodStone()
+						end
+					end
+				end
+				if k.name == "windrunner_shackleshot" and (k.target == me or AngleBelow(v,k.target,me,7)) then
+					Puck()
+					Nyx()
+					UseBlinkDagger()
+					UseShadowBlade()
+					SlarkDarkPact()
+					SlarkPounce()
+				end
+			end
 			for i, z in ipairs(cast) do
 				if z.team ~= me.team and z.dayVision == 650 then
 					if GetDistance2D(z,me) < 650 then
@@ -1249,44 +1307,6 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "sniper_assassinate" then
-						if math.ceil(v:GetAbility(t).cd + math.max((GetDistance2D(v,me)/v:GetAbility(t):GetSpecialData("projectile_speed",v:GetAbility(t).level)) - client.latency/1000, 0) - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 4000 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-								if turntime == 0 then
-									Puck()
-									UseBlinkDagger()
-									TemplarRefraction()
-									AlchemistRage()
-									Juggernautfury()
-									Nyx()
-									UseEulScepterSelf()
-									LoneDruidUlt()
-									SlarkPounce()
-									UseManta()
-									UseBladeMail()
-									EmberGuard()
-									local sniperultdamage = 0
-									if v:GetAbility(4).level == 1 then
-										sniperultdamage = 350*3/4
-									end
-									if v:GetAbility(4).level == 2 then
-										sniperultdamage = 505*3/4
-									end
-									if v:GetAbility(4).level == 3 then
-										sniperultdamage = 655*3/4
-									end
-									if sniperultdamage > me.health then
-										if GetDistance2D(v,me) > 1000 then
-											ShadowdemonDisruptionself()
-											ObsidianImprisonmentself()
-										end
-										Phoenixsupernova()
-										UseBloodStone()
-									end
-								end
-							end
-						end
 					elseif v:GetAbility(t).name == "skeleton_king_hellfire_blast" then 
 						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 600 then
@@ -1590,20 +1610,6 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "windrunner_shackleshot" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 900 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-								if turntime == 0 then
-									Puck()
-									Nyx()
-									UseBlinkDagger()
-									UseShadowBlade()
-									SlarkDarkPact()
-									SlarkPounce()
-								end
-							end
-						end
 					elseif v:GetAbility(t).name == "lich_chain_frost" then
 						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 900 then
@@ -1699,19 +1705,6 @@ function Tick( tick )
 									Puck()
 									Nyx()
 								end
-							end
-						end
-					elseif v:GetAbility(t).name == "tinker_heat_seeking_missile" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 2500 then
-								Nyx()
-								Puck()
-								TemplarMeld()
-								Embersleighttargetcal()
-								LoneDruidUlt()
-								UseBlinkDaggerfront()
-								UseShadowBlade()
-								Embersleighttargetcal()
 							end
 						end
 					elseif v:GetAbility(t).name == "windrunner_powershot" then
@@ -1842,6 +1835,15 @@ function FindAngleR(entity)
 	else
 		return 2 * math.pi - entity.rotR
 	end
+end
+
+function AngleBelow(myHero,nearestHero,targetHero,angle)
+	local myPos = Vector2D(myHero.position.x,myHero.position.y)
+	local nearestHeroPos = Vector2D(nearestHero.position.x,nearestHero.position.y)
+	local targetHeroPos = Vector2D(targetHero.position.x,targetHero.position.y)
+	local t1 = (nearestHeroPos - myPos)
+	local t2 = (targetHeroPos - myPos)
+	return math.abs(math.deg(math.atan2(t2.y, t2.x) - math.atan2(t1.y, t1.x))) <= angle
 end
 
 function FindAngleBetween(first, second)
