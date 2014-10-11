@@ -930,7 +930,7 @@ function Tick( tick )
 							end
 						end
 					end
-				elseif #z.modifiers > 0 and z:DoesHaveModifier("modifier_lina_light_strike_array") then
+				elseif z.modifiers and #z.modifiers > 0 and z:DoesHaveModifier("modifier_lina_light_strike_array") then
 					for i,k in ipairs(notvisible_enemies) do
 						if k.classId == CDOTA_Unit_Hero_Lina and GetDistance2D(z,me) < 250 then
 							Puck()
@@ -943,7 +943,7 @@ function Tick( tick )
 							return
 						end
 					end
-				elseif #z.modifiers > 0 and z:DoesHaveModifier("modifier_leshrac_split_earth_thinker") then
+				elseif z.modifiers and #z.modifiers > 0 and z:DoesHaveModifier("modifier_leshrac_split_earth_thinker") then
 					for i,k in ipairs(notvisible_enemies) do
 						if k.classId == CDOTA_Unit_Hero_Leshrac and GetDistance2D(z,me) < GetSpecial(k:GetAbility(1),"radius",k:GetAbility(1).level+0)+25 then
 							Puck()
