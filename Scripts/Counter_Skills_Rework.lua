@@ -64,9 +64,9 @@ function Tick( tick )
 						if not time then
 							time = client.gameTime
 						elseif turntime == 0 and client.gameTime >= time+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000-0.1 then
+							Puck()
 							UseBlinkDagger()
 							UseEulScepterSelf()
-							Puck()
 							UseShadowBlade()
 							time = nil
 						end
@@ -802,6 +802,33 @@ function Tick( tick )
 						UseBlinkDaggerfront()
 						UseShadowBlade()
 						Embersleighttargetcal()
+						return
+					elseif k.name == "phantom_assassin_stifling_dagger" then
+						Nyx()
+						Puck()
+						TemplarMeld()
+						Embersleighttargetcal()
+						LoneDruidUlt()
+						UseBlinkDaggerfront()
+						UseShadowBlade()
+						Embersleighttargetcal()
+						return
+					elseif k.name == "ogre_magi_ignite" then
+						Nyx()
+						Puck()
+						TemplarMeld()
+						Embersleighttargetcal()
+						LoneDruidUlt()
+						UseBlinkDaggerfront()
+						UseShadowBlade()
+						Embersleighttargetcal()
+						return
+					elseif k.name == "necrolyte_pulse_enemy" and GetDistance2D(me,k) < 200 then
+						Nyx()
+						Puck()
+						LoneDruidUlt()
+						UseEulScepterSelf()
+						return
 					elseif k.speed == 1000 and v:GetAbility(4).name == "huskar_life_break" then
 						if math.ceil(v:GetAbility(4).cd - 0.1) == math.ceil(v:GetAbility(4):GetCooldown(v:GetAbility(4).level)) then									
 							Puck()
@@ -816,6 +843,7 @@ function Tick( tick )
 							Useshadowamulet()
 							Useblackking()
 							UseBladeMail()
+							return
 						end
 					elseif k.name == "sniper_assassinate" and v:GetAbility(4).name == "sniper_assassinate" then
 						Puck()
@@ -830,6 +858,7 @@ function Tick( tick )
 						UseManta()
 						UseBladeMail()
 						EmberGuard()
+						return
 						local sniperultdamage = 0
 						if v:GetAbility(4).level == 1 then
 							sniperultdamage = 350*3/4
@@ -847,6 +876,7 @@ function Tick( tick )
 							end
 							Phoenixsupernova()
 							UseBloodStone()
+							return
 						end
 					end
 				end
@@ -857,6 +887,7 @@ function Tick( tick )
 					UseShadowBlade()
 					SlarkDarkPact()
 					SlarkPounce()
+					return
 				end
 			end
 			for i, z in ipairs(rocket) do
@@ -872,6 +903,7 @@ function Tick( tick )
 						else
 							UseBlinkDagger()							
 						end
+						return
 					end
 				elseif z.dayVision == 1000 and z:DoesHaveModifier("modifier_truesight") then
 					if GetDistance2D(z,me) < 300 then
@@ -885,6 +917,7 @@ function Tick( tick )
 						else
 							UseBlinkDagger()							
 						end
+						return
 					end
 				elseif z.dayVision == 0 and z.unitState == 59802112 then
 					if GetDistance2D(z,me) < 700 then
@@ -893,10 +926,11 @@ function Tick( tick )
 								target = v 
 								UseEulScepterTarget()
 								UseSheepStickTarget()
+								return
 							end
 						end
 					end
-				elseif z.modifiers and #z.modifiers > 0 and z:DoesHaveModifier("modifier_lina_light_strike_array") then
+				elseif #z.modifiers > 0 and z:DoesHaveModifier("modifier_lina_light_strike_array") then
 					for i,k in ipairs(notvisible_enemies) do
 						if k.classId == CDOTA_Unit_Hero_Lina and GetDistance2D(z,me) < 250 then
 							Puck()
@@ -906,9 +940,10 @@ function Tick( tick )
 							UseEulScepterSelf()
 							SlarkDarkPact()
 							SlarkPounce()	
+							return
 						end
 					end
-				elseif z.modifiers and #z.modifiers > 0 and z:DoesHaveModifier("modifier_leshrac_split_earth_thinker") then
+				elseif #z.modifiers > 0 and z:DoesHaveModifier("modifier_leshrac_split_earth_thinker") then
 					for i,k in ipairs(notvisible_enemies) do
 						if k.classId == CDOTA_Unit_Hero_Leshrac and GetDistance2D(z,me) < GetSpecial(k:GetAbility(1),"radius",k:GetAbility(1).level+0)+25 then
 							Puck()
@@ -918,6 +953,7 @@ function Tick( tick )
 							UseEulScepterSelf()
 							SlarkDarkPact()
 							SlarkPounce()	
+							return
 						end
 					end
 				end
@@ -931,6 +967,7 @@ function Tick( tick )
 						if v:GetAbility(3).name == "rattletrap_rocket_flare" then
 							if v:GetAbility(3):GetDamage(v:GetAbility(3).level)*(1 - me.magicDmgResist) >= me.health then
 								UseEulScepterSelf()
+								return
 							end
 						end
 					end
@@ -948,6 +985,7 @@ function Tick( tick )
 					UseOrchidtarget()
 					UseShadowBlade()
 					SlarkPounce()
+					return
 				end
 			end
 			
