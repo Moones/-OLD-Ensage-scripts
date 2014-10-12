@@ -858,7 +858,6 @@ function Tick( tick )
 						UseManta()
 						UseBladeMail()
 						EmberGuard()
-						return
 						local sniperultdamage = 0
 						if v:GetAbility(4).level == 1 then
 							sniperultdamage = 350*3/4
@@ -876,8 +875,8 @@ function Tick( tick )
 							end
 							Phoenixsupernova()
 							UseBloodStone()
-							return
 						end
+						return
 					end
 				end
 				if k.name == "windrunner_shackleshot" and (k.target == me or AngleBelow(v,k.target,me,7)) then
