@@ -54,7 +54,7 @@ SkillShot.currentTick = 0
 function SkillShot.__TrackTick(tick)
 	SkillShot.currentTick = tick
 	SkillShot.BlindPrediction()
-	if tick > SkillShot.lastTrackTick + 50 then
+	if tick > SkillShot.lastTrackTick + 25 then
 		SkillShot.__Track()
 		SkillShot.lastTrackTick = tick 	
 	end
@@ -98,13 +98,22 @@ function SkillShot.SkillShotXYZ(source,t,delay,speed)
 		local sourcepos = source.position
 		if delay and SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed then 
 			local prediction = SkillShot.PredictedXYZ(t,delay) - sourcepos
+			local prediction2
 			if speed then
 				local delay2 = prediction.x*SkillShot.trackTable[t.handle].speed.x + prediction.y*SkillShot.trackTable[t.handle].speed.y
 				local speed1 = SkillShot.trackTable[t.handle].speed.x^2 + SkillShot.trackTable[t.handle].speed.y^2 - (speed/1000)^2
 				local predictedTime = (-2*(delay2) - math.sqrt((2*delay2)^2 - 4*speed1*(prediction.x^2 + prediction.y^2)))/(2*speed1)
-				prediction = SkillShot.PredictedXYZ(t,delay + predictedTime)
+				prediction2 = SkillShot.PredictedXYZ(t,delay + predictedTime)
 			end
-			return Vector(prediction.x, prediction.y, prediction.z)
+			local distance = sourcepos:GetDistance2D(prediction)
+			while math.floor(distance) ~= math.floor(math.sqrt(math.pow(sourcepos.x-prediction.x,2)+math.pow(sourcepos.y-prediction.y,2))) do
+				prediction = prediction2
+				local delay2 = prediction.x*SkillShot.trackTable[t.handle].speed.x + prediction.y*SkillShot.trackTable[t.handle].speed.y
+				local speed1 = SkillShot.trackTable[t.handle].speed.x^2 + SkillShot.trackTable[t.handle].speed.y^2 - (speed/1000)^2
+				local predictedTime = (-2*(delay2) - math.sqrt((2*delay2)^2 - 4*speed1*(prediction.x^2 + prediction.y^2)))/(2*speed1)
+				prediction2 = SkillShot.PredictedXYZ(t,delay + predictedTime)
+			end
+			return Vector(prediction2.x, prediction2.y, prediction2.z)
 		end
 	end
 end
