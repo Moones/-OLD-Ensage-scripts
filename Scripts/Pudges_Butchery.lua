@@ -206,7 +206,10 @@ function Main(tick)
 							local speed = 1600 
 							local delay = (300+client.latency)
 							local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
-							if xyz and SleepCheck("hook") then	
+							if xyz and SleepCheck("hook") and GetDistance2D(me,xyz) <= RangeH[hook.level] + 100 then	
+								if GetDistance2D(xyz,me) > RangeH[hook.level] then
+									xyz = (xyz - me.position) * (hook.castRange - 100) / GetDistance2D(xyz,me) + me.position
+								end
 								me:SafeCastAbility(hook, xyz)
 								Sleep(100+client.latency,"hook")
 							end
