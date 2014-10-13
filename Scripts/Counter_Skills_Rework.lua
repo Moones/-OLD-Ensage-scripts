@@ -8,7 +8,6 @@ function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
 	if sleepTick and sleepTick > tick then return end	
 	me = entityList:GetMyHero() if not me then return end
-
 	--Dodge by checking animations--
 	local enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, alive = true, visible = true, team = me:GetEnemyTeam()})
 	for i,v in ipairs(enemies) do
@@ -40,6 +39,7 @@ function Tick( tick )
 							UseSheepStickTarget()
 							UseOrchidtarget()
 							UseShadowBlade()
+							PhantomlancerDoppelwalk()
 						end
 						if not time then
 							time = client.gameTime
@@ -50,6 +50,7 @@ function Tick( tick )
 							UseSheepStickTarget()
 							UseOrchidtarget()
 							UseShadowBlade()
+							PhantomlancerDoppelwalk()
 							time = nil
 						end
 					end	
@@ -68,6 +69,7 @@ function Tick( tick )
 							UseBlinkDagger()
 							UseEulScepterSelf()
 							UseShadowBlade()
+							PhantomlancerDoppelwalk()
 							time = nil
 						end
 					end	
@@ -84,6 +86,7 @@ function Tick( tick )
 							PuckW(true)
 							UseSheepStickTarget()
 							UseOrchidtarget()
+							PhantomlancerDoppelwalk()
 						end
 					end
 				end
@@ -94,6 +97,7 @@ function Tick( tick )
 						UseBlinkDagger()
 						UseEulScepterSelf()
 						TemplarRefraction()
+						PhantomlancerDoppelwalk()
 					end
 				end
 			elseif v.name == "npc_dota_hero_slardar" then
@@ -108,6 +112,7 @@ function Tick( tick )
 						Lifestealerrage()
 						UseSheepStickTarget()
 						UseOrchidtarget()
+						PhantomlancerDoppelwalk()
 					end
 				end
 			elseif v.name == "npc_dota_hero_doom_bringer" then
@@ -127,6 +132,7 @@ function Tick( tick )
 							Puck()
 							Useblackking()
 							Lifestealerrage()
+							PhantomlancerDoppelwalk()
 						end
 					end
 				end
@@ -704,6 +710,7 @@ function Tick( tick )
 				Emberremnantnow()
 				EmberGuard()
 				UseEulScepterSelf()	
+				PhantomlancerDoppelwalk()
 				Useblackking()
 				UseShadowBlade()
 				if v:GetAbility(4) and v:GetAbility(4).name == "lina_laguna_blade" then
@@ -740,11 +747,13 @@ function Tick( tick )
 			elseif me:DoesHaveModifier("modifier_pugna_life_drain") then  
 				Nyx()
 				Puck()
+				PhantomlancerDoppelwalk()
 			elseif me:DoesHaveModifier("modifier_orchid_malevolence_debuff") then  
 				UseBlinkDagger()
 				UseEulScepterTarget()	
 				UseSheepStickTarget()
 				UseOrchidtarget()
+				UseManta()
 			elseif me:DoesHaveModifier("modifier_lion_finger_of_death") then    
 				Nyx()
 				Juggernautfury()
@@ -756,6 +765,7 @@ function Tick( tick )
 				EmberGuard()					
 				UseEulScepterSelf()
 				Useblackking()
+				PhantomlancerDoppelwalk()
 				if v:GetAbility(4) and v:GetAbility(4).name == "lion_finger_of_death" then
 					target = v
 					TusksnowballTarget()
@@ -802,6 +812,7 @@ function Tick( tick )
 						UseBlinkDaggerfront()
 						UseShadowBlade()
 						Embersleighttargetcal()
+						PhantomlancerDoppelwalk()
 						return
 					elseif k.name == "phantom_assassin_stifling_dagger" then
 						Nyx()
@@ -812,6 +823,7 @@ function Tick( tick )
 						UseBlinkDaggerfront()
 						UseShadowBlade()
 						Embersleighttargetcal()
+						PhantomlancerDoppelwalk()
 						return
 					elseif k.name == "ogre_magi_ignite" then
 						Nyx()
@@ -822,12 +834,14 @@ function Tick( tick )
 						UseBlinkDaggerfront()
 						UseShadowBlade()
 						Embersleighttargetcal()
+						PhantomlancerDoppelwalk()
 						return
 					elseif k.name == "necrolyte_pulse_enemy" and GetDistance2D(me,k) < 200 then
 						Nyx()
 						Puck()
 						LoneDruidUlt()
 						UseEulScepterSelf()
+						PhantomlancerDoppelwalk()
 						return
 					elseif k.speed == 1000 and v:GetAbility(4).name == "huskar_life_break" then
 						if math.ceil(v:GetAbility(4).cd - 0.1) == math.ceil(v:GetAbility(4):GetCooldown(v:GetAbility(4).level)) then									
@@ -843,6 +857,7 @@ function Tick( tick )
 							Useshadowamulet()
 							Useblackking()
 							UseBladeMail()
+							PhantomlancerDoppelwalk()
 							return
 						end
 					elseif k.name == "sniper_assassinate" and v:GetAbility(4).name == "sniper_assassinate" then
@@ -857,6 +872,7 @@ function Tick( tick )
 						SlarkPounce()
 						UseManta()
 						UseBladeMail()
+						PhantomlancerDoppelwalk()
 						EmberGuard()
 						local sniperultdamage = 0
 						if v:GetAbility(4).level == 1 then
@@ -886,6 +902,7 @@ function Tick( tick )
 					UseShadowBlade()
 					SlarkDarkPact()
 					SlarkPounce()
+					PhantomlancerDoppelwalk()
 					return
 				end
 			end
@@ -929,7 +946,7 @@ function Tick( tick )
 							end
 						end
 					end
-				elseif z.modifiers and #z.modifiers > 0 and z:DoesHaveModifier("modifier_lina_light_strike_array") then
+				elseif #z.modifiers > 0 and z:DoesHaveModifier("modifier_lina_light_strike_array") then
 					for i,k in ipairs(notvisible_enemies) do
 						if k.classId == CDOTA_Unit_Hero_Lina and GetDistance2D(z,me) < 250 then
 							Puck()
@@ -939,10 +956,11 @@ function Tick( tick )
 							UseEulScepterSelf()
 							SlarkDarkPact()
 							SlarkPounce()	
+							PhantomlancerDoppelwalk()
 							return
 						end
 					end
-				elseif z.modifiers and #z.modifiers > 0 and z:DoesHaveModifier("modifier_leshrac_split_earth_thinker") then
+				elseif #z.modifiers > 0 and z:DoesHaveModifier("modifier_leshrac_split_earth_thinker") then
 					for i,k in ipairs(notvisible_enemies) do
 						if k.classId == CDOTA_Unit_Hero_Leshrac and GetDistance2D(z,me) < GetSpecial(k:GetAbility(1),"radius",k:GetAbility(1).level+0)+25 then
 							Puck()
@@ -952,6 +970,7 @@ function Tick( tick )
 							UseEulScepterSelf()
 							SlarkDarkPact()
 							SlarkPounce()	
+							PhantomlancerDoppelwalk()
 							return
 						end
 					end
@@ -984,6 +1003,7 @@ function Tick( tick )
 					UseOrchidtarget()
 					UseShadowBlade()
 					SlarkPounce()
+					PhantomlancerDoppelwalk()
 					return
 				end
 			end
@@ -1003,6 +1023,7 @@ function Tick( tick )
 							Slardar()
 							UseEulScepterTarget()
 							Juggernautfury()
+							PhantomlancerDoppelwalk()
 							return 
 						elseif v:GetAbility(s).name == "tidehunter_ravage" and GetDistance2D(v,me) < 1050 then
 							if GetDistance2D(v,me) < 400 then
@@ -1022,6 +1043,7 @@ function Tick( tick )
 								UseEulScepterTarget()
 								Puck()
 							end
+							PhantomlancerDoppelwalk()
 							return 
 						elseif v:GetAbility(s).name == "puck_waning_rift" and GetDistance2D(v,me) < 400 then
 							Emberchains()
@@ -1030,6 +1052,7 @@ function Tick( tick )
 							UseBlinkDagger()
 							UseOrchidtarget()
 							UseEulScepterSelf()
+							PhantomlancerDoppelwalk()
 							return 
 						elseif v:GetAbility(s).name == "treant_overgrowth" and GetDistance2D(v,me) < 625 then
 							if GetDistance2D(v,me) < 400 then
@@ -1049,6 +1072,7 @@ function Tick( tick )
 								UseBlinkDagger()
 								UseShadowBlade()
 							end
+							PhantomlancerDoppelwalk()
 							return 
 						elseif v:GetAbility(s).name == "centaur_hoof_stomp" and GetDistance2D(v,me) < 320 then
 							PuckW(true)
@@ -1059,6 +1083,7 @@ function Tick( tick )
 							UseEulScepterTarget()
 							UseBlinkDagger()
 							Juggernautfury()
+							PhantomlancerDoppelwalk()
 							return 	
 						elseif v:GetAbility(s).name == "slardar_slithereen_crush" and GetDistance2D(v,me) < 350 then
 							PuckW(true)	
@@ -1069,6 +1094,7 @@ function Tick( tick )
 							UseBlinkDagger()
 							UseBlinkDagger()
 							Juggernautfury()
+							PhantomlancerDoppelwalk()
 							return 	
 						elseif v:GetAbility(s).name == "brewmaster_thunder_clap" and GetDistance2D(v,me) < 400 then
 							PuckW(true)
@@ -1078,6 +1104,7 @@ function Tick( tick )
 							UseEulScepterTarget()
 							UseBlinkDagger()
 							Juggernautfury()
+							PhantomlancerDoppelwalk()
 							return 		
 						elseif v:GetAbility(s).name == "venomancer_poison_nova" and GetDistance2D(v,me) < 830 then
 							Emberchains()
@@ -1088,6 +1115,7 @@ function Tick( tick )
 							Puck()
 							UseBlinkDagger()
 							Juggernautfury()
+							PhantomlancerDoppelwalk()
 							return 	
 						elseif v:GetAbility(s).name == "magnataur_reverse_polarity" and GetDistance2D(v,me) < 410 then
 							if GetDistance2D(v,me) < 400 then
@@ -1109,6 +1137,7 @@ function Tick( tick )
 								UseBlinkDagger()
 								UseShadowBlade()								
 							end
+							PhantomlancerDoppelwalk()
 							return 	
 						elseif v:GetAbility(s).name == "enigma_black_hole" and GetDistance2D(v,me) < 700 then
 							if GetDistance2D(v,me) < 400 then
@@ -1130,6 +1159,7 @@ function Tick( tick )
 								UseBlinkDagger()
 								UseShadowBlade()								
 							end
+							PhantomlancerDoppelwalk()
 							return 	
 						elseif v:GetAbility(s).name == "magnataur_skewer" and GetDistance2D(v,me) < 300 then
 							Emberchains()
@@ -1138,6 +1168,7 @@ function Tick( tick )
 							UseOrchidtarget()
 							PuckW(true)
 							UseBlinkDagger()
+							PhantomlancerDoppelwalk()
 							return 
 						elseif v:GetAbility(s).name == "batrider_flaming_lasso" and GetDistance2D(v,me) < 300 then
 							Emberchains()
@@ -1149,6 +1180,7 @@ function Tick( tick )
 							UseBlinkDagger()
 							Juggernautfury()
 							UseShadowBlade()
+							PhantomlancerDoppelwalk()
 							return 	
 						elseif v:GetAbility(s).name == "pudge_dismember" and GetDistance2D(v,me) < 200 then
 							Emberchains()
@@ -1159,6 +1191,7 @@ function Tick( tick )
 							PuckW(false)
 							UseBlinkDagger()
 							Juggernautfury()
+							PhantomlancerDoppelwalk()
 							return 	
 						elseif v:GetAbility(s).name == "axe_berserkers_call" and GetDistance2D(v,me) < 300 then
 							Emberchains()
@@ -1168,6 +1201,7 @@ function Tick( tick )
 							UseOrchidtarget()
 							UseBlinkDagger()
 							Juggernautfury()
+							PhantomlancerDoppelwalk()
 							return 	
 						elseif v:GetAbility(s).name == "legion_commander_duel" and GetDistance2D(v,me) < 250 then
 							PuckW(true)
@@ -1177,6 +1211,7 @@ function Tick( tick )
 							UseOrchidtarget()
 							Silencerult()
 							UseBlinkDagger()
+							PhantomlancerDoppelwalk()
 							return 
 						elseif v:GetAbility(s).name == "earthshaker_echo_slam" and GetDistance2D(v,me) < 575 and v:GetAbility(s).state == -1 then
 							PuckW(true)
@@ -1186,6 +1221,7 @@ function Tick( tick )
 							UseOrchidtarget()
 							Silencerult()
 							UseBlinkDagger()
+							PhantomlancerDoppelwalk()
 							return 
 						end
 					end
@@ -1196,6 +1232,7 @@ function Tick( tick )
 						UseSheepStickTarget()
 						UseOrchidtarget()
 						UseBlinkDagger()
+						PhantomlancerDoppelwalk()
 						return
 					elseif v.name == "npc_dota_hero_ursa" and GetDistance2D(v,me) < 385 then
 						UseBlinkDagger()
@@ -1203,16 +1240,20 @@ function Tick( tick )
 						UseEulScepterTarget()
 						UseSheepStickTarget()
 						UseOrchidtarget()
+						PhantomlancerDoppelwalk()
 						return					
 					elseif v.name == "npc_dota_hero_meepo" and GetDistance2D(v,me) < 400 then
 						UseBlinkDagger()
 						Puck()
+						PhantomlancerDoppelwalk()
 						return					
-					elseif GetDistance2D(v,me) <= v.attackRange then
+					elseif GetDistance2D(v,me) <= v.attackRange+150 then
 						UseBlinkDagger()
 						UseEulScepterTarget()
 						UseSheepStickTarget()
 						UseOrchidtarget()
+						PhantomlancerDoppelwalk()
+						Emberremnantnow()
 						return
 					end
 				end
@@ -1234,6 +1275,7 @@ function Tick( tick )
 								UseBlinkDagger()
 								UseShadowBlade()
 								Useshadowamulet()
+								PhantomlancerDoppelwalk()
 							end
 						end
 					elseif v:GetAbility(t).name == "sandking_epicenter" then
@@ -1271,6 +1313,7 @@ function Tick( tick )
 								UseShadowBlade()
 								Useshadowamulet()
 								SlarkPounce()
+								PhantomlancerDoppelwalk()
 							end
 						end	
 					elseif v:GetAbility(t).name == "shadow_shaman_shackles" then
@@ -1325,6 +1368,7 @@ function Tick( tick )
 								Juggernautfury()
 								Puck()
 								UseBlinkDagger()
+								PhantomlancerDoppelwalk()
 							end
 						end
 					elseif v:GetAbility(t).name == "sven_storm_bolt" then
@@ -1346,6 +1390,7 @@ function Tick( tick )
 									Useshadowamulet()
 									UseManta()
 									SlarkPounce()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1358,11 +1403,12 @@ function Tick( tick )
 									UseEtherealtarget()
 									UseBlinkDagger()
 									UseShadowBlade()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
 					elseif v:GetAbility(t).name == "tiny_avalanche" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 900 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 								if turntime == 0 then
@@ -1373,7 +1419,8 @@ function Tick( tick )
 									Embersleighttargetcal()
 									Juggernautfury()
 									Nyx()
-									Useshadowamulet()						
+									Useshadowamulet()	
+									PhantomlancerDoppelwalk()									
 								end
 							end
 						end
@@ -1393,6 +1440,7 @@ function Tick( tick )
 								if turntime == 0 then
 									UseBlinkDagger()
 									Puck()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1413,6 +1461,7 @@ function Tick( tick )
 									UseShadowBlade()
 									Useshadowamulet()
 									UseManta()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1433,6 +1482,7 @@ function Tick( tick )
 									UseShadowBlade()
 									Useshadowamulet()
 									UseManta()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1473,6 +1523,7 @@ function Tick( tick )
 									Emberremnantnow()
 									Embersleighttargetcal()
 									EmberGuard()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1486,6 +1537,7 @@ function Tick( tick )
 									Puck()
 									UseBlinkDagger()
 									Useshadowamulet()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1547,6 +1599,7 @@ function Tick( tick )
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
 								if turntime == 0 then
 									Puck()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1557,6 +1610,7 @@ function Tick( tick )
 								if turntime == 0 then
 									Nyx()
 									Puck()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1595,6 +1649,7 @@ function Tick( tick )
 									Nyx()
 									Puck()
 									UseShadowBlade()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1612,6 +1667,7 @@ function Tick( tick )
 									SlarkPounce()
 									Embersleighttargetcal()
 									EmberGuard()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1645,6 +1701,7 @@ function Tick( tick )
 									Embersleighttargetcal()
 									UseManta()
 									UseEulScepterSelf()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						elseif v:AghanimState() and math.ceil(v:GetAbility(t).cd - 0.1) ==  12 then
@@ -1657,6 +1714,7 @@ function Tick( tick )
 									LoneDruidUlt()
 									Embersleighttargetcal()
 									UseManta()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1766,6 +1824,7 @@ function Tick( tick )
 									Nyx()
 									Puck()
 									UseShadowBlade()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1783,6 +1842,7 @@ function Tick( tick )
 									Puck()
 									UseEulScepterSelf()
 									UseManta()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1819,6 +1879,7 @@ function Tick( tick )
 									UseEulScepterSelf()
 									UseShadowBlade()
 									Useshadowamulet()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1851,6 +1912,7 @@ function Tick( tick )
 									UseEulScepterTarget()
 									Puck()
 								end
+								PhantomlancerDoppelwalk()
 							end
 						end
 					elseif v:GetAbility(t).name == "queenofpain_sonic_wave" then
@@ -1863,6 +1925,7 @@ function Tick( tick )
 									Juggernautfury()
 									Embersleighttargetcal()
 									Puck()
+									PhantomlancerDoppelwalk()
 								end
 							end
 						end
@@ -1896,6 +1959,8 @@ function Tick( tick )
 										Puck()
 										UseBlinkDagger()
 									end
+									PhantomlancerDoppelwalk()
+									Emberremnantnow()
 								end
 							end
 						end
@@ -2073,9 +2138,10 @@ end
 
 function PhantomlancerDoppelwalk()
 	if activated == 0 then
-		local dopplewalk = me:FindSpell("phantom_lancer_dopple_walk")
+		local dopplewalk = me:FindSpell("phantom_lancer_doppelwalk")
 		if dopplewalk and dopplewalk.level > 0 and dopplewalk:CanBeCasted() and me:CanCast() then
-			me:CastAbility(dopplewalk)
+			local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
+			me:CastAbility(dopplewalk,Vector((v.position.x - me.position.x) * 500 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 500 / GetDistance2D(v,me) + me.position.y,v.position.z))
 			activated = 1
 			sleepTick = GetTick() + 500
 		end
