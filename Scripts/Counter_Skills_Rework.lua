@@ -93,7 +93,7 @@ function Tick( tick )
 			elseif v.name == "npc_dota_hero_faceless_void" then
 				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
 					if GetDistance2D(v,me) < 1025 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 2, 0))
 						if turntime == 0 then
 							UseBlinkDagger()
 							UseEulScepterTarget()
