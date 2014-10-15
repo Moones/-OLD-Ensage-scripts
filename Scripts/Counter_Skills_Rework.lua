@@ -97,6 +97,36 @@ function Tick( tick )
 						end
 					end
 				end
+			elseif v.name == "npc_dota_hero_pudge" then
+				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
+					if GetDistance2D(v,me) < 400 then
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, UseBlinkDaggervec()))), 0)/(heroInfo[me.name].turnRate*(1/0.03)))
+						if GetDistance2D(v,me) < 300 and turntime == 0 then
+							UseBlinkDagger()
+							UseEulScepterTarget()
+							PuckW(true)
+							UseSheepStickTarget()
+							UseOrchidtarget()
+							UseShadowBlade()
+							PLDoppleganger()
+						end
+						if not time then
+							time = client.gameTime
+						elseif turntime == 0 and client.gameTime >= time+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000 then
+							UseBlinkDagger()
+							UseEulScepterSelf()
+							Puck()
+							UseSheepStickTarget()
+							UseOrchidtarget()
+							UseShadowBlade()
+							PLDoppleganger()
+							time = nil
+						end
+					end	
+				else
+					time = nil
+				end
 			elseif v.name == "npc_dota_hero_faceless_void" then
 				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
 					if GetDistance2D(v,me) < 1025 then
@@ -862,7 +892,18 @@ function Tick( tick )
 						TemplarMeld()
 						Embersleighttargetcal()
 						LoneDruidUlt()
-						UseBlinkDaggerfront()
+						UseBlinkDagger()
+						UseShadowBlade()
+						Embersleighttargetcal()
+						PLDoppleganger()
+						return
+					elseif k.name == "queen_scream_of_pain" then
+						Nyx()
+						Puck()
+						TemplarMeld()
+						Embersleighttargetcal()
+						LoneDruidUlt()
+						UseBlinkDagger()
 						UseShadowBlade()
 						Embersleighttargetcal()
 						PLDoppleganger()
@@ -1300,14 +1341,29 @@ function Tick( tick )
 					end
 				end
 			end
-
+			
 			--Checking if skill was already casted--
 			for t = 1, 4 do 
 				if v:GetAbility(t) and v:GetAbility(t).level > 0 then	
 					target = v
 					if v:GetAbility(t).name == "tidehunter_ravage" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+						if v:GetAbility(t).abilityPhase or math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 1025 then
+								Embersleighttargetcal()
+								Juggernautfury()
+								Nyx()
+								Puck()
+								TusksnowballTarget()
+								UseEulScepterSelf()
+								UseBlinkDagger()
+								UseShadowBlade()
+								Useshadowamulet()
+								PLDoppleganger()
+							end
+						end
+					elseif v:GetAbility(t).name == "queenofpain_scream_of_pain" then
+						if v:GetAbility(t).abilityPhase or v:GetProperty("CBaseAnimating","m_nSequence") == 10 or math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+							if GetDistance2D(v,me) < 475 then
 								Embersleighttargetcal()
 								Juggernautfury()
 								Nyx()
@@ -1399,13 +1455,12 @@ function Tick( tick )
 								SandkinSandstorm()
 								UseShadowBlade()
 								TusksnowballTarget()
-								SlarkShadowDance()
 								TemplarMeld()
 								Useshadowamulet()
 							end
 						end
 					elseif v:GetAbility(t).name == "venomancer_poison_nova" then
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+						if v:GetAbility(t).abilityPhase or v:GetProperty("CBaseAnimating","m_nSequence") == 12 or math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 1025 then
 								Juggernautfury()
 								Puck()
