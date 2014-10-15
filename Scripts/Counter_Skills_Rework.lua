@@ -9,7 +9,7 @@ function Tick( tick )
 	if sleepTick and sleepTick > tick then return end	
 	me = entityList:GetMyHero() if not me then return end
 	--Silence Dispell
-	if IsSilenced(me) then
+	if IsSilenced(me) or me:IsSilenced() then
 		PurgeMyself()
 		UseManta()
 	elseif me:DoesHaveModifier("modifier_item_dustofappearance") and CanGoInvis(me) then
