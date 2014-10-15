@@ -8,6 +8,13 @@ function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
 	if sleepTick and sleepTick > tick then return end	
 	me = entityList:GetMyHero() if not me then return end
+	--Silence Dispell
+	if IsSilenced(me) then
+		PurgeMyself()
+		UseManta()
+	elseif me:DoesHaveModifier("modifier_item_dustofappearance") and CanGoInvis(me) then
+		PurgeMyself()
+	end
 	--Dodge by checking animations--
 	local enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, alive = true, visible = true, team = me:GetEnemyTeam()})
 	for i,v in ipairs(enemies) do
@@ -133,6 +140,22 @@ function Tick( tick )
 						UseOrchidtarget()
 						PLDoppleganger()
 					end
+				end
+			elseif v.name == "npc_dota_hero_silencer" then
+				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
+					Nyx()
+					if GetDistance2D(me,v) < 400 then
+						PuckW(true)
+					else
+						Puck()
+					end
+					TemplarRefraction()
+					Lifestealerrage()
+					UseSheepStickTarget()
+					UseOrchidtarget()
+					PLDoppleganger()
+					NagaMirror()
+					ObsidianImprisonmentself()
 				end
 			elseif v.name == "npc_dota_hero_doom_bringer" then
 				if v:GetAbility(6) and v:GetAbility(6).level > 0 and v:GetAbility(6).abilityPhase then
@@ -2169,7 +2192,7 @@ end
 
 function BountyhunterWindwalk()
 	if activated == 0 then
-		local windwalk = me:FindSpell("bounty_hunter_shadow_walk")
+		local windwalk = me:FindSpell("bounty_hunter_wind_walk")
 		if windwalk and windwalk.level > 0 and windwalk:CanBeCasted() and me:CanCast() then
 			me:CastAbility(windwalk)
 			activated = 1
@@ -2914,6 +2937,25 @@ function Useblackking()
 	end
 end
 
+function PurgeMyself()
+	local diffusal = me:FindItem("item_diffusal_blade")
+	local purge = me:FindSpell("satyr_trickster_purge")
+	if activated == 0 then
+		if purge and purge:CanBeCasted() and me:CanCast() then
+			me:CastAbility(purge, me)
+			activated = 1
+			sleepTick = GetTick() + 500
+			return
+		elseif diffusal and diffusal.charges > 0 and diffusal.state == LuaEntityAbility.STATE_READY then
+			me:CastItem(diffusal.name, me)
+			activated = 1
+			sleepTick = GetTick() + 500
+			return
+		end
+	end
+end
+			
+
 function UseManta()
 	for t = 1, 6 do
 		if me:HasItem(t) and me:GetItem(t).name == "item_manta" then
@@ -2993,7 +3035,15 @@ function GetSpecial(spell,Name,lvl)
 			return v:GetData( math.min(v.dataCount,lvl) )
 		end
 	end
-end    
+end   
+
+function CanGoInvis(hero) 
+	return hero:FindSpell("bounty_hunter_wind_walk") ~= nil or hero:FindSpell("riki_permanent_invisibility") ~= nil or hero:FindSpell("clinkz_skeleton_walk") ~= nil or hero:FindItem("item_invis_sword") ~= nil
+end
+
+function IsSilenced(hero)
+	return hero:DoesHaveModifier("modifier_drowranger_wave_of_silence_knockback") or hero:DoesHaveModifier("modifier_earth_spirit_boulder_smash_silence") or hero:DoesHaveModifier("modifier_silence") or hero:DoesHaveModifier("modifier_silencer_global_silence")
+end
 
 script:RegisterEvent(EVENT_CLOSE, GameClose)
 script:RegisterEvent(EVENT_TICK,Tick)
