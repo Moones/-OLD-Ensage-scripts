@@ -395,7 +395,7 @@ class 'Hero'
 
 	function Hero:Update()
 		self:GetModifiers()		
-		self.attackSpeed = myhero:GetAttackSpeed()
+		self.attackSpeed = self:GetAttackSpeed()
 		self.attackRate = self:GetAttackRate()
 		self.attackPoint = self:GetAttackPoint()
 		self.attackRange = self:GetAttackRange()
