@@ -72,7 +72,7 @@ require("libs.SkillShot")
 require("libs.ScriptConfig")
 require("libs.HeroInfo")
 
-local reg = false local start, vec = nil, nil local dodgevector = nil local dodging = false local dodged = false local dodgingname = nil local config = ScriptConfig.new()
+local reg = false local start, vec = nil, nil local dodgevector = nil local dodging = false local dodged = false local dodgingname = nil local config = ScriptConfig.new() local count = 0
 
 local LineSkillShotList = {
 	{ 
@@ -474,7 +474,7 @@ local AOESkillShotList = {
 	};
 }
 
-local dodgeAbilitiesList = {slark_pounce = {target = false, name = "slark_pounce"},mirana_leap = {target = false, name = "mirana_leap"},faceless_void_time_walk = {target = true, position = true, name = "faceless_void_time_walk", distance = "tooltip_range"},item_force_staff = {target = true, name = "item_force_staff"}}
+local dodgeAbilitiesList = {puck_phase_shift = {target = false, name = "puck_phase_shift"}, slark_pounce = {target = false, name = "slark_pounce"},mirana_leap = {target = false, name = "mirana_leap"},faceless_void_time_walk = {target = true, position = true, name = "faceless_void_time_walk", distance = "tooltip_range"},item_blink = {target = true, position = true, name = "item_blink"} ,item_force_staff = {target = true, name = "item_force_staff"}}
 	
 function Main(tick)
 	if not PlayingGame() or client.console then return end
@@ -489,7 +489,7 @@ function Main(tick)
 	end
 	
 	--If we already are in dodge position we are good to go
-	if dodgevector and (isPosEqual(me.position, dodgevector, 5) or GetDistance2D(me,dodgevector) < 100) then 
+	if dodgevector and (isPosEqual(me.position, dodgevector, 5) or GetDistance2D(me,dodgevector) < 100 or count == 3) then 
 		dodgevector = nil
 		dodging = false
 		dodged = false
@@ -599,7 +599,7 @@ function Main(tick)
 								if GetDistance2D(v,me) <= distance+25 then	
 									if (block and WillHit(v,me,radius,team)) or not block then						
 										--dodge skillshot
-										LineDodge(Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), v.position, radius*2.5, me, skillshot.cdodge, speed, spell:FindCastPoint())	
+										LineDodge(Vector(v.position.x + distance * math.cos(v.rotR), v.position.y + distance * math.sin(v.rotR), v.position.z), v.position, radius*2.5, me, skillshot.cdodge, speed, spell:FindCastPoint(), spell)	
 										dodging = true
 									end
 								end
@@ -675,6 +675,13 @@ function Key(msg,code)
 	if client.chat or not PlayingGame() then return end
 	if msg == RBUTTON_UP then
 		if dodgevector and not SleepCheck() then
+			if count == 0 then
+				count = 1
+			elseif count == 1 then
+				count = 2
+			elseif count == 2 then
+				count = 3
+			end
 			entityList:GetMyHero():Move(dodgevector)
 			return true
 		else
@@ -695,7 +702,7 @@ function FindEntity(cast,me,dayvision,u1,u2,m1)
 	return nil
 end
 
-function LineDodge(pos1, pos2, radius, me, cdodge, speed, delay)
+function LineDodge(pos1, pos2, radius, me, cdodge, speed, delay, spell)
 	local calc1 = (math.floor(math.sqrt((pos2.x-me.position.x)^2 + (pos2.y-me.position.y)^2)))
 	local calc2 = (math.floor(math.sqrt((pos1.x-me.position.x)^2 + (pos1.y-me.position.y)^2)))
 	local calc4 = (math.floor(math.sqrt((pos1.x-pos2.x)^2 + (pos1.y-pos2.y)^2)))
@@ -730,11 +737,11 @@ function LineDodge(pos1, pos2, radius, me, cdodge, speed, delay)
 				local dSpell = me:FindSpell(v.name)
 				if dItem and dItem.state == LuaEntityAbility.STATE_READY and not dodged and dItem:FindCastPoint() <= delay then
 					local position = me
-					if dItem:IsBehaviourType(LuaEntityAbility.BEHAVIOR_POINT) and (dItem:FindCastPoint() + turn) <= delay then position = (dodgevector - me.position) * (dItem:GetSpecialData("blink_range")-100) / GetDistance2D(me,dodgevector) + me.position end
+					if dItem.name == "item_blink" then position = (dodgevector - me.position) * (dItem:GetSpecialData("blink_range")-100) / GetDistance2D(me,dodgevector) + me.position end
 					me:SafeCastAbility(dItem, position, false)
 					dodged = true
 					break
-				elseif dSpell and dSpell.state == LuaEntityAbility.STATE_READY and not dodged and dSpell:FindCastPoint() <= delay then
+				elseif dSpell and dSpell.state == LuaEntityAbility.STATE_READY and not dodged and dSpell:FindCastPoint() <= delay and ((spell.name == "earthshaker_fissure" and dSpell.name ~= "puck_phase_shift") or spell.name ~= "earthshaker_fissure") then
 					if dSpell:IsBehaviourType(LuaEntityAbility.BEHAVIOR_POINT) and (dSpell:FindCastPoint() + turn) <= delay then	
 						me:SafeCastAbility(dSpell,(dodgevector - me.position) * dSpell:GetSpecialData(v.distance,dSpell.level) / GetDistance2D(me,dodgevector) + me.position, false) 
 					else
@@ -835,6 +842,7 @@ function Load()
 			dodgevector = nil
 			dodging = false
 			dodged = false
+			count = 0
 			dodgingname = nil
 			
 			--Config--
@@ -865,6 +873,7 @@ function Close()
 	dodgevector = nil
 	dodging = false
 	dodged = false
+	count = 0
 	dodgingname = nil
 	if reg then
 		script:UnregisterEvent(Main)
