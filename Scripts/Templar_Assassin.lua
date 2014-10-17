@@ -163,9 +163,12 @@ function Main(tick)
 					--activate close trap or put another
 					if victim and victim.hero and GetDistance2D(me,victim) <= trap.castRange+375 and CanBeSlowed(victim) then
 						local trapslow = victim:FindModifier("modifier_templar_assassin_trap_slow")
-						if (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE and (not trapslow or trapslow.remainingTime <= 0.3)) and ((closestTrap and GetDistance2D(closestTrap, victim) <= 400) or trap.state == LuaEntityAbility.STATE_READY) then
+						if (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE and (not trapslow or trapslow.remainingTime <= (trap:FindCastPoint()*1.5 + client.latency/1000))) and ((closestTrap and GetDistance2D(closestTrap, victim) <= 400) or trap.state == LuaEntityAbility.STATE_READY) then
 							if closestTrap then
 								closestTrap:SafeCastAbility(closestTrap:GetAbility(1))
+								Sleep(trap:FindCastPoint() + client.latency/1000, "move")
+								Sleep(100+trap:FindCastPoint() + client.latency/1000, "trap")
+								return
 							end
 							if SleepCheck("trap") then
 								local p = Vector(victim.position.x + (victim.movespeed * (trap:FindCastPoint() + client.latency/1000) + 100) * math.cos(victim.rotR), victim.position.y + (victim.movespeed * (trap:FindCastPoint() + client.latency/1000) + 100) * math.sin(victim.rotR), victim.position.z)
@@ -180,7 +183,8 @@ function Main(tick)
 									end
 								end
 								Sleep(trap:FindCastPoint() + client.latency/1000, "move")
-								Sleep(250, "trap")
+								Sleep(100+trap:FindCastPoint() + client.latency/1000, "trap")
+								return
 							end
 						end
 					end
