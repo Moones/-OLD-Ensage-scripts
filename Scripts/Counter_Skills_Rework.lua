@@ -48,9 +48,9 @@ function Tick( tick )
 							UseShadowBlade()
 							PLDoppleganger()
 						end
-						if not time then
-							time = client.gameTime
-						elseif turntime == 0 and client.gameTime >= time+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000 then
+						if not timesk then
+							timesk = client.gameTime
+						elseif turntime == 0 and client.gameTime >= timesk+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000 then
 							UseBlinkDagger()
 							UseEulScepterSelf()
 							Puck()
@@ -58,30 +58,49 @@ function Tick( tick )
 							UseOrchidtarget()
 							UseShadowBlade()
 							PLDoppleganger()
-							time = nil
+							timesk = nil
 						end
 					end	
 				else
-					time = nil
+					timesk = nil
 				end
 			elseif v.name == "npc_dota_hero_earthshaker" then
 				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
 					if GetDistance2D(v,me) < 1625 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, UseBlinkDaggervec()))), 0)/(heroInfo[me.name].turnRate*(1/0.03)))
-						if not time then
-							time = client.gameTime
-						elseif turntime == 0 and client.gameTime >= time+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000-0.1 then
+						if not timees then
+							timees = client.gameTime
+						elseif turntime == 0 and client.gameTime >= timees+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000-0.1 then
 							Puck()
 							UseBlinkDagger()
 							UseEulScepterSelf()
 							UseShadowBlade()
 							PLDoppleganger()
-							time = nil
+							timees = nil
+						end
+					end	
+				elseif v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase then
+					if GetDistance2D(v,me) < 325 then
+						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, UseBlinkDaggervec()))), 0)/(heroInfo[me.name].turnRate*(1/0.03)))
+						if not timees2 then
+							timees2 = client.gameTime
+						elseif client.gameTime >= timees2+v:GetAbility(2):FindCastPoint()-turn-client.latency/1000-0.1 then
+							Puck()
+							UseBlinkDagger()
+							UseEulScepterSelf()
+							UseShadowBlade()
+							PLDoppleganger()
+							timees2 = nil
 						end
 					end	
 				else
-					time = nil
+					if not (v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase) then
+						timees2 = nil
+					end
+					if not (v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase) then
+						timees = nil
+					end
 				end
 			elseif v.name == "npc_dota_hero_axe" then
 				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
@@ -103,29 +122,29 @@ function Tick( tick )
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, UseBlinkDaggervec()))), 0)/(heroInfo[me.name].turnRate*(1/0.03)))
 						if GetDistance2D(v,me) < 300 and turntime == 0 then
+							PuckW(true)
 							UseBlinkDagger()
 							UseEulScepterTarget()
-							PuckW(true)
 							UseSheepStickTarget()
 							UseOrchidtarget()
 							UseShadowBlade()
 							PLDoppleganger()
 						end
-						if not time then
-							time = client.gameTime
-						elseif turntime == 0 and client.gameTime >= time+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000 then
+						if not timep then
+							timep = client.gameTime
+						elseif turntime == 0 and client.gameTime >= timep+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000 then
+							PuckW(true)
 							UseBlinkDagger()
 							UseEulScepterSelf()
-							Puck()
 							UseSheepStickTarget()
 							UseOrchidtarget()
 							UseShadowBlade()
 							PLDoppleganger()
-							time = nil
+							timep = nil
 						end
 					end	
 				else
-					time = nil
+					timep = nil
 				end
 			elseif v.name == "npc_dota_hero_faceless_void" then
 				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
@@ -990,21 +1009,7 @@ function Tick( tick )
 				end
 			end
 			for i, z in ipairs(rocket) do
-				if z.team ~= me.team and z.dayVision == 650 then
-					if GetDistance2D(z,me) < 650 then
-						if GetDistance2D(z,me) < 200 + client.latency then
-							Puck()
-							Lifestealerrage()
-							Juggernautfury()
-							UseEulScepterSelf()
-							SlarkDarkPact()
-							SlarkPounce()						
-						else
-							UseBlinkDagger()							
-						end
-						return
-					end
-				elseif z.dayVision == 1000 and z:DoesHaveModifier("modifier_truesight") then
+				if z.dayVision == 1000 and z:DoesHaveModifier("modifier_truesight") then
 					if GetDistance2D(z,me) < 300 then
 						if GetDistance2D(z,me) < 200 + client.latency then
 							Puck()
@@ -1087,6 +1092,20 @@ function Tick( tick )
 					UseShadowBlade()
 					SlarkPounce()
 					PLDoppleganger()
+					return
+				end
+				if z.source and z.source.dmgMin >= me.health then
+					target = v
+					Puck()
+					UseBlinkDagger()
+					UseEulScepterSelf()
+					UseSheepStickTarget()
+					UseOrchidtarget()
+					UseShadowBlade()
+					SlarkPounce()
+					PLDoppleganger()
+					ObsidianImprisonmentself()
+					SlarkShadowDance()
 					return
 				end
 			end
