@@ -163,7 +163,7 @@ function Main(tick)
 					--activate close trap or put another
 					if victim and victim.hero and GetDistance2D(me,victim) <= trap.castRange+375 and CanBeSlowed(victim) then
 						local trapslow = victim:FindModifier("modifier_templar_assassin_trap_slow")
-						if (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE and (not trapslow or trapslow.remainingTime <= (trap:FindCastPoint()*1.5 + client.latency/1000))) and ((closestTrap and GetDistance2D(closestTrap, victim) <= 400) or trap.state == LuaEntityAbility.STATE_READY) then
+						if not lasthitting and (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE and (not trapslow or trapslow.remainingTime <= (trap:FindCastPoint()*1.5 + client.latency/1000))) and ((closestTrap and GetDistance2D(closestTrap, victim) <= 400) or trap.state == LuaEntityAbility.STATE_READY) then
 							if closestTrap then
 								closestTrap:SafeCastAbility(closestTrap:GetAbility(1))
 								Sleep(trap:FindCastPoint() + client.latency/1000, "move")
