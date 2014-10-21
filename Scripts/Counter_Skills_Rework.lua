@@ -962,7 +962,7 @@ function Tick( tick )
 							PLDoppleganger()
 							return
 						end
-					elseif k.name == "sniper_assassinate" and v:GetAbility(4).name == "sniper_assassinate" then
+					elseif k.name == "sniper_assassinate" then
 						Puck()
 						UseBlinkDagger()
 						TemplarRefraction()
@@ -976,23 +976,25 @@ function Tick( tick )
 						UseBladeMail()
 						PLDoppleganger()
 						EmberGuard()
-						local sniperultdamage = 0
-						if v:GetAbility(4).level == 1 then
-							sniperultdamage = 350*3/4
-						end
-						if v:GetAbility(4).level == 2 then
-							sniperultdamage = 505*3/4
-						end
-						if v:GetAbility(4).level == 3 then
-							sniperultdamage = 655*3/4
-						end
-						if sniperultdamage > me.health then
-							if GetDistance2D(v,me) > 1000 then
-								ShadowdemonDisruptionself()
-								ObsidianImprisonmentself()
+						if v:GetAbility(4).name == "sniper_assassinate" then
+							local sniperultdamage = 0
+							if v:GetAbility(4).level == 1 then
+								sniperultdamage = 350*3/4
 							end
-							Phoenixsupernova()
-							UseBloodStone()
+							if v:GetAbility(4).level == 2 then
+								sniperultdamage = 505*3/4
+							end
+							if v:GetAbility(4).level == 3 then
+								sniperultdamage = 655*3/4
+							end
+							if sniperultdamage > me.health then
+								if GetDistance2D(v,me) > 1000 then
+									ShadowdemonDisruptionself()
+									ObsidianImprisonmentself()
+								end
+								Phoenixsupernova()
+								UseBloodStone()
+							end
 						end
 						return
 					end
