@@ -155,7 +155,7 @@ function Main(tick)
 				Sleep(250 + client.latency, "rot")
 			end
 		end
-		if (hook.abilityPhase and not SleepCheck("hook") and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level))) and xyz and victim and SleepCheck("testhook") then
+		if ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
 			local speed = 1600 
 			local delay = (300+client.latency)
 			local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
