@@ -133,25 +133,37 @@ function Main(tick)
 	local player = entityList:GetMyPlayer()
 
 	local hook = me:GetAbility(1)
-	local rot = me:GetAbility(2)	
-	rottoggled = rot.toggled
+	local rot = me:GetAbility(2)
+	if rot.level > 0 then 
+		rottoggled = rot.toggled
+	end
+	local offset = me.healthbarOffset
+	if not statusText.entity then
+		statusText.entity = me
+		statusText.entityPosition = Vector(0,0,offset)
+	end
+	if not targetText.entity then
+		targetText.entity = me
+		targetText.entityPosition = Vector(0,0,offset)
+	end
 	if active then
 		if hook.level > 0 and math.ceil(hook.cd) == math.ceil(hook:GetCooldown(hook.level)) then
+			xyz = nil
 			if rot.level > 0 and rot.toggled == false and not rot.abilityPhase and not rottoggled and SleepCheck("rot") then
 				rottoggled = true
 				me:ToggleSpell(rot.name)
 				Sleep(250 + client.latency, "rot")
 			end
 		end
-		if (hook.abilityPhase and not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
+		if (hook.abilityPhase and not SleepCheck("hook") and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level))) and xyz and victim and SleepCheck("testhook") then
 			local speed = 1600 
 			local delay = (300+client.latency)
 			local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
-			if testxyz and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 and victim.alive then	
+			if testxyz and (GetType(testxyz) == "Vector" or GetType(testxyz) == "Vector2D") and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 and victim.alive then	
 				if GetDistance2D(testxyz,me) > RangeH[hook.level] then
-					testxyz = ((testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me)) + me.position
+					testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
 				end
-				if (testxyz ~= xyz and (GetDistance2D(testxyz,xyz) > GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(hook:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency, client.latency+hook:FindCastPoint()*1000)),victim)+100)) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
+				if ((GetDistance2D(testxyz,xyz) > GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(hook:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency, client.latency+hook:FindCastPoint()*1000)),victim)+100)) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
 					me:Stop()
 					me:SafeCastAbility(hook, testxyz)
 					xyz = testxyz
@@ -224,24 +236,28 @@ function Main(tick)
 				victim = targetFind:GetClosestToMouse(100)
 				statusText.text = "Hook'em - Manual!"
 			end
-			if victim and hook:CanBeCasted() and SleepCheck("hook") then
+			if victim and victim.visible and hook:CanBeCasted() and SleepCheck("hook") then
 				local distance = GetDistance2D(victim, me)
 				if distance <= RangeH[hook.level] + 100 and victim.visible then
 					statusText.text = "Hook: " .. client:Localize(victim.name)
 					victimText.text = "  Hook'em!"
-					victimText.entity = entityList:GetEntity(victim.handle)
-					victimText.entityPosition = Vector(0,0,entityList:GetEntity(victim.handle).healthbarOffset)
+					victimText.entity = victim
+					if victim.healthbarOffset then
+						victimText.entityPosition = Vector(0,0,victim.healthbarOffset)
+					end
 					if IsKeyDown(hookkey) and me.alive and not client.chat then
 						if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 							local speed = 1600 
 							local delay = (300+client.latency)
 							xyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
-							if xyz and GetDistance2D(me,xyz) <= RangeH[hook.level] + 200 then	
+							if xyz and (GetType(xyz) == "Vector" or GetType(xyz) == "Vector2D") and GetDistance2D(me,xyz) <= RangeH[hook.level] + 200 then	
 								if GetDistance2D(xyz,me) > RangeH[hook.level] then
-									xyz = ((xyz - me.position) * (hook.castRange - 100) / GetDistance2D(xyz,me)) + me.position
+									xyz = (xyz - me.position) * (hook.castRange - 100) / GetDistance2D(xyz,me) + me.position
 								end
 								me:SafeCastAbility(hook, xyz)
 								Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
+							else
+								xyz = nil
 							end
 						end
 					end
@@ -307,15 +323,15 @@ function Combo(tick)
 		
 	if urn and urn.charges > 0 and urn.state == -1 and not urned and not me:IsChanneling() and ((R.level > 0 and not R.abilityPhase) or R.level == 0) then 
 		if not aga then 
-			if target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) or CanEscape(target) then
+			if R.level == 0 or target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
-			elseif target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
+			elseif R.level == 0 or target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
 			end
 		else
-			if target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) then
+			if R.level == 0 or target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
-			elseif target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
+			elseif R.level == 0 or target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
 			end
 		end
