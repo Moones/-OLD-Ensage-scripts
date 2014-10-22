@@ -22,6 +22,10 @@
 	   
 	Changelog:
 	----------
+		Update 1.8:
+			Fixed inaccurate hook
+			Added hook canceling
+			Added auto urn to killable enemy
 	
 		Update 1.7.1:
 			Updated with new Ensage events (EVENT_MODIFIER_ADD, EVENT_MODIFIER_REMOVE). 
@@ -77,7 +81,7 @@ config:SetParameter("ManualtoggleKey", "G", config.TYPE_HOTKEY)
 config:Load()
 
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
-local sleeptick = 0 local targetHandle = nil local manualselection = false local active = true local victim = nil local blindxyz = nil local rottoggled = false local count = 0 local hooked = false local urned = false local reg = false
+local sleeptick = 0 local targetHandle = nil local manualselection = false local active = true local victim = nil local xyz = nil local blindxyz = nil local rottoggled = false local count = 0 local hooked = false local urned = false local reg = false
 
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
@@ -126,19 +130,41 @@ end
 function Main(tick)
 	if not PlayingGame() or client.console then return end	
 	local me = entityList:GetMyHero()
+	local player = entityList:GetMyPlayer()
 
 	local hook = me:GetAbility(1)
 	local rot = me:GetAbility(2)	
-	
+	rottoggled = rot.toggled
 	if active then
-		if hook.abilityPhase then
+		if math.ceil(hook.cd) == math.ceil(hook:GetCooldown(hook.level)) then
+			xyz = nil
 			if rot.level > 0 and rot.toggled == false and not rot.abilityPhase and not rottoggled and SleepCheck("rot") then
 				rottoggled = true
-				me:SafeToggleSpell(rot.name)
+				me:ToggleSpell(rot.name)
 				Sleep(250 + client.latency, "rot")
 			end
-		else
-			rottoggled = false
+		elseif not hook:CanBeCasted() then
+			xyz = nil
+		end
+		if (hook.abilityPhase or not SleepCheck("hook")) and (xyz or (player.orderPosition and player.orderPosition ~= Vector(0,0,0))) and victim and SleepCheck("testhook") then
+			if not xyz and player.orderPosition and player.orderPosition ~= Vector(0,0,0) then xyz = player.orderPosition end
+			local speed = 1600 
+			local delay = (300+client.latency)
+			local testxyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
+			if testxyz and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 then	
+				if GetDistance2D(testxyz,me) > RangeH[hook.level] then
+					testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
+				end
+				if testxyz ~= xyz and GetDistance2D(testxyz,xyz) > ((GetDistance2D(me,victim)/speed)*victim.movespeed + client.latency) then
+					me:Stop()
+					me:SafeCastAbility(hook, testxyz)
+					xyz = testxyz
+					Sleep(hook:FindCastPoint()*500,"testhook")
+					return
+				end
+			end
+		elseif SleepCheck("hook") then 
+			xyz = nil
 		end
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do	
 			if v.team ~= me.team and not v:IsIllusion() then
@@ -162,6 +188,10 @@ function Main(tick)
 							end
 						end
 					end
+				end
+				if v.visible and v.health <= 150 and me:FindItem("item_urn_of_shadows") and SleepCheck("urn") then
+					me:SafeCastAbility(me:FindItem("item_urn_of_shadows"), v)
+					Sleep(250,"urn")
 				end
 				if not v.visible and hook.level > 0 and me.alive and not victim then
 					local speed = 1600 
@@ -194,7 +224,7 @@ function Main(tick)
 				victim = targetFind:GetClosestToMouse(100)
 				statusText.text = "Hook'em - Manual!"
 			end
-			if victim then
+			if victim and not xyz and hook:CanBeCasted() then
 				local distance = GetDistance2D(victim, me)
 				if distance <= RangeH[hook.level] + 100 and victim.visible then
 					statusText.text = "Hook: " .. client:Localize(victim.name)
@@ -205,7 +235,7 @@ function Main(tick)
 						if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 							local speed = 1600 
 							local delay = (300+client.latency)
-							local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
+							xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
 							if xyz and SleepCheck("hook") and GetDistance2D(me,xyz) <= RangeH[hook.level] + 200 then	
 								if GetDistance2D(xyz,me) > RangeH[hook.level] then
 									xyz = (xyz - me.position) * (hook.castRange - 100) / GetDistance2D(xyz,me) + me.position
@@ -376,6 +406,7 @@ function Load()
 			active = true
 			victim = nil
 			blindxyz = nil
+			xyz = nil
 			rottoggled = false
 			count = 0
 			hooked = false
@@ -399,6 +430,7 @@ function Close()
 	active = true
 	victim = nil
 	blindxyz = nil
+	xyz = nil
 	rottoggled = false
 	count = 0
 	hooked = false
