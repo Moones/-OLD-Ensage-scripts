@@ -268,13 +268,12 @@ function Combo(tick)
 	local me = entityList:GetMyHero()
 	
 	local target = entityList:GetEntity(targetHandle)
-	local distance = me:GetDistance2D(target)
 	local minRange = 950
 	local abilities = me.abilities
 	local W = abilities[2]
 	local R = abilities[4]
 	
-	if not target or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) or (distance > minRange and not hooked) or count == 2 then
+	if not target or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) or (me:GetDistance2D(target) > minRange and not hooked) or count == 2 then
 		targetHandle = nil
 		targetText.visible = false
 		if not manualselection then
@@ -290,6 +289,8 @@ function Combo(tick)
 		script:UnregisterEvent(Combo)
 		return
 	end
+	
+	local distance = me:GetDistance2D(target)
 	
 	if W.level > 0 and W.toggled == false and not W.abilityPhase and not rottoggled and SleepCheck("rot") then
 		if distance <= 250 then
