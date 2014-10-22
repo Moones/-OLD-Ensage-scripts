@@ -138,22 +138,19 @@ function Main(tick)
 	rottoggled = rot.toggled
 	if active then
 		if math.ceil(hook.cd) == math.ceil(hook:GetCooldown(hook.level)) then
-			xyz = nil
 			if rot.level > 0 and rot.toggled == false and not rot.abilityPhase and not rottoggled and SleepCheck("rot") then
 				rottoggled = true
 				me:ToggleSpell(rot.name)
 				Sleep(250 + client.latency, "rot")
 			end
-		elseif not hook:CanBeCasted() then
-			xyz = nil
 		end
-		if (hook.abilityPhase or not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
+		if (hook.abilityPhase and not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
 			local speed = 1600 
 			local delay = (300+client.latency)
 			local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
-			if testxyz and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 then	
+			if testxyz and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 and victim.alive then	
 				if GetDistance2D(testxyz,me) > RangeH[hook.level] then
-					testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
+					testxyz = ((testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me)) + me.position
 				end
 				if (testxyz ~= xyz and (GetDistance2D(testxyz,xyz) > GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(hook:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency, client.latency+hook:FindCastPoint()*1000)),victim)+100)) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
 					me:Stop()
@@ -165,7 +162,6 @@ function Main(tick)
 				end
 			elseif GetDistance2D(me,victim) > RangeH[hook.level] + 200 then
 				me:Stop()
-				xyz = nil
 				Sleep(math.max(hook:FindCastPoint()*500 - client.latency,0),"testhook")
 				Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
 				return
@@ -243,7 +239,7 @@ function Main(tick)
 							xyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
 							if xyz and GetDistance2D(me,xyz) <= RangeH[hook.level] + 200 then	
 								if GetDistance2D(xyz,me) > RangeH[hook.level] then
-									xyz = (xyz - me.position) * (hook.castRange - 100) / GetDistance2D(xyz,me) + me.position
+									xyz = ((xyz - me.position) * (hook.castRange - 100) / GetDistance2D(xyz,me)) + me.position
 								end
 								me:SafeCastAbility(hook, xyz)
 								Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
