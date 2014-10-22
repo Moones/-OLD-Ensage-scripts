@@ -150,18 +150,21 @@ function Main(tick)
 			if not xyz and player.orderPosition and player.orderPosition ~= Vector(0,0,0) then xyz = player.orderPosition end
 			local speed = 1600 
 			local delay = (300+client.latency)
-			local testxyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
+			local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
 			if testxyz and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 then	
 				if GetDistance2D(testxyz,me) > RangeH[hook.level] then
 					testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
 				end
-				if testxyz ~= xyz and GetDistance2D(testxyz,xyz) > ((GetDistance2D(me,victim)/speed)*victim.movespeed + client.latency) then
+				if (testxyz ~= xyz and GetDistance2D(testxyz,xyz) > ((GetDistance2D(me,victim)/speed)*victim.movespeed + client.latency)) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
 					me:Stop()
 					me:SafeCastAbility(hook, testxyz)
 					xyz = testxyz
 					Sleep(hook:FindCastPoint()*500,"testhook")
 					return
 				end
+			else
+				me:Stop()
+				Sleep(hook:FindCastPoint()*500,"testhook")
 			end
 		elseif SleepCheck("hook") then 
 			xyz = nil
@@ -189,7 +192,7 @@ function Main(tick)
 						end
 					end
 				end
-				if v.visible and v.health <= 150 and me:FindItem("item_urn_of_shadows") and SleepCheck("urn") then
+				if v.visible and v.health <= 150 and me:FindItem("item_urn_of_shadows") and SleepCheck("urn") and not targetHandle and GetDistance2D(me,v) <= 950 then
 					me:SafeCastAbility(me:FindItem("item_urn_of_shadows"), v)
 					Sleep(250,"urn")
 				end
@@ -235,7 +238,7 @@ function Main(tick)
 						if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 							local speed = 1600 
 							local delay = (300+client.latency)
-							xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
+							xyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
 							if xyz and SleepCheck("hook") and GetDistance2D(me,xyz) <= RangeH[hook.level] + 200 then	
 								if GetDistance2D(xyz,me) > RangeH[hook.level] then
 									xyz = (xyz - me.position) * (hook.castRange - 100) / GetDistance2D(xyz,me) + me.position
