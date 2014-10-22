@@ -22,11 +22,10 @@
 	   
 	Changelog:
 	----------
-	
 		Update 1.8:
--			Fixed inaccurate hook
--			Added hook canceling
--			Added auto urn to killable enemy
+			Fixed inaccurate hook
+			Added hook canceling
+			Added auto urn to killable enemy
 	
 		Update 1.7.1:
 			Updated with new Ensage events (EVENT_MODIFIER_ADD, EVENT_MODIFIER_REMOVE). 
@@ -137,7 +136,7 @@ function Main(tick)
 	local rot = me:GetAbility(2)	
 	rottoggled = rot.toggled
 	if active then
-		if math.ceil(hook.cd) == math.ceil(hook:GetCooldown(hook.level)) then
+		if hook.level > 0 and math.ceil(hook.cd) == math.ceil(hook:GetCooldown(hook.level)) then
 			if rot.level > 0 and rot.toggled == false and not rot.abilityPhase and not rottoggled and SleepCheck("rot") then
 				rottoggled = true
 				me:ToggleSpell(rot.name)
