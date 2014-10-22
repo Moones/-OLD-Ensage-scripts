@@ -249,7 +249,7 @@ function Main(tick)
 						if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 							local speed = 1600 
 							local delay = (300+client.latency)
-							xyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
+							xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
 							if xyz and (GetType(xyz) == "Vector" or GetType(xyz) == "Vector2D") and GetDistance2D(me,xyz) <= RangeH[hook.level] + 200 then	
 								if GetDistance2D(xyz,me) > RangeH[hook.level] then
 									xyz = (xyz - me.position) * (hook.castRange - 100) / GetDistance2D(xyz,me) + me.position
