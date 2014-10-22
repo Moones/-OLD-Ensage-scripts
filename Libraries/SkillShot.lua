@@ -246,7 +246,7 @@ function SkillShot.GetClosestPoint(A, _a, P,e)
 end
 
 function SkillShot.AbilityMove(t)
-	return t:DoesHaveModifier("modifier_spirit_breaker_charge_of_darkness") or t:DoesHaveModifier("modifier_earth_spirit_boulder_smash") or t:DoesHaveModifier("modifier_earth_spirit_rolling_boulder_caster") or t:DoesHaveModifier("modifier_earth_spirit_geomagnetic_grip") or t:DoesHaveModifier("modifier_huskar_life_break_charge") or t:DoesHaveModifier("modifier_magnataur_skewer_movement")
+	return t:DoesHaveModifier("modifier_spirit_breaker_charge_of_darkness") or t:DoesHaveModifier("modifier_earth_spirit_boulder_smash") or t:DoesHaveModifier("modifier_earth_spirit_rolling_boulder_caster") or t:DoesHaveModifier("modifier_earth_spirit_geomagnetic_grip") or t:DoesHaveModifier("modifier_huskar_life_break_charge") or t:DoesHaveModifier("modifier_magnataur_skewer_movement") or t:DoesHaveModifier("modifier_storm_spirit_ball_lightning")
 end
 	
 scriptEngine:RegisterLibEvent(EVENT_TICK,SkillShot.__TrackTick)
