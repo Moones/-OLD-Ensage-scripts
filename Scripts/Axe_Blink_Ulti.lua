@@ -1,5 +1,6 @@
 require("libs.ScriptConfig")
 require("libs.Utils")
+require("libs.SkillShot")
 
 local config = ScriptConfig.new()
 config:SetParameter("Hotkey", "D", config.TYPE_HOTKEY)
@@ -9,7 +10,7 @@ local toggleKey = config.Hotkey
 
 local hero = {} local reg = false
 local active = true local myhero = nil
-
+local eff,eff1 = nil,nil
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor)
 local cullingblade = drawMgr:CreateRect(-45,-70,20,20,0x000000ff) cullingblade.visible = false
@@ -32,8 +33,9 @@ function Tick(tick)
 	
 	local Cullblade = me:GetAbility(4)
 	local Blink = me:FindItem("item_blink")
+	local call = me:GetAbility(1)
 	
-	if Cullblade.level > 0 then
+	if Cullblade.level > 0 or call.level > 0 then
 		cullingblade.textureId = drawMgr:GetTextureId("NyanUI/Spellicons/axe_culling_blade")
 		cullingblade.visible = active
 		if Blink then
@@ -42,14 +44,17 @@ function Tick(tick)
 		else
 			blink.visible = false
 		end
-		local Dmg = damage[Cullblade.level]
-		if me:AghanimState() then		
-			Dmg = adamage[Cullblade.level]
-		end
 		local Type = DAMAGE_HPRM
 		local Range = 400
 		local RangeB = 1200
-		local CastPoint = Cullblade:GetCastPoint(Cullblade.level)+client.latency/1000		
+		local CastPoint,Dmg = 0,0
+		if Cullblade.level > 0 then
+			CastPoint = Cullblade:GetCastPoint(Cullblade.level)+client.latency/1000
+			Dmg = damage[Cullblade.level]
+			if me:AghanimState() then		
+				Dmg = adamage[Cullblade.level]
+			end
+		end
 		if me.alive and not me:IsChanneling() then
 			local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team = me:GetEnemyTeam()})
 			for i,v in ipairs(enemies) do
@@ -64,15 +69,18 @@ function Tick(tick)
 						hero[v.handle].text = "Health to kill: "..healthtokill
 						if active then
 							if healthtokill < 0 and GetDistance2D(me,v) < RangeB and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) then
-								if me:IsMagicDmgImmune() or (NetherWard(Cullblade,v,me) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
+								if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
 									me:SafeCastItem(Blink.name,v.position)						
 								end
 							elseif healthtokill < 0 and GetDistance2D(me,v) < Range then
-								if me:IsMagicDmgImmune() or (NetherWard(Cullblade,v,me) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
+								if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
 									me:SafeCastAbility(Cullblade,v)	break							
 								end
 							end
 						end
+						if (GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and v.activity ~= LuaEntityNPC.ACTIVITY_MOVE) or (SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency) and GetDistance2D(SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency),me)-25 <= call:GetSpecialData("radius",call.level)) then
+							me:SafeCastAbility(call)
+						end				
 					else
 						hero[v.handle].visible = false
 					end
