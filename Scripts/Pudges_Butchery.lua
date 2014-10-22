@@ -23,6 +23,11 @@
 	Changelog:
 	----------
 	
+		Update 1.8:
+-			Fixed inaccurate hook
+-			Added hook canceling
+-			Added auto urn to killable enemy
+	
 		Update 1.7.1:
 			Updated with new Ensage events (EVENT_MODIFIER_ADD, EVENT_MODIFIER_REMOVE). 
 			That ensures to detect succesfull hook on minimum range and is also faster.
