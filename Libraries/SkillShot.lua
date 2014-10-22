@@ -92,7 +92,7 @@ function SkillShot.PredictedXYZ(t,delay)
 		local pred2 = SkillShot.InFront(t,(delay/1000)*t.movespeed) + SkillShot.trackTable[t.handle].speed
 		local v = pred2
 		if pred and v then
-			if t.activity ~= LuaEntityNPC.ACTIVITY_MOVE or (GetDistance2D(pred,v) > 10 and GetDistance2D(pred,v) < 110) or SkillShot.AbilityMove(t) then
+			if t.activity ~= LuaEntityNPC.ACTIVITY_MOVE or (GetDistance2D(pred,v) > 0 and GetDistance2D(pred,v) < 150) or SkillShot.AbilityMove(t) then
 				v = pred
 			end
 		end
