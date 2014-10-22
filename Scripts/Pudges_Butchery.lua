@@ -22,10 +22,6 @@
 	   
 	Changelog:
 	----------
-		Update 1.8:
-			Fixed inaccurate hook
-			Added hook canceling
-			Added auto urn to killable enemy
 	
 		Update 1.7.1:
 			Updated with new Ensage events (EVENT_MODIFIER_ADD, EVENT_MODIFIER_REMOVE). 
@@ -146,8 +142,7 @@ function Main(tick)
 		elseif not hook:CanBeCasted() then
 			xyz = nil
 		end
-		if (hook.abilityPhase or not SleepCheck("hook")) and (xyz or (player.orderPosition and player.orderPosition ~= Vector(0,0,0))) and victim and SleepCheck("testhook") then
-			if not xyz and player.orderPosition and player.orderPosition ~= Vector(0,0,0) then xyz = player.orderPosition end
+		if (hook.abilityPhase or not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
 			local speed = 1600 
 			local delay = (300+client.latency)
 			local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
@@ -155,19 +150,21 @@ function Main(tick)
 				if GetDistance2D(testxyz,me) > RangeH[hook.level] then
 					testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
 				end
-				if (testxyz ~= xyz and GetDistance2D(testxyz,xyz) > ((GetDistance2D(me,victim)/speed)*victim.movespeed + client.latency)) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
+				if (testxyz ~= xyz and (GetDistance2D(testxyz,xyz) > GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(hook:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency, client.latency+hook:FindCastPoint()*1000)),victim)+100)) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
 					me:Stop()
 					me:SafeCastAbility(hook, testxyz)
 					xyz = testxyz
-					Sleep(hook:FindCastPoint()*500,"testhook")
+					Sleep(math.max(hook:FindCastPoint()*500 - client.latency,0),"testhook")
+					Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
 					return
 				end
-			else
+			elseif GetDistance2D(me,victim) > RangeH[hook.level] + 200 then
 				me:Stop()
-				Sleep(hook:FindCastPoint()*500,"testhook")
+				xyz = nil
+				Sleep(math.max(hook:FindCastPoint()*500 - client.latency,0),"testhook")
+				Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
+				return
 			end
-		elseif SleepCheck("hook") then 
-			xyz = nil
 		end
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do	
 			if v.team ~= me.team and not v:IsIllusion() then
@@ -227,7 +224,7 @@ function Main(tick)
 				victim = targetFind:GetClosestToMouse(100)
 				statusText.text = "Hook'em - Manual!"
 			end
-			if victim and not xyz and hook:CanBeCasted() then
+			if victim and hook:CanBeCasted() and SleepCheck("hook") then
 				local distance = GetDistance2D(victim, me)
 				if distance <= RangeH[hook.level] + 100 and victim.visible then
 					statusText.text = "Hook: " .. client:Localize(victim.name)
@@ -239,12 +236,12 @@ function Main(tick)
 							local speed = 1600 
 							local delay = (300+client.latency)
 							xyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
-							if xyz and SleepCheck("hook") and GetDistance2D(me,xyz) <= RangeH[hook.level] + 200 then	
+							if xyz and GetDistance2D(me,xyz) <= RangeH[hook.level] + 200 then	
 								if GetDistance2D(xyz,me) > RangeH[hook.level] then
 									xyz = (xyz - me.position) * (hook.castRange - 100) / GetDistance2D(xyz,me) + me.position
 								end
 								me:SafeCastAbility(hook, xyz)
-								Sleep(100+client.latency,"hook")
+								Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
 							end
 						end
 					end
