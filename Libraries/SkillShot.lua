@@ -54,7 +54,7 @@ SkillShot.currentTick = 0
 function SkillShot.__TrackTick(tick)
 	SkillShot.currentTick = tick
 	SkillShot.BlindPrediction()
-	if tick > SkillShot.lastTrackTick + 25 then
+	if tick >= SkillShot.lastTrackTick + 250 then
 		SkillShot.__Track()
 		SkillShot.lastTrackTick = tick 	
 	end
@@ -63,15 +63,15 @@ end
 function SkillShot.__Track()
 	local all = entityList:GetEntities({type = LuaEntity.TYPE_HERO})
 	for i,v in ipairs(all) do
-		if SkillShot.trackTable[v.handle] == nil and v.alive then
-			SkillShot.trackTable[v.handle] = {}
-		elseif SkillShot.trackTable[v.handle] ~= nil and not v.alive then
+		if SkillShot.trackTable[v.handle] == nil and v.alive and v.visible then
+			SkillShot.trackTable[v.handle] = {nil,nil,nil,v,nil}
+		elseif SkillShot.trackTable[v.handle] ~= nil and (not v.alive or not v.visible) then
 			SkillShot.trackTable[v.handle] = nil
-		elseif SkillShot.trackTable[v.handle] and (not SkillShot.trackTable[v.handle].last or SkillShot.currentTick > SkillShot.trackTable[v.handle].last.tick) then
+		elseif SkillShot.trackTable[v.handle] then
 			if SkillShot.trackTable[v.handle].last ~= nil then
 				SkillShot.trackTable[v.handle].speed = (v.position - SkillShot.trackTable[v.handle].last.pos)/(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)
 			end
-			SkillShot.trackTable[v.handle].last = {pos = v.position:Clone(), tick = SkillShot.currentTick}
+			SkillShot.trackTable[v.handle].last = {pos = v.position, tick = SkillShot.currentTick}
 		end
 	end
 end
@@ -86,15 +86,24 @@ end
 
 function SkillShot.PredictedXYZ(t,delay)
 	if not t:CanMove() then
-		return Vector(t.position.x,t.position.y,0)
-	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed then
-		local v = t.position + SkillShot.trackTable[t.handle].speed * delay
+		return t.position
+	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and (SkillShot.trackTable[t.handle].speed ~= Vector(0,0,0) or t.activity ~= LuaEntityNPC.ACTIVITY_MOVE) then
+		local v
+		local pred = t.position + SkillShot.trackTable[t.handle].speed * delay
+		local pred2 = SkillShot.InFront(t,(delay/1000)*t.movespeed) + SkillShot.trackTable[t.handle].speed
+		if t.activity ~= LuaEntityNPC.ACTIVITY_MOVE or (GetDistance2D(pred,pred2) > 10 and GetDistance2D(pred,pred2) < 110) or SkillShot.AbilityMove(t) then
+			v = pred
+		else
+			v = pred2
+		end
 		return Vector(v.x,v.y,t.z or t.position.z)
 	end
 end
 
 function SkillShot.SkillShotXYZ(source,t,delay,speed)	
-	if source and t then
+	if not t:CanMove() then
+		return t.position
+	elseif source and t then
 		local sourcepos = source.position
 		if delay and SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed then 
 			local prediction = SkillShot.PredictedXYZ(t,delay) - sourcepos
@@ -113,7 +122,7 @@ function SkillShot.SkillShotXYZ(source,t,delay,speed)
 				local predictedTime = (-2*(delay2) - math.sqrt((2*delay2)^2 - 4*speed1*(prediction.x^2 + prediction.y^2)))/(2*speed1)
 				prediction2 = SkillShot.PredictedXYZ(t,delay + predictedTime)
 			end
-			return Vector(prediction2.x, prediction2.y, prediction2.z)
+			return Vector(prediction2.x, prediction2.y, t.position.z)
 		end
 	end
 end
@@ -236,4 +245,8 @@ function SkillShot.GetClosestPoint(A, _a, P,e)
     end
 end
 
+function SkillShot.AbilityMove(t)
+	return t:DoesHaveModifier("modifier_spirit_breaker_charge_of_darkness") or t:DoesHaveModifier("modifier_earth_spirit_boulder_smash") or t:DoesHaveModifier("modifier_earth_spirit_rolling_boulder_caster") or t:DoesHaveModifier("modifier_earth_spirit_geomagnetic_grip") or t:DoesHaveModifier("modifier_huskar_life_break_charge") or t:DoesHaveModifier("modifier_magnataur_skewer_movement")
+end
+	
 scriptEngine:RegisterLibEvent(EVENT_TICK,SkillShot.__TrackTick)
