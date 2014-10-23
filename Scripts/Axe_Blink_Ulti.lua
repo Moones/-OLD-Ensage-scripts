@@ -68,11 +68,11 @@ function Tick(tick)
 						local healthtokill = math.floor(v.health - culldamage + CastPoint*v.healthRegen+Moprhling(v,CastPoint))
 						hero[v.handle].text = "Health to kill: "..healthtokill
 						if active then
-							if healthtokill < 0 and GetDistance2D(me,v) < RangeB and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) then
+							if healthtokill < 0 and GetDistance2D(me,v) < RangeB and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) and Cullblade:CanBeCasted() then
 								if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
 									me:SafeCastItem(Blink.name,v.position)						
 								end
-							elseif healthtokill < 0 and GetDistance2D(me,v) < Range then
+							elseif healthtokill < 0 and GetDistance2D(me,v) < Range and Cullblade:CanBeCasted() then
 								if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
 									me:SafeCastAbility(Cullblade,v)	Sleep(200) break							
 								end
