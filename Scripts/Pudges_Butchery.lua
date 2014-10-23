@@ -345,7 +345,7 @@ function Combo(tick)
 			me:Attack(target)
 			end
 		end
-	else
+	elseif hooked then
 		entityList:GetMyPlayer():HoldPosition()
 	end
 end
