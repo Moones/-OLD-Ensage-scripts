@@ -18,7 +18,7 @@ local blink = drawMgr:CreateRect(-25,-70,35,20,0x000000ff) blink.visible = false
 
 function Tick(tick)
 	
-	if not SleepCheck() then return end	Sleep(200)
+	if not SleepCheck() then return end
 	local me = entityList:GetMyHero()	
 	if not me then return end
 	local ID = me.classId
@@ -74,13 +74,14 @@ function Tick(tick)
 								end
 							elseif healthtokill < 0 and GetDistance2D(me,v) < Range then
 								if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
-									me:SafeCastAbility(Cullblade,v)	break							
+									me:SafeCastAbility(Cullblade,v)	Sleep(200) break							
 								end
-							end
-						end
-						if (GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and v.activity ~= LuaEntityNPC.ACTIVITY_MOVE) or (SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency) and GetDistance2D(SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency),me)-25 <= call:GetSpecialData("radius",call.level)) then
-							me:SafeCastAbility(call)
-						end				
+							else
+								if (GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and v.activity ~= LuaEntityNPC.ACTIVITY_MOVE) or (SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency) and GetDistance2D(SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency),me)-25 <= call:GetSpecialData("radius",call.level)) then
+									me:SafeCastAbility(call) Sleep(200)
+								end
+							end		
+						end		
 					else
 						hero[v.handle].visible = false
 					end
