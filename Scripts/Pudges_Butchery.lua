@@ -134,9 +134,7 @@ function Main(tick)
 
 	local hook = me:GetAbility(1)
 	local rot = me:GetAbility(2)
-	if rot.level > 0 then 
-		rottoggled = rot.toggled
-	end
+	
 	local offset = me.healthbarOffset
 	if not statusText.entity then
 		statusText.entity = me
@@ -147,9 +145,10 @@ function Main(tick)
 		targetText.entityPosition = Vector(0,0,offset)
 	end
 	if active then
+		local Rubick = entityList:GetEntities({type=LuaEntity.TYPE_HERO,classId=CDOTA_Unit_Hero_Rubick,team=me:GetEnemyTeam(),illusion=false})[1] 
 		if hook.level > 0 and math.ceil(hook.cd) == math.ceil(hook:GetCooldown(hook.level)) then
 			xyz = nil
-			if rot.level > 0 and rot.toggled == false and not rot.abilityPhase and not rottoggled and SleepCheck("rot") then
+			if Rubick and rot.level > 0 and rot.toggled == false and not rot.abilityPhase and not rottoggled and SleepCheck("rot") then
 				rottoggled = true
 				me:ToggleSpell(rot.name)
 				Sleep(250 + client.latency, "rot")
@@ -294,7 +293,7 @@ function Combo(tick)
 		else
 			statusText.text = "Hook'em - Manual!"
 		end
-		if W.toggled == true then
+		if W.toggled == true or rottoggled then
 			me:SafeToggleSpell(W.name)
 		end
 		active = true
