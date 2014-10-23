@@ -286,7 +286,7 @@ function Combo(tick)
 	local W = abilities[2]
 	local R = abilities[4]
 	
-	if not target or not target.alive or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) or (me:GetDistance2D(target) > minRange and not hooked) or count == 2 then
+	if not target or not target.alive or target:IsIllusion() or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) or (me:GetDistance2D(target) > minRange and not hooked) or count == 2 then
 		targetHandle = nil
 		targetText.visible = false
 		if not manualselection then
