@@ -202,7 +202,7 @@ function Main(tick)
 				end
 				if v.visible and v.health <= 150 and me:FindItem("item_urn_of_shadows") and SleepCheck("urn") and not targetHandle and GetDistance2D(me,v) <= 950 and GetDistance2D(me,v) > me.attackRange then
 					local close_allies = entityList:GetEntities(function (ent) return ent.type == LuaEntity.TYPE_HERO and ent.alive and GetDistance2D(v,ent) < ent.attackRange end)
-					if  #close_allies > 0 then
+					if close_allies and #close_allies > 0 then
 						me:SafeCastAbility(me:FindItem("item_urn_of_shadows"), v)
 						Sleep(250,"urn")
 					end
