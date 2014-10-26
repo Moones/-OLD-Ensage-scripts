@@ -162,7 +162,7 @@ function Main(tick)
 				if GetDistance2D(testxyz,me) > RangeH[hook.level] then
 					testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
 				end
-				if ((GetDistance2D(testxyz,xyz) > GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(hook:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency, client.latency+hook:FindCastPoint()*1000)),victim)+100)) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
+				if ((GetDistance2D(testxyz,xyz) > GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(hook:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency-100, client.latency+hook:FindCastPoint()*1000+100)),victim))) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
 					me:Stop()
 					me:SafeCastAbility(hook, testxyz)
 					xyz = testxyz
