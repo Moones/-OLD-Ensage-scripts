@@ -313,7 +313,8 @@ function Combo(tick)
 			Sleep(250 + client.latency, "rot")
 		end
 	end
-		
+	
+	local ethereal = me:FindItem("item_ethereal_blade")	
 	local urn = me:FindItem("item_urn_of_shadows")
 	local aga = me:FindItem("item_ultimate_scepter")
 	
@@ -338,6 +339,11 @@ function Combo(tick)
 			end
 		end
 	end
+
+	if ethereal and ethereal:CanBeCasted() and not target:IsMagicImmune() then
+		me:SafeCastItem(ethereal.name,target)
+	end
+
 	if not hooked or GetDistance2D(me, target) < 1600*(0.3 + client.latency/1000) then
 		if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and ((target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target)) then 
 			me:SafeCastSpell(R.name,target)
