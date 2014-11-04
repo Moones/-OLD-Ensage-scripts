@@ -1,8 +1,9 @@
+--<<Pudge's Butchery script by Moones version 1.8.1>>
 --[[
 	-------------------------------------
 	| Pudge's Butchery Script by Moones |
 	-------------------------------------
-	========== Version 1.7.1 ============
+	========== Version 1.8.1 ============
 	 
 	Description:
 	------------
@@ -22,6 +23,10 @@
 	   
 	Changelog:
 	----------
+		Update 1.8.1:
+			Hooking will now properly stop when hotkey is pressed or when StopKey is pressed
+			Added HookTolerancy - higher number means less hook canceling but also means less accuracy. Tested with 2000 when it was not canceling anymore, so value less than 2000 is recommended.
+	
 		Update 1.8:
 			Fixed inaccurate hook
 			Added hook canceling
@@ -77,7 +82,9 @@ require("libs.VectorOp")
 config = ScriptConfig.new()
 config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:SetParameter("Hookkey", "D", config.TYPE_HOTKEY)
+config:SetParameter("StopKey", "S", config.TYPE_HOTKEY)
 config:SetParameter("ManualtoggleKey", "G", config.TYPE_HOTKEY)
+config:SetParameter("HookTolerancy", 0)
 config:Load()
 
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
@@ -105,6 +112,9 @@ function Key(msg,code)
 					victimText.visible = false
 				end
 			end
+			if xyz then 
+				xyz = nil
+			end
 		elseif code == manualtogglekey then
 			if active then
 				if not manualselection then
@@ -115,7 +125,9 @@ function Key(msg,code)
 					statusText.text = "  Hook'em!"
 				end
 			end
-		end	
+		elseif code == config.StopKey and xyz then
+			xyz = nil
+		end
 	elseif msg == RBUTTON_UP then
 		if targetHandle then
 			if count == 0 then
@@ -136,10 +148,8 @@ function Main(tick)
 	local rot = me:GetAbility(2)
 	
 	local offset = me.healthbarOffset
-	if not statusText.entity then
-		statusText.entity = me
-		statusText.entityPosition = Vector(0,0,offset)
-	end
+	statusText.entity = me
+	statusText.entityPosition = Vector(0,0,offset)
 	if not targetText.entity then
 		targetText.entity = me
 		targetText.entityPosition = Vector(0,0,offset)
@@ -154,7 +164,14 @@ function Main(tick)
 				Sleep(250 + client.latency, "rot")
 			end
 		end
-		if ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
+		if IsKeyDown(config.StopKey) or IsKeyDown(togglekey) then
+			xyz = nil
+			if SleepCheck("stopkey") and not client.chat then
+				me:Stop()
+				Sleep(client.latency + 200, "stopkey")
+			end
+		end
+		if not IsKeyDown(config.StopKey) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
 			local speed = 1600 
 			local delay = (300+client.latency)
 			local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
@@ -162,7 +179,7 @@ function Main(tick)
 				if GetDistance2D(testxyz,me) > RangeH[hook.level] then
 					testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
 				end
-				if ((GetDistance2D(testxyz,xyz) > GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(hook:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency-100, client.latency+hook:FindCastPoint()*1000+100)),victim))) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
+				if ((GetDistance2D(testxyz,xyz) > math.max(GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(hook:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency-100+config.HookTolerancy, client.latency+hook:FindCastPoint()*1000+100)),victim), 25))) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
 					me:Stop()
 					me:SafeCastAbility(hook, testxyz)
 					xyz = testxyz
