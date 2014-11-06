@@ -317,7 +317,8 @@ function Tick( tick )
 					if GetDistance2D(v,me) < 160 then
 						Nyx()
 					end
-				elseif v:GetProperty("CBaseAnimating","m_nSequence") == 21 then
+				end
+				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
 					if GetDistance2D(v,me) < 400 then
 						PuckW(true)	
 					end
