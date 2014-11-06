@@ -338,7 +338,7 @@ function Tick( tick )
 					if GetDistance2D(v,me) < 420 then
 						if not timerp then
 							timerp = client.gameTime
-						elseif client.gameTime >= timerp+v:GetAbility(4):FindCastPoint()-0.25-client.latency/1000 then
+						elseif client.gameTime >= timerp+v:GetAbility(4):FindCastPoint()-0.1-client.latency/1000 then							
 							UseManta()
 							timerp = nil
 						end
