@@ -162,6 +162,7 @@ function Tick( tick )
 							UseOrchidtarget()
 							PLDoppleganger()
 							Emberremnantnow()
+							Nyx()
 						end
 					end
 				end
@@ -255,7 +256,7 @@ function Tick( tick )
 					end
 				end
 			elseif v.name == "npc_dota_bloodseeker" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 14 then
+				if  v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
 					if GetDistance2D(v,me) < 1000 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -268,7 +269,7 @@ function Tick( tick )
 					end
 				end
 			elseif v.name == "npc_dota_hero_night_stalker" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 5 then
+				if  v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
 					if GetDistance2D(v,me) < 535 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -277,7 +278,7 @@ function Tick( tick )
 					end
 				end
 			elseif v.name == "npc_dota_hero_luna" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 8 or v:GetProperty("CBaseAnimating","m_nSequence") == 10 then
+				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
 					if GetDistance2D(v,me) < 810 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -306,16 +307,16 @@ function Tick( tick )
 					end
 				end
 			elseif v.name == "npc_dota_hero_magnataur" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 11 then
-					if GetDistance2D(v,me) < 500 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-						if turntime == 0 then
-							Nyx()
-							StormUltfront2(300)
-						end
-					end
-					if GetDistance2D(v,me) < 160 then
-						Nyx()
+				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
+					if GetDistance2D(v,me) < 200 then
+						PuckW(true)	
+						target = v
+						UseShadowBlade()
+						Useblackking()
+						UseEulScepterSelf()
+						UseBlinkDagger()
+						UseSheepStickTarget()
+						UseOrchidtarget()
 					end
 				end
 				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
@@ -333,8 +334,22 @@ function Tick( tick )
 						UseOrchidtarget()
 					end
 				end
+				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
+					if GetDistance2D(v,me) < 420 then
+						if not timerp then
+							timerp = client.gameTime
+						elseif client.gameTime >= timerp+v:GetAbility(4):FindCastPoint()-0.25-client.latency/1000 then
+							UseManta()
+							timerp = nil
+						end
+					end	
+				else
+					if not (v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase) then
+						timerp = nil
+					end
+				end
 			elseif v.name == "npc_dota_hero_tinker" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 5 then
+				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
 					if GetDistance2D(v,me) < 680 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -352,7 +367,7 @@ function Tick( tick )
 					end
 				end
 			elseif v.name == "npc_dota_hero_ogre_magi" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 9 then
+				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
 					if GetDistance2D(v,me) < 650 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -385,7 +400,7 @@ function Tick( tick )
 						Useblackking()
 						UseEulScepterSelf()
 						wait = 0						
-				elseif v:GetProperty("CBaseAnimating","m_nSequence") == 10 then
+				elseif  v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase then
 					if GetDistance2D(v,me) < 760 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -403,18 +418,16 @@ function Tick( tick )
 				end
 			elseif v.name == "npc_dota_hero_templar_assassin" then
 		        if v:DoesHaveModifier("modifier_templar_assassin_meld") then                                                      
-					if v:GetProperty("CBaseAnimating","m_nSequence") == 4 or v:GetProperty("CBaseAnimating","m_nSequence") == 5 or v:GetProperty("CBaseAnimating","m_nSequence") == 6 then
-						if GetDistance2D(v,me) < 390 then
-							turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
-							if turntime == 0 then
-								if wait == 0 then
-									waittime = GetTick() + 1 - (client.avgLatency / 1000)
-									wait = 1 
-								else
-									if GetTick() > waittime then
-										Nyx()
-										wait = 0
-									end
+					if GetDistance2D(v,me) < 390 then
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
+						if turntime == 0 then
+							if wait == 0 then
+								waittime = GetTick() + 1 - (client.avgLatency / 1000)
+								wait = 1 
+							else
+								if GetTick() > waittime then
+									Nyx()
+									wait = 0
 								end
 							end
 						end
@@ -422,7 +435,7 @@ function Tick( tick )
 				end
 			elseif v.name == "npc_dota_hero_clinkz" then
 		        if v:DoesHaveModifier("modifier_clinkz_strafe") then                                                      
-					if v:GetProperty("CBaseAnimating","m_nSequence") == 4 then
+					if v.activity == LuaEntityNPC.ACTIVITY_ATTACK then
 						if GetDistance2D(v,me) < 650 then
 							turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 							if turntime == 0 then
@@ -439,22 +452,8 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_faceless_void" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 16 then
-					if GetDistance2D(v,me) < 950 then
-						if wait == 0 then
-							waittime = GetTick() + 100 - (client.avgLatency / 1000)
-							wait = 1 
-						else
-							if GetTick() > waittime then
-								Nyx()
-								wait = 0
-							end
-						end
-					end
-				end
 			elseif v.name == "npc_dota_hero_phantom_assassin" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 10 then
+				if v.activity == LuaEntityNPC.ACTIVITY_CRIT then
 					if GetDistance2D(v,me) < 360 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.60, 0))
 						if turntime == 0 then
@@ -477,7 +476,7 @@ function Tick( tick )
 				end
 			elseif v.name == "npc_dota_hero_tusk" then
 		        if v:DoesHaveModifier("modifier_tusk_walrus_punch") then                                                      
-					if v:GetProperty("CBaseAnimating","m_nSequence") == 7 or v:GetProperty("CBaseAnimating","m_nSequence") == 8 then
+					if v.activity == LuaEntityNPC.ACTIVITY_ATTACK then
 						if GetDistance2D(v,me) < 360 then
 							turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.60, 0))
 							if turntime == 0 then
@@ -496,7 +495,7 @@ function Tick( tick )
 				end
 			elseif v.name == "npc_dota_hero_ursa" then
 		        if v:DoesHaveModifier("modifier_ursa_overpower") then                                                      
-					if v:GetProperty("CBaseAnimating","m_nSequence") == 8 or v:GetProperty("CBaseAnimating","m_nSequence") == 9 then
+					if v.activity == LuaEntityNPC.ACTIVITY_ATTACK then
 						if GetDistance2D(v,me) < 360 then
 							turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.60, 0))
 							if turntime == 0 then
@@ -512,7 +511,7 @@ function Tick( tick )
 							end
 						end
 					end
-				elseif v:GetProperty("CBaseAnimating","m_nSequence") == 10 then
+				elseif v:GetAbility(1) and v:GetAbility(1):CanBeCasted() and v:GetAbility(1).abilityPhase then
 					if GetDistance2D(v,me) < 389 then
 						if wait == 0 then
 							waittime = GetTick() + 10 - (client.avgLatency / 1000)
@@ -526,7 +525,7 @@ function Tick( tick )
 					end
 				end
 			elseif v.name == "npc_dota_hero_undying" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 17 then
+				if v:GetAbility(1) and v:GetAbility(1):CanBeCasted() and v:GetAbility(1).abilityPhase then
 					if GetDistance2D(v,me) < 760 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -543,7 +542,7 @@ function Tick( tick )
 					end
 				end
 			elseif v.name == "npc_dota_hero_abaddon" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 8 then
+				if v:GetAbility(1) and v:GetAbility(1):CanBeCasted() and v:GetAbility(1).abilityPhase then
 					if GetDistance2D(v,me) < 820 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -560,7 +559,7 @@ function Tick( tick )
 					end
 				end
 			elseif v.name == "npc_dota_hero_bounty_hunter" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 4 then
+				if v:GetAbility(1) and v:GetAbility(1):CanBeCasted() and v:GetAbility(1).abilityPhase then
 					if GetDistance2D(v,me) < 660 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -577,7 +576,7 @@ function Tick( tick )
 					end
 				end
 			elseif v.name == "npc_dota_hero_troll_warlord" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 37 then
+				if v:GetAbility(2) and v:GetAbility(2):CanBeCasted() and v:GetAbility(2).abilityPhase then
 					if GetDistance2D(v,me) < 450 then
 						if wait == 0 then
 							waittime = GetTick() + 100 - (client.avgLatency / 1000)
@@ -694,18 +693,18 @@ function Tick( tick )
 							end
 						end
 					end
-				end
-			elseif v:GetProperty("CBaseAnimating","m_nSequence") == 8 then
-				if GetDistance2D(v,me) < 340 then
-					turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 1.7, 0))
-					if turntime == 0 then
-						if wait == 0 then
-							waittime = GetTick() + 150 - (client.avgLatency / 1000)
-							wait = 1 
-						else
-							if GetTick() > waittime then
-								Nyx()
-								wait = 0
+				elseif v:GetProperty("CBaseAnimating","m_nSequence") == 8 then
+					if GetDistance2D(v,me) < 340 then
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 1.7, 0))
+						if turntime == 0 then
+							if wait == 0 then
+								waittime = GetTick() + 150 - (client.avgLatency / 1000)
+								wait = 1 
+							else
+								if GetTick() > waittime then
+									Nyx()
+									wait = 0
+								end
 							end
 						end
 					end
@@ -1661,7 +1660,7 @@ function Tick( tick )
 							end
 						end
 					elseif v:GetAbility(t).name == "dragon_knight_breathe_fire" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) or v:GetAbility(t).abilityPhase then
 							if GetDistance2D(v,me) < 620 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 								if turntime == 0 then
@@ -1711,7 +1710,7 @@ function Tick( tick )
 									Puck()
 								end
 							end	
-						end				
+						end	
 					elseif v:GetAbility(t).name == "nyx_assassin_impale" then
 						if math.ceil(v:GetAbility(t).cd - 12.9) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 800 then
