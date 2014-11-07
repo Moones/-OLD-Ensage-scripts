@@ -77,7 +77,7 @@ function Tick(tick)
 									me:SafeCastAbility(Cullblade,v)	Sleep(200) break							
 								end
 							else
-								if not v:IsMagicImmune() and not v:IsInvul() and (GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and v.activity ~= LuaEntityNPC.ACTIVITY_MOVE) or (SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency) and GetDistance2D(SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency),me) <= call:GetSpecialData("radius",call.level)) then
+								if not v:IsMagicImmune() and not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) then
 									me:SafeCastAbility(call) Sleep(200)
 								end
 							end		
