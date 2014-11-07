@@ -938,7 +938,7 @@ function Tick( tick )
 						Embersleighttargetcal()
 						PLDoppleganger()
 						return
-					elseif k.name == "necrolyte_pulse_enemy" and GetDistance2D(me,k) < 200 then
+					elseif k.name == "necrolyte_pulse_enemy" and GetDistance2D(me,k.position) < 200 then
 						Nyx()
 						Puck()
 						LoneDruidUlt()
