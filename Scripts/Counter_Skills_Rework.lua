@@ -148,7 +148,7 @@ function Tick( tick )
 				end
 			elseif v.name == "npc_dota_hero_faceless_void" then
 				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 1025 then
+					if GetDistance2D(v,me) <= 1050 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 2, 0))
 						if turntime == 0 then
 							UseBlinkDagger()
@@ -158,8 +158,12 @@ function Tick( tick )
 							else
 								Puck()
 							end
+							target = v
 							UseSheepStickTarget()
 							UseOrchidtarget()
+							UseHalberdtarget()
+							RazorStaticLink()
+							UseEtherealtarget()
 							PLDoppleganger()
 							Emberremnantnow()
 							Nyx()
@@ -1358,6 +1362,8 @@ function Tick( tick )
 						UseOrchidtarget()
 						PLDoppleganger()
 						Emberremnantnow()
+						UseHalberdtarget()
+						RazorStaticLink()
 						return
 					end
 				end
@@ -1522,6 +1528,9 @@ function Tick( tick )
 									UseBlinkDagger()
 									UseShadowBlade()
 									PLDoppleganger()
+									UseHalberdtarget()
+									RazorStaticLink()
+									UseEtherealtarget()
 								end
 							end
 						end
@@ -2077,6 +2086,9 @@ function Tick( tick )
 										Puck()
 										UseBlinkDagger()
 									end
+									UseHalberdtarget()
+									RazorStaticLink()
+									UseEtherealtarget()
 									PLDoppleganger()
 									Emberremnantnow()
 								end
@@ -2181,6 +2193,17 @@ function Phoenixsupernova()
 		local supernova = me:FindSpell("phoenix_supernova")
 		if supernova and supernova.level > 0 and supernova:CanBeCasted() and me:CanCast() then	
 			me:CastAbility(supernova)
+			activated = 1
+			sleepTick = GetTick() + 500
+		end
+	end
+end
+
+function RazorStaticLink()
+	if activated == 0 then
+		local static_link = me:FindSpell("razor_static_link")
+		if target and static_link and static_link.level > 0 and static_link:CanBeCasted() and me:CanCast() and GetDistance2D(me,target) <= 600 then
+			me:SafeCastAbility(static_link,target)
 			activated = 1
 			sleepTick = GetTick() + 500
 		end
