@@ -77,7 +77,8 @@ function Tick(tick)
 									me:SafeCastAbility(Cullblade,v)	Sleep(200) break							
 								end
 							else
-								if not v:IsMagicImmune() and not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) then
+								local pred = SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency)
+								if not v:IsMagicImmune() and not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and ((pred and GetDistance2D(pred,me)-25 <= call:GetSpecialData("radius",call.level)) or not pred) then
 									me:SafeCastAbility(call) Sleep(200)
 								end
 							end		
