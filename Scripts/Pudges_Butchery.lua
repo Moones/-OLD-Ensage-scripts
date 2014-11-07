@@ -295,7 +295,7 @@ function Main(tick)
 end
 
 function Combo(tick)
-	if tick < sleeptick or not PlayingGame() or client.console or client.paused then return end
+	if tick < sleeptick or not PlayingGame() or client.console or client.paused or not SleepCheck("combo") then return end
 	sleeptick = tick + 30 + client.latency
 	local me = entityList:GetMyHero()
 	
@@ -357,13 +357,15 @@ function Combo(tick)
 		end
 	end
 
-	if ethereal and ethereal:CanBeCasted() and not target:IsMagicImmune() then
+	if ethereal and ethereal:CanBeCasted() and not target:IsMagicImmune() and ((R.level > 0 and not R.abilityPhase) or R.level == 0) then
 		me:SafeCastItem(ethereal.name,target)
 	end
 
 	if not hooked or GetDistance2D(me, target) < 1600*(0.3 + client.latency/1000) then
 		if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and ((target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target)) then 
 			me:SafeCastSpell(R.name,target)
+			Sleep(1000, "combo")
+			return
 		elseif not me:IsChanneling() then
 			if distance > 150 and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) then
 				me:Move(target.position)
