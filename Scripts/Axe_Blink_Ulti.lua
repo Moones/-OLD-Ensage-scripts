@@ -4,12 +4,13 @@ require("libs.SkillShot")
 
 local config = ScriptConfig.new()
 config:SetParameter("Hotkey", "D", config.TYPE_HOTKEY)
+config:SetParameter("CallHotkey", "F", config.TYPE_HOTKEY)
 config:Load()
 
 local toggleKey = config.Hotkey
 
 local hero = {} local reg = false
-local active = true local myhero = nil
+local active = true local myhero = nil local callactive = true
 local eff,eff1 = nil,nil
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor)
@@ -76,9 +77,9 @@ function Tick(tick)
 								if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
 									me:SafeCastAbility(Cullblade,v)	Sleep(200) break							
 								end
-							else
+							elseif callactive then
 								local pred = SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency)
-								if not v:IsMagicImmune() and not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and ((pred and GetDistance2D(pred,me)-25 <= call:GetSpecialData("radius",call.level)) or not pred) then
+								if not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and ((pred and GetDistance2D(pred,me)-25 <= call:GetSpecialData("radius",call.level)) or not pred) then
 									me:SafeCastAbility(call) Sleep(200)
 								end
 							end		
@@ -96,6 +97,8 @@ function Key(msg,code)
 	if client.chat then return end
 	if IsKeyDown(toggleKey) then
 		active = not active
+	elseif IsKeyDown(config.CallHotey) then
+		callactive = not callactive
 	end
 end
 
@@ -137,6 +140,8 @@ function Load()
 			script:Disable() 
 		else
 			reg = true
+			callactive = true
+			active = true
 			myhero = me.classId
 			script:RegisterEvent(EVENT_TICK,Tick)
 			script:RegisterEvent(EVENT_KEY,Key)
