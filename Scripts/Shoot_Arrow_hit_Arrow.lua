@@ -107,31 +107,31 @@ function Main(tick)
 
 					if disruption then              
 						if GetDistance2D(v,me) <= 2200 then
-							if (disruption.remainingTime * 857) == GetDistance2D(v,me)+115 or ((disruption.remainingTime * 857) < GetDistance2D(v,me)+115 and (disruption.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+							if (disruption.remainingTime * 857) == GetDistance2D(v,me)+428 or ((disruption.remainingTime * 857) < GetDistance2D(v,me)+428 and (disruption.remainingTime * 857)+25 > GetDistance2D(v,me)) then
 								victim = v shoot = true timing = true break return
 							end
 						end             
 					elseif astral then
 						if GetDistance2D(v,me) <= (astral.remainingTime*857+57.5) then
-							if (astral.remainingTime * 857) == GetDistance2D(v,me)+200 or ((astral.remainingTime * 857) < GetDistance2D(v,me)+200 and (astral.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+							if (astral.remainingTime * 857) == GetDistance2D(v,me)+428 or ((astral.remainingTime * 857) < GetDistance2D(v,me)+428 and (astral.remainingTime * 857)+25 > GetDistance2D(v,me)) then
 								victim = v shoot = true timing = true break return
 							end
 						end
 					elseif eul then
 						if GetDistance2D(v,me) <= ( eul.remainingTime*857+57.5) then
-							if (eul.remainingTime * 857) == GetDistance2D(v,me)+140 or (( eul.remainingTime * 857) < GetDistance2D(v,me)+140 and ( eul.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+							if (eul.remainingTime * 857) == GetDistance2D(v,me)+428 or (( eul.remainingTime * 857) < GetDistance2D(v,me)+428 and ( eul.remainingTime * 857)+25 > GetDistance2D(v,me)) then
 								victim = v shoot = true timing = true break return
 							end
 						end
 					elseif tornado then
 						if GetDistance2D(v,me) <= ( tornado.remainingTime*857+57.5) then
-							if (tornado.remainingTime * 857) == GetDistance2D(v,me)+140 or (( tornado.remainingTime * 857) < GetDistance2D(v,me)+140 and ( tornado.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+							if (tornado.remainingTime * 857) == GetDistance2D(v,me)+428 or (( tornado.remainingTime * 857) < GetDistance2D(v,me)+428 and ( tornado.remainingTime * 857)+25 > GetDistance2D(v,me)) then
 								victim = v shoot = true timing = true break return
 							end
 						end
 					elseif nightmare then
 						if GetDistance2D(v,me) <= ( nightmare.remainingTime*857+57.5) then
-							if (nightmare.remainingTime * 857) == GetDistance2D(v,me)+160 or (( nightmare.remainingTime * 857) < GetDistance2D(v,me)+160 and ( nightmare.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+							if (nightmare.remainingTime * 857) == GetDistance2D(v,me)+428 or (( nightmare.remainingTime * 857) < GetDistance2D(v,me)+428 and ( nightmare.remainingTime * 857)+25 > GetDistance2D(v,me)) then
 								victim = v shoot = true timing = true break return
 							end
 						end	
@@ -139,7 +139,7 @@ function Main(tick)
 					for i,m in ipairs(v.modifiers) do
 						if m and m.stunDebuff then
 							if GetDistance2D(v,me) <= ( m.remainingTime*857+57.5) then
-								if (m.remainingTime * 857) == GetDistance2D(v,me)+180 or (( m.remainingTime * 857) < GetDistance2D(v,me)+180 and ( m.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+								if (m.remainingTime * 857) == GetDistance2D(v,me)+428 or (( m.remainingTime * 857) < GetDistance2D(v,me)+428 and ( m.remainingTime * 857)+25 > GetDistance2D(v,me)) then
 									victim = v shoot = true timing = true break return
 								end
 							end
