@@ -60,10 +60,8 @@ function Main(tick)
 
 	local offset = me.healthbarOffset
 
-	if not statusText.entity then
-		statusText.entity = me
-		statusText.entityPosition = Vector(0,0,offset)
-	end
+	statusText.entity = me
+	statusText.entityPosition = Vector(0,0,offset)
 
 	local arrow = me:GetAbility(2)
 
