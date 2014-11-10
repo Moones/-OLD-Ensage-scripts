@@ -4,16 +4,19 @@ require("libs.Utils")
 local config = ScriptConfig.new()
 config:SetParameter("Active", "U", config.TYPE_HOTKEY)
 config:SetParameter("TresholdPercent", 100) -- TresholdPercent for missing HP
+config:SetParameter("GUI x Position", 10)
+config:SetParameter("GUI y Position", 580)
 config:Load()
 
 local toggleKey = config.Active
+local x,y = config:GetParameter("GUI x Position"), config:GetParameter("GUI y Position")
 
 local reg = false local activ = true 
 local myhero = nil local onlyitems = false
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
-local statusText = drawMgr:CreateText(10*monitor,580*monitor,-1,"Auto Support: ON - Hotkey: ''"..string.char(toggleKey).."''",F14) statusText.visible = false
+local statusText = drawMgr:CreateText(x*monitor,y*monitor,-1,"Auto Support: ON - Hotkey: ''"..string.char(toggleKey).."''",F14) statusText.visible = false
 
 function SupportTick(tick)
 	if not SleepCheck() then return end Sleep(200)
