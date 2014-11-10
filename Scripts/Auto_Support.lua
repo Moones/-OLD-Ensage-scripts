@@ -9,7 +9,7 @@ config:SetParameter("GUIyPosition", 580)
 config:Load()
 
 local toggleKey = config.Active
-local x,y = config:GetParameter("GUI x Position"), config:GetParameter("GUI y Position")
+local x,y = config:GetParameter("GUIxPosition"), config:GetParameter("GUIyPosition")
 
 local reg = false local activ = true 
 local myhero = nil local onlyitems = false
