@@ -82,7 +82,7 @@ function SupportTick(tick)
 			Heal(me,3,{60, 105, 150, 195},2200000,1)
 		elseif ID == CDOTA_Unit_Hero_Chen then
 			Heal(me,5,{200, 300, 400},2200000,3,{6,5,4,3})
-			Save(me,nil,3,nil,nil,{200, 300, 400},5)
+			Save(me,nil,3,600,nil,{200, 300, 400},5)
 		elseif ID == CDOTA_Unit_Hero_Wisp then	
 			if me:GetAbility(1).name == "wisp_tether" then
 				Heal(me,1,me.healthRegen*18,1800,1,nil,true)
