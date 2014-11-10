@@ -4,8 +4,8 @@ require("libs.Utils")
 local config = ScriptConfig.new()
 config:SetParameter("Active", "U", config.TYPE_HOTKEY)
 config:SetParameter("TresholdPercent", 100) -- TresholdPercent for missing HP
-config:SetParameter("GUI x Position", 10)
-config:SetParameter("GUI y Position", 580)
+config:SetParameter("GUIxPosition", 10)
+config:SetParameter("GUIyPosition", 580)
 config:Load()
 
 local toggleKey = config.Active
