@@ -142,11 +142,11 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,specia
 								else
 									local ch = ClosestHero(v)
 									if ch then
-										if v.health <= (ClosestHeroDmg(v)*(ch.attackBaseTime/1+(ch.attackSpeed/100))*duration[save2.level])*(config.TresholdPercent/100) or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]*(config.TresholdPercent/100)) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
+										if v.health <= (ClosestHeroDmg(v)*(1 - v.dmgResist)*(ch.attackBaseTime/(1+(ch.attackSpeed/100)))*duration[save2.level])*(config.TresholdPercent/100) or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]*(config.TresholdPercent/100)) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
 											me:CastAbility(save2,v)
 										end	
 									else
-										if v.health <= ClosestHeroDmg(v)*(config.TresholdPercent/100) or (treshspell and treshspell.level > 0 and v.health <= tresh[treshspell.level]*(config.TresholdPercent/100)) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
+										if v.health <= ClosestHeroDmg(v)*(1 - v.dmgResist)*(config.TresholdPercent/100) or (treshspell and treshspell.level > 0 and v.health <= tresh[treshspell.level]*(config.TresholdPercent/100)) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
 											me:CastAbility(save2,v)
 										end	
 									end
@@ -191,7 +191,7 @@ function Heal(me,ability,amount,range,target,id,excludeme,special)
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() and healthAmount > 0 then
 					if v.alive and v.health > 0 and (not excludeme or v ~= me) and NetherWard(heal,v,me) then
 						if activ then
-							if (((v.maxHealth - v.health)*(config.TresholdPercent/100))  > (math.max(healthAmount + 100,150) + v.healthRegen*10) or v.health < ClosestHeroDmg(v)) and GetDistance2D(me,v) <= Range and IsInDanger(v) then								
+							if (((v.maxHealth - v.health)*(config.TresholdPercent/100))  > (math.max(healthAmount + 100,150) + v.healthRegen*10) or v.health < ClosestHeroDmg(v)*(1 - v.dmgResist)) and GetDistance2D(me,v) <= Range and IsInDanger(v) then								
 								if target == 1 then
 									ExecuteHeal(heal,v,me)	break
 								elseif target == 2 then
