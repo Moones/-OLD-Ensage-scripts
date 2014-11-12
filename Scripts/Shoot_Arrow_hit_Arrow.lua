@@ -18,6 +18,7 @@
 		Update 1.5:
 			Improved timing for shooting stunned or rooted enemies.
 			Added AutoArrow canceling.
+			Added line which draws prediction for arrow.
 		
 		Update 1.4a:
 			Fixed not shooting into fog.
@@ -50,6 +51,8 @@ config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:SetParameter("Arrowkey", "D", config.TYPE_HOTKEY)
 config:SetParameter("StopKey", "S", config.TYPE_HOTKEY)
 config:SetParameter("ArrowTolerancy", 800)
+config:SetParameter("ShowLineAlways", true)
+config:SetParameter("ShowLinefortimedArrow", true)
 config:Load()
 
 local key = config.Hotkey
@@ -64,6 +67,7 @@ local shoot = nil
 local victim = nil
 local timing = false
 local xyz = nil
+local line = {}
 
 function ArrowKey(msg,code)	
 	if msg ~= KEY_UP or client.chat then return end
@@ -122,6 +126,7 @@ function Main(tick)
 		if math.ceil(arrow.cd) == math.ceil(arrow:GetCooldown(arrow.level)) and timing then
 			timing = false
 			xyz = false
+			shoot = nil
 		end
 		if not IsKeyDown(config.StopKey) and ((arrow.abilityPhase and not SleepCheck("arrow")) and math.ceil(arrow.cd) ~= math.ceil(arrow:GetCooldown(arrow.level)) or not SleepCheck("arrow")) and xyz and victim and SleepCheck("testarrow") then
 			local speed = 857.14 
@@ -134,6 +139,7 @@ function Main(tick)
 				if not victim:DoesHaveModifier("modifier_eul_cyclone") and (((GetDistance2D(testxyz,xyz) > math.max(GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(arrow:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency-100+config.ArrowTolerancy, client.latency+arrow:FindCastPoint()*1000+100)),victim), 25))) or SkillShot.__GetBlock(me.position,testxyz,victim,115,false)) then
 					me:Stop()
 					me:SafeCastAbility(arrow, testxyz)
+					shoot = nil
 					xyz = testxyz
 					Sleep(math.max(arrow:FindCastPoint()*500 - client.latency,0),"testarrow")
 					Sleep(arrow:FindCastPoint()*1000+client.latency,"arrow")
@@ -141,6 +147,7 @@ function Main(tick)
 				end
 			elseif GetDistance2D(me,victim) > 3115 + 200 then
 				me:Stop()
+				shoot = nil
 				Sleep(math.max(arrow:FindCastPoint()*500 - client.latency,0),"testarrow")
 				Sleep(arrow:FindCastPoint()*1000+client.latency,"arrow")
 				return
@@ -155,13 +162,26 @@ function Main(tick)
 			if not timing then
 				statusText.text = "Shoot: " .. client:Localize(victim.name)
 			end
-			if SleepCheck("arrow") and shoot and arrow.level > 0 and me.alive then shoot = nil          
+			if SleepCheck("arrow") and arrow.level > 0 and me.alive then          
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 857.14 
 					local distance = GetDistance2D(victim, me)
 					local delay = (500+client.latency)
+					if xyz and SleepCheck("line") and (config.ShowLineAlways or (timing and config.ShowLinefortimedArrow)) then
+						for z = 1,(GetDistance2D(victim,me)+500)/50 do
+							local p = FindAB(me.position,xyz,50*z+50)
+							if p then
+								line[z] = Effect(p,"draw_commentator")
+								line[z]:SetVector(1,Vector(255,255,0))
+								line[z]:SetVector(0,p)
+							end
+						end
+						Sleep(500, "line")
+					else
+						line = {}
+					end
 					xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,115,false)
-					if xyz and distance <= 3115 then  
+					if shoot and xyz and distance <= 3115 then shoot = nil
 						me:SafeCastAbility(arrow, xyz)
 						Sleep(250,"arrow") 
 					end
@@ -169,6 +189,7 @@ function Main(tick)
 			end 
 		else
 			statusText.text = "Shoot Arrow hit Arrow!"
+			line = {}
 		end
 
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do
@@ -193,8 +214,9 @@ function Main(tick)
 								if m and (m.stunDebuff or m.name == k) then
 									if GetDistance2D(v,me) <= ( m.remainingTime*857+57.5) then
 										statusText.text = "Shooting timed Arrow on " .. client:Localize(v.name) .. " in " .. math.max(math.floor((((m.remainingTime) * 857) - (GetDistance2D(v,me)+428))/10)/100,0) .. " secs"
+										victim = v timing = true
 										if (m.remainingTime * 857) == GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) or (( m.remainingTime * 857) < GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) and ( m.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-											victim = v shoot = true timing = true break
+											shoot = true break
 										end
 									end
 								end
@@ -203,8 +225,9 @@ function Main(tick)
 									local song = mynaga:FindModifier("modifier_naga_siren_song_of_the_siren_aura")
 									if song and GetDistance2D(v,me) <= ( (song.remainingTime+0.55)*857+57.5) then
 										statusText.text = "Shooting timed Arrow on " .. client:Localize(v.name) .. " in " .. math.max(math.floor((((song.remainingTime+0.55) * 857) - (GetDistance2D(v,me)+428))/10)/100,0) .. " secs"
+										victim = v timing = true
 										if ((song.remainingTime+0.55) * 857) == GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) or (( (song.remainingTime+0.55) * 857) < GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) and ( (song.remainingTime+0.55) * 857)+25 > GetDistance2D(v,me)) then
-											victim = v shoot = true timing = true break
+											shoot = true break
 										end
 									end
 								end
@@ -230,6 +253,27 @@ function Main(tick)
 				end
 			end
 		end
+	end
+end
+
+function FindAB(first, second, distance)
+	local xAngle = math.deg(math.atan(math.abs(second.x - first.x)/math.abs(second.y - first.y)))
+	local retValue = nil
+	local retVector = Vector()
+	if first.x <= second.x and first.y >= second.y then
+			retValue = 270 + xAngle
+	elseif first.x >= second.x and first.y >= second.y then
+			retValue = (90-xAngle) + 180
+	elseif first.x >= second.x and first.y <= second.y then
+			retValue = 90+xAngle
+	elseif first.x <= second.x and first.y <= second.y then
+			retValue = 90 - xAngle
+	end
+	if retValue then
+		retVector = Vector(first.x + math.cos(math.rad(retValue))*distance,first.y + math.sin(math.rad(retValue))*distance,0)
+		client:GetGroundPosition(retVector)
+		retVector.z = retVector.z+100
+		return retVector
 	end
 end
 
