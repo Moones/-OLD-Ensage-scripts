@@ -18,7 +18,6 @@
 		Update 1.5:
 			Improved timing for shooting stunned or rooted enemies.
 			Added AutoArrow canceling.
-			Added line which draws prediction for arrow.
 		
 		Update 1.4a:
 			Fixed not shooting into fog.
@@ -51,6 +50,7 @@ config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:SetParameter("Arrowkey", "D", config.TYPE_HOTKEY)
 config:SetParameter("StopKey", "S", config.TYPE_HOTKEY)
 config:SetParameter("ArrowTolerancy", 800)
+config:SetParameter("LineSleep", 500)
 config:SetParameter("ShowLineAlways", true)
 config:SetParameter("ShowLinefortimedArrow", true)
 config:Load()
@@ -176,7 +176,7 @@ function Main(tick)
 								line[z]:SetVector(0,p)
 							end
 						end
-						Sleep(500, "line")
+						Sleep(config.LineSleep, "line")
 					else
 						line = {}
 					end
