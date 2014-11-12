@@ -121,6 +121,7 @@ function Main(tick)
 		end
 		if math.ceil(arrow.cd) == math.ceil(arrow:GetCooldown(arrow.level)) and timing then
 			timing = false
+			xyz = false
 		end
 		if not IsKeyDown(config.StopKey) and ((arrow.abilityPhase and not SleepCheck("arrow")) and math.ceil(arrow.cd) ~= math.ceil(arrow:GetCooldown(arrow.level)) or not SleepCheck("arrow")) and xyz and victim and SleepCheck("testarrow") then
 			local speed = 857.14 
