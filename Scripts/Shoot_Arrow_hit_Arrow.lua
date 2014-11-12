@@ -51,7 +51,7 @@ config:SetParameter("Arrowkey", "D", config.TYPE_HOTKEY)
 config:SetParameter("StopKey", "S", config.TYPE_HOTKEY)
 config:SetParameter("ArrowTolerancy", 800)
 config:SetParameter("LineSleep", 500)
-config:SetParameter("ShowLineAlways", true)
+config:SetParameter("ShowLineAlways", false)
 config:SetParameter("ShowLinefortimedArrow", true)
 config:Load()
 
@@ -172,7 +172,7 @@ function Main(tick)
 							local p = FindAB(me.position,xyz,50*z+50)
 							if p then
 								line[z] = Effect(p,"draw_commentator")
-								line[z]:SetVector(1,Vector(255,255,0))
+								line[z]:SetVector(1,Vector(65,105,255))
 								line[z]:SetVector(0,p)
 							end
 						end
