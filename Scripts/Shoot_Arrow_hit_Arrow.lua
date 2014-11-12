@@ -198,6 +198,19 @@ function Main(tick)
 										end
 									end
 								end
+								-- if v.name == "npc_dota_hero_centaur" then
+									-- print(m.name)
+								-- end
+								if m.name == "modifier_naga_siren_song_of_the_siren" then
+									local mynaga = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,classId=CDOTA_Unit_Hero_Naga_Siren})[1]
+									local song = mynaga:FindModifier("modifier_naga_siren_song_of_the_siren_aura")
+									if song and GetDistance2D(v,me) <= ( (song.remainingTime+0.55)*857+57.5) then
+										statusText.text = "Shooting timed Arrow on " .. client:Localize(v.name) .. " in " .. math.max(math.floor((((song.remainingTime+0.55) * 857) - (GetDistance2D(v,me)+428))/10)/100,0) .. " secs"
+										if ((song.remainingTime+0.55) * 857) == GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) or (( (song.remainingTime+0.55) * 857) < GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) and ( (song.remainingTime+0.55) * 857)+25 > GetDistance2D(v,me)) then
+											victim = v shoot = true timing = true break
+										end
+									end
+								end
 							end
 						end
 					end
