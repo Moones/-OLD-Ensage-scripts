@@ -1,3 +1,44 @@
+--<<Shoot Arrow Hit Arrow Script by Moones version 1.5>>
+--[[
+	-------------------------------------
+	| Shoot Arrow Hit Arrow Script by Moones |
+	-------------------------------------
+	========== Version 1.5 ============
+	 
+	Description:
+	------------
+	
+		AutoArrow with prediction:
+			- When hotkey is pressed Mirana will shoot arrow at enemy within Arrow range and with lowest HP.
+		Auto shoot perfectly timed Arrow:
+			- When enemy is stunned or rooted.
+	   
+	Changelog:
+	----------
+		Update 1.5:
+			Improved timing for shooting stunned or rooted enemies.
+			Added AutoArrow canceling.
+		
+		Update 1.4a:
+			Fixed not shooting into fog.
+
+		Update 1.4:
+			Added check if arrow can be blocked by units. Added checking if enemy in range of arrow is stunned, in that case Mirana will auto shoot perfectly timed arrow(with block check).
+
+		Update 1.3:
+			Added Blind Prediction - when enemy goes to fog or becomes invisible, Shoot BLIND Arrow! sign will appear and when you press the hotkey Mirana will shoot arrow with prediction based on enemy last facing angle and movement speed. If you also want to see what is prediction based on and current predicted enemy position enable with this script Blind Prediction script
+
+		Update 1.2:
+			Improved prediction, fixed arrow being too distant, updated SkillShot lib
+
+		Update 1.1b:
+			Added combo with Disruption, Astral Imprisonment, Nightmare, Shackles, Euls Cyclone: When one of these is used on enemy, Mirana will shoot the perfectly timed Arrow on it 
+
+		Update 1.0b:
+			First release. Bugs may appear, so feel free to report them.
+]]--
+
+
 require("libs.Utils")
 require("libs.ScriptConfig")
 require("libs.TargetFind")
@@ -7,6 +48,8 @@ require("libs.VectorOp")
 config = ScriptConfig.new()
 config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:SetParameter("Arrowkey", "D", config.TYPE_HOTKEY)
+config:SetParameter("StopKey", "S", config.TYPE_HOTKEY)
+config:SetParameter("ArrowTolerancy", 800)
 config:Load()
 
 local key = config.Hotkey
@@ -20,6 +63,7 @@ local active = true
 local shoot = nil
 local victim = nil
 local timing = false
+local xyz = nil
 
 function ArrowKey(msg,code)	
 	if msg ~= KEY_UP or client.chat then return end
@@ -67,22 +111,58 @@ function Main(tick)
 
 	if active then  
 		
+		if IsKeyDown(config.StopKey) or IsKeyDown(key) then
+			xyz = nil
+			if SleepCheck("stopkey") and not client.chat then
+				me:Stop()
+				Sleep(client.latency + 200, "stopkey")
+				Sleep(client.latency + 200, "testarrow")
+			end
+		end
+		if math.ceil(arrow.cd) == math.ceil(arrow:GetCooldown(arrow.level)) and timing then
+			timing = false
+		end
+		if not IsKeyDown(config.StopKey) and ((arrow.abilityPhase and not SleepCheck("arrow")) and math.ceil(arrow.cd) ~= math.ceil(arrow:GetCooldown(arrow.level)) or not SleepCheck("arrow")) and xyz and victim and SleepCheck("testarrow") then
+			local speed = 857.14 
+			local delay = (500+client.latency)
+			local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
+			if testxyz and (GetType(testxyz) == "Vector" or GetType(testxyz) == "Vector2D") and GetDistance2D(me,testxyz) <= 3115 and victim.alive then	
+				if GetDistance2D(testxyz,me) > 3115 then
+					testxyz = (testxyz - me.position) * (arrow.castRange - 100) / GetDistance2D(testxyz,me) + me.position
+				end
+				if not victim:DoesHaveModifier("modifier_eul_cyclone") and (((GetDistance2D(testxyz,xyz) > math.max(GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(arrow:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency-100+config.ArrowTolerancy, client.latency+arrow:FindCastPoint()*1000+100)),victim), 25))) or SkillShot.__GetBlock(me.position,testxyz,victim,115,false)) then
+					me:Stop()
+					me:SafeCastAbility(arrow, testxyz)
+					xyz = testxyz
+					Sleep(math.max(arrow:FindCastPoint()*500 - client.latency,0),"testarrow")
+					Sleep(arrow:FindCastPoint()*1000+client.latency,"arrow")
+					return
+				end
+			elseif GetDistance2D(me,victim) > 3115 + 200 then
+				me:Stop()
+				Sleep(math.max(arrow:FindCastPoint()*500 - client.latency,0),"testarrow")
+				Sleep(arrow:FindCastPoint()*1000+client.latency,"arrow")
+				return
+			end
+		end
+		
 		if not timing then
 			victim = targetFind:GetLowestEHP(3115, magic)
 		end
 		
-		if victim and GetDistance2D(victim,me) < 3115 then
-			statusText.text = "Shoot: " .. client:Localize(victim.name)
-			if shoot and arrow.level > 0 and me.alive then shoot = nil timing = false          
+		if arrow and arrow:CanBeCasted() and victim and GetDistance2D(victim,me) < 3115 then
+			if not timing then
+				statusText.text = "Shoot: " .. client:Localize(victim.name)
+			end
+			if SleepCheck("arrow") and shoot and arrow.level > 0 and me.alive then shoot = nil          
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
 					local speed = 857.14 
 					local distance = GetDistance2D(victim, me)
 					local delay = (500+client.latency)
-					local xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,115,false)
+					xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,115,false)
 					if xyz and distance <= 3115 then  
 						me:SafeCastAbility(arrow, xyz)
-						victim = nil
-						Sleep(250) 
+						Sleep(250,"arrow") 
 					end
 				end
 			end 
@@ -96,49 +176,26 @@ function Main(tick)
 
 				if v.team ~= me.team and GetDistance2D(v,me) < 3115 then
 
-					local disruption = v:FindModifier("modifier_shadow_demon_disruption")
-					local astral = v:FindModifier("modifier_obsidian_destroyer_astral_imprisonment_prison")
-					local eul = v:FindModifier("modifier_eul_cyclone")
-					local tornado = v:FindModifier("modifier_invoker_tornado")
-					local nightmare = v:FindModifier("modifier_bane_nightmare")
-					local shackles = v:FindModifier("modifier_shadow_shaman_shackles")
-
-					if disruption then              
-						if GetDistance2D(v,me) <= 2200 then
-							if (disruption.remainingTime * 857) == GetDistance2D(v,me)+428+(client.latency/1000 * 857) or ((disruption.remainingTime * 857) < GetDistance2D(v,me)+428 and (disruption.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								victim = v shoot = true timing = true break
-							end
-						end             
-					elseif astral then
-						if GetDistance2D(v,me) <= (astral.remainingTime*857+57.5) then
-							if (astral.remainingTime * 857) == GetDistance2D(v,me)+428+(client.latency/1000 * 857) or ((astral.remainingTime * 857) < GetDistance2D(v,me)+428 and (astral.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								victim = v shoot = true timing = true break
-							end
-						end
-					elseif eul then
-						if GetDistance2D(v,me) <= ( eul.remainingTime*857+57.5) then
-							if (eul.remainingTime * 857) == GetDistance2D(v,me)+428+(client.latency/1000 * 857) or (( eul.remainingTime * 857) < GetDistance2D(v,me)+428 and ( eul.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								victim = v shoot = true timing = true break
-							end
-						end
-					elseif tornado then
-						if GetDistance2D(v,me) <= ( tornado.remainingTime*857+57.5) then
-							if (tornado.remainingTime * 857) == GetDistance2D(v,me)+428+(client.latency/1000 * 857) or (( tornado.remainingTime * 857) < GetDistance2D(v,me)+428 and ( tornado.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								victim = v shoot = true timing = true break
-							end
-						end
-					elseif nightmare then
-						if GetDistance2D(v,me) <= ( nightmare.remainingTime*857+57.5) then
-							if (nightmare.remainingTime * 857) == GetDistance2D(v,me)+428+(client.latency/1000 * 857) or (( nightmare.remainingTime * 857) < GetDistance2D(v,me)+428 and ( nightmare.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-								victim = v shoot = true timing = true break
-							end
-						end	
-					end
-					for i,m in ipairs(v.modifiers) do
-						if m and m.stunDebuff then
-							if GetDistance2D(v,me) <= ( m.remainingTime*857+57.5) then
-								if (m.remainingTime * 857) == GetDistance2D(v,me)+428+(client.latency/1000 * 857) or (( m.remainingTime * 857) < GetDistance2D(v,me)+428 and ( m.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+					local modifiers_table = {"modifier_shadow_demon_disruption", "modifier_obsidian_destroyer_astral_imprisonment_prison", 
+					"modifier_eul_cyclone", "modifier_invoker_tornado", "modifier_bane_nightmare", "modifier_shadow_shaman_shackles", 
+					"modifier_crystal_maiden_frostbite", "modifier_ember_spirit_searing_chains", "modifier_axe_berserkers_call",
+					"modifier_lone_druid_spirit_bear_entangle_effect", "modifier_meepo_earthbind", "modifier_naga_siren_ensnare",
+					"modifier_storm_spirit_electric_vortex_pull", "modifier_treant_overgrowth"}
+					
+					if arrow and arrow:CanBeCasted() then
+						for i,m in ipairs(v.modifiers) do
+							for i,k in ipairs(modifiers_table) do
+								if m and m.name == "modifier_legion_commander_duel" then
+									statusText.text = "Shooting dueling" .. client:Localize(victim.name)
 									victim = v shoot = true timing = true break
+								end
+								if m and (m.stunDebuff or m.name == k) then
+									if GetDistance2D(v,me) <= ( m.remainingTime*857+57.5) then
+										statusText.text = "Shooting timed Arrow on " .. client:Localize(v.name) .. " in " .. math.max(math.floor((((m.remainingTime) * 857) - (GetDistance2D(v,me)+428))/10)/100,0) .. " secs"
+										if (m.remainingTime * 857) == GetDistance2D(v,me)+428+(client.latency/1000 * 857) or (( m.remainingTime * 857) < GetDistance2D(v,me)+428 and ( m.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+											victim = v shoot = true timing = true break
+										end
+									end
 								end
 							end
 						end
