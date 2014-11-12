@@ -85,14 +85,14 @@ function SkillShot.InFront(t,distance)
 end
 
 function SkillShot.PredictedXYZ(t,delay)
-	if not t:CanMove() then
+	if (SkillShot.trackTable[t.handle].speed and SkillShot.trackTable[t.handle].speed == Vector(0,0,0)) or t:IsInvul() then
 		return t.position
 	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and (GetType(SkillShot.trackTable[t.handle].speed) == "Vector" or GetType(SkillShot.trackTable[t.handle].speed) == "Vector2D") and (SkillShot.trackTable[t.handle].speed ~= Vector(0,0,0) or t.activity ~= LuaEntityNPC.ACTIVITY_MOVE) then
 		local pred = t.position + SkillShot.trackTable[t.handle].speed * delay
 		local pred2 = SkillShot.InFront(t,(delay/1000)*t.movespeed) + SkillShot.trackTable[t.handle].speed
 		local v = pred2
 		if pred and v then
-			if t.activity ~= LuaEntityNPC.ACTIVITY_MOVE or (GetDistance2D(pred,v) > 0 and GetDistance2D(pred,v) < 150) or SkillShot.AbilityMove(t) then
+			if t.activity ~= LuaEntityNPC.ACTIVITY_MOVE or (GetDistance2D(pred,v) > 0 and GetDistance2D(pred,v) < 150) or SkillShot.AbilityMove(t) or not t:CanMove() then
 				v = pred
 			end
 		end
@@ -102,7 +102,7 @@ function SkillShot.PredictedXYZ(t,delay)
 end
 
 function SkillShot.SkillShotXYZ(source,t,delay,speed)	
-	if not t:CanMove() then
+	if (SkillShot.trackTable[t.handle].speed and SkillShot.trackTable[t.handle].speed == Vector(0,0,0)) or t:IsInvul() then
 		return t.position
 	elseif source and t then
 		local sourcepos = source.position
