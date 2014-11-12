@@ -131,22 +131,22 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,specia
 								if treshspell and type(treshspell) == "number" then treshspell = me:GetAbility(treshspell) end
 								if target == 2 then
 									local needsave = nil
-									if treshspell and treshspell.level > 0 and IsInDanger(v) and GetDistance2D(me,v) <= Range then
+									if IncomingDamage(v,true) > v.health or (treshspell and treshspell.level > 0 and IsInDanger(v)) and GetDistance2D(me,v) <= Range then
 										if not needsave or (needsave and (v.maxHealth - v.health) > (needsave.maxHealth - needsave.health)) then
 											needsave = v
 										end
-										if needsave and (treshspell.cd ~= 0 or (treshspell.cd > treshspell:GetCooldown(treshspell.level)/2)) then
+										if needsave and (treshspell.cd ~= 0 or (treshspell.cd > treshspell:GetCooldown(treshspell.level)/2) or not treshspell:CanBeCasted()) then
 											me:CastAbility(save2,needsave)
 										end
 									end
 								else
 									local ch = ClosestHero(v)
 									if ch then
-										if v.health <= (ClosestHeroDmg(v)*(1 - v.dmgResist)*(ch.attackBaseTime/(1+(ch.attackSpeed/100)))*duration[save2.level])*(config.TresholdPercent/100) or (treshspell and treshspell.level > 0 and v.health < tresh[treshspell.level]*(config.TresholdPercent/100)) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
+										if v.health <= (IncomingDamage(v)*duration[save2.level]) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
 											me:CastAbility(save2,v)
 										end	
 									else
-										if v.health <= ClosestHeroDmg(v)*(1 - v.dmgResist)*(config.TresholdPercent/100) or (treshspell and treshspell.level > 0 and v.health <= tresh[treshspell.level]*(config.TresholdPercent/100)) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
+										if v.health <= IncomingDamage(v) or (treshspell and treshspell.level > 0 and v.health <= tresh[treshspell.level]*(config.TresholdPercent/100)) and IsInDanger(v) and GetDistance2D(me,v) <= Range then
 											me:CastAbility(save2,v)
 										end	
 									end
@@ -191,7 +191,7 @@ function Heal(me,ability,amount,range,target,id,excludeme,special)
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() and healthAmount > 0 then
 					if v.alive and v.health > 0 and (not excludeme or v ~= me) and NetherWard(heal,v,me) then
 						if activ then
-							if (((v.maxHealth - v.health)*(config.TresholdPercent/100))  > (math.max(healthAmount + 100,150) + v.healthRegen*10) or v.health < ClosestHeroDmg(v)*(1 - v.dmgResist)) and GetDistance2D(me,v) <= Range and IsInDanger(v) then								
+							if (((v.maxHealth - v.health)*(config.TresholdPercent/100))  > (math.max(healthAmount + 100,150) + v.healthRegen*10) or v.health < IncomingDamage(v)) and GetDistance2D(me,v) <= Range and IsInDanger(v) then								
 								if target == 1 then
 									ExecuteHeal(heal,v,me)	break
 								elseif target == 2 then
@@ -271,7 +271,7 @@ function IsInDanger(hero)
 			end
 		end
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=hero:GetEnemyTeam()})) do	
-			if GetDistance2D(hero,v) < (v.attackRange + 50) then
+			if GetDistance2D(hero,v) < GetAttackRange(v)+50 then
 				return true
 			end
 		end
@@ -284,14 +284,39 @@ function IsInDanger(hero)
 	end
 end
 
-function ClosestHeroDmg(hero)
+function IncomingDamage(hero,onlymagic)
 	if hero and hero.alive and hero.health > 0 then
 		local result = 0
-		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=hero:GetEnemyTeam()})) do	
-			if GetDistance2D(hero,v) < (v.attackRange + 50) then
-				result = result + v.dmgMin	
+		local results = {}
+		local resultsMagic = {}
+		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,team=hero:GetEnemyTeam()})) do	
+			if not onlymagic and not results[v.handle] and (isAttacking(v) or GetDistance2D(hero,v) < 200) and GetDistance2D(hero,v) <= GetAttackRange(v) + 50 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, hero))) - 0.20, 0)) == 0 then
+				result = result + v.dmgMax
+				results[v.handle] = true
 			end
-		end
+			for i,k in ipairs(entityList:GetProjectiles({target=hero})) do
+				local spell = v:FindSpell(k.name)
+				if spell and not resultsMagic[v.handle] and not resultsMagic[k.name] then
+					result = result + spell:GetDamage(spell.level)
+					resultsMagic[v.handle] = true
+					resultsMagic[k.name] = true
+				elseif not onlymagic and k.source and not results[k.source.handle] then
+					result = result + k.source.dmgMax	
+					results[k.source.handle] = true
+				end					
+			end		
+			for i,k in ipairs(hero.modifiers) do
+				local spell = v:FindSpell(k.name:gsub("modifier_",""))
+				if spell then
+					local damage = spell:GetDamage(spell.level)
+					if damage > 0 and not resultsMagic[v.handle] and not resultsMagic[k.handle] then
+						result = result + spell:GetDamage(spell.level)
+						resultsMagic[v.handle] = true
+						resultsMagic[k.handle] = true
+					end
+				end
+			end
+		end	
 		if result then
 			return result
 		else
@@ -304,13 +329,13 @@ function ClosestHero(hero)
 	if hero and hero.alive and hero.health > 0 then
 		local result = nil
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=hero:GetEnemyTeam()})) do	
-			if GetDistance2D(hero,v) < (v.attackRange + 50) then
+			if GetDistance2D(hero,v) < (GetAttackRange(v) + 50) then
 				if not result or GetDistance2D(result,hero) > GetDistance2D(hero,v) then
 					result = v
 				end	
 			end
-			return result
 		end
+		return result
 	end
 end
 
@@ -329,6 +354,31 @@ function Support(hId)
 	else
 		return false
 	end
+end
+
+function isAttacking(ent)
+	if ent.activity == LuaEntityNPC.ACTIVITY_ATTACK or ent.activity == LuaEntityNPC.ACTIVITY_ATTACK1 or ent.activity == LuaEntityNPC.ACTIVITY_ATTACK2 then
+		return true
+	end
+	return false
+end
+
+function GetAttackRange(hero)
+	local bonus = 0
+	if hero.classId == CDOTA_Unit_Hero_TemplarAssassin then		
+		local psy = hero:GetAbility(3)
+		psyrange = {60,120,180,240}			
+		if psy and psy.level > 0 then			
+			bonus = psyrange[psy.level]				
+		end			
+	elseif hero.classId == CDOTA_Unit_Hero_Sniper then		
+		local aim = hero:GetAbility(3)
+		aimrange = {100,200,300,400}			
+		if aim and aim.level > 0 then		
+			bonus = aimrange[aim.level]				
+		end			
+	end		
+	return hero.attackRange + bonus
 end
 
 function Activ(a)
