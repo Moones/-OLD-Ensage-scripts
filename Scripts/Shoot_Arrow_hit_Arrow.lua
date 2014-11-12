@@ -198,9 +198,6 @@ function Main(tick)
 										end
 									end
 								end
-								-- if v.name == "npc_dota_hero_centaur" then
-									-- print(m.name)
-								-- end
 								if m.name == "modifier_naga_siren_song_of_the_siren" then
 									local mynaga = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,classId=CDOTA_Unit_Hero_Naga_Siren})[1]
 									local song = mynaga:FindModifier("modifier_naga_siren_song_of_the_siren_aura")
