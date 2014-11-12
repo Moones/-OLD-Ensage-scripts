@@ -189,7 +189,10 @@ function Main(tick)
 			end 
 		else
 			statusText.text = "Shoot Arrow hit Arrow!"
-			line = {}
+			if line then
+				line = {}
+				collectgarbage("collect")
+			end
 		end
 
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do
