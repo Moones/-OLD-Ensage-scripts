@@ -192,7 +192,7 @@ function Main(tick)
 								if m and (m.stunDebuff or m.name == k) then
 									if GetDistance2D(v,me) <= ( m.remainingTime*857+57.5) then
 										statusText.text = "Shooting timed Arrow on " .. client:Localize(v.name) .. " in " .. math.max(math.floor((((m.remainingTime) * 857) - (GetDistance2D(v,me)+428))/10)/100,0) .. " secs"
-										if (m.remainingTime * 857) == GetDistance2D(v,me)+428+(client.latency/1000 * 857) or (( m.remainingTime * 857) < GetDistance2D(v,me)+428 and ( m.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+										if (m.remainingTime * 857) == GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) or (( m.remainingTime * 857) < GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) and ( m.remainingTime * 857)+25 > GetDistance2D(v,me)) then
 											victim = v shoot = true timing = true break
 										end
 									end
