@@ -168,6 +168,7 @@ function Tick( tick )
 							PLDoppleganger()
 							Emberremnantnow()
 							Nyx()
+							UseBladeMail()
 						end
 					end
 				end
@@ -1473,6 +1474,7 @@ function Tick( tick )
 								SlarkShadowDance()
 								TemplarMeld()
 								Useshadowamulet()
+								UseBladeMail()
 							end
 						end
 					elseif v:GetAbility(t).name == "mirana_starfall" then
