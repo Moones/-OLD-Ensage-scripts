@@ -297,9 +297,13 @@ function IncomingDamage(hero,onlymagic)
 			for i,k in ipairs(entityList:GetProjectiles({target=hero})) do
 				local spell = v:FindSpell(k.name)
 				if spell and not resultsMagic[v.handle] and not resultsMagic[k.name] then
-					result = result + spell:GetDamage(spell.level)
-					resultsMagic[v.handle] = true
-					resultsMagic[k.name] = true
+					local dmg = spell:GetDamage(spell.level)
+					if dmg <= 0 then dmg = spell:GetSpecialData("damage",spell.level) end
+					if dmg then
+						result = result + dmg
+						resultsMagic[v.handle] = true
+						resultsMagic[k.name] = true
+					end
 				elseif not onlymagic and k.source and not results[k.source.handle] then
 					result = result + k.source.dmgMax	
 					results[k.source.handle] = true
@@ -308,10 +312,21 @@ function IncomingDamage(hero,onlymagic)
 			for i,k in ipairs(hero.modifiers) do
 				local spell = v:FindSpell(k.name:gsub("modifier_",""))
 				if spell then
-					local damage = spell:GetDamage(spell.level)
-					if damage > 0 and not resultsMagic[v.handle] and not resultsMagic[k.handle] then
+					local dmg = spell:GetDamage(spell.level)
+					if dmg <= 0 then dmg = spell:GetSpecialData("damage",spell.level) end
+					if dmg and dmg > 0 and not resultsMagic[v.handle] and not resultsMagic[k.handle] then
 						result = result + spell:GetDamage(spell.level)
 						resultsMagic[v.handle] = true
+						resultsMagic[k.handle] = true
+					end
+				end
+			end
+			for i,k in ipairs(v.abilities) do
+				if (k.abilityPhase or k:CanBeCasted()) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, hero))) - 0.20, 0)) == 0 and not resultsMagic[k.handle] and GetDistance2D(v,me) <= k.castRange+50 then
+					local dmg = k:GetDamage(k.level)
+					if dmg <= 0 then dmg = k:GetSpecialData("damage",k.level) end
+					if dmg then
+						result = result + dmg
 						resultsMagic[k.handle] = true
 					end
 				end
