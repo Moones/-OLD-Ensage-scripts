@@ -21,14 +21,19 @@
 		
 		Update 1.4a:
 			Fixed not shooting into fog.
+
 		Update 1.4:
 			Added check if arrow can be blocked by units. Added checking if enemy in range of arrow is stunned, in that case Mirana will auto shoot perfectly timed arrow(with block check).
+
 		Update 1.3:
 			Added Blind Prediction - when enemy goes to fog or becomes invisible, Shoot BLIND Arrow! sign will appear and when you press the hotkey Mirana will shoot arrow with prediction based on enemy last facing angle and movement speed. If you also want to see what is prediction based on and current predicted enemy position enable with this script Blind Prediction script
+
 		Update 1.2:
 			Improved prediction, fixed arrow being too distant, updated SkillShot lib
+
 		Update 1.1b:
 			Added combo with Disruption, Astral Imprisonment, Nightmare, Shackles, Euls Cyclone: When one of these is used on enemy, Mirana will shoot the perfectly timed Arrow on it 
+
 		Update 1.0b:
 			First release. Bugs may appear, so feel free to report them.
 ]]--
@@ -46,7 +51,7 @@ config:SetParameter("Arrowkey", "D", config.TYPE_HOTKEY)
 config:SetParameter("StopKey", "S", config.TYPE_HOTKEY)
 config:SetParameter("ArrowTolerancy", 800)
 config:SetParameter("LineSleep", 500)
-config:SetParameter("ShowLineAlways", false)
+config:SetParameter("ShowLineAlways", true)
 config:SetParameter("ShowLinefortimedArrow", true)
 config:Load()
 
@@ -167,7 +172,7 @@ function Main(tick)
 							local p = FindAB(me.position,xyz,50*z+50)
 							if p then
 								line[z] = Effect(p,"draw_commentator")
-								line[z]:SetVector(1,Vector(65,105,255))
+								line[z]:SetVector(1,Vector(255,255,0))
 								line[z]:SetVector(0,p)
 							end
 						end
