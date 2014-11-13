@@ -164,10 +164,11 @@ function Main(tick)
 				Sleep(250 + client.latency, "rot")
 			end
 		end
-		if IsKeyDown(config.StopKey) or IsKeyDown(togglekey) then
+		if (IsKeyDown(config.StopKey) or IsKeyDown(togglekey)) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) then
 			xyz = nil
 			if SleepCheck("stopkey") and not client.chat then
 				me:Stop()
+				me:Move(client.mousePosition)
 				Sleep(client.latency + 200, "stopkey")
 				Sleep(client.latency + 200, "testhook")
 			end
