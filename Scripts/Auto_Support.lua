@@ -322,7 +322,7 @@ function IncomingDamage(hero,onlymagic)
 				end
 			end
 			for i,k in ipairs(v.abilities) do
-				if (k.abilityPhase or (k:CanBeCasted() and k:FindCastPoint() > (0.35 + client.latency/1000))) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, hero))) - 0.20, 0)) == 0 and not resultsMagic[k.handle] and GetDistance2D(v,me) <= k.castRange+50 then
+				if (k.abilityPhase or (k:CanBeCasted() and k:FindCastPoint() < 0.1)) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, hero))) - 0.20, 0)) == 0 and not resultsMagic[k.handle] and GetDistance2D(v,me) <= k.castRange+50 then
 					local dmg = k:GetDamage(k.level)
 					if dmg <= 0 then dmg = k:GetSpecialData("damage",k.level) end
 					if dmg then
