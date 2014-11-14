@@ -154,8 +154,9 @@ function Main(tick)
 		end
 		
 		if arrow and arrow:CanBeCasted() and victim and GetDistance2D(victim,me) < 3115 then
-			if not timing then
+			if not timing or not victim then
 				statusText.text = "Shoot: " .. client:Localize(victim.name)
+				timing = false
 			end
 			if SleepCheck("arrow") and arrow.level > 0 and me.alive then          
 				if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
