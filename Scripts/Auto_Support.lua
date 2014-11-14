@@ -65,7 +65,7 @@ function SupportTick(tick)
 			Save(me,6,4,nil,nil)
 		elseif ID == CDOTA_Unit_Hero_Dazzle then
 			Heal(me,3,{80, 100, 120, 140},nil,1)
-			Save(me,nil,2,nil,nil,{80, 100, 120, 140},3,{0.5,0.5,0.5,0.5})
+			Save(me,nil,2,nil,nil,{80, 100, 120, 140},3,nil)
 		elseif ID == CDOTA_Unit_Hero_Enchantress then		
 			Heal(me,3,{300,500,700,900},300,3)
 		elseif ID == CDOTA_Unit_Hero_Legion_Commander then
