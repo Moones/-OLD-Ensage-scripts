@@ -118,7 +118,7 @@ function Main(tick)
 				Sleep(client.latency + 200, "testarrow")
 			end
 		end
-		if math.ceil(arrow.cd) == math.ceil(arrow:GetCooldown(arrow.level)) and timing then
+		if not arrow:CanBeCasted() then
 			timing = false
 			xyz = false
 			shoot = nil
@@ -134,7 +134,6 @@ function Main(tick)
 				if not victim:DoesHaveModifier("modifier_eul_cyclone") and (((GetDistance2D(testxyz,xyz) > math.max(GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(arrow:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency-100+config.ArrowTolerancy, client.latency+arrow:FindCastPoint()*1000+100)),victim), 25))) or SkillShot.__GetBlock(me.position,testxyz,victim,115,false)) then
 					me:Stop()
 					me:SafeCastAbility(arrow, testxyz)
-					shoot = nil
 					xyz = testxyz
 					Sleep(math.max(arrow:FindCastPoint()*500 - client.latency,0),"testarrow")
 					Sleep(arrow:FindCastPoint()*1000+client.latency,"arrow")
@@ -177,7 +176,7 @@ function Main(tick)
 						line = {}
 					end
 					xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,115,false)
-					if shoot and xyz and distance <= 3115 then shoot = nil
+					if shoot and xyz and distance <= 3115 then
 						me:SafeCastAbility(arrow, xyz)
 						Sleep(250,"arrow") 
 					end
@@ -203,7 +202,7 @@ function Main(tick)
 					"modifier_lone_druid_spirit_bear_entangle_effect", "modifier_meepo_earthbind", "modifier_naga_siren_ensnare",
 					"modifier_storm_spirit_electric_vortex_pull", "modifier_treant_overgrowth"}
 					
-					if arrow and arrow:CanBeCasted() then
+					if not shoot and arrow and arrow:CanBeCasted() then
 						for i,m in ipairs(v.modifiers) do
 							for i,k in ipairs(modifiers_table) do
 								if m and m.name == "modifier_legion_commander_duel" then
