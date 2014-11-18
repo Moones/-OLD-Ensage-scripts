@@ -1077,7 +1077,7 @@ function Tick( tick )
 				if z.team ~= me.team and z:DoesHaveModifier("modifier_rattletrap_rocket_flare") then
 					if GetDistance2D(z,me) < 650 then
 						Puck()
-						UseBlinkDagger() Antiblinkhome()
+						UseBlinkDagger()
 						if v:GetAbility(3).name == "rattletrap_rocket_flare" then
 							if v:GetAbility(3):GetDamage(v:GetAbility(3).level)*(1 - me.magicDmgResist) >= me.health then
 								UseEulScepterSelf()
