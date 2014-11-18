@@ -2948,14 +2948,18 @@ end
 
 function UseSheepStickTarget()--target
 	for t = 1, 6 do
-		if me:HasItem(t) and me:GetItem(t).name == "item_sheepstick" then
+		if (me:HasItem(t) and me:GetItem(t).name == "item_sheepstick") then
 			UseEulScepter = me:GetItem(t)
 		end
 	end
+	if not UseEulScepter or not UseEulScepter:CanBeCasted() then 
+		UseEulScepter = me:FindSpell("lion_voodoo") or me:FindSpell("shadow_shaman_voodoo") or nil
+	end
+	local range = UseEulScepter.castRange or 800
+	if range == 0 then range = 800 end
 	if activated == 0 then
-		if UseEulScepter and UseEulScepter.state==-1 then
-			if target and GetDistance2D(me,target) < 800 then
-
+		if UseEulScepter and UseEulScepter:CanBeCasted() then
+			if target and GetDistance2D(me,target) < range then
 				me:CastAbility(UseEulScepter,target)
 				activated=1
 				sleepTick= GetTick() +500
