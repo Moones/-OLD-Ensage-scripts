@@ -1,9 +1,9 @@
---<<Pudge's Butchery script by Moones version 1.8.1>>
+--<<Pudge's Butchery script by Moones version 1.8.2>>
 --[[
 	-------------------------------------
 	| Pudge's Butchery Script by Moones |
 	-------------------------------------
-	========== Version 1.8.1 ============
+	========== Version 1.8.2 ============
 	 
 	Description:
 	------------
@@ -23,6 +23,10 @@
 	   
 	Changelog:
 	----------
+		Update 1.8.2:
+			Fixed urning and using ethereal to cancel ulti.
+			Fixed not immediate ulti after close hook.
+			
 		Update 1.8.1:
 			Hooking will now properly stop when hotkey is pressed or when StopKey is pressed
 			Added HookTolerancy - higher number means less hook canceling but also means less accuracy. Tested with 2000 when it was not canceling anymore, so value less than 2000 is recommended.
@@ -88,7 +92,7 @@ config:SetParameter("HookTolerancy", 0)
 config:Load()
 
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
-local sleeptick = 0 local targetHandle = nil local manualselection = false local active = true local victim = nil local xyz = nil local blindxyz = nil local rottoggled = false local count = 0 local hooked = false local urned = false local reg = false
+local sleeptick = 0 local targetHandle = nil local manualselection = false local active = true local victim = nil local xyz = nil local blindxyz = nil local rottoggled = false local count = 0 local hooked = false local urned = false local reg = false local ultied = nil
 
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
@@ -128,13 +132,11 @@ function Key(msg,code)
 		elseif code == config.StopKey and xyz then
 			xyz = nil
 		end
-	elseif msg == RBUTTON_UP then
-		if targetHandle then
-			if count == 0 then
-				count = 1
-			elseif count == 1 then
-				count = 2
-			end
+	elseif msg == RBUTTON_UP and targetHandle and entityList:GetEntity(targetHandle) and entityList:GetMyPlayer().orderId and GetDistance2D(entityList:GetEntity(targetHandle),entityList:GetMyPlayer().orderPosition) > 350 then
+		if count == 0 then
+			count = 1
+		elseif count == 1 then
+			count = 2
 		end
 	end
 end
@@ -158,7 +160,7 @@ function Main(tick)
 		local Rubick = entityList:GetEntities({type=LuaEntity.TYPE_HERO,classId=CDOTA_Unit_Hero_Rubick,team=me:GetEnemyTeam(),illusion=false})[1] 
 		if hook.level > 0 and math.ceil(hook.cd) == math.ceil(hook:GetCooldown(hook.level)) then
 			xyz = nil
-			if Rubick and rot.level > 0 and rot.toggled == false and not rot.abilityPhase and not rottoggled and SleepCheck("rot") then
+			if (Rubick or (targetHandle and entityList:GetEntity(targetHandle))) and rot.level > 0 and rot.toggled == false and not rot.abilityPhase and not rottoggled and SleepCheck("rot") then
 				rottoggled = true
 				me:ToggleSpell(rot.name)
 				Sleep(250 + client.latency, "rot")
@@ -173,7 +175,7 @@ function Main(tick)
 				Sleep(client.latency + 200, "testhook")
 			end
 		end
-		if not IsKeyDown(config.StopKey) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
+		if not ultied and not IsKeyDown(config.StopKey) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
 			local speed = 1600 
 			local delay = (300+client.latency)
 			local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
@@ -343,7 +345,11 @@ function Combo(tick)
 		urned = true
 	end
 		
-	if urn and urn.charges > 0 and urn.state == -1 and not urned and not me:IsChanneling() and ((R.level > 0 and not R.abilityPhase) or R.level == 0) then 
+	if not R:CanBeCasted() then
+		ultied = nil
+	end
+		
+	if urn and urn.charges > 0 and urn.state == -1 and not urned and not me:IsChanneling() and ((R.level > 0 and not R.abilityPhase and R.channelTime == 0 and not ultied) or R.level == 0) then 
 		if not aga then 
 			if R.level == 0 or target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
@@ -359,23 +365,24 @@ function Combo(tick)
 		end
 	end
 
-	if ethereal and ethereal:CanBeCasted() and not target:IsMagicImmune() and ((R.level > 0 and not R.abilityPhase) or R.level == 0) then
+	if ethereal and ethereal:CanBeCasted() and not target:IsMagicImmune() and ((R.level > 0 and not R.abilityPhase and R.channelTime == 0 and not ultied) or R.level == 0) then
 		me:SafeCastItem(ethereal.name,target)
 	end
 
 	if not hooked or GetDistance2D(me, target) < 1600*(0.3 + client.latency/1000) then
 		if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and ((target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target)) then 
 			me:SafeCastSpell(R.name,target)
-			Sleep(1000, "combo")
+			print("asd")
+			ultied = true
 			return
-		elseif not me:IsChanneling() then
+		elseif not me:IsChanneling() and not ultied then
 			if distance > 150 and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) then
 				me:Move(target.position)
 			else
 			me:Attack(target)
 			end
 		end
-	elseif hooked then
+	elseif hooked and not ultied then
 		entityList:GetMyPlayer():HoldPosition()
 	end
 end
@@ -458,6 +465,7 @@ function Load()
 			hooked = false
 			urned = false
 			reg = true
+			ultied = nil
 			blindvictim = nil
 			script:RegisterEvent(EVENT_TICK, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
@@ -482,6 +490,7 @@ function Close()
 	hooked = false
 	urned = false
 	reg = true
+	ultied = nil
 	if reg then
 		script:UnregisterEvent(Main)
 		script:UnregisterEvent(Key)
