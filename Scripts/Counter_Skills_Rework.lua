@@ -2955,15 +2955,17 @@ function UseSheepStickTarget()--target
 	if not UseEulScepter or not UseEulScepter:CanBeCasted() then 
 		UseEulScepter = me:FindSpell("lion_voodoo") or me:FindSpell("shadow_shaman_voodoo") or nil
 	end
-	local range = UseEulScepter.castRange or 800
-	if range == 0 then range = 800 end
-	if activated == 0 then
-		if UseEulScepter and UseEulScepter:CanBeCasted() then
-			if target and GetDistance2D(me,target) < range then
-				me:CastAbility(UseEulScepter,target)
-				activated=1
-				sleepTick= GetTick() +500
-				return
+	if UseEulScepter then
+		local range = UseEulScepter.castRange or 800
+		if range == 0 then range = 800 end
+		if activated == 0 then
+			if UseEulScepter and UseEulScepter:CanBeCasted() then
+				if target and GetDistance2D(me,target) < range then
+					me:CastAbility(UseEulScepter,target)
+					activated=1
+					sleepTick= GetTick() +500
+					return
+				end
 			end
 		end
 	end
