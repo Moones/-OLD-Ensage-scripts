@@ -1,9 +1,9 @@
---<<Shoot Arrow Hit Arrow Script by Moones version 1.5>>
+--<<Shoot Arrow Hit Arrow Script by Moones version 1.5.1>>
 --[[
 	-------------------------------------
 	| Shoot Arrow Hit Arrow Script by Moones |
 	-------------------------------------
-	========== Version 1.5 ============
+	========== Version 1.5.1 ============
 	 
 	Description:
 	------------
@@ -15,6 +15,9 @@
 	   
 	Changelog:
 	----------
+		Update 1.5.1:
+			Fixed timed arrow when theres more stunned enemies
+			
 		Update 1.5:
 			Improved timing for shooting stunned or rooted enemies.
 			Added AutoArrow canceling.
@@ -110,14 +113,16 @@ function Main(tick)
 
 	if active then  
 		
-		if IsKeyDown(config.StopKey) or IsKeyDown(key) then
+		if (IsKeyDown(config.StopKey) or IsKeyDown(key)) and ((arrow.abilityPhase and not SleepCheck("arrow")) and math.ceil(arrow.cd) ~= math.ceil(arrow:GetCooldown(arrow.level)) or not SleepCheck("arrow")) then
 			xyz = nil
 			if SleepCheck("stopkey") and not client.chat then
 				me:Stop()
+				me:Move(client.mousePosition)
 				Sleep(client.latency + 200, "stopkey")
 				Sleep(client.latency + 200, "testarrow")
 			end
 		end
+		
 		if not arrow:CanBeCasted() then
 			timing = false
 			xyz = false
@@ -212,10 +217,13 @@ function Main(tick)
 								if m and (m.stunDebuff or m.name == k) then
 									if GetDistance2D(v,me) <= ( m.remainingTime*857+57.5) then
 										statusText.text = "Shooting timed Arrow on " .. client:Localize(v.name) .. " in " .. math.max(math.floor((((m.remainingTime) * 857) - (GetDistance2D(v,me)+428))/10)/100,0) .. " secs"
-										victim = v timing = true
-										if (m.remainingTime * 857) == GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) or (( m.remainingTime * 857) < GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) and ( m.remainingTime * 857)+25 > GetDistance2D(v,me)) then
-											shoot = true break
+										if not timing then
+											victim = v 
+											timing = true
 										end
+									end
+									if victim and v.handle == victim.handle and (m.remainingTime * 857) == GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) or (( m.remainingTime * 857) < GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) and ( m.remainingTime * 857)+25 > GetDistance2D(v,me)) then
+										shoot = true break
 									end
 								end
 								if m.name == "modifier_naga_siren_song_of_the_siren" then
@@ -223,10 +231,13 @@ function Main(tick)
 									local song = mynaga:FindModifier("modifier_naga_siren_song_of_the_siren_aura")
 									if song and GetDistance2D(v,me) <= ( (song.remainingTime+0.55)*857+57.5) then
 										statusText.text = "Shooting timed Arrow on " .. client:Localize(v.name) .. " in " .. math.max(math.floor((((song.remainingTime+0.55) * 857) - (GetDistance2D(v,me)+428))/10)/100,0) .. " secs"
-										victim = v timing = true
-										if ((song.remainingTime+0.55) * 857) == GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) or (( (song.remainingTime+0.55) * 857) < GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) and ( (song.remainingTime+0.55) * 857)+25 > GetDistance2D(v,me)) then
-											shoot = true break
+										if not timing then
+											victim = v 
+											timing = true
 										end
+									end
+									if victim and v.handle == victim.handle and ((song.remainingTime+0.55) * 857) == GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) or (( (song.remainingTime+0.55) * 857) < GetDistance2D(v,me)+428+((client.latency/1000 + me:GetTurnTime(v)) * 857) and ( (song.remainingTime+0.55) * 857)+25 > GetDistance2D(v,me)) then
+										shoot = true break
 									end
 								end
 							end
