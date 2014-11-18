@@ -129,14 +129,19 @@ function Key(msg,code)
 					statusText.text = "  Hook'em!"
 				end
 			end
-		elseif code == config.StopKey and xyz then
+		elseif code == config.StopKey and (xyz or targetHandle) then
 			xyz = nil
+			active = false
 		end
-	elseif msg == RBUTTON_UP and targetHandle and entityList:GetEntity(targetHandle) and entityList:GetMyPlayer().orderId and GetDistance2D(entityList:GetEntity(targetHandle),entityList:GetMyPlayer().orderPosition) > 350 then
-		if count == 0 then
-			count = 1
-		elseif count == 1 then
-			count = 2
+	elseif msg == RBUTTON_UP and targetHandle then
+		local target = entityList:GetEntity(targetHandle)
+		local player = entityList:GetMyPlayer()
+		if target and player.orderId and player.orderPosition and player.orderPosition ~= Vector(0,0,0) and GetDistance2D(target,player.orderPosition) > 500 then
+			if count == 0 then
+				count = 1
+			elseif count == 1 then
+				count = 2
+			end
 		end
 	end
 end
@@ -161,9 +166,11 @@ function Main(tick)
 		if hook.level > 0 and math.ceil(hook.cd) == math.ceil(hook:GetCooldown(hook.level)) then
 			xyz = nil
 			if (Rubick or (targetHandle and entityList:GetEntity(targetHandle))) and rot.level > 0 and rot.toggled == false and not rot.abilityPhase and not rottoggled and SleepCheck("rot") then
-				rottoggled = true
 				me:ToggleSpell(rot.name)
 				Sleep(250 + client.latency, "rot")
+				rottoggled = true
+			else
+				rottoggled = false
 			end
 		end
 		if (IsKeyDown(config.StopKey) or IsKeyDown(togglekey)) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) then
@@ -299,8 +306,7 @@ function Main(tick)
 end
 
 function Combo(tick)
-	if tick < sleeptick or not PlayingGame() or client.console or client.paused or not SleepCheck("combo") then return end
-	sleeptick = tick + 30 + client.latency
+	if not PlayingGame() or client.console or client.paused or not SleepCheck("combo") or not targetHandle then return end
 	local me = entityList:GetMyHero()
 	
 	local target = entityList:GetEntity(targetHandle)
@@ -309,7 +315,7 @@ function Combo(tick)
 	local W = abilities[2]
 	local R = abilities[4]
 	
-	if not target or not target.alive or target:IsIllusion() or not me.alive or not active or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) or (me:GetDistance2D(target) > minRange and not hooked) or count == 2 then
+	if not target or (not target.alive or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) or (me:GetDistance2D(target) > minRange and not hooked) or target:IsIllusion()) or not me.alive or not active or count == 2 then
 		targetHandle = nil
 		targetText.visible = false
 		if not manualselection then
@@ -356,33 +362,42 @@ function Combo(tick)
 			elseif R.level == 0 or target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
 			end
+			Sleep(client.latency,"combo")
+			return
 		else
 			if R.level == 0 or target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
 			elseif R.level == 0 or target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
 			end
+			Sleep(client.latency,"combo")
+			return
 		end
 	end
-
+	
 	if ethereal and ethereal:CanBeCasted() and not target:IsMagicImmune() and ((R.level > 0 and not R.abilityPhase and R.channelTime == 0 and not ultied) or R.level == 0) then
 		me:SafeCastItem(ethereal.name,target)
+		Sleep(client.latency,"combo")
+		return
 	end
 
-	if not hooked or GetDistance2D(me, target) < 1600*(0.3 + client.latency/1000) then
+	if not hooked or GetDistance2D(me, target) < 1600*(0.3 + client.latency/1000) and not R.abilityPhase then
 		if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and ((target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target)) then 
 			me:SafeCastSpell(R.name,target)
+			Sleep(200,"combo")
 			ultied = true
 			return
 		elseif not me:IsChanneling() and not ultied then
 			if distance > 150 and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) then
 				me:Move(target.position)
-			else
+			elseif not target:IsAttackImmune() then
 			me:Attack(target)
 			end
+			Sleep(30+client.latency,"combo")
 		end
 	elseif hooked and not ultied then
 		entityList:GetMyPlayer():HoldPosition()
+		Sleep(30+client.latency,"combo")
 	end
 end
 
