@@ -372,7 +372,6 @@ function Combo(tick)
 	if not hooked or GetDistance2D(me, target) < 1600*(0.3 + client.latency/1000) then
 		if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and ((target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target)) then 
 			me:SafeCastSpell(R.name,target)
-			print("asd")
 			ultied = true
 			return
 		elseif not me:IsChanneling() and not ultied then
