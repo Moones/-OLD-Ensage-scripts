@@ -48,7 +48,7 @@ config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:SetParameter("Arrowkey", "D", config.TYPE_HOTKEY)
 config:SetParameter("StopKey", "S", config.TYPE_HOTKEY)
 config:SetParameter("ArrowTolerancy", 800)
-config:SetParameter("LineSleep", 500)
+config:SetParameter("LineSleep", 50)
 config:SetParameter("ShowLineAlways", false)
 config:SetParameter("ShowLinefortimedArrow", true)
 config:Load()
@@ -115,6 +115,7 @@ function Main(tick)
 		
 		if (IsKeyDown(config.StopKey) or IsKeyDown(key)) and ((arrow.abilityPhase and not SleepCheck("arrow")) and math.ceil(arrow.cd) ~= math.ceil(arrow:GetCooldown(arrow.level)) or not SleepCheck("arrow")) then
 			xyz = nil
+			shoot = nil
 			if SleepCheck("stopkey") and not client.chat then
 				me:Stop()
 				me:Move(client.mousePosition)
@@ -128,6 +129,7 @@ function Main(tick)
 			xyz = false
 			shoot = nil
 		end
+		
 		if not IsKeyDown(config.StopKey) and ((arrow.abilityPhase and not SleepCheck("arrow")) and math.ceil(arrow.cd) ~= math.ceil(arrow:GetCooldown(arrow.level)) or not SleepCheck("arrow")) and xyz and victim and SleepCheck("testarrow") then
 			local speed = 857.14 
 			local delay = (500+client.latency)
