@@ -1,3 +1,31 @@
+--<<Nyx Script by Moones Version 2.1, Auto Impale/Auto Combo>>
+--[[
+	-------------------------------------
+	      | Nyx Script by Moones |
+	-------------------------------------
+	========== Version 2.1 ============
+	 
+	Description:
+	------------	
+		Auto Impale with prediction:
+		- When hotkey is pressed Nyx Assassin will use Impale on enemy within range and with lowest HP.
+		Auto Combo: 
+		- When combo key is held Nyx Assassin will use combo: Impale -> Ethereal Blade -> Mana Burn -> Dagon.
+		- Nyx will use Ethereal Blade on enemy before they land on the ground so damage from Impale is boosted too. 
+		- If your mana is below 50% Aracane Boots are automaticly used during combo
+		- Nyx Assassin will do the combo on the closest to mouse enemy.
+	   
+	Changelog:
+	----------
+		Update 2.1:
+			Fixed timing for ethereal update.
+			
+		Update 2.0:
+			Implemented Auto Combo.
+
+		Update 1.0b:
+			First release. Bugs may appear, so feel free to report them.
+]]--
 require("libs.Utils")
 require("libs.ScriptConfig")
 require("libs.TargetFind")
@@ -108,7 +136,7 @@ function Main(tick)
 				end
 				
 				if ethereal and ethereal.cd == 0 then
-					table.insert(castQueue,{100,ethereal,victim})
+					table.insert(castQueue,{(GetDistance2D(me,victim)/1200)*1000,ethereal,victim})
 				end
 				
 				if manaburn and manaburn.state == LuaEntityAbility.STATE_READY and (victim.intellectTotal*manadmg[manaburn.level])/4 < victim.mana then
