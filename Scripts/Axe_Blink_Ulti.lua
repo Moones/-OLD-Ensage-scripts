@@ -1,3 +1,27 @@
+--<<Axe Script by Moones Version 1.2, Auto Call and Blink+Ulti when enemy is killable.>>
+--[[
+	-------------------------------------
+	      | Axe Script by Moones |
+	-------------------------------------
+	========== Version 1.2 ============
+	 
+	Description:
+	------------	
+		- When enemy hero is killable by Culling Blade and is in range of Blink, Axe will Blink and Ulti him.
+		- When any hero is in range of call then It will be automaticly casted.
+	   
+	Changelog:
+	----------
+		Update 1.2:
+			Fixed Call Hotkey
+			Added Stop Ulti when enemy is not killable anymore
+			
+		Update 1.1:
+			Added AutoCall
+
+		Update 1.0:
+			First release. Bugs may appear, so feel free to report them.
+]]--
 require("libs.ScriptConfig")
 require("libs.Utils")
 require("libs.SkillShot")
@@ -19,7 +43,7 @@ local blink = drawMgr:CreateRect(-25,-70,35,20,0x000000ff) blink.visible = false
 
 function Tick(tick)
 	
-	if not SleepCheck() then return end
+	if not PlayingGame() then return end
 	local me = entityList:GetMyHero()	
 	if not me then return end
 	local ID = me.classId
@@ -69,15 +93,19 @@ function Tick(tick)
 						local healthtokill = math.floor(v.health - culldamage + CastPoint*v.healthRegen+Moprhling(v,CastPoint))
 						hero[v.handle].text = "Health to kill: "..healthtokill
 						if active then
-							if healthtokill < 0 and GetDistance2D(me,v) < RangeB and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) and Cullblade:CanBeCasted() then
-								if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
-									me:SafeCastItem(Blink.name,v.position)						
+							if healthtokill < 0 then
+								if SleepCheck() and GetDistance2D(me,v) < RangeB and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) and Cullblade:CanBeCasted() then
+									if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
+										me:SafeCastItem(Blink.name,v.position)						
+									end
+								elseif SleepCheck() and GetDistance2D(me,v) < Range and Cullblade:CanBeCasted() then
+									if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
+										me:SafeCastAbility(Cullblade,v)	Sleep(200) break							
+									end
 								end
-							elseif healthtokill < 0 and GetDistance2D(me,v) < Range and Cullblade:CanBeCasted() then
-								if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
-									me:SafeCastAbility(Cullblade,v)	Sleep(200) break							
-								end
-							elseif callactive then
+							elseif Cullblade.abilityPhase and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) <= 300 then
+								me:Stop()
+							elseif callactive and SleepCheck() then
 								local pred = SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency)
 								if not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and ((pred and GetDistance2D(pred,me)-25 <= call:GetSpecialData("radius",call.level)) or not pred) then
 									me:SafeCastAbility(call) Sleep(200)
@@ -94,11 +122,15 @@ function Tick(tick)
 end
 
 function Key(msg,code)
-	if client.chat then return end
-	if IsKeyDown(toggleKey) then
+	if msg ~= KEY_UP or not PlayingGame() or client.chat then
+		return
+	end
+	if code == toggleKey then
 		active = not active
-	elseif IsKeyDown(config.CallHotey) then
+		return true
+	elseif code == config.CallHotkey then
 		callactive = not callactive
+		return true
 	end
 end
 
