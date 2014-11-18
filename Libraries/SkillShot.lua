@@ -200,11 +200,11 @@ function SkillShot.__GetBlock(v1,v2,target,aoe,team)
 		hero = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=me.team})
 		golem = entityList:GetEntities({classId=CDOTA_BaseNPC_Warlock_Golem,alive=true,visible=true,team=me.team})
 	end
-	for k,v in pairs(creeps) do block[#block + 1] = v end
-	for k,v in pairs(forge) do block[#block + 1] = v end
-	for k,v in pairs(hero) do block[#block + 1] = v end
-	for k,v in pairs(golem) do block[#block + 1] = v end	
-	for k,v in pairs(neutrals) do block[#block + 1] = v end	
+	for k,v in pairs(creeps) do if not v:IsInvul() or v:DoesHaveModifier("modifier_eul_cyclone") then block[#block + 1] = v end end
+	for k,v in pairs(forge) do if not v:IsInvul() or v:DoesHaveModifier("modifier_eul_cyclone") then block[#block + 1] = v end end
+	for k,v in pairs(hero) do if not v:IsInvul() or v:DoesHaveModifier("modifier_eul_cyclone") then block[#block + 1] = v end end
+	for k,v in pairs(golem) do if not v:IsInvul() or v:DoesHaveModifier("modifier_eul_cyclone") then block[#block + 1] = v end end	
+	for k,v in pairs(neutrals) do if not v:IsInvul() or v:DoesHaveModifier("modifier_eul_cyclone") then block[#block + 1] = v end end
 	local block = SkillShot.__CheckBlock(block,v1,v2,aoe,target)
 	return block
 end
