@@ -188,6 +188,7 @@ function Main(tick)
 					elseif not xyz and timing then
 						statusText.text = "Shoot Arrow hit Arrow!"
 						shoot = nil
+						timing = nil
 					end
 				end
 			end 
