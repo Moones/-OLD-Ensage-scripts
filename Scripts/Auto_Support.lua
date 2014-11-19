@@ -64,8 +64,8 @@ function SupportTick(tick)
 		if ID == CDOTA_Unit_Hero_KeeperOfTheLight then
 			Save(me,6,4,nil,nil)
 		elseif ID == CDOTA_Unit_Hero_Dazzle then
-			Heal(me,3,{80, 100, 120, 140},nil,1)
 			Save(me,nil,2,nil,nil,{80, 100, 120, 140},3,{1.5,1.5,1.5,1.5})
+			Heal(me,3,{80, 100, 120, 140},nil,1)
 		elseif ID == CDOTA_Unit_Hero_Enchantress then		
 			Heal(me,3,{300,500,700,900},300,3)
 		elseif ID == CDOTA_Unit_Hero_Legion_Commander then
@@ -73,8 +73,8 @@ function SupportTick(tick)
 		elseif ID == CDOTA_Unit_Hero_Huskar then
 			Heal(me,1,{32, 64, 96, 128},nil,1,ID)
 		elseif ID == CDOTA_Unit_Hero_Abaddon then
-			Heal(me,1,{100, 150, 200, 250},nil,1,nil,true)
 			Save(me,nil,2,nil,2,{100, 150, 200, 250},1,nil,1)
+			Heal(me,1,{100, 150, 200, 250},nil,1,nil,true)
 		elseif ID == CDOTA_Unit_Hero_Omniknight then
 			Heal(me,1,{90, 180, 270, 360},nil,1)
 			Save(me,nil,2,nil,2,{90, 180, 270, 360},1)
