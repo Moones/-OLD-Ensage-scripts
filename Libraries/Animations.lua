@@ -100,9 +100,14 @@ Animations.attacksTable = {}
 Animations.startTime = nil
 Animations.count = 0
 Animations.maxCount = 0
+Animations.loadTime = 0
 
 function Animations.trackingTick(tick)
 	if not PlayingGame() or client.paused then return end
+	if Animations.loadTime then
+		if Animations.loadTime == 0 then Animations.loadTime = client.gameTime
+		elseif (client.gameTime - Animations.loadTime) >= 3 then Animations.maxCount = 0 Animations.loadTime = nil end
+	end
 	if not Animations.startTime then Animations.startTime = client.gameTime
 	elseif (client.gameTime - Animations.startTime) >= 1 then Animations.startTime = nil Animations.count = 0
 	else Animations.count = Animations.count + 1 if Animations.count > Animations.maxCount then Animations.maxCount = Animations.count end end
@@ -159,6 +164,7 @@ end
 function Animations.trackLoad()
 	Animations.count = 0
 	Animations.maxCount = 0
+	Animations.loadTime = 0
 end
 
 function Animations.getCount()
