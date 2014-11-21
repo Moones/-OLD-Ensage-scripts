@@ -35,7 +35,7 @@ require("libs.HeroInfo")
         |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^       |    *    *     **    
         +-------------------------------------------------+    *   **      **   
                                                                             *       
-        =+=+=+=+=+=+=+=+=+ VERSION 1.0 +=+=+=+=+=+=+=+=+=+=
+        =+=+=+=+=+=+=+=+= VERSION 1.0.1 =+=+=+=+=+=+=+=+=+=
 	 
         Description:
         ------------
@@ -87,6 +87,8 @@ require("libs.HeroInfo")
 	   
         Changelog:
         ----------
+		
+             - 21. 11. 2014 - Version 1.0.1 Now CanMove returning false when hero is casting an ability.
 	
              - 21. 11. 2014 - Version 1.0 First Release
 ]]--
@@ -104,26 +106,28 @@ function Animations.trackingTick(tick)
 	if not Animations.startTime then Animations.startTime = client.gameTime
 	elseif (client.gameTime - Animations.startTime) >= 1 then Animations.startTime = nil Animations.count = 0
 	else Animations.count = Animations.count + 1 if Animations.count > Animations.maxCount then Animations.maxCount = Animations.count end end
-	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,visible=true,alive=true})) do
+	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,visible=true})) do
+		if not Animations.table[v.handle] then
+			Animations.table[v.handle] = {}
+		end
 		for i,k in ipairs(v.abilities) do
 			if k.abilityPhase then
 				if not Animations.table[k.handle] then 
 					Animations.table[k.handle] = {}
 					Animations.table[k.handle].startTime = tick
 					Animations.table[k.handle].duration = tick - Animations.table[k.handle].startTime
+					Animations.table[v.handle].canmove = false
 				end
 			else
 				Animations.table[k.handle] = nil
 			end
 			if Animations.table[k.handle] then
 				Animations.table[k.handle].duration = tick - Animations.table[k.handle].startTime
+				Animations.table[v.handle].canmove = false
 			end
 		end
 		local hero = HeroInfo(v)
 		hero:Update()
-		if not Animations.table[v.handle] then
-			Animations.table[v.handle] = {}
-		end
 		if Animations.isAttacking(v) then
 			if not Animations.table[v.handle].startTime then
 				Animations.table[v.handle].startTime = client.gameTime
@@ -152,7 +156,7 @@ function Animations.trackingTick(tick)
 	end
 end
 
-function Animations.trackClose()
+function Animations.trackLoad()
 	Animations.count = 0
 	Animations.maxCount = 0
 end
@@ -220,4 +224,4 @@ function HeroInfo:GetBackswing()
 end
 	
 scriptEngine:RegisterLibEvent(EVENT_FRAME,Animations.trackingTick)
-scriptEngine:RegisterLibEvent(EVENT_LOAD,Animations.trackClose,targetFind)
+scriptEngine:RegisterLibEvent(EVENT_LOAD,Animations.trackLoad)
