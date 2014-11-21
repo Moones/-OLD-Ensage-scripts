@@ -135,8 +135,8 @@ function Animations.trackingTick(tick)
 			if not Animations.table[v.handle].startTime then
 				Animations.table[v.handle].startTime = client.gameTime
 			end
-			Animations.table[v.handle].endTime = Animations.table[v.handle].startTime + (hero.attackRate) - client.latency/1000 - (1/Animations.maxCount)
-			Animations.table[v.handle].canmoveTime = Animations.table[v.handle].startTime + hero.attackPoint - ((client.latency/1000)/(1 + (1 - 1/Animations.maxCount))) + (1/Animations.maxCount)*(1 + (1 - 1/Animations.maxCount))
+			Animations.table[v.handle].endTime = Animations.table[v.handle].startTime + (hero.attackRate) - (client.latency/1000) - (1/Animations.maxCount)*3
+			Animations.table[v.handle].canmoveTime = Animations.table[v.handle].startTime + hero.attackPoint - ((client.latency/1000)/(1 + (1 - 1/Animations.maxCount))) + (1/Animations.maxCount)*3*(1 + (1 - 1/Animations.maxCount))
 			Animations.table[v.handle].attackTime = hero.attackRate
 		end
 		if Animations.table[v.handle].endTime and Animations.table[v.handle].endTime <= client.gameTime then
@@ -153,7 +153,7 @@ function Animations.trackingTick(tick)
 		for k,z in ipairs(projs) do
 			if GetDistance2D(z.position, v.position) < 127 and not Animations.table[v.handle].canmove then
 				Animations.table[v.handle].canmove = true
-				Animations.table[v.handle].endTime = client.gameTime + (hero.attackBackswing) - client.latency/1000 - 1/Animations.maxCount
+				Animations.table[v.handle].endTime = client.gameTime + (hero.attackBackswing) - (client.latency/1000) - (1/Animations.maxCount)*3
 			end
 		end
 	end
