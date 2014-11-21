@@ -943,8 +943,18 @@ npc_dota_hero_abaddon = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 700,
+ projectileSpeed = 900,
  movementSpeed = 270,
  turnRate = 0.5,
- attackBackswing = 0.5}
+ attackBackswing = 0.5},
+ 
+  npc_dota_hero_oracle = {
+ attackRate = 1.4,
+ attackPoint = 0.3,
+ attackRange = 620,
+ projectileSpeed = 900,
+ movementSpeed = 305,
+ turnRate = 0.4,
+ attackBackswing = 0.7}
  
  }
