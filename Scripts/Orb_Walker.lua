@@ -199,20 +199,20 @@ function Main(tick)
 		else			
 			myhero.attackRange = myhero:GetAttackRange()		
 			if IsKeyDown(movetomouse) and not client.chat then	
-				if not victim and SleepCheck("victim") then
-					local creeps = entityList:GetEntities(function (v) return (v.courier or v.classId == CDOTA_BaseNPC_Creep_Neutral or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or v.classId == CDOTA_BaseNPC_Creep_Lane or v.classId == CDOTA_BaseNPC_Creep_Siege or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health~=0 and me:GetDistance2D(v) <= myhero.attackRange + 50 end)
-					table.sort(creeps, function (a,b) return GetDistance2D(a,me) < GetDistance2D(b,me) end)
-					victim = targetFind:GetClosestToMouse(300) or targetFind:GetLowestEHP(myhero.attackRange*2 + 50, phys) or creeps[1]
+				if (not victim or GetDistance2D(me,victim) > myhero.attackRange*2 or not victim.alive) and SleepCheck("victim") then
+					local creeps = entityList:GetEntities(function (v) return (v.courier or (v.creep and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Neutral and v.spawned) or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or (v.classId == CDOTA_BaseNPC_Creep_Lane and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Siege and v.spawned) or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health > 0 and me:GetDistance2D(v) <= myhero.attackRange*2 + 50 end)
+					table.sort(creeps, function (a,b) return a.health < b.health end)
+					victim = targetFind:GetClosestToMouse(me,300) or targetFind:GetLowestEHP(myhero.attackRange*2 + 50, phys) or creeps[1]
 					Sleep(250,"victim")
 				end
 				if not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= myhero.attackRange*2 + 50 then
 					if tick > attack then
 						myhero:Hit(victim)
-						attack = tick + 70
+						attack = tick + 100
 					end
 				elseif tick > move then
 					me:Move(client.mousePosition)
-					move = tick + 70
+					move = tick + 100
 				end
 			else
 				victim = nil
