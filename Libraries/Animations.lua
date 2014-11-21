@@ -35,7 +35,7 @@ require("libs.HeroInfo")
         |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^       |    *    *     **    
         +-------------------------------------------------+    *   **      **   
                                                                             *       
-        =+=+=+=+=+=+=+=+= VERSION 1.0.1 =+=+=+=+=+=+=+=+=+=
+        =+=+=+=+=+=+=+=+= VERSION 1.0.2 =+=+=+=+=+=+=+=+=+=
 	 
         Description:
         ------------
@@ -88,6 +88,8 @@ require("libs.HeroInfo")
         Changelog:
         ----------
 		
+             - 21. 11. 2014 - Version 1.0.2 Fixed bug with tick count.
+		
              - 21. 11. 2014 - Version 1.0.1 Now CanMove returning false when hero is casting an ability.
 	
              - 21. 11. 2014 - Version 1.0 First Release
@@ -100,24 +102,20 @@ Animations.attacksTable = {}
 Animations.startTime = nil
 Animations.count = 0
 Animations.maxCount = 0
-Animations.loadTime = 0
 
 function Animations.trackingTick(tick)
 	if not PlayingGame() or client.paused then return end
-	if Animations.loadTime then
-		if Animations.loadTime == 0 then Animations.loadTime = client.gameTime
-		elseif (client.gameTime - Animations.loadTime) >= 3 then Animations.maxCount = 0 Animations.loadTime = nil end
-	end
 	if not Animations.startTime then Animations.startTime = client.gameTime
-	elseif (client.gameTime - Animations.startTime) >= 1 then Animations.startTime = nil Animations.count = 0
-	else Animations.count = Animations.count + 1 if Animations.count > Animations.maxCount then Animations.maxCount = Animations.count end end
+	elseif (client.gameTime < 0 and Animations.startTime > 0) then Animations.startTime = client.gameTime Animations.maxCount = 0
+	elseif (client.gameTime - Animations.startTime) >= 1 then Animations.startTime = nil Animations.maxCount = Animations.count Animations.count = 0
+	else Animations.count = Animations.count + 1 end
 	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,visible=true})) do
 		if not Animations.table[v.handle] then
 			Animations.table[v.handle] = {}
 		end
 		for i,k in ipairs(v.abilities) do
 			if k.abilityPhase then
-				if not Animations.table[k.handle] then 
+				if not Animations.table[k.handle] then                                   
 					Animations.table[k.handle] = {}
 					Animations.table[k.handle].startTime = tick
 					Animations.table[k.handle].duration = tick - Animations.table[k.handle].startTime
@@ -164,7 +162,6 @@ end
 function Animations.trackLoad()
 	Animations.count = 0
 	Animations.maxCount = 0
-	Animations.loadTime = 0
 end
 
 function Animations.getCount()
