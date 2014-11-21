@@ -3,6 +3,66 @@ require("libs.Utils")
 require("libs.HeroInfo")
 require("libs.EasyHUD")
 require("libs.TargetFind")
+require("libs.Animations")
+
+--[[
+                         '''''''''''                               
+                     ''''```````````'''''''''''.                   
+                 ''''`````````````````````..../.                   
+              '''``````````````````````.../////.                   
+          ''''``````````````````````...////////.                   
+        ''wwwwwwwwww````````````....///////////.                   
+         weeeeeeeeeewwwwwwwwww..//////////////.                    
+         weeeeeeeeeeeeeeeeeeeew///////////////.                    
+          weeeeeeeeeeeeeeeeeeew///////////////.                    
+           weeeeeeeeeeeeeeeeeew///////////////.                    
+           weeeeeeeeeeeeeeeeeeew//////////////.                    
+            weeeeeeeeeeeeeeeeeew/////////////.                     
+             weeeeeeeeeeeeeeeeew/////////////.                     
+             weeeeeeeeeeeeeeeeew/////////////.                     
+              weeeeeeeeeeeeeeeew/////////////.                     
+               weeeeeeeeeeeeeeeew////////////.                     
+               weeeeeeeeeeeeeeeew///////////.                      
+                weeeeeeeeeeeeeeew//////////.                       
+                 weeeeeeeeeeeeeew////////..                        
+                 weeeeeeeeeeeeeeew//////.                          
+                  wweeeeeeeeeeeeew/////.                           
+                    wwwweeeeeeeeew////.                              *           
+                        wwwweeeeew//..                    *       *              
+                            wwwwew/.            * *     **    **      *    
+                                ww.             *      **    *     **          
+                                                 *      **   * *****    * **   
+                                                   *      ****** ** * *     ***
+                                                      *** *********           *
+        +-------------------------------------------------+   * *  *            
+        |                                                 |    *  *** **        
+        |           Orb Walker - Made by Moones           |    *   *    **      
+        |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^           |    *    *     **    
+        +-------------------------------------------------+    *   **      **   
+                                                                            *       
+        =+=+=+=+=+=+=+=+=+ VERSION 2.0 +=+=+=+=+=+=+=+=+=+=
+	 
+        Description:
+        ------------
+	
+             - Orb Walk when holding hotkey on mouse hovered hero or lowest hp enemy hero in attack range.
+             - AutoAttack while Orb walk when holding hotkey.
+             - Supports all ability Unique Attack Modifiers: Clinkz's Searing Arrows, Drow Ranger's Frost Arrows, Viper's Poison Attack, Huskar's Burning Spear, Silencer's Glaives of Wisdom, Jakiro's Liquid Fire, Outworld Devourer's Arcane Orb, Enchantress's Impetus (include range of it).
+             - Also supports range of passives: Sniper's Aim and Templar Assassin's Psy Blades		 
+	   
+        Changelog:
+        ----------
+		
+             Update 2.0:
+			 Now requires Animations library.
+			 Fixed orbwalking for all heroes.
+	
+             Update 1.1:
+             Added key for AutoAttacking while Orbwalking.
+
+             Update 1.0b:
+             First release. Bugs may appear, so feel free to report them.
+]]--
 
 local config = ScriptConfig.new()
 config:SetParameter("CustomMove", "J", config.TYPE_HOTKEY)
@@ -28,11 +88,9 @@ enablemodifiers = config.EnableAttackModifiers
 showSign = config.ShowSign
 aakey = config.AutoAttackKey
 
-myAttackTickTable = {}
+sleep = 0
 
-sleep = 0 myAttackTickTable.attackRateTick = 0 myAttackTickTable.attackPointTick = nil
-
-local attacking = false local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil
+local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil local attack = 0 local move = 0
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
@@ -127,91 +185,31 @@ function Main(tick)
 	
 	if string.byte("A") <= menu and menu <= string.byte("Z") then
 		statusText.text = "Orb Walker: Press " .. string.char(menu) .. " to open Menu"
-	else
+	else 
 		statusText.text = "Orb Walker: Press " .. menu .. " to open Menu"
 	end
-
+ 
 	if active then
 		if not myhero then	
 			myhero = MyHero(me)
-		else
-			
-			myhero:GetModifiers()
-			myhero.attackSpeed = myhero:GetAttackSpeed()
-			myhero.attackRate = myhero:GetAttackRate()
-			myhero.attackPoint = myhero:GetAttackPoint()
-			myhero.attackRange = myhero:GetAttackRange()
-			myhero.turnRate = myhero:GetTurnRate()
-			myhero.attackBackswing = myhero:GetBackswing()
-			
-			if myAttackTickTable.attackPointTick and GetTick() >= myAttackTickTable.attackPointTick then
-				myAttackTickTable.attackPointTick = nil
-				attacking = false
-			end
-			
-			if (IsKeyDown(movetomouse) or IsKeyDown(aakey)) and not client.chat then
-				if not IsKeyDown(aakey) then
-					victim = targetFind:GetClosestToMouse(100)	
-					if not victim then
-						victim = targetFind:GetLowestEHP(myhero.attackRange, phys)
-					end
+		else			
+			myhero.attackRange = myhero:GetAttackRange()		
+			if IsKeyDown(movetomouse) and not client.chat then	
+				if not victim then
+					local creeps = entityList:GetEntities(function (v) return (v.courier or v.classId == CDOTA_BaseNPC_Creep_Neutral or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or v.classId == CDOTA_BaseNPC_Creep_Lane or v.classId == CDOTA_BaseNPC_Creep_Siege or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health~=0 and me:GetDistance2D(v) <= myhero.attackRange + 50 end)
+					table.sort(creeps, function (a,b) return GetDistance2D(a,me) < GetDistance2D(b,me) end)
+					victim = targetFind:GetClosestToMouse(300) or targetFind:GetLowestEHP(myhero.attackRange*2 + 50, phys) or creeps[1]
 				end
-				if not IsKeyDown(aakey) and (not victim or (victim and GetDistance2D(me, victim) > myhero.attackRange)) or (not noorbwalkidle and not attacking) and tick > sleep then
+				if not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= myhero.attackRange*2 + 50 then
+					if tick > attack then
+						myhero:Hit(victim)
+						attack = tick + Animations.maxCount/1.5
+					end
+				elseif tick > move then
 					me:Move(client.mousePosition)
-					sleep = tick + client.latency
+					move = tick + Animations.maxCount/1.5
 				end
-				if not attacking and tick > sleep then
-					if IsKeyDown(aakey) or (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1) or (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE)) then
-						me:Move(client.mousePosition)
-						sleep = tick + client.latency
-					end
-				end
-				if IsKeyDown(aakey) or (victim and victim.alive and victim.visible and victim.health > 0 and GetDistance2D(me, victim) < myhero.attackRange) and me.alive then
-					if myhero.isRanged then
-						local projectiles = entityList:GetProjectiles({source=me})
-						if not IsKeyDown(aakey) then
-							projectiles = entityList:GetProjectiles({target=victim})
-						end
-						for k,z in ipairs(projectiles) do
-							if z.source then
-								if z.source.name == me.name then							
-									if myAttackTickTable.attackPointTick == nil and myAttackTickTable.attackRateTick == 0 or myAttackTickTable.attackRateTick > GetTick() and ((victim and GetDistance2D(z.position, victim) > GetDistance2D(z.position, me)) or IsKeyDown(aakey)) then
-										myAttackTickTable.attackPointTick = GetTick()
-										if not IsKeyDown(aakey) then
-											myAttackTickTable.attackRateTick = myAttackTickTable.attackRateTick + (math.max((GetDistance2D(me, victim) - myhero.attackRange), 0)/z.speed)*1000
-										else
-											myAttackTickTable.attackRateTick = myAttackTickTable.attackRateTick
-										end
-									end
-								end
-							elseif not z then
-								myAttackTickTable.attackRateTick = 0
-							end							
-						end						
-					end
-					if (GetTick() >= myAttackTickTable.attackRateTick) then
-						if not IsKeyDown(aakey) then
-							myhero:Hit(victim)
-						else
-							entityList:GetMyPlayer():AttackMove(client.mousePosition)
-						end
-						if not myhero.isRanged then
-							myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
-							if not IsKeyDown(aakey) then
-								myAttackTickTable.attackPointTick = GetTick() + (myhero.attackRate*(myhero.baseAttackPoint/(myhero.baseAttackPoint+myhero.baseBackswing)) + myhero.attackPoint)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000
-							else
-								myAttackTickTable.attackPointTick = GetTick() + (myhero.attackRate*(myhero.baseAttackPoint/(myhero.baseAttackPoint+myhero.baseBackswing)) + myhero.attackPoint)*1000
-							end
-						else
-							myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
-						end
-						attacking = true	
-					end
-				end		
 			else
-				myAttackTickTable.attackRateTick = 0 
-				myAttackTickTable.attackPointTick = nil 
-				attacking = false 
 				victim = nil
 			end 
 		end
@@ -220,173 +218,90 @@ end
 
 class 'MyHero'
 
-	function MyHero:__init(heroEntity)
-		self.heroEntity = heroEntity
-		local name = heroEntity.name
-
-		if not heroInfo[name] then
-			return nil
-		end
-
-		if not heroInfo[name].projectileSpeed then
-			self.isRanged = false
-		else
-			self.isRanged = true
-		end
-
-		self.baseAttackPoint = heroInfo[name].attackPoint
-		self.baseTurnRate = heroInfo[name].turnRate
-		self.baseBackswing = heroInfo[name].attackBackswing
-	end
-
-	function MyHero:GetTurnRate()
-		turnRateModifiers = {modifier_batrider_sticky_napalm = .70}
-		if self.modifierList then
-			for modifierName, modifierPercent in pairs(turnRateModifiers) do
-				if self.modifierList[modifierName] then
-					return (1 - modifierPercent) * self.baseTurnRate
-				end
-			end
-		end
-		return self.baseTurnRate
-	end
-
-	function MyHero:GetAttackRange()
-		local bonus = 0
-		if self.heroEntity.classId == CDOTA_Unit_Hero_TemplarAssassin then	
-			local psy = self.heroEntity:GetAbility(3)
-			psyrange = {60,120,180,240}		
-			if psy and psy.level > 0 then		
-				bonus = psyrange[psy.level]			
-			end
-		elseif self.heroEntity.classId == CDOTA_Unit_Hero_Sniper then	
-			local aim = self.heroEntity:GetAbility(3)
-			aimrange = {100,200,300,400}		
-			if aim and aim.level > 0 then		
-				bonus = aimrange[aim.level]			
-			end		
-		elseif self.heroEntity.classId == CDOTA_Unit_Hero_Enchantress then
-			if enablemodifiers then
-				local impetus = self.heroEntity:GetAbility(4)
-				if impetus.level > 0 and self.heroEntity:AghanimState() then
-					bonus = 190
-				end
-			end
-		end
-		return self.heroEntity.attackRange + bonus
-	end
-
-	function MyHero:GetAttackSpeed()
-		if self.heroEntity.attackSpeed > 500 then
-			return 500
-		end
-		return self.heroEntity.attackSpeed
-	end
-
-
-	function MyHero:GetAttackPoint()
-		return self.baseAttackPoint / (1 + (self.attackSpeed) / 100)
-	end
-
-	function MyHero:GetAttackRate()
-		return self.heroEntity.attackBaseTime / (1 + (self.attackSpeed - 100) / 100)
-	end
-
-	function MyHero:GetBackswing()
-		return self.baseBackswing / (1 + (self.attackSpeed - 100) / 100)
-	end
-
-	function MyHero:GetModifiers()
-		local modifierCount = self.heroEntity.modifierCount
-		if modifierCount == 0 then
-			self.modifierList = nil
-			return
-		end
-
-		self.modifierList = {}
-		if self.heroEntity.modifiers then
-			for i,v in ipairs(self.heroEntity.modifiers) do
-				local name = v.name
-				if name then
-					self.modifierList[name] = true
-				end
-			end
-		end
-	end
-
-	function MyHero:Hit(target)
-		if target.team ~= self.heroEntity.team then
-			if enablemodifiers and not target:IsMagicImmune() then
-				if self.heroEntity.classId == CDOTA_Unit_Hero_Clinkz then
-					local searinga = self.heroEntity:GetAbility(2)
-					if searinga.level > 0 and self.heroEntity.mana > 10 then
-						self.heroEntity:SafeCastAbility(searinga, target)
-					else entityList:GetMyPlayer():Attack(target) end
-				elseif self.heroEntity.classId == CDOTA_Unit_Hero_DrowRanger then
-					local frost = self.heroEntity:GetAbility(1)
-					if frost.level > 0 and self.heroEntity.mana > 12 then
-						self.heroEntity:SafeCastAbility(frost, target)
-					else entityList:GetMyPlayer():Attack(target) end
-				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Viper then
-					local poison = self.heroEntity:GetAbility(1)
-					if poison.level > 0 and self.heroEntity.mana > 21 then
-						self.heroEntity:SafeCastAbility(poison, target)
-					else entityList:GetMyPlayer():Attack(target) end
-				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Huskar then
-					local burning = self.heroEntity:GetAbility(2)
-					if burning.level > 0 and self.heroEntity.health > 15 then
-						self.heroEntity:SafeCastAbility(burning, target)
-					else entityList:GetMyPlayer():Attack(target) end
-				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Silencer then
-					local glaives = self.heroEntity:GetAbility(2)
-					if glaives.level > 0 and self.heroEntity.mana > 15 then
-						self.heroEntity:SafeCastAbility(glaives, target)
-					else entityList:GetMyPlayer():Attack(target) end
-				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Jakiro then
-					local liquid = self.heroEntity:GetAbility(3)
-					if liquid.level > 0 and liquid.state == LuaEntityAbilty.STATE_READY then
-						self.heroEntity:SafeCastAbility(liquid, target)
-					else entityList:GetMyPlayer():Attack(target) end
-				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Obsidian_Destroyer then
-					local arcane = self.heroEntity:GetAbility(1)
-					if arcane.level > 0 and self.heroEntity.mana > 100 then
-						self.heroEntity:SafeCastAbility(arcane, target)
-					else entityList:GetMyPlayer():Attack(target) end
-				elseif self.heroEntity.classId == CDOTA_Unit_Hero_Enchantress then
-					local impetus = self.heroEntity:GetAbility(4)
-					local impemana = {55,60,65}
-					if impetus.level > 0 and self.heroEntity.mana > impemana[impetus.level] then
-						self.heroEntity:SafeCastAbility(impetus, target)
-					else entityList:GetMyPlayer():Attack(target) end
-				else
-					entityList:GetMyPlayer():Attack(target)
-				end
-			else
-				entityList:GetMyPlayer():Attack(target)
-			end
-		end
-	end
-
-function FindAngleR(entity)
-	if entity.rotR < 0 then
-		return math.abs(entity.rotR)
-	else
-		return 2*math.pi - entity.rotR
+function MyHero:__init(heroEntity)
+	self.heroEntity = heroEntity
+	local name = heroEntity.name
+	if not heroInfo[name] then
+		return nil
 	end
 end
 
-function FindAngleBetween(first, second)
-	xAngle = math.deg(math.atan(math.abs(second.position.x - first.position.x)/math.abs(second.position.y - first.position.y)))
-    if first.position.x <= second.position.x and first.position.y >= second.position.y then
-        return 90 - xAngle
-    elseif first.position.x >= second.position.x and first.position.y >= second.position.y then
-        return xAngle + 90
-    elseif first.position.x >= second.position.x and first.position.y <= second.position.y then
-        return 90 - xAngle + 180
-    elseif first.position.x <= second.position.x and first.position.y <= second.position.y then
-        return xAngle + 90 + 180
-    end
-    return nil
+function MyHero:GetAttackRange()
+	local bonus = 0
+	if self.heroEntity.classId == CDOTA_Unit_Hero_TemplarAssassin then	
+		local psy = self.heroEntity:GetAbility(3)
+		psyrange = {60,120,180,240}		
+		if psy and psy.level > 0 then		
+			bonus = psyrange[psy.level]			
+		end
+	elseif self.heroEntity.classId == CDOTA_Unit_Hero_Sniper then	
+		local aim = self.heroEntity:GetAbility(3)
+		aimrange = {100,200,300,400}		
+		if aim and aim.level > 0 then		
+			bonus = aimrange[aim.level]			
+		end		
+	elseif self.heroEntity.classId == CDOTA_Unit_Hero_Enchantress then
+		if enablemodifiers then
+			local impetus = self.heroEntity:GetAbility(4)
+			if impetus.level > 0 and self.heroEntity:AghanimState() then
+				bonus = 190
+			end
+		end
+	end
+	return self.heroEntity.attackRange + bonus
+end
+
+function MyHero:Hit(target)
+	if target and target.team ~= self.heroEntity.team then
+		if target and enablemodifiers and not target:IsMagicImmune() then
+			if self.heroEntity.classId == CDOTA_Unit_Hero_Clinkz then
+				local searinga = self.heroEntity:GetAbility(2)
+				if searinga.level > 0 and self.heroEntity.mana > 10 then
+					self.heroEntity:SafeCastAbility(searinga, target)
+				else entityList:GetMyPlayer():Attack(target) end
+			elseif self.heroEntity.classId == CDOTA_Unit_Hero_DrowRanger then
+				local frost = self.heroEntity:GetAbility(1)
+				if frost.level > 0 and self.heroEntity.mana > 12 then
+					self.heroEntity:SafeCastAbility(frost, target)
+				else entityList:GetMyPlayer():Attack(target) end
+			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Viper then
+				local poison = self.heroEntity:GetAbility(1)
+				if poison.level > 0 and self.heroEntity.mana > 21 then
+					self.heroEntity:SafeCastAbility(poison, target)
+				else entityList:GetMyPlayer():Attack(target) end  
+			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Huskar then
+				local burning = self.heroEntity:GetAbility(2)
+				if burning.level > 0 and self.heroEntity.health > 15 then
+					self.heroEntity:SafeCastAbility(burning, target)
+				else entityList:GetMyPlayer():Attack(target) end
+			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Silencer then
+				local glaives = self.heroEntity:GetAbility(2)
+				if glaives.level > 0 and self.heroEntity.mana > 15 then
+					self.heroEntity:SafeCastAbility(glaives, target)
+				else entityList:GetMyPlayer():Attack(target) end
+			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Jakiro then
+				local liquid = self.heroEntity:GetAbility(3)
+				if liquid.level > 0 and liquid.state == LuaEntityAbilty.STATE_READY then
+					self.heroEntity:SafeCastAbility(liquid, target)
+				else entityList:GetMyPlayer():Attack(target) end
+			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Obsidian_Destroyer then
+				local arcane = self.heroEntity:GetAbility(1)
+				if arcane.level > 0 and self.heroEntity.mana > 100 then
+					self.heroEntity:SafeCastAbility(arcane, target)
+				else entityList:GetMyPlayer():Attack(target) end
+			elseif self.heroEntity.classId == CDOTA_Unit_Hero_Enchantress then
+				local impetus = self.heroEntity:GetAbility(4)
+				local impemana = {55,60,65}
+				if impetus.level > 0 and self.heroEntity.mana > impemana[impetus.level] then
+					self.heroEntity:SafeCastAbility(impetus, target)
+				else entityList:GetMyPlayer():Attack(target) end
+			else
+				entityList:GetMyPlayer():Attack(target)
+			end
+		else
+			entityList:GetMyPlayer():Attack(target)
+		end
+	end
 end
 
 function CreateHUD()
@@ -498,7 +413,7 @@ function Load()
 			myAttackTickTable = {}
 			myAttackTickTable.attackRateTick = 0 
 			myAttackTickTable.attackPointTick = nil
-			script:RegisterEvent(EVENT_TICK, Main)
+			script:RegisterEvent(EVENT_FRAME, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:UnregisterEvent(Load)
 		end
