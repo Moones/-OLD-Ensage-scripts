@@ -135,7 +135,7 @@ function Animations.trackingTick(tick)
 			if not Animations.table[v.handle].startTime then
 				Animations.table[v.handle].startTime = client.gameTime
 			end
-			Animations.table[v.handle].endTime = Animations.table[v.handle].startTime + (hero.attackRate) - client.latency/1000 - 1/Animations.maxCount
+			Animations.table[v.handle].endTime = Animations.table[v.handle].startTime + (hero.attackRate) - client.latency/1000 - (1/Animations.maxCount)
 			Animations.table[v.handle].canmoveTime = Animations.table[v.handle].startTime + hero.attackPoint - ((client.latency/1000)/(1 + (1 - 1/Animations.maxCount))) + (1/Animations.maxCount)*(1 + (1 - 1/Animations.maxCount))
 			Animations.table[v.handle].attackTime = hero.attackRate
 		end
