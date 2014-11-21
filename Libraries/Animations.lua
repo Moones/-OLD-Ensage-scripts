@@ -104,7 +104,7 @@ function Animations.trackingTick(tick)
 	if not Animations.startTime then Animations.startTime = client.gameTime
 	elseif (client.gameTime - Animations.startTime) >= 1 then Animations.startTime = nil Animations.count = 0
 	else Animations.count = Animations.count + 1 if Animations.count > Animations.maxCount then Animations.maxCount = Animations.count end end
-	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,visible=true})) do
+	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,visible=true,alive=true})) do
 		for i,k in ipairs(v.abilities) do
 			if k.abilityPhase then
 				if not Animations.table[k.handle] then 
