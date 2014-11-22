@@ -109,51 +109,57 @@ function Animations.trackingTick(tick)
 	elseif (client.gameTime < 0 and Animations.startTime > 0) then Animations.startTime = client.gameTime Animations.maxCount = 0
 	elseif (client.gameTime - Animations.startTime) >= 1 then Animations.startTime = nil Animations.maxCount = Animations.count Animations.count = 0
 	else Animations.count = Animations.count + 1 end
-	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,visible=true})) do
-		if not Animations.table[v.handle] then
-			Animations.table[v.handle] = {}
-		end
-		for i,k in ipairs(v.abilities) do
-			if k.abilityPhase then
-				if not Animations.table[k.handle] then                                   
-					Animations.table[k.handle] = {}
-					Animations.table[k.handle].startTime = tick
-					Animations.table[k.handle].duration = tick - Animations.table[k.handle].startTime
-					Animations.table[v.handle].canmove = false
+	local entities = entityList:GetEntities({type=LuaEntity.TYPE_HERO,visible=true,alive=true})
+	entities[#entities + 1] = entityList:GetEntities({classId=CDOTA_Unit_SpiritBear,visible=true,alive=true})[1]
+	for i,v in ipairs(entities) do
+		if (v.hero and not v:IsIllusion()) or v.classId == CDOTA_Unit_SpiritBear then
+			if not Animations.table[v.handle] then
+				Animations.table[v.handle] = {}
+			end
+			if v.abilities then
+				for i,k in ipairs(v.abilities) do
+					if k.abilityPhase then
+						if not Animations.table[k.handle] then                                   
+							Animations.table[k.handle] = {}
+							Animations.table[k.handle].startTime = tick
+							Animations.table[k.handle].duration = tick - Animations.table[k.handle].startTime
+							Animations.table[v.handle].canmove = false
+						end
+					else
+						Animations.table[k.handle] = nil
+					end
+					if Animations.table[k.handle] then
+						Animations.table[k.handle].duration = tick - Animations.table[k.handle].startTime
+						Animations.table[v.handle].canmove = false
+					end
 				end
-			else
-				Animations.table[k.handle] = nil
 			end
-			if Animations.table[k.handle] then
-				Animations.table[k.handle].duration = tick - Animations.table[k.handle].startTime
-				Animations.table[v.handle].canmove = false
+			local hero = HeroInfo(v)
+			hero:Update()
+			if Animations.isAttacking(v) then
+				if not Animations.table[v.handle].startTime then
+					Animations.table[v.handle].startTime = client.gameTime
+				end
+				Animations.table[v.handle].endTime = Animations.table[v.handle].startTime + (hero.attackRate) - (client.latency/1000) - (1/Animations.maxCount)*3
+				Animations.table[v.handle].canmoveTime = Animations.table[v.handle].startTime + hero.attackPoint - ((client.latency/1000)/(1 + (1 - 1/Animations.maxCount))) + (1/Animations.maxCount)*3*(1 + (1 - 1/Animations.maxCount))
+				Animations.table[v.handle].attackTime = hero.attackRate
 			end
-		end
-		local hero = HeroInfo(v)
-		hero:Update()
-		if Animations.isAttacking(v) then
-			if not Animations.table[v.handle].startTime then
-				Animations.table[v.handle].startTime = client.gameTime
+			if Animations.table[v.handle].endTime and Animations.table[v.handle].endTime <= client.gameTime then
+				Animations.table[v.handle] = {}
+				return
 			end
-			Animations.table[v.handle].endTime = Animations.table[v.handle].startTime + (hero.attackRate) - (client.latency/1000) - (1/Animations.maxCount)*3
-			Animations.table[v.handle].canmoveTime = Animations.table[v.handle].startTime + hero.attackPoint - ((client.latency/1000)/(1 + (1 - 1/Animations.maxCount))) + (1/Animations.maxCount)*3*(1 + (1 - 1/Animations.maxCount))
-			Animations.table[v.handle].attackTime = hero.attackRate
-		end
-		if Animations.table[v.handle].endTime and Animations.table[v.handle].endTime <= client.gameTime then
-			Animations.table[v.handle] = {}
-			return
-		end
-		if Animations.table[v.handle].startTime then
-			Animations.table[v.handle].duration = client.gameTime - Animations.table[v.handle].startTime + 1/Animations.maxCount + client.latency/1000
-		end
-		if Animations.table[v.handle].canmoveTime and client.gameTime >= Animations.table[v.handle].canmoveTime then
-			Animations.table[v.handle].canmove = true
-		end
-		local projs = entityList:GetProjectiles({source=v})
-		for k,z in ipairs(projs) do
-			if GetDistance2D(z.position, v.position) < 127 and not Animations.table[v.handle].canmove then
+			if Animations.table[v.handle].startTime then
+				Animations.table[v.handle].duration = client.gameTime - Animations.table[v.handle].startTime + 1/Animations.maxCount + client.latency/1000
+			end
+			if Animations.table[v.handle].canmoveTime and client.gameTime >= Animations.table[v.handle].canmoveTime then
 				Animations.table[v.handle].canmove = true
-				Animations.table[v.handle].endTime = client.gameTime + (hero.attackBackswing) - (client.latency/1000) - (1/Animations.maxCount)*3
+			end
+			local projs = entityList:GetProjectiles({source=v})
+			for k,z in ipairs(projs) do
+				if GetDistance2D(z.position, v.position) < 127 and not Animations.table[v.handle].canmove then
+					Animations.table[v.handle].canmove = true
+					Animations.table[v.handle].endTime = client.gameTime + (hero.attackBackswing) - (client.latency/1000) - (1/Animations.maxCount)*3
+				end
 			end
 		end
 	end
@@ -219,6 +225,18 @@ function HeroInfo:GetAttackPoint()
 end
 
 function HeroInfo:GetAttackRate()
+	local alchrage = self.entity:FindSpell("alchemist_chemical_rage")
+	if alchrage and alchrage.level > 0 and self.entity:DoesHaveModifier("modifier_alchemist_chemical_rage") then
+		return alchrage:GetSpecialData("base_attack_time",alchrage.level) / (1 + (self.entity.attackSpeed - 100) / 100)
+	end
+	local terrormorph = self.entity:FindSpell("terrorblade_metamorphosis")
+	if terrormorph and terrormorph.level > 0 and self.entity:DoesHaveModifier("modifier_terrorblade_metamorphosis") then
+		return terrormorph:GetSpecialData("base_attack_time",terrormorph.level) / (1 + (self.entity.attackSpeed - 100) / 100)
+	end
+	local lonetrue = self.entity:FindSpell("lone_druid_true_form")
+	if lonetrue and lonetrue.level > 0 and self.entity:DoesHaveModifier("modifier_lone_druid_true_form") then
+		return lonetrue:GetSpecialData("base_attack_time",lonetrue.level) / (1 + (self.entity.attackSpeed - 100) / 100)
+	end
 	return self.entity.attackBaseTime / (1 + (self.entity.attackSpeed - 100) / 100)
 end
 
