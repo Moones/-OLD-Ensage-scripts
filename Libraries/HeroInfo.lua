@@ -948,13 +948,37 @@ npc_dota_hero_abaddon = {
  turnRate = 0.5,
  attackBackswing = 0.5},
  
-  npc_dota_hero_oracle = {
+ npc_dota_hero_oracle = {
  attackRate = 1.4,
  attackPoint = 0.3,
  attackRange = 620,
  projectileSpeed = 900,
  movementSpeed = 305,
  turnRate = 0.4,
- attackBackswing = 0.7}
+ attackBackswing = 0.7},
  
+ npc_dota_lone_druid_bear1 = {
+ attackRate = 1.75,
+ attackPoint = 0.43,
+ attackRange = 620,
+ attackBackswing = 0.67},
+ 
+ npc_dota_lone_druid_bear2 = {
+ attackRate = 1.65,
+ attackPoint = 0.43,
+ attackRange = 620,
+ attackBackswing = 0.67},
+ 
+ npc_dota_lone_druid_bear3 = {
+ attackRate = 1.55,
+ attackPoint = 0.43,
+ attackRange = 620,
+ attackBackswing = 0.67},
+ 
+ npc_dota_lone_druid_bear4 = {
+ attackRate = 1.45,
+ attackPoint = 0.43,
+ attackRange = 620,
+ attackBackswing = 0.67}
+
  }
