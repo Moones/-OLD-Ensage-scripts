@@ -1,5 +1,6 @@
 require("libs.Utils")
 require("libs.VectorOp")
+require("libs.Animations")
 
 --[[
  0 1 0 1 0 0 1 1    
@@ -26,7 +27,7 @@ require("libs.VectorOp")
 			v1.4:
 			 - Added Blind Prediction
 			 
-			v1.3:
+			v1.3: 
 			 - Reworked for new version
 			 
 			v1.2:
@@ -53,11 +54,11 @@ SkillShot.currentTick = 0
 
 function SkillShot.__TrackTick(tick)
 	SkillShot.currentTick = tick
-	SkillShot.BlindPrediction()
-	if tick >= SkillShot.lastTrackTick + 250 then
+	if tick >= SkillShot.lastTrackTick and Animations.maxCount > 0 then
 		SkillShot.__Track()
-		SkillShot.lastTrackTick = tick 	
+		SkillShot.lastTrackTick = tick + Animations.maxCount
 	end
+	SkillShot.BlindPrediction()
 end
 
 function SkillShot.__Track()
@@ -65,11 +66,16 @@ function SkillShot.__Track()
 	for i,v in ipairs(all) do
 		if SkillShot.trackTable[v.handle] == nil and v.alive and v.visible then
 			SkillShot.trackTable[v.handle] = {nil,nil,nil,v,nil}
-		elseif SkillShot.trackTable[v.handle] ~= nil and (not v.alive or not v.visible) then
+		end
+		if SkillShot.trackTable[v.handle] ~= nil and (not v.alive or not v.visible) then
 			SkillShot.trackTable[v.handle] = nil
-		elseif SkillShot.trackTable[v.handle] then
+		end
+		if SkillShot.trackTable[v.handle] and (not SkillShot.trackTable[v.handle].last or SkillShot.currentTick > SkillShot.trackTable[v.handle].last.tick) then
 			if SkillShot.trackTable[v.handle].last ~= nil then
-				SkillShot.trackTable[v.handle].speed = (v.position - SkillShot.trackTable[v.handle].last.pos)/(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)
+				local speed = (v.position - SkillShot.trackTable[v.handle].last.pos)/(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)
+				if not SkillShot.trackTable[v.handle].speed or GetDistance2D(speed,SkillShot.trackTable[v.handle].speed) > ((100/Animations.maxCount)/10) or speed == Vector(0,0,0) then
+					SkillShot.trackTable[v.handle].speed = speed
+				end
 			end
 			SkillShot.trackTable[v.handle].last = {pos = v.position, tick = SkillShot.currentTick}
 		end
@@ -85,14 +91,15 @@ function SkillShot.InFront(t,distance)
 end
 
 function SkillShot.PredictedXYZ(t,delay)
-	if (SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and SkillShot.trackTable[t.handle].speed == Vector(0,0,0)) or t:IsInvul() then
+	if (SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and SkillShot.trackTable[t.handle].speed == Vector(0,0,0)) or t:DoesHaveModifier("modifier_cyclone") or t:DoesHaveModifier("modifier_invoker_tornade") then
 		return t.position
 	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and (GetType(SkillShot.trackTable[t.handle].speed) == "Vector" or GetType(SkillShot.trackTable[t.handle].speed) == "Vector2D") and (SkillShot.trackTable[t.handle].speed ~= Vector(0,0,0) or t.activity ~= LuaEntityNPC.ACTIVITY_MOVE) then
+		
 		local pred = t.position + SkillShot.trackTable[t.handle].speed * delay
 		local pred2 = SkillShot.InFront(t,(delay/1000)*t.movespeed) + SkillShot.trackTable[t.handle].speed
 		local v = pred2
 		if pred and v then
-			if t.activity ~= LuaEntityNPC.ACTIVITY_MOVE or (GetDistance2D(pred,v) > 0 and GetDistance2D(pred,v) < 150) or SkillShot.AbilityMove(t) or not t:CanMove() then
+			if t.activity ~= LuaEntityNPC.ACTIVITY_MOVE or (GetDistance2D(pred,v) > Animations.maxCount) or SkillShot.AbilityMove(t) or not t:CanMove() then
 				v = pred
 			end
 		end
@@ -102,7 +109,7 @@ function SkillShot.PredictedXYZ(t,delay)
 end
 
 function SkillShot.SkillShotXYZ(source,t,delay,speed)	
-	if (SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and SkillShot.trackTable[t.handle].speed == Vector(0,0,0)) or t:IsInvul() then
+	if (SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and SkillShot.trackTable[t.handle].speed == Vector(0,0,0)) or t:DoesHaveModifier("modifier_cyclone") or t:DoesHaveModifier("modifier_invoker_tornade") then
 		return t.position
 	elseif source and t then
 		local sourcepos = source.position
@@ -254,4 +261,4 @@ function SkillShot.AbilityMove(t)
 	or t:DoesHaveModifier("modifier_slark_pounce")
 end
 	
-scriptEngine:RegisterLibEvent(EVENT_TICK,SkillShot.__TrackTick)
+scriptEngine:RegisterLibEvent(EVENT_FRAME,SkillShot.__TrackTick)
