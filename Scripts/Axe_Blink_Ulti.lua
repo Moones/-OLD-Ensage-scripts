@@ -105,10 +105,14 @@ function Tick(tick)
 								end
 							elseif Cullblade.abilityPhase and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) <= 300 then
 								me:Stop()
-							elseif callactive and SleepCheck() then
+							elseif callactive then
 								local pred = SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency)
 								if not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and ((pred and GetDistance2D(pred,me)-25 <= call:GetSpecialData("radius",call.level)) or not pred) then
-									me:SafeCastAbility(call) Sleep(200)
+									if SleepCheck("call") then
+										me:SafeCastAbility(call) Sleep(call:FindCastPoint()*1000+client.latency,"call")
+									end
+								elseif call.abilityPhase and not SleepCheck("call") then
+									me:Stop()
 								end
 							end		
 						end		
