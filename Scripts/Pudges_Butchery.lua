@@ -289,16 +289,16 @@ function Main(tick)
 				if not distxyz then
 					distxyz = GetDistance2D(victim,xyz)
 				end
-				if xyz and config.PredictionGUI and client.mousePosition and GetDistance2D(victim,xyz) > 0 and GetDistance2D(victim,client.mousePosition) <= distxyz+150 then
+				if xyz and config.PredictionGUI and client.mousePosition and GetDistance2D(victim,xyz) > 0 and GetDistance2D(victim,client.mousePosition) <= distxyz+200 then
 					xyz = client.mousePosition
 					if xyz and GetDistance2D(xyz,victim) > distxyz then
-						xyz = (xyz - victim.position) * (GetDistance2D(xyz,victim)-100) / GetDistance2D(xyz,victim) + victim.position
-						guixyz = true
+						xyz = (xyz - victim.position) * (GetDistance2D(xyz,victim)-(GetDistance2D(xyz,victim)-distxyz)+100) / GetDistance2D(xyz,victim) + victim.position
 					end
+					guixyz = true
 					if xyz and GetDistance2D(victim,xyz) > 0 then
 						if not eff[3] then
 							eff[3] = Effect(victim, "range_display" )
-							eff[3]:SetVector(1,Vector(distxyz+50,0,0))
+							eff[3]:SetVector(1,Vector(distxyz+100,0,0))
 							eff[3]:SetVector(0, victim.position )
 						else
 							eff[3]:SetVector(0, victim.position )
