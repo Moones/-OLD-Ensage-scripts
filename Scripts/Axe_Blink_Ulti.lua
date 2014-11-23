@@ -107,7 +107,7 @@ function Tick(tick)
 								me:Stop()
 							elseif callactive then
 								local pred = SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency)
-								if not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and ((pred and GetDistance2D(pred,me)-25 <= call:GetSpecialData("radius",call.level)) or not pred) then
+								if not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and ((pred and GetDistance2D(pred,me) <= call:GetSpecialData("radius",call.level)) or not pred) then
 									if SleepCheck("call") then
 										me:SafeCastAbility(call) Sleep(call:FindCastPoint()*1000+client.latency,"call")
 									end
