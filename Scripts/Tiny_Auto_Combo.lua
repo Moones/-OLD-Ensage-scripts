@@ -5,6 +5,7 @@ require("libs.TargetFind")
 local config = ScriptConfig.new()
 config:SetParameter("ToggleKey", "D", config.TYPE_HOTKEY)
 config:SetParameter("ComboKey", "F", config.TYPE_HOTKEY)
+config:SetParameter("MinimumHp", 500)
 config:Load()
 
 local toggleKey = config.ToggleKey
@@ -96,13 +97,13 @@ function Tick(tick)
 					end
 					
 					if me.alive and active then
-						if v.visible and v.alive and v.health > 0 then
+						if v.visible and v.alive and v.health > 0 and me.mana > 240 then
 						
 							hero[v.handle].visible = active
 							local combodamage = math.floor(v:DamageTaken(Dmg,Type,me))
 							local healthtokill = math.floor(v.health - combodamage + CastPoint*v.healthRegen+Moprhling(v,CastPoint))
 							hero[v.handle].text = "Health to kill: "..healthtokill
-							if healthtokill < 0 or combo then 
+							if (healthtokill < 0 or combo) and me.health > config.MinimumHp then 
 								if combo then
 									combo = false
 								else
