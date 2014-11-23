@@ -34,7 +34,7 @@ config:Load()
 local toggleKey = config.Hotkey
 
 local hero = {} local reg = false
-local active = true local myhero = nil local callactive = true
+local active = true local myhero = nil local callactive = true local callvictim = nil
 local eff,eff1 = nil,nil
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor)
@@ -107,11 +107,12 @@ function Tick(tick)
 								me:Stop()
 							elseif callactive then
 								local pred = SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency)
-								if not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and ((pred and GetDistance2D(pred,me) <= call:GetSpecialData("radius",call.level)) or not pred) then
+								if not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and ((pred and GetDistance2D(pred,me)-25 <= call:GetSpecialData("radius",call.level)) or not pred) then
 									if SleepCheck("call") then
 										me:SafeCastAbility(call) Sleep(call:FindCastPoint()*1000+client.latency,"call")
+										callvictim = v
 									end
-								elseif call.abilityPhase and not SleepCheck("call") then
+								elseif callvictim and v == callvictim and call.abilityPhase and not SleepCheck("call") then
 									me:Stop()
 								end
 							end		
@@ -178,6 +179,7 @@ function Load()
 			reg = true
 			callactive = true
 			active = true
+			callvictim = nil
 			myhero = me.classId
 			script:RegisterEvent(EVENT_TICK,Tick)
 			script:RegisterEvent(EVENT_KEY,Key)
