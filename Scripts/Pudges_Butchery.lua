@@ -176,8 +176,9 @@ function Main(tick)
 		if (IsKeyDown(config.StopKey) or IsKeyDown(togglekey)) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) then
 			xyz = nil
 			if SleepCheck("stopkey") and not client.chat then
-				me:Stop()
-				me:Move(client.mousePosition)
+				local prev = SelectUnit(me)
+				entityList:GetMyPlayer():HoldPosition()
+				SelectBack(prev)
 				Sleep(client.latency + 200, "stopkey")
 				Sleep(client.latency + 200, "testhook")
 			end
@@ -191,7 +192,9 @@ function Main(tick)
 					testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
 				end
 				if ((GetDistance2D(testxyz,xyz) > math.max(GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(hook:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency-100+config.HookTolerancy, client.latency+hook:FindCastPoint()*1000+100)),victim), 25))) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
-					me:Stop()
+					local prev = SelectUnit(me)
+					entityList:GetMyPlayer():HoldPosition()
+					SelectBack(prev)
 					me:SafeCastAbility(hook, testxyz)
 					xyz = testxyz
 					Sleep(math.max(hook:FindCastPoint()*500 - client.latency,0),"testhook")
@@ -199,7 +202,9 @@ function Main(tick)
 					return
 				end
 			elseif GetDistance2D(me,victim) > RangeH[hook.level] + 200 then
-				me:Stop()
+				local prev = SelectUnit(me)
+				entityList:GetMyPlayer():HoldPosition()
+				SelectBack(prev)
 				Sleep(math.max(hook:FindCastPoint()*500 - client.latency,0),"testhook")
 				Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
 				return
@@ -387,11 +392,13 @@ function Combo(tick)
 			Sleep(200,"combo")
 			ultied = true
 			return
-		elseif not me:IsChanneling() and not ultied then
-			if distance > 150 and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) then
+		end
+		if not me:IsChanneling() and not ultied then
+			if GetDistance2D(me,target) > 150 and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) then
 				me:Move(target.position)
+
 			elseif not target:IsAttackImmune() then
-			me:Attack(target)
+				me:Attack(target)
 			end
 			Sleep(30+client.latency,"combo")
 		end
@@ -425,7 +432,7 @@ function ModifierAdd(v,modifier)
 				targetHandle = v.handle
 				targetText.visible = true
 				targetText.text = "Eating " .. client:Localize(v.name) .. ". Press " .. string.char(togglekey) .. " to cancel."
-				script:RegisterEvent(EVENT_TICK,Combo)
+				script:RegisterEvent(EVENT_FRAME,Combo)
 				if targetHandle == v.handle then
 					victimText.visible = false
 				end
@@ -481,7 +488,7 @@ function Load()
 			reg = true
 			ultied = nil
 			blindvictim = nil
-			script:RegisterEvent(EVENT_TICK, Main)
+			script:RegisterEvent(EVENT_FRAME, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:RegisterEvent(EVENT_MODIFIER_ADD, ModifierAdd)
 			script:RegisterEvent(EVENT_MODIFIER_REMOVE, ModifierRemove)
