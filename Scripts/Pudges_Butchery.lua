@@ -23,8 +23,15 @@
 	   
 	Changelog:
 	----------
+		Update 1.9:
+			Increased accuracy a bit.
+			Added PredictionGUI:
+				Shows you prediction where hook will be casted.
+				You can adjust prediction with your mouse if you put it near the victim.
+				It will show you a range of where you are able to aim.
+			
 		Update 1.8.2:
-			Fixed urning and using ethereal to cancel ulti.
+			Fixed urning and using ethereal to cancel ulti. 
 			Fixed not immediate ulti after close hook.
 			
 		Update 1.8.1:
@@ -88,19 +95,20 @@ config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:SetParameter("Hookkey", "D", config.TYPE_HOTKEY)
 config:SetParameter("StopKey", "S", config.TYPE_HOTKEY)
 config:SetParameter("ManualtoggleKey", "G", config.TYPE_HOTKEY)
-config:SetParameter("HookTolerancy", 0)
+config:SetParameter("HookTolerancy", 150)
+config:SetParameter("PredictionGUI", true)
 config:Load()
 
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
 local sleeptick = 0 local targetHandle = nil local manualselection = false local active = true local victim = nil local xyz = nil local blindxyz = nil local rottoggled = false local count = 0 local hooked = false local urned = false local reg = false local ultied = nil
-
+local eff = {} local guixyz = false local distxyz = nil
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
 local targetText = drawMgr:CreateText(-100,-5,-1,"",myFont);
 local victimText = drawMgr:CreateText(-40,-5,-1,"",myFont);
 
 local DmgD = {225,375,525} local DmgR = {35,60,85,110} local DmgR2 = {7,12,17,22} local RangeH = {700,900,1100,1300}
-targetText.visible = false victimText.visible = false
+targetText.visible = false victimText.visible = false 
 
 function Key(msg,code)	
     if client.chat or not PlayingGame() then return end
@@ -129,9 +137,6 @@ function Key(msg,code)
 					statusText.text = "  Hook'em!"
 				end
 			end
-		elseif code == config.StopKey and (xyz or targetHandle) then
-			xyz = nil
-			active = false
 		end
 	elseif msg == RBUTTON_UP and targetHandle then
 		local target = entityList:GetEntity(targetHandle)
@@ -162,6 +167,33 @@ function Main(tick)
 		targetText.entityPosition = Vector(0,0,offset)
 	end
 	if active then
+		if config.PredictionGUI then
+			if victim and xyz then
+				if not eff[1] then 
+					eff[1] = Effect(xyz, "range_display" )
+					eff[1]:SetVector(1,Vector(50,0,0))
+					eff[1]:SetVector(0, xyz )
+				else
+					eff[1]:SetVector(0, xyz )
+				end
+				local visible1, screenpos1 = client:ScreenPosition(me.position);
+				local visible2, screenpos2 = client:ScreenPosition(xyz);
+				if visible1 and visible2 then
+					if not eff[2] then
+						eff[2] = drawMgr:CreateLine(screenpos1.x, screenpos1.y, screenpos2.x, screenpos2.y, 0x006fffff)
+					else
+						eff[2].visible = true
+						eff[2]:SetPosition(screenpos1,screenpos2)
+					end
+				elseif eff[2] then
+					eff[2].visible = false
+				end
+			elseif eff[1] or eff[2] or eff[3] then
+				eff[1] = nil
+				eff[2] = nil
+				eff[3] = nil
+			end
+		end
 		local Rubick = entityList:GetEntities({type=LuaEntity.TYPE_HERO,classId=CDOTA_Unit_Hero_Rubick,team=me:GetEnemyTeam(),illusion=false})[1] 
 		if hook.level > 0 and math.ceil(hook.cd) == math.ceil(hook:GetCooldown(hook.level)) then
 			xyz = nil
@@ -173,8 +205,11 @@ function Main(tick)
 				rottoggled = false
 			end
 		end
-		if (IsKeyDown(config.StopKey) or IsKeyDown(togglekey)) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) then
+		if (IsKeyDown(config.StopKey) or IsKeyDown(togglekey)) and (((hook.abilityPhase and not SleepCheck("hook")) and (math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook"))) or targetHandle) then
 			xyz = nil
+			if targetHandle then
+				active = false
+			end
 			if SleepCheck("stopkey") and not client.chat then
 				local prev = SelectUnit(me)
 				entityList:GetMyPlayer():HoldPosition()
@@ -182,33 +217,7 @@ function Main(tick)
 				Sleep(client.latency + 200, "stopkey")
 				Sleep(client.latency + 200, "testhook")
 			end
-		end
-		if not ultied and not IsKeyDown(config.StopKey) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
-			local speed = 1600 
-			local delay = (300+client.latency)
-			local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
-			if testxyz and (GetType(testxyz) == "Vector" or GetType(testxyz) == "Vector2D") and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 and victim.alive then	
-				if GetDistance2D(testxyz,me) > RangeH[hook.level] then
-					testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
-				end
-				if ((GetDistance2D(testxyz,xyz) > math.max(GetDistance2D(SkillShot.PredictedXYZ(victim,math.max(hook:FindCastPoint()*1000-(GetDistance2D(me,victim)/speed)*1000+client.latency-100+config.HookTolerancy, client.latency+hook:FindCastPoint()*1000+100)),victim), 25))) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
-					local prev = SelectUnit(me)
-					entityList:GetMyPlayer():HoldPosition()
-					SelectBack(prev)
-					me:SafeCastAbility(hook, testxyz)
-					xyz = testxyz
-					Sleep(math.max(hook:FindCastPoint()*500 - client.latency,0),"testhook")
-					Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
-					return
-				end
-			elseif GetDistance2D(me,victim) > RangeH[hook.level] + 200 then
-				local prev = SelectUnit(me)
-				entityList:GetMyPlayer():HoldPosition()
-				SelectBack(prev)
-				Sleep(math.max(hook:FindCastPoint()*500 - client.latency,0),"testhook")
-				Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
-				return
-			end
+			return
 		end
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do	
 			if v.team ~= me.team and not v:IsIllusion() then
@@ -272,6 +281,34 @@ function Main(tick)
 				statusText.text = "Hook'em - Manual!"
 			end
 			if victim and victim.visible and hook:CanBeCasted() and SleepCheck("hook") then
+				local speed = 1600 
+				local delay = (300+client.latency)
+				if not guixyz then	
+					xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
+				end
+				if not distxyz then
+					distxyz = GetDistance2D(victim,xyz)
+				end
+				if xyz and config.PredictionGUI and client.mousePosition and GetDistance2D(victim,xyz) > 0 and GetDistance2D(victim,client.mousePosition) <= distxyz+150 then
+					xyz = client.mousePosition
+					if xyz and GetDistance2D(xyz,victim) > distxyz then
+						xyz = (xyz - victim.position) * (GetDistance2D(xyz,victim)-100) / GetDistance2D(xyz,victim) + victim.position
+						guixyz = true
+					end
+					if xyz and GetDistance2D(victim,xyz) > 0 then
+						if not eff[3] then
+							eff[3] = Effect(victim, "range_display" )
+							eff[3]:SetVector(1,Vector(distxyz+50,0,0))
+							eff[3]:SetVector(0, victim.position )
+						else
+							eff[3]:SetVector(0, victim.position )
+						end
+					end
+				else
+					eff[3] = nil
+					guixyz = false
+					distxyz = nil
+				end
 				local distance = GetDistance2D(victim, me)
 				if distance <= RangeH[hook.level] + 100 and victim.visible then
 					statusText.text = "Hook: " .. client:Localize(victim.name)
@@ -282,9 +319,6 @@ function Main(tick)
 					end
 					if IsKeyDown(hookkey) and me.alive and not client.chat then
 						if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
-							local speed = 1600 
-							local delay = (300+client.latency)
-							xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
 							if xyz and (GetType(xyz) == "Vector" or GetType(xyz) == "Vector2D") and GetDistance2D(me,xyz) <= RangeH[hook.level] + 200 then	
 								if GetDistance2D(xyz,me) > RangeH[hook.level] then
 									xyz = (xyz - me.position) * (hook.castRange - 100) / GetDistance2D(xyz,me) + me.position
@@ -304,6 +338,31 @@ function Main(tick)
 				else
 					statusText.text = "Hook'em - Manual!"
 					victimText.visible = false
+				end
+			end
+			if not guixyz and not ultied and not IsKeyDown(config.StopKey) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
+				local speed = 1600 
+				local delay = (300+client.latency)
+				local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
+				if testxyz and (GetType(testxyz) == "Vector" or GetType(testxyz) == "Vector2D") and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 and victim.alive then	
+					if GetDistance2D(testxyz,me) > RangeH[hook.level] then
+						testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
+					end
+					if ((GetDistance2D(testxyz,xyz) > math.max(GetDistance2D(SkillShot.PredictedXYZ(victim,300+client.latency),victim)+config.HookTolerancy, 25))) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
+						local prev = SelectUnit(me)
+						entityList:GetMyPlayer():HoldPosition()
+						SelectBack(prev)
+						me:SafeCastAbility(hook, testxyz)
+						xyz = testxyz
+						Sleep(math.max(hook:FindCastPoint()*500 - client.latency,0),"testhook")
+						Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
+					end
+				elseif GetDistance2D(me,victim) > RangeH[hook.level] + 200 then
+					local prev = SelectUnit(me)
+					entityList:GetMyPlayer():HoldPosition()
+					SelectBack(prev)
+					Sleep(math.max(hook:FindCastPoint()*500 - client.latency,0),"testhook")
+					Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
 				end
 			end
 		end
@@ -458,6 +517,27 @@ function ModifierRemove(v,modifier)
 	end
 end
 
+function FindAB(first, second, distance)
+	local xAngle = math.deg(math.atan(math.abs(second.x - first.x)/math.abs(second.y - first.y)))
+	local retValue = nil
+	local retVector = Vector()
+	if first.x <= second.x and first.y >= second.y then
+			retValue = 270 + xAngle
+	elseif first.x >= second.x and first.y >= second.y then
+			retValue = (90-xAngle) + 180
+	elseif first.x >= second.x and first.y <= second.y then
+			retValue = 90+xAngle
+	elseif first.x <= second.x and first.y <= second.y then
+			retValue = 90 - xAngle
+	end
+	if retValue then
+		retVector = Vector(first.x + math.cos(math.rad(retValue))*distance,first.y + math.sin(math.rad(retValue))*distance,0)
+		client:GetGroundPosition(retVector)
+		retVector.z = retVector.z+100
+		return retVector
+	end
+end
+
 function Load()
 	if PlayingGame() then
 		local me = entityList:GetMyHero()
@@ -488,6 +568,8 @@ function Load()
 			reg = true
 			ultied = nil
 			blindvictim = nil
+			guixyz = false
+			distxyz = nil
 			script:RegisterEvent(EVENT_FRAME, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:RegisterEvent(EVENT_MODIFIER_ADD, ModifierAdd)
