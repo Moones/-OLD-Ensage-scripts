@@ -1,9 +1,9 @@
---<<Pudge's Butchery script by Moones version 1.9>>
+--<<Pudge's Butchery script by Moones version 1.9.1>>
 --[[
 	-------------------------------------
 	| Pudge's Butchery Script by Moones |
 	-------------------------------------
-	============ Version 1.9 ============
+	=========== Version 1.9.1 ===========
 	 
 	Description:
 	------------
@@ -23,6 +23,9 @@
 	   
 	Changelog:
 	----------
+		Update 1.9.1:
+			Performance fix.
+			
 		Update 1.9:
 			Increased accuracy a bit.
 			Added PredictionGUI:
@@ -99,6 +102,7 @@ config:SetParameter("ManualtoggleKey", "G", config.TYPE_HOTKEY)
 config:SetParameter("HookTolerancy", 0)
 config:SetParameter("PredictionGUI", true)
 config:SetParameter("EnableMouseAdjusting", true)
+config:SetParameter("GuiSleep", 0)
 config:Load()
 
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
@@ -169,7 +173,7 @@ function Main(tick)
 		targetText.entityPosition = Vector(0,0,offset)
 	end
 	if active then
-		if config.PredictionGUI then
+		if config.PredictionGUI and SleepCheck("guisleep") then
 			if victim and xyz then
 				if not eff[1] then 
 					eff[1] = Effect(xyz, "range_display" )
@@ -190,6 +194,7 @@ function Main(tick)
 				elseif eff[2] then
 					eff[2].visible = false
 				end
+				Sleep(config.GuiSleep,"guisleep")
 			elseif eff[1] or eff[2] or eff[3] then
 				eff[1] = nil
 				eff[2] = nil
@@ -222,7 +227,7 @@ function Main(tick)
 			return
 		end
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do	
-			if v.team ~= me.team and not v:IsIllusion() then
+			if v.team ~= me.team and not v:IsIllusion() and SleepCheck("blind") then
 				if rot.level > 0 then
 					local distance = GetDistance2D(v,me)
 					local projectile = entityList:GetProjectiles({target=me, source=v})
@@ -269,6 +274,7 @@ function Main(tick)
 				else
 					blindvictim = nil
 				end
+				Sleep(250, "blind")
 			end
 		end
 		if hook.state == LuaEntityAbility.STATE_READY then
@@ -285,8 +291,9 @@ function Main(tick)
 			if victim and victim.visible and hook:CanBeCasted() and SleepCheck("hook") then
 				local speed = 1600 
 				local delay = (300+client.latency+me:GetTurnTime(victim)*1000)
-				if not guixyz then	
+				if not guixyz and ((config.PredictionGUI and SleepCheck("guisleep2")) or IsKeyDown(hookkey)) then	
 					xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
+					Sleep(config.GuiSleep, "guisleep2")
 				end
 				if not distxyz then
 					distxyz = GetDistance2D(victim,xyz)
