@@ -179,6 +179,9 @@ function Main(tick)
 	if active then
 		if config.PredictionGUI and victim and victim.visible then
 			local pred = SkillShot.SkillShotXYZ(me,victim,(300+client.latency+me:GetTurnTime(victim)*1000),1600)
+			if not distxyz then
+				distxyz = GetDistance2D(victim,xyz)
+			end
 			if xyz and SleepCheck("mouse") and config.EnableMouseAdjusting and config.PredictionGUI and client.mousePosition and GetDistance2D(victim,xyz) > 0 and GetDistance2D(victim,client.mousePosition) <= distxyz*2 then
 				xyz = client.mousePosition
 				if xyz and GetDistance2D(xyz,victim) > distxyz then
@@ -356,9 +359,6 @@ function Main(tick)
 				if not guixyz and ((config.PredictionGUI and SleepCheck("guisleep2")) or IsKeyDown(hookkey)) then	
 					xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
 					Sleep(config.GuiSleep, "guisleep2")
-				end
-				if not distxyz then
-					distxyz = GetDistance2D(victim,xyz)
 				end
 				local distance = GetDistance2D(victim, me)
 				if distance <= RangeH[hook.level] + 200 and victim.visible then
