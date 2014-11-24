@@ -73,8 +73,9 @@ function SkillShot.__Track()
 		if SkillShot.trackTable[v.handle] and (not SkillShot.trackTable[v.handle].last or SkillShot.currentTick > SkillShot.trackTable[v.handle].last.tick) then
 			if SkillShot.trackTable[v.handle].last ~= nil then
 				local speed = (v.position - SkillShot.trackTable[v.handle].last.pos)/(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)
-				if not SkillShot.trackTable[v.handle].speed or GetDistance2D(speed,SkillShot.trackTable[v.handle].speed) > ((100/Animations.maxCount)/10) or speed == Vector(0,0,0) then
+				if not SkillShot.trackTable[v.handle].speed or GetDistance2D(speed,SkillShot.trackTable[v.handle].speed) > ((100/Animations.maxCount)/10) or speed == Vector(0,0,0) or (SkillShot.trackTable[v.handle].movespeed and v.movespeed ~= SkillShot.trackTable[v.handle].movespeed) then
 					SkillShot.trackTable[v.handle].speed = speed
+					SkillShot.trackTable[v.handle].movespeed = v.movespeed
 				end
 			end
 			SkillShot.trackTable[v.handle].last = {pos = v.position, tick = SkillShot.currentTick}
@@ -185,7 +186,7 @@ end
 
 function SkillShot.__GetBlock(v1,v2,target,aoe,team)
 	local me = entityList:GetMyHero()
-	local enemyTeam = me:GetEnemyTeam()
+	local enemyTeam = me:GetEnemyTeam() 
 	
 	if team == nil then
 		team = false
