@@ -56,7 +56,7 @@ function SkillShot.__TrackTick(tick)
 	SkillShot.currentTick = tick
 	if tick >= SkillShot.lastTrackTick and Animations.maxCount > 0 then
 		SkillShot.__Track()
-		SkillShot.lastTrackTick = tick + Animations.maxCount
+		SkillShot.lastTrackTick = tick + Animations.maxCount/2
 	end
 	SkillShot.BlindPrediction()
 end
@@ -73,14 +73,16 @@ function SkillShot.__Track()
 		if SkillShot.trackTable[v.handle] and (not SkillShot.trackTable[v.handle].last or SkillShot.currentTick > SkillShot.trackTable[v.handle].last.tick) then
 			if SkillShot.trackTable[v.handle].last ~= nil then
 				local speed = (v.position - SkillShot.trackTable[v.handle].last.pos)/(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)
-				if not SkillShot.trackTable[v.handle].speed or GetDistance2D(speed,SkillShot.trackTable[v.handle].speed) > ((100/Animations.maxCount)/10) or speed == Vector(0,0,0) or (SkillShot.trackTable[v.handle].movespeed and v.movespeed ~= SkillShot.trackTable[v.handle].movespeed) then
+				if not SkillShot.trackTable[v.handle].speed or GetDistance2D(speed,SkillShot.trackTable[v.handle].speed) > ((100/(Animations.maxCount/2))/10) or speed == Vector(0,0,0) or (SkillShot.trackTable[v.handle].movespeed and v.movespeed ~= SkillShot.trackTable[v.handle].movespeed) 
+				or (SkillShot.trackTable[v.handle].rotR and SkillShot.trackTable[v.handle].rotR ~= v.rotR) then
 					SkillShot.trackTable[v.handle].speed = speed
 					SkillShot.trackTable[v.handle].movespeed = v.movespeed
+					SkillShot.trackTable[v.handle].rotR = v.rotR
 				end
 			end
 			SkillShot.trackTable[v.handle].last = {pos = v.position, tick = SkillShot.currentTick}
 		end
-	end
+	end 
 end
 
 function SkillShot.InFront(t,distance)
@@ -92,10 +94,8 @@ function SkillShot.InFront(t,distance)
 end
 
 function SkillShot.PredictedXYZ(t,delay)
-	if (SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and SkillShot.trackTable[t.handle].speed == Vector(0,0,0)) or t:DoesHaveModifier("modifier_cyclone") or t:DoesHaveModifier("modifier_invoker_tornade") then
-		return t.position
-	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and (GetType(SkillShot.trackTable[t.handle].speed) == "Vector" or GetType(SkillShot.trackTable[t.handle].speed) == "Vector2D") and (SkillShot.trackTable[t.handle].speed ~= Vector(0,0,0) or t.activity ~= LuaEntityNPC.ACTIVITY_MOVE) then
-		
+	if SkillShot.isIdle(t) then return t.position
+	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and (GetType(SkillShot.trackTable[t.handle].speed) == "Vector" or GetType(SkillShot.trackTable[t.handle].speed) == "Vector2D") and (SkillShot.trackTable[t.handle].speed ~= Vector(0,0,0) or t.activity ~= LuaEntityNPC.ACTIVITY_MOVE) then	
 		local pred = t.position + SkillShot.trackTable[t.handle].speed * delay
 		local pred2 = SkillShot.InFront(t,(delay/1000)*t.movespeed) + SkillShot.trackTable[t.handle].speed
 		local v = pred2
@@ -110,8 +110,7 @@ function SkillShot.PredictedXYZ(t,delay)
 end
 
 function SkillShot.SkillShotXYZ(source,t,delay,speed)	
-	if (SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and SkillShot.trackTable[t.handle].speed == Vector(0,0,0)) or t:DoesHaveModifier("modifier_cyclone") or t:DoesHaveModifier("modifier_invoker_tornade") then
-		return t.position
+	if SkillShot.isIdle(t) then return t.position
 	elseif source and t then
 		local sourcepos = source.position
 		local prediction = SkillShot.PredictedXYZ(t,delay)
@@ -262,4 +261,8 @@ function SkillShot.AbilityMove(t)
 	or t:DoesHaveModifier("modifier_slark_pounce")
 end
 	
+function SkillShot.isIdle(t)
+	return (SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and SkillShot.trackTable[t.handle].speed == Vector(0,0,0)) or t:DoesHaveModifier("modifier_cyclone") or t:DoesHaveModifier("modifier_invoker_tornado") or (t.activity == LuaEntityNPC.ACTIVITY_IDLE and not SkillShot.AbilityMove(t))
+end
+
 scriptEngine:RegisterLibEvent(EVENT_FRAME,SkillShot.__TrackTick)
