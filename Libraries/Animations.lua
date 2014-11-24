@@ -106,7 +106,7 @@ Animations.maxCount = 0
 function Animations.trackingTick(tick)
 	if not PlayingGame() or client.paused then return end
 	if not Animations.startTime then Animations.startTime = client.gameTime
-	elseif (client.gameTime < 0 and Animations.startTime > 0) then Animations.startTime = client.gameTime Animations.maxCount = 0
+	elseif (client.gameTime < 0 and Animations.startTime > 0) then Animations.startTime = client.gameTime Animations.maxCount = 0 Animations.table = {}
 	elseif (client.gameTime - Animations.startTime) >= 1 then Animations.startTime = nil Animations.maxCount = Animations.count Animations.count = 0
 	else Animations.count = Animations.count + 1 end
 	local entities = entityList:GetEntities({type=LuaEntity.TYPE_HERO,visible=true,alive=true})
@@ -116,6 +116,40 @@ function Animations.trackingTick(tick)
 			if not Animations.table[v.handle] then
 				Animations.table[v.handle] = {}
 			end
+			--SleepCheck
+			if Animations.table[v.handle].canmove then
+				if not Animations.table[v.handle].sleepM or (Animations.startTime and (client.gameTime < 0 and Animations.startTime > 0)) then
+					if Animations.maxCount and Animations.maxCount > 0 then
+						Animations.table[v.handle].sleepM = tick + math.max((100/Animations.maxCount)*client.latency, 100)
+					end
+				end
+				if Animations.table[v.handle].sleepM then
+					if tick < Animations.table[v.handle].sleepM then
+						Animations.table[v.handle].sleepingM = true
+					end
+					if tick > Animations.table[v.handle].sleepM then
+						Animations.table[v.handle].sleepingM = false
+						Animations.table[v.handle].sleepM = tick + math.max((100/Animations.maxCount)*client.latency, 100)
+					end
+				end
+			end
+			if not Animations.table[v.handle].canmove then
+				if not Animations.table[v.handle].sleepA or (Animations.startTime and (client.gameTime < 0 and Animations.startTime > 0)) then
+					if Animations.maxCount and Animations.maxCount > 0 then
+						Animations.table[v.handle].sleepA = tick + math.max((100/Animations.maxCount)*client.latency, 100)
+					end
+				end
+				if Animations.table[v.handle].sleepA then
+					if tick < Animations.table[v.handle].sleepA then
+						Animations.table[v.handle].sleepingA = true
+					end
+					if tick > Animations.table[v.handle].sleepA then
+						Animations.table[v.handle].sleepingA = false
+						Animations.table[v.handle].sleepA = tick + math.max((100/Animations.maxCount)*client.latency, 100)
+					end
+				end
+			end
+			--SpellAnimationCheck
 			if v.abilities then
 				for i,k in ipairs(v.abilities) do
 					if k.abilityPhase then
@@ -136,16 +170,31 @@ function Animations.trackingTick(tick)
 			end
 			local hero = HeroInfo(v)
 			hero:Update()
+			
+			Animations.table[v.handle].attackTime = hero.attackPoint - ((client.latency/1000)/(1 + (1 - 1/Animations.maxCount))) + (1/Animations.maxCount)*3*(1 + (1 - 1/Animations.maxCount))
+			Animations.table[v.handle].moveTime = (hero.attackRate) - (client.latency/1000) - (1/Animations.maxCount)*3
+			
+			--AttackAnimationCheck
 			if Animations.isAttacking(v) then
 				if not Animations.table[v.handle].startTime then
 					Animations.table[v.handle].startTime = client.gameTime
 				end
 				Animations.table[v.handle].endTime = Animations.table[v.handle].startTime + (hero.attackRate) - (client.latency/1000) - (1/Animations.maxCount)*3
 				Animations.table[v.handle].canmoveTime = Animations.table[v.handle].startTime + hero.attackPoint - ((client.latency/1000)/(1 + (1 - 1/Animations.maxCount))) + (1/Animations.maxCount)*3*(1 + (1 - 1/Animations.maxCount))
-				Animations.table[v.handle].attackTime = hero.attackRate
+			end
+			--FlyingProjectilesCheck
+			local projs = entityList:GetProjectiles({source=v})
+			for k,z in ipairs(projs) do
+				if GetDistance2D(z.position, v.position) < 127 and not Animations.table[v.handle].canmove then
+					Animations.table[v.handle].canmove = true
+					Animations.table[v.handle].endTime = client.gameTime + (hero.attackBackswing) - (client.latency/1000) - (1/Animations.maxCount)*3
+				end
 			end
 			if Animations.table[v.handle].endTime and Animations.table[v.handle].endTime <= client.gameTime then
-				Animations.table[v.handle] = {}
+				Animations.table[v.handle].startTime = nil
+				Animations.table[v.handle].canmoveTime = nil
+				Animations.table[v.handle].endTime = nil
+				Animations.table[v.handle].canmove = false
 				return
 			end
 			if Animations.table[v.handle].startTime then
@@ -153,13 +202,6 @@ function Animations.trackingTick(tick)
 			end
 			if Animations.table[v.handle].canmoveTime and client.gameTime >= Animations.table[v.handle].canmoveTime then
 				Animations.table[v.handle].canmove = true
-			end
-			local projs = entityList:GetProjectiles({source=v})
-			for k,z in ipairs(projs) do
-				if GetDistance2D(z.position, v.position) < 127 and not Animations.table[v.handle].canmove then
-					Animations.table[v.handle].canmove = true
-					Animations.table[v.handle].endTime = client.gameTime + (hero.attackBackswing) - (client.latency/1000) - (1/Animations.maxCount)*3
-				end
 			end
 		end
 	end
