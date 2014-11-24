@@ -96,7 +96,7 @@ config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
 config:SetParameter("Hookkey", "D", config.TYPE_HOTKEY)
 config:SetParameter("StopKey", "S", config.TYPE_HOTKEY)
 config:SetParameter("ManualtoggleKey", "G", config.TYPE_HOTKEY)
-config:SetParameter("HookTolerancy", 150)
+config:SetParameter("HookTolerancy", 0)
 config:SetParameter("PredictionGUI", true)
 config:SetParameter("EnableMouseAdjusting", true)
 config:Load()
@@ -180,7 +180,7 @@ function Main(tick)
 				end
 				local visible1, screenpos1 = client:ScreenPosition(me.position);
 				local visible2, screenpos2 = client:ScreenPosition(xyz);
-				if visible1 and visible2 then
+				if visible1 or visible2 then
 					if not eff[2] then
 						eff[2] = drawMgr:CreateLine(screenpos1.x, screenpos1.y, screenpos2.x, screenpos2.y, 0x006fffff)
 					else
