@@ -104,7 +104,8 @@ config:SetParameter("StopKey", "S", config.TYPE_HOTKEY)
 config:SetParameter("ManualtoggleKey", "G", config.TYPE_HOTKEY)
 config:SetParameter("HookTolerancy", 0)
 config:SetParameter("PredictionGUI", true)
-config:SetParameter("EnableMouseAdjusting", true)
+config:SetParameter("EnableMouseAdjusting", false)
+config:SetParameter("BlindHooks", false)
 config:SetParameter("GuiSleep", 0)
 config:Load()
 
@@ -292,7 +293,7 @@ function Main(tick)
 			return
 		end
 		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true})) do	
-			if v.team ~= me.team and not v:IsIllusion() and SleepCheck("blind") then
+			if v.team ~= me.team and not v:IsIllusion() then
 				if rot.level > 0 then
 					local distance = GetDistance2D(v,me)
 					local projectile = entityList:GetProjectiles({target=me, source=v})
@@ -321,28 +322,30 @@ function Main(tick)
 						Sleep(250,"urn")
 					end
 				end
-				if not v.visible and hook.level > 0 and me.alive and not victim then
-					local speed = 1600 
-					local castPoint = (0.35 + client.latency/1000)
-					local blindvictim
-					if not blindvictim or v.health < blindvictim.health or blindvictim.visible then
-						blindvictim = v
-					end
-					blindxyz = SkillShot.BlindSkillShotXYZ(me,blindvictim,speed,castPoint)
-					if blindxyz and blindxyz:GetDistance2D(me) <= RangeH[hook.level] + 100 then 
-						statusText.text = "Hook'em - BLIND!"
-						if IsKeyDown(hookkey) and SleepCheck("hook") and not client.chat then
-							me:SafeCastAbility(hook, blindxyz)
-							Sleep(100+client.latency,"hook")
+				if config.BlindHooks and hook.level > 0 and me.alive and not victim then
+					if not v.visible then
+						if not blindvictim or v.health < blindvictim.health or blindvictim.visible then
+							blindvictim = v
 						end
 					end
-				else
+				else 
 					blindvictim = nil
 				end
-				Sleep(250, "blind")
 			end
 		end
-		if hook.state == LuaEntityAbility.STATE_READY then
+		if config.BlindHooks and hook.level > 0 and me.alive and not victim and blindvictim and not blindvictim.visible then
+			local speed = 1600 
+			local castPoint = (0.35 + client.latency/1000 + me:GetTurnTime(blindvictim))
+			blindxyz = SkillShot.BlindSkillShotXYZ(me,blindvictim,speed,castPoint)
+			if blindxyz and blindxyz:GetDistance2D(me) <= RangeH[hook.level] + 200 then 
+				statusText.text = "Hook'em - BLIND!"
+				if IsKeyDown(hookkey) and SleepCheck("hook") and not client.chat then
+					me:SafeCastAbility(hook, blindxyz)
+					Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
+				end
+			end
+		end
+		if hook.state == LuaEntityAbility.STATE_READY and victim and victim.visible then
 			victimText.visible = true
 		else
 			victimText.visible = false
@@ -353,6 +356,7 @@ function Main(tick)
 				victim = targetFind:GetClosestToMouse(100)
 				statusText.text = "Hook'em - Manual!"
 			end
+			if victim and not victim.visible then victim = nil end
 			if victim and victim.visible and hook:CanBeCasted() and SleepCheck("hook") then
 				local speed = 1600 
 				local delay = (300+client.latency+me:GetTurnTime(victim)*1000)
