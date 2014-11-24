@@ -89,6 +89,7 @@ require("libs.ScriptConfig")
 require("libs.TargetFind")
 require("libs.SkillShot")
 require("libs.VectorOp")
+require("libs.Animations")
 
 config = ScriptConfig.new()
 config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
@@ -97,6 +98,7 @@ config:SetParameter("StopKey", "S", config.TYPE_HOTKEY)
 config:SetParameter("ManualtoggleKey", "G", config.TYPE_HOTKEY)
 config:SetParameter("HookTolerancy", 150)
 config:SetParameter("PredictionGUI", true)
+config:SetParameter("EnableMouseAdjusting", true)
 config:Load()
 
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
@@ -289,7 +291,7 @@ function Main(tick)
 				if not distxyz then
 					distxyz = GetDistance2D(victim,xyz)
 				end
-				if xyz and config.PredictionGUI and client.mousePosition and GetDistance2D(victim,xyz) > 0 and GetDistance2D(victim,client.mousePosition) <= distxyz+200 then
+				if xyz and config.EnableMouseAdjusting and config.PredictionGUI and client.mousePosition and GetDistance2D(victim,xyz) > 0 and GetDistance2D(victim,client.mousePosition) <= distxyz+200 then
 					xyz = client.mousePosition
 					if xyz and GetDistance2D(xyz,victim) > distxyz then
 						xyz = (xyz - victim.position) * (GetDistance2D(xyz,victim)-(GetDistance2D(xyz,victim)-distxyz)+100) / GetDistance2D(xyz,victim) + victim.position
@@ -348,7 +350,7 @@ function Main(tick)
 					if GetDistance2D(testxyz,me) > RangeH[hook.level] then
 						testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
 					end
-					if ((GetDistance2D(testxyz,xyz) > math.max(GetDistance2D(SkillShot.PredictedXYZ(victim,300+client.latency),victim)+config.HookTolerancy, 25))) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
+					if ((GetDistance2D(testxyz,xyz) > math.max(GetDistance2D(SkillShot.PredictedXYZ(victim,300+client.latency),victim)+Animations.maxCount, 25))) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
 						local prev = SelectUnit(me)
 						entityList:GetMyPlayer():HoldPosition()
 						SelectBack(prev)
