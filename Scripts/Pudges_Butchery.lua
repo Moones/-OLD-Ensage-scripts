@@ -1,9 +1,9 @@
---<<Pudge's Butchery script by Moones version 1.8.2>>
+--<<Pudge's Butchery script by Moones version 1.9>>
 --[[
 	-------------------------------------
 	| Pudge's Butchery Script by Moones |
 	-------------------------------------
-	========== Version 1.8.2 ============
+	============ Version 1.9 ============
 	 
 	Description:
 	------------
@@ -282,7 +282,7 @@ function Main(tick)
 			end
 			if victim and victim.visible and hook:CanBeCasted() and SleepCheck("hook") then
 				local speed = 1600 
-				local delay = (300+client.latency)
+				local delay = (300+client.latency+me:GetTurnTime(victim)*1000)
 				if not guixyz then	
 					xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
 				end
@@ -342,7 +342,7 @@ function Main(tick)
 			end
 			if not guixyz and not ultied and not IsKeyDown(config.StopKey) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
 				local speed = 1600 
-				local delay = (300+client.latency)
+				local delay = (300+client.latency+me:GetTurnTime(victim)*1000)
 				local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
 				if testxyz and (GetType(testxyz) == "Vector" or GetType(testxyz) == "Vector2D") and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 and victim.alive then	
 					if GetDistance2D(testxyz,me) > RangeH[hook.level] then
