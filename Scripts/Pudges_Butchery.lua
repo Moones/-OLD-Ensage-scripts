@@ -133,7 +133,7 @@ function Key(msg,code)
 					manualselection = true
 					statusText.text = "Hook'em - Manual!"
 				else
-					manualselection = nila
+					manualselection = nil
 					statusText.text = "  Hook'em!"
 				end
 			end
