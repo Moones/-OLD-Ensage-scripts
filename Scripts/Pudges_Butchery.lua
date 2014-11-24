@@ -1,9 +1,9 @@
---<<Pudge's Butchery script by Moones version 1.9.1>>
+--<<Pudge's Butchery script by Moones version 1.9.2>>
 --[[
 	-------------------------------------
 	| Pudge's Butchery Script by Moones |
 	-------------------------------------
-	=========== Version 1.9.1 ===========
+	=========== Version 1.9.2 ===========
 	 
 	Description:
 	------------
@@ -23,6 +23,9 @@
 	   
 	Changelog:
 	----------
+		Update 1.9.2:
+			Little improve of PredictionGui.
+			
 		Update 1.9.1:
 			Performance fix.
 			
@@ -128,6 +131,7 @@ function Key(msg,code)
 				if not targetHandle then
 					statusText.text = "   OFF!"
 					victimText.visible = false
+					eff = {}
 				end
 			end
 			if xyz then 
@@ -173,17 +177,61 @@ function Main(tick)
 		targetText.entityPosition = Vector(0,0,offset)
 	end
 	if active then
-		if config.PredictionGUI and SleepCheck("guisleep") then
-			if victim and xyz then
+		if config.PredictionGUI and victim and victim.visible then
+			local pred = SkillShot.SkillShotXYZ(me,victim,(300+client.latency+me:GetTurnTime(victim)*1000),1600)
+			if xyz and SleepCheck("mouse") and config.EnableMouseAdjusting and config.PredictionGUI and client.mousePosition and GetDistance2D(victim,xyz) > 0 and GetDistance2D(victim,client.mousePosition) <= distxyz*2 then
+				xyz = client.mousePosition
+				if xyz and GetDistance2D(xyz,victim) > distxyz then
+					xyz = (xyz - victim.position) * (GetDistance2D(xyz,victim)-((GetDistance2D(xyz,victim)-distxyz)*(distxyz/GetDistance2D(xyz,victim)))) / GetDistance2D(xyz,victim) + victim.position
+				end
+				if GetDistance2D(xyz,pred) < 100 then
+					xyz = pred
+				end
+				guixyz = true
+				if xyz and GetDistance2D(victim,xyz) > 0 then
+					if not eff[3] then
+						eff[3] = Effect(victim, "range_display" )
+						eff[3]:SetVector(1,Vector(distxyz+100,0,0))
+						eff[3]:SetVector(0, victim.position )
+					else
+						eff[3]:SetVector(0, victim.position )
+					end
+				end
+			else
+				if SleepCheck("mouse") then
+					Sleep(250,"mouse")
+				end
+				eff[3] = nil
+				eff[4] = nil
+				guixyz = false
+				distxyz = nil
+			end
+			if SleepCheck("guisleep") and xyz then
+				if guixyz then
+					if not eff[4] then 
+						eff[4] = Effect(xyz, "range_display" )
+						eff[4]:SetVector(1,Vector(75,0,0))
+						eff[4]:SetVector(0, xyz )
+					else
+						eff[4]:SetVector(0, xyz )
+					end
+				end
 				if not eff[1] then 
 					eff[1] = Effect(xyz, "range_display" )
-					eff[1]:SetVector(1,Vector(50,0,0))
+					eff[1]:SetVector(1,Vector(75,0,0))
 					eff[1]:SetVector(0, xyz )
+				elseif guixyz and pred then
+					eff[1]:SetVector(0, pred )
 				else
 					eff[1]:SetVector(0, xyz )
 				end
 				local visible1, screenpos1 = client:ScreenPosition(me.position);
 				local visible2, screenpos2 = client:ScreenPosition(xyz);
+				local visible3, screenpos3 = client:ScreenPosition(victim.position);
+				local visible4, screenpos4
+				if pred then
+					visible4, screenpos4 = client:ScreenPosition(pred);
+				end
 				if visible1 or visible2 then
 					if not eff[2] then
 						eff[2] = drawMgr:CreateLine(screenpos1.x, screenpos1.y, screenpos2.x, screenpos2.y, 0x006fffff)
@@ -194,12 +242,29 @@ function Main(tick)
 				elseif eff[2] then
 					eff[2].visible = false
 				end
+				if (visible4 or visible3) and screenpos4 then
+					if not eff[5] then
+						eff[5] = drawMgr:CreateLine(screenpos3.x, screenpos3.y, screenpos4.x, screenpos4.y, 0xff000fff)
+					else
+						eff[5].visible = true
+						eff[5]:SetPosition(screenpos3,screenpos4)
+					end
+				elseif eff[5] then
+					eff[5].visible = false
+				end
 				Sleep(config.GuiSleep,"guisleep")
-			elseif eff[1] or eff[2] or eff[3] then
+			elseif not xyz and (eff[1] or eff[2] or eff[4] or eff[5]) then
 				eff[1] = nil
 				eff[2] = nil
-				eff[3] = nil
+				eff[4] = nil
+				eff[5] = nil
 			end
+		elseif eff[1] or eff[2] or eff[3] or eff[4] or eff[5] then
+			eff[1] = nil
+			eff[2] = nil
+			eff[3] = nil
+			eff[4] = nil
+			eff[5] = nil
 		end
 		local Rubick = entityList:GetEntities({type=LuaEntity.TYPE_HERO,classId=CDOTA_Unit_Hero_Rubick,team=me:GetEnemyTeam(),illusion=false})[1] 
 		if hook.level > 0 and math.ceil(hook.cd) == math.ceil(hook:GetCooldown(hook.level)) then
@@ -214,9 +279,6 @@ function Main(tick)
 		end
 		if (IsKeyDown(config.StopKey) or IsKeyDown(togglekey)) and (((hook.abilityPhase and not SleepCheck("hook")) and (math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook"))) or targetHandle) then
 			xyz = nil
-			if targetHandle then
-				active = false
-			end
 			if SleepCheck("stopkey") and not client.chat then
 				local prev = SelectUnit(me)
 				entityList:GetMyPlayer():HoldPosition()
@@ -298,28 +360,8 @@ function Main(tick)
 				if not distxyz then
 					distxyz = GetDistance2D(victim,xyz)
 				end
-				if xyz and config.EnableMouseAdjusting and config.PredictionGUI and client.mousePosition and GetDistance2D(victim,xyz) > 0 and GetDistance2D(victim,client.mousePosition) <= distxyz+200 then
-					xyz = client.mousePosition
-					if xyz and GetDistance2D(xyz,victim) > distxyz then
-						xyz = (xyz - victim.position) * (GetDistance2D(xyz,victim)-(GetDistance2D(xyz,victim)-distxyz)+100) / GetDistance2D(xyz,victim) + victim.position
-					end
-					guixyz = true
-					if xyz and GetDistance2D(victim,xyz) > 0 then
-						if not eff[3] then
-							eff[3] = Effect(victim, "range_display" )
-							eff[3]:SetVector(1,Vector(distxyz+100,0,0))
-							eff[3]:SetVector(0, victim.position )
-						else
-							eff[3]:SetVector(0, victim.position )
-						end
-					end
-				else
-					eff[3] = nil
-					guixyz = false
-					distxyz = nil
-				end
 				local distance = GetDistance2D(victim, me)
-				if distance <= RangeH[hook.level] + 100 and victim.visible then
+				if distance <= RangeH[hook.level] + 200 and victim.visible then
 					statusText.text = "Hook: " .. client:Localize(victim.name)
 					victimText.text = "  Hook'em!"
 					victimText.entity = victim
@@ -328,7 +370,7 @@ function Main(tick)
 					end
 					if IsKeyDown(hookkey) and me.alive and not client.chat then
 						if not victim:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") then
-							if xyz and (GetType(xyz) == "Vector" or GetType(xyz) == "Vector2D") and GetDistance2D(me,xyz) <= RangeH[hook.level] + 200 then	
+							if xyz and (GetType(xyz) == "Vector" or GetType(xyz) == "Vector2D") and GetDistance2D(me,xyz) <= RangeH[hook.level] + 300 then	
 								if GetDistance2D(xyz,me) > RangeH[hook.level] then
 									xyz = (xyz - me.position) * (hook.castRange - 100) / GetDistance2D(xyz,me) + me.position
 								end
