@@ -58,7 +58,6 @@ function SkillShot.__TrackTick(tick)
 		SkillShot.__Track()
 		SkillShot.lastTrackTick = tick + Animations.maxCount/2
 	end
-	SkillShot.BlindPrediction()
 end
 
 function SkillShot.__Track()
@@ -139,7 +138,7 @@ function SkillShot.SkillShotXYZ(source,t,delay,speed)
 end
 
 function SkillShot.BlindSkillShotXYZ(source,t,speed,castpoint)
-	if SkillShot.BlindPredictionTable[t.handle].range then
+	if SkillShot.BlindPredictionTable[t.handle] and SkillShot.BlindPredictionTable[t.handle].range then
 		local distance = GetDistance2D(SkillShot.BlindPredictionTable[t.handle].range, source)
 		return Vector(SkillShot.BlindPredictionTable[t.handle].range.x + SkillShot.BlindPredictionTable[t.handle].move * (distance/(speed * math.sqrt(1 - math.pow(SkillShot.BlindPredictionTable[t.handle].move/speed,2))) + castpoint) * math.cos(t.rotR), SkillShot.BlindPredictionTable[t.handle].range.y + SkillShot.BlindPredictionTable[t.handle].move * (distance/(speed * math.sqrt(1 - math.pow(SkillShot.BlindPredictionTable[t.handle].move/speed,2))) + castpoint) * math.sin(t.rotR),SkillShot.BlindPredictionTable[t.handle].range.z)
 	end
@@ -152,7 +151,7 @@ function SkillShot.BlindPrediction()
 				SkillShot.BlindPredictionTable[t.handle] = {}
 			elseif SkillShot.BlindPredictionTable[t.handle] ~= nil and not t.alive then
 				SkillShot.BlindPredictionTable[t.handle] = nil
-			elseif SkillShot.BlindPredictionTable[t.handle] and SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].last then
+			elseif SkillShot.BlindPredictionTable[t.handle] then
 				if t.visible then
 					SkillShot.BlindPredictionTable[t.handle].move = t.movespeed
 					SkillShot.BlindPredictionTable[t.handle].lastpos = t.position
@@ -266,3 +265,4 @@ function SkillShot.isIdle(t)
 end
 
 scriptEngine:RegisterLibEvent(EVENT_FRAME,SkillShot.__TrackTick)
+scriptEngine:RegisterLibEvent(EVENT_TICK,SkillShot.BlindPrediction)
