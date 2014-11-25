@@ -1,4 +1,4 @@
---<<Auto Armlet Toggle by Sophylax, reworked and updated by Moones>>
+--<<Auto Armlet Toggle by Sophylax, reworked and updated by Moones v1.4>>
 require("libs.Utils")
 require("libs.ScriptConfig")
 require("libs.Animations")
@@ -14,15 +14,18 @@ require("libs.HeroInfo")
  0 1 1 0 0 0 0 1    
  0 1 1 1 1 0 0 0 
 
-			Auto Armlet Toggle  v1.3
+			Auto Armlet Toggle  v1.4
 
 		This script uses armlet to gain hp when your hero is below a specified health.
 
 		Changelog:
-			v1.3:
+			v1.4:
 			 - Added calculation of incoming damage (projectiles, abilities, attacking heroes)
 			 - MinimumHP is now considered only when there is no incoming damage and there are enemy heroes near
 			 
+			v1.3:
+				Added Auto toggle on when ranged hero shoots on you or any hero is in melee range of you.
+				
 			v1.2:
 			 - Reworked for new version
 			 
