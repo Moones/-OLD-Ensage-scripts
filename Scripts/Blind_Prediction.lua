@@ -35,6 +35,12 @@ function Prediction.BlindPrediction(t)
 	if Prediction.BlindPredictionTable[t.handle] == nil and t.alive then
 		Prediction.BlindPredictionTable[t.handle] = {}
 	elseif Prediction.BlindPredictionTable[t.handle] ~= nil and not t.alive then
+		if Prediction.BlindPredictionTable[t.handle].iconmap and Prediction.BlindPredictionTable[t.handle].iconmap.visible then
+			Prediction.BlindPredictionTable[t.handle].iconmap.visible = false
+		end
+		if Prediction.BlindPredictionTable[t.handle].icon and Prediction.BlindPredictionTable[t.handle].icon.visible then
+			Prediction.BlindPredictionTable[t.handle].icon.visible = false
+		end
 		Prediction.BlindPredictionTable[t.handle] = nil
 	elseif Prediction.BlindPredictionTable[t.handle] and Prediction.trackTable[t.handle] and Prediction.trackTable[t.handle].last then
 		Prediction.BlindPredictionTable[t.handle].move = Prediction.trackTable[t.handle].last.move
