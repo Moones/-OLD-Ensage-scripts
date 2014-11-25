@@ -143,7 +143,7 @@ function Animations.trackingTick(tick)
 					if tick < Animations.table[v.handle].sleepA then
 						Animations.table[v.handle].sleepingA = true
 					end
-					if tick > Animations.table[v.handle].sleepA then
+					if tick > Animations.table[v.handle].sleepA then 
 						Animations.table[v.handle].sleepingA = false
 						Animations.table[v.handle].sleepA = tick + math.max((100/Animations.maxCount)*client.latency, 100)
 					end
