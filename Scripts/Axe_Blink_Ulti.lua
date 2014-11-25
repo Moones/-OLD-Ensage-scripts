@@ -87,7 +87,7 @@ function Tick(tick)
 			end
 		end
 		if me.alive and not me:IsChanneling() then
-			local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team = me:GetEnemyTeam()})
+			local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team = me:GetEnemyTeam(),alive=true,visible=true})
 			for i,v in ipairs(enemies) do
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() then
 					if not hero[v.handle] then
