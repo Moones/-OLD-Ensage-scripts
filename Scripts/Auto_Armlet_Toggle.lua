@@ -53,6 +53,7 @@ require("libs.HeroInfo")
 local config = ScriptConfig.new()
 config:SetParameter("Hotkey", "L", config.TYPE_HOTKEY)
 config:SetParameter("MinimumHP", 200)
+config:SetParameter("ToggleAlways", false)
 config:Load()
 
 hotkey = config.Hotkey
@@ -62,7 +63,7 @@ local xx,yy = 10,client.screenSize.y/25.714
 local reg = nil
 local F14 = drawMgr:CreateFont("f14","Tahoma",14,550)
 local statusText = drawMgr:CreateText(xx,yy,-1,"Auto armlet toggle: Off",F14)
-local incoming_projectiles = {} local incoming_damage = 0
+local incoming_projectiles = {} local incoming_damage = 0 local toggle = false
 
 ARMLET_DELAY = 1000
 
@@ -93,13 +94,14 @@ function Tick( tick )
 	end
 	
 	local armlet = me:FindItem("item_armlet")
-	if not armlet or me:IsStunned() or not armlet:CanBeCasted() or not active then incoming_damage = 0 incoming_projectiles = {} return end
+	if not armlet or me:IsStunned() or not armlet:CanBeCasted() or not active then incoming_damage = 0 incoming_projectiles = {} toggle = false return end
 	
 	local armState = me:DoesHaveModifier("modifier_item_armlet_unholy_strength")
-	
+	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=me:GetEnemyTeam()})
 	if not me.alive then
 		incoming_damage = 0
 		incoming_projectiles = {}
+		toggle = false
 		return
 	end
 	
@@ -108,8 +110,20 @@ function Tick( tick )
 		Sleep(ARMLET_DELAY)
 	end
 	
-	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true})) do			
-		if v.team ~= me.team and not v:IsIllusion() and not me:DoesHaveModifier("modifier_ice_blast") then
+	if config.ToggleAlways and SleepCheck() and (toggle or (#enemies <= 0 and me.health < minhp and (me.health - incoming_damage) > 0)) then
+		if armState then
+			me:SafeCastItem("item_armlet")
+			me:SafeCastItem("item_armlet")
+			Sleep(ARMLET_DELAY)
+		else
+			me:SafeCastItem("item_armlet")
+			Sleep(ARMLET_DELAY)
+		end
+		toggle = false
+	end
+	
+	for i,v in ipairs(enemies) do			
+		if not v:IsIllusion() and not me:DoesHaveModifier("modifier_ice_blast") then
 			local projectile = entityList:GetProjectiles({target=me})
 			local distance = GetDistance2D(v,me)
 			if armState and SleepCheck() then							
@@ -165,7 +179,7 @@ function Tick( tick )
 								Sleep(ARMLET_DELAY)
 							end
 						end
-					end
+					end 
 				end	
 				if distance <= (v.attackRange+100) and Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 then
 					if (heroInfo[v.name] and heroInfo[v.name].projectileSpeed and (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v) + distance/heroInfo[v.name].projectileSpeed)) < (((v.dmgMax + v.dmgMin)/2)*((1-me.dmgResist)+1))))
@@ -175,10 +189,14 @@ function Tick( tick )
 						me:SafeCastItem("item_armlet")
 						Sleep(ARMLET_DELAY)
 					end
-				elseif distance < 900 and me.health < minhp and (me.health - incoming_damage) > 0 then
-					me:SafeCastItem("item_armlet")
-					me:SafeCastItem("item_armlet")
-					Sleep(ARMLET_DELAY)
+				elseif me.health < minhp and (me.health - incoming_damage) > 0 then
+					if distance < 900 then
+						me:SafeCastItem("item_armlet")
+						me:SafeCastItem("item_armlet")
+						Sleep(ARMLET_DELAY)
+					else
+						toggle = true
+					end
 				end
 			end
 			if not armState and SleepCheck() then
