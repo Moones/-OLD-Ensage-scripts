@@ -41,7 +41,7 @@ local toggleKey = config.Hotkey
 
 local hero = {} local reg = false
 local active = true local myhero = nil local callactive = true local callvictim = nil
-local victimhp = 0
+local victimhp = 0 local cullvictim = nil
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor)
 local cullingblade = drawMgr:CreateRect(-45,-70,20,20,0x000000ff) cullingblade.visible = false
@@ -109,9 +109,10 @@ function Tick(tick)
 									if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
 										me:SafeCastAbility(Cullblade,v)	Sleep(Cullblade:FindCastPoint()*1000+client.latency,"cull")
 										victimhp = v.health
+										cullvictim = v
 									end
 								end
-							elseif SleepCheck("stopcull") and not SleepCheck("cull") and Cullblade.abilityPhase and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) <= 300 and 
+							elseif cullvictim and v = cullvictim and SleepCheck("stopcull") and Cullblade.abilityPhase and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) <= 300 and 
 							Animations.getDuration(Cullblade) > 0.2 then
 								me:Stop()
 								if victimhp > 0 and victimhp-100 > v.health then
@@ -125,7 +126,7 @@ function Tick(tick)
 										me:SafeCastAbility(call) Sleep(call:FindCastPoint()*1000+client.latency,"call")
 										callvictim = v
 									end
-								elseif callvictim and v == callvictim and call.abilityPhase and not SleepCheck("call") and SleepCheck("callstop") and Animations.getDuration(call) > 0.2 then
+								elseif callvictim and v == callvictim and call.abilityPhase and SleepCheck("callstop") and Animations.getDuration(call) > 0.2 then
 									me:Stop()
 									Sleep(client.latency,"callstop")
 								end
@@ -194,6 +195,7 @@ function Load()
 			callactive = true
 			active = true
 			callvictim = nil
+			cullvictim = nil
 			victimhp = 0
 			myhero = me.classId
 			script:RegisterEvent(EVENT_FRAME,Tick)
