@@ -1,9 +1,9 @@
---<<Axe Script by Moones Version 1.2, Auto Call and Blink+Ulti when enemy is killable.>>
+--<<Axe Script by Moones Version 1.3, Auto Call and Blink+Ulti when enemy is killable.>>
 --[[
 	-------------------------------------
-	      | Axe Script by Moones |
+	|       Axe Script by Moones        |
 	-------------------------------------
-	========== Version 1.2 ============
+	============ Version 1.3 ============
 	 
 	Description:
 	------------	
@@ -12,6 +12,11 @@
 	   
 	Changelog:
 	----------
+		Update 1.3:
+			Performance fix.
+			Improved cast canceling via Animations lib.
+			It will now cancel only when the spell was casted by script.
+			
 		Update 1.2:
 			Fixed Call Hotkey
 			Added Stop Ulti when enemy is not killable anymore
@@ -100,13 +105,13 @@ function Tick(tick)
 										me:SafeCastItem(Blink.name,v.position)		
 										Sleep(me:GetTurnTime(v)+client.latency,"blink")
 									end
-								elseif SleepCheck(cull) and GetDistance2D(me,v) < Range and Cullblade:CanBeCasted() then
+								elseif SleepCheck("cull") and GetDistance2D(me,v) < Range and Cullblade:CanBeCasted() then
 									if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
 										me:SafeCastAbility(Cullblade,v)	Sleep(Cullblade:FindCastPoint()*1000+client.latency,"cull")
 										victimhp = v.health
 									end
 								end
-							elseif SleepCheck("stopcull") and Cullblade.abilityPhase and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) <= 300 and 
+							elseif SleepCheck("stopcull") and not SleepCheck("cull") and Cullblade.abilityPhase and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) <= 300 and 
 							Animations.getDuration(Cullblade) > 0.2 then
 								me:Stop()
 								if victimhp > 0 and victimhp-100 > v.health then
@@ -120,7 +125,7 @@ function Tick(tick)
 										me:SafeCastAbility(call) Sleep(call:FindCastPoint()*1000+client.latency,"call")
 										callvictim = v
 									end
-								elseif callvictim and v == callvictim and call.abilityPhase and not SleepCheck("call") and SleepCheck("callstop") then
+								elseif callvictim and v == callvictim and call.abilityPhase and not SleepCheck("call") and SleepCheck("callstop") and Animations.getDuration(call) > 0.2 then
 									me:Stop()
 									Sleep(client.latency,"callstop")
 								end
@@ -191,7 +196,7 @@ function Load()
 			callvictim = nil
 			victimhp = 0
 			myhero = me.classId
-			script:RegisterEvent(EVENT_TICK,Tick)
+			script:RegisterEvent(EVENT_FRAME,Tick)
 			script:RegisterEvent(EVENT_KEY,Key)
 			script:UnregisterEvent(Load)
 		end
