@@ -112,7 +112,7 @@ function Tick(tick)
 										cullvictim = v
 									end
 								end
-							elseif cullvictim and v = cullvictim and SleepCheck("stopcull") and Cullblade.abilityPhase and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) <= 300 and 
+							elseif cullvictim and v == cullvictim and SleepCheck("stopcull") and Cullblade.abilityPhase and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) <= 300 and 
 							Animations.getDuration(Cullblade) > 0.2 then
 								me:Stop()
 								if victimhp > 0 and victimhp-100 > v.health then
