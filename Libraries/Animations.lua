@@ -236,6 +236,12 @@ function Animations.CanMove(hero)
 	if Animations.table[hero.handle] then return Animations.table[hero.handle].canmove end
 end
 
+function Animations.GetAttackTime(hero)
+	if hero and Animations.table[hero.handle] and Animations.table[hero.handle].attackTime then return Animations.table[hero.handle].attackTime elseif HeroInfo(hero) and HeroInfo(hero).attackPoint then return HeroInfo(hero).attackPoint - ((client.latency/1000)/(1 + (1 - 1/Animations.maxCount))) + (1/Animations.maxCount)*3*(1 + (1 - 1/Animations.maxCount))
+	end
+	return 0
+end
+
 class 'HeroInfo'
 
 function HeroInfo:__init(entity)   
