@@ -60,7 +60,7 @@ hotkey = config.Hotkey
 minhp = config.MinimumHP
 
 local xx,yy = 10,client.screenSize.y/25.714
-local reg = nil
+local reg = nil local active = false
 local F14 = drawMgr:CreateFont("f14","Tahoma",14,550)
 local statusText = drawMgr:CreateText(xx,yy,-1,"Auto armlet toggle: Off",F14)
 local incoming_projectiles = {} local incoming_damage = 0 local toggle = false
@@ -76,7 +76,7 @@ function Key(msg,code)
 		statusText.text = "Auto armlet toggle: On"
 		return true
 	else
-		active = nil
+		active = false
 		statusText.text = "Auto armlet toggle: Off"
 		return true
 	end
