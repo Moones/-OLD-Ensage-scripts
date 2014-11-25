@@ -111,7 +111,7 @@ config:Load()
 
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
 local sleeptick = 0 local targetHandle = nil local manualselection = false local active = true local victim = nil local xyz = nil local blindxyz = nil local rottoggled = false local count = 0 local hooked = false local urned = false local reg = false local ultied = nil
-local eff = {} local guixyz = false local distxyz = nil
+local eff = {} local guixyz = false local distxyz = nil local predxyz = nil
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
 local targetText = drawMgr:CreateText(-100,-5,-1,"",myFont);
@@ -183,7 +183,7 @@ function Main(tick)
 			if not distxyz then
 				distxyz = GetDistance2D(victim,xyz)
 			end
-			if xyz and SleepCheck("mouse") and config.EnableMouseAdjusting and config.PredictionGUI and client.mousePosition and GetDistance2D(victim,xyz) > 0 and GetDistance2D(victim,client.mousePosition) <= distxyz*2 then
+			if xyz and me:GetDistance2D(xyz) < RangeH[hook.level] + 200 and SleepCheck("mouse") and config.EnableMouseAdjusting and config.PredictionGUI and client.mousePosition and GetDistance2D(victim,xyz) > 0 and GetDistance2D(victim,client.mousePosition) <= distxyz*2 then
 				xyz = client.mousePosition
 				if xyz and GetDistance2D(xyz,victim) > distxyz then
 					xyz = (xyz - victim.position) * (GetDistance2D(xyz,victim)-((GetDistance2D(xyz,victim)-distxyz)*(distxyz/GetDistance2D(xyz,victim)))) / GetDistance2D(xyz,victim) + victim.position
@@ -210,7 +210,7 @@ function Main(tick)
 				guixyz = false
 				distxyz = nil
 			end
-			if SleepCheck("guisleep") and xyz then
+			if SleepCheck("guisleep") and xyz and me:GetDistance2D(xyz) < RangeH[hook.level] + 200 then
 				if guixyz then
 					if not eff[4] then 
 						eff[4] = Effect(xyz, "range_display" )
@@ -362,6 +362,7 @@ function Main(tick)
 				local delay = (300+client.latency+me:GetTurnTime(victim)*1000)
 				if not guixyz and ((config.PredictionGUI and SleepCheck("guisleep2")) or IsKeyDown(hookkey)) then	
 					xyz = SkillShot.BlockableSkillShotXYZ(me,victim,speed,delay,100,true)
+					predxyz = SkillShot.PredictedXYZ(victim,delay)
 					Sleep(config.GuiSleep, "guisleep2")
 				end
 				local distance = GetDistance2D(victim, me)
@@ -395,24 +396,26 @@ function Main(tick)
 					victimText.visible = false
 				end
 			end
-			if not guixyz and not ultied and not IsKeyDown(config.StopKey) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and xyz and victim and SleepCheck("testhook") then
+			if not guixyz and not ultied and not IsKeyDown(config.StopKey) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and predxyz and victim and SleepCheck("testhook") then
 				local speed = 1600 
 				local delay = (300+client.latency+me:GetTurnTime(victim)*1000)
 				local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
-				if testxyz and (GetType(testxyz) == "Vector" or GetType(testxyz) == "Vector2D") and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 and victim.alive then	
+				local testpredxyz = SkillShot.PredictedXYZ(victim,delay)
+				if testpredxyz and testxyz and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 and victim.alive then	
 					if GetDistance2D(testxyz,me) > RangeH[hook.level] then
 						testxyz = (testxyz - me.position) * (hook.castRange - 100) / GetDistance2D(testxyz,me) + me.position
 					end
-					if ((GetDistance2D(testxyz,xyz) > math.max(GetDistance2D(SkillShot.PredictedXYZ(victim,300+client.latency),victim)+Animations.maxCount, 25))) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
+					if (GetDistance2D(testpredxyz,predxyz) >= math.max(GetDistance2D(testpredxyz,victim)+Animations.maxCount-50, 25)) or SkillShot.__GetBlock(me.position,testxyz,victim,100,true) then
 						local prev = SelectUnit(me)
 						entityList:GetMyPlayer():HoldPosition()
 						SelectBack(prev)
 						me:SafeCastAbility(hook, testxyz)
 						xyz = testxyz
+						predxyz = testpredxyz
 						Sleep(math.max(hook:FindCastPoint()*500 - client.latency,0),"testhook")
 						Sleep(hook:FindCastPoint()*1000+client.latency,"hook")
 					end
-				elseif GetDistance2D(me,victim) > RangeH[hook.level] + 200 then
+				elseif GetDistance2D(me,xyz) > RangeH[hook.level] + 200 then
 					local prev = SelectUnit(me)
 					entityList:GetMyPlayer():HoldPosition()
 					SelectBack(prev)
@@ -625,6 +628,7 @@ function Load()
 			blindvictim = nil
 			guixyz = false
 			distxyz = nil
+			predxyz = nil
 			script:RegisterEvent(EVENT_FRAME, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:RegisterEvent(EVENT_MODIFIER_ADD, ModifierAdd)
