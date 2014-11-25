@@ -3,6 +3,7 @@ require("libs.Utils")
 require("libs.HeroInfo")
 require("libs.TargetFind")
 require("libs.SkillShot")
+require("libs.Animations")
 
 local config = ScriptConfig.new()
 config:SetParameter("Move", 32, config.TYPE_HOTKEY)
@@ -22,9 +23,9 @@ noorbwalkidle = config.DontOrbwalkWhenIdle
 lhkey = config.LasthitToggleKey
 autochasekey = config.AutoChase
 
-local myAttackTickTable = {} local creepTable = {}
+local creepTable = {} local myAttackTickTable = {}
 
-local sleep = 0 myAttackTickTable.attackRateTick = 0 myAttackTickTable.attackRateTick2 = 0 myAttackTickTable.attackPointTick = nil
+local sleep = 0 myAttackTickTable.attackRateTick2 = 0
 
 local myhero = nil local reg = false local myId = nil local victim = nil local moveposition = nil local psivictim = nil local attacking = false local harras = false local lhcreep = nil local lhcreepclass = nil local lh = nil local lhtime = 0 local lasthitting = false
 local autochase = false local chasevictim = nil local invisibletime = nil
@@ -42,9 +43,14 @@ function Key(msg, code)
 		active = not active
 	elseif code == lhkey then
 		lasthitting = not lasthitting 
+		if autochase then
+			autochase = false
+		end
 	elseif code == autochasekey then
 		autochase = not autochase 
-		lasthitting = false
+		if autochase then
+			lasthitting = false
+		end
 	end
 end
 
@@ -97,7 +103,7 @@ function Main(tick)
 								else
 									me:SafeCastAbility(blink, bpos)
 								end
-								Sleep(turn+client.latency/1000+blink:FindCastPoint(), "move")
+								Sleep(turn+client.latency+blink:FindCastPoint()*1000, "move")
 							end
 							if GetDistance2D(me, v) <= myhero.attackRange-25 then
 								if v.health > ((dmg)*(1-v.dmgResist)+1) then
@@ -108,13 +114,15 @@ function Main(tick)
 								end
 								entityList:GetMyPlayer():Attack(v)
 								Sleep(myhero.attackRate*1000, "meld2")
-								Sleep(client.latency/1000+myhero.attackRate*1000, "move")
+								Sleep(client.latency+myhero.attackRate*1000, "move")
 							end
 						end
 					end
 				end
 			end
-			if IsKeyDown(movetomouse) and not client.chat then				
+			if IsKeyDown(movetomouse) and not client.chat then	
+				OrbWalk(me)
+				attacking = not Animations.CanMove(me) and (not meld.abilityPhase)	
 				--detect if we already have traps active and if there is any close to enemy
 				local traps = entityList:GetEntities({classId=CDOTA_BaseNPC_Additive,alive=true,team=me.team,visible=true})
 				local closestTrap = nil
@@ -131,9 +139,9 @@ function Main(tick)
 					end
 				end
 				local trap = me:GetAbility(5)
-				if not lhcreep and ((me:DoesHaveModifier("modifier_templar_assassin_meld") and not attacking) or not me:DoesHaveModifier("modifier_templar_assassin_meld")) and (((not victim or GetDistance2D(me, victim) > (myhero.attackRange + 50)) and (not psivictim or GetDistance2D(me, psivictim) > (myhero.attackRange + 50))) or (not noorbwalkidle and not attacking) or (not attacking and (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1) or (victim and victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE)))) then
+				if not lhcreep then
 					--blink to enemy
-					if not harras and blink and blink.cd == 0 and (victim and (victim.courier or victim.hero) and GetDistance2D(me,victim) > myhero.attackRange+200 and GetDistance2D(me,victim) < 1500) then
+					if SleepCheck("blink") and not harras and blink and blink.cd == 0 and (victim and (victim.courier or victim.hero) and GetDistance2D(me,victim) > myhero.attackRange+200 and GetDistance2D(me,victim) < 1500) then
 						local bpos = (victim.position - me.position) * 1100 / GetDistance2D(me,victim) + me.position
 						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0)/(0.5*(1/0.03)))*1000 + client.latency
 						if victim.visible then
@@ -157,23 +165,26 @@ function Main(tick)
 								me:SafeCastAbility(blink, Vector(victim.position.x + (victim.movespeed * (meld:FindCastPoint() + client.latency/1000) + 100) * math.cos(victim.rotR), victim.position.y + (victim.movespeed * (meld:FindCastPoint() + client.latency/1000) + 100) * math.sin(victim.rotR), victim.position.z))
 							end
 						end
-						sleep = tick + turn
-						Sleep(blink:FindCastPoint() + client.latency/1000 + turn, "move")
+						Sleep(math.max(turn,250), "blink")
+						Sleep(math.max(turn,250), "move")
+						Sleep(math.max(turn,250),"orbwalk")
 					end
 					--activate close trap or put another
-					if victim and victim.hero and GetDistance2D(me,victim) <= trap.castRange+375 and CanBeSlowed(victim) then
+					if victim and victim.hero and GetDistance2D(me,victim) <= trap.castRange+375 and CanBeSlowed(victim) and (victim and victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE) then
 						local trapslow = victim:FindModifier("modifier_templar_assassin_trap_slow")
-						if not lasthitting and (victim:CanMove() and victim.activity == LuaEntityNPC.ACTIVITY_MOVE and (not trapslow or trapslow.remainingTime <= (trap:FindCastPoint()*1.5 + client.latency/1000))) and ((closestTrap and GetDistance2D(closestTrap, victim) <= 400) or trap.state == LuaEntityAbility.STATE_READY) then
-							if closestTrap then
-								closestTrap:SafeCastAbility(closestTrap:GetAbility(1))
-								Sleep(trap:FindCastPoint() + client.latency/1000, "move")
-								Sleep(100+trap:FindCastPoint() + client.latency/1000, "trap")
+						if not lasthitting and (victim:CanMove() and (not trapslow or trapslow.remainingTime <= (trap:FindCastPoint()*1.5 + client.latency/1000))) then
+							if (closestTrap and GetDistance2D(closestTrap, victim) <= 400) and SleepCheck("trap2") then
+								local boom = closestTrap:GetAbility(1)
+								if boom:CanBeCasted() then
+									closestTrap:SafeCastAbility(boom)
+									Sleep(trap:FindCastPoint()*500, "move")
+									Sleep(trap:FindCastPoint()*1000 + client.latency, "trap2")
+									Sleep(trap:FindCastPoint()*1000 + client.latency, "trap")
+								end
 								return
-							end
-							if SleepCheck("trap") then
-								local p = Vector(victim.position.x + (victim.movespeed * (trap:FindCastPoint() + client.latency/1000) + 100) * math.cos(victim.rotR), victim.position.y + (victim.movespeed * (trap:FindCastPoint() + client.latency/1000) + 100) * math.sin(victim.rotR), victim.position.z)
+							elseif (not trapslow or trapslow.remainingTime <= (trap:FindCastPoint()*1.5)) and SleepCheck("trap") and (((not attacking or Animations.isAttacking(me)) and me:DoesHaveModifier("modifier_templar_assassin_meld")) or not me:DoesHaveModifier("modifier_templar_assassin_meld")) and trap.state == LuaEntityAbility.STATE_READY then
 								if victim.visible then
-									me:SafeCastAbility(trap, p)
+									me:SafeCastAbility(trap, SkillShot.PredictedXYZ(victim,trap:FindCastPoint()*1000+client.latency))
 								else
 									local blind = SkillShot.BlindSkillShotXYZ(me,victim,1100,trap:FindCastPoint()+client.latency/1000)
 									if blind then
@@ -182,64 +193,43 @@ function Main(tick)
 										me:SafeCastAbility(trap, Vector(victim.position.x + (victim.movespeed * (trap:FindCastPoint() + client.latency/1000) + 100) * math.cos(victim.rotR), victim.position.y + (victim.movespeed * (trap:FindCastPoint() + client.latency/1000) + 100) * math.sin(victim.rotR), victim.position.z))
 									end
 								end
-								Sleep(trap:FindCastPoint() + client.latency/1000, "move")
-								Sleep(100+trap:FindCastPoint() + client.latency/1000, "trap")
+								Sleep(trap:FindCastPoint()*500, "move")
+								Sleep(trap:FindCastPoint()*1000 + client.latency, "trap")
 								return
 							end
 						end
 					end
-					if tick > sleep then
+					if not attacking and ((not noorbwalkidle and not attacking) or (not attacking and (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1)))) or not victim then
 						--move to mouse position
 						if SleepCheck("move") then
 							if victim and (GetDistance2D(client.mousePosition, victim) <= 10 or entityList:GetMouseover() == victim or autochase) then
 								if victim.visible then
-									me:Move(victim.position)
+									me:Follow(victim)
 								else
-									local blind = SkillShot.BlindSkillShotXYZ(me,victim,1200,meld:FindCastPoint()+client.latency/1000)
-									if blind then
-										me:Move(blind)
-									else
-										me:Move(Vector(victim.position.x + (victim.movespeed * (meld:FindCastPoint() + client.latency/1000) + 100) * math.cos(victim.rotR), victim.position.y + (victim.movespeed * (meld:FindCastPoint() + client.latency/1000) + 100) * math.sin(victim.rotR), victim.position.z))
-									end
+									me:Follow(victim)
 								end
 							else
 								if GetDistance2D(me, client.mousePosition) > 50 then 
 									me:Move(client.mousePosition)
 								end
 							end
-							sleep = tick + 30 + client.latency
+							Sleep(100,"move")
 						end
 					end
 				end
-				--perfect meld strikes
-				if victim and victim.visible then	
-					if GetDistance2D(me,victim) <= myhero.attackRange-50 then
+				--activate refraction
+				if SleepCheck("refr") and victim and victim.visible and (not attacking or GetDistance2D(me,victim) > myhero.attackRange+25) then	
+					if GetDistance2D(me,victim) <= myhero.attackRange+50 then
 						if refraction and refraction.state == LuaEntityAbility.STATE_READY then
 							me:SafeCastAbility(refraction)
+							Sleep(250+client.latency,"refr")
 						end
 					end
-					if (GetTick() >= (myAttackTickTable.attackRateTick - meld:FindCastPoint()*1000)) and me:CanAttack() and (not lhcreep or (lhcreep.classId == CDOTA_BaseNPC_Creep_Siege and lhcreep.team ~= me.team)) and (victim.classId ~= CDOTA_BaseNPC_Tower and victim.classId ~= CDOTA_BaseNPC_Barracks and victim.classId ~= CDOTA_BaseNPC_Building) and meld and meld.state == LuaEntityAbility.STATE_READY and GetDistance2D(me, victim) <= myhero.attackRange-25 and not isAttacking(me) and SleepCheck("meld2") and me:CanAttack() and not victim:IsAttackImmune() and victim.health > ((dmg)*(1-victim.dmgResist)+1) then
-						if refraction and refraction.state == LuaEntityAbility.STATE_READY then
-							me:SafeCastAbility(refraction)
-						end
-						me:SafeCastAbility(meld)
-						entityList:GetMyPlayer():Attack(victim)
-						attacking = true
-						Sleep(myhero.attackRate*1000, "meld2")
-					end
-					if (GetTick() >= myAttackTickTable.attackRateTick) and not attacking and me:DoesHaveModifier("modifier_templar_assassin_meld") and SleepCheck("meld") and me:CanAttack() and not victim:IsAttackImmune() then
-						entityList:GetMyPlayer():Attack(victim)
-						attacking = true
-						Sleep(myhero.attackRate*1000, "meld")
-					end
-				end
-				OrbWalk(me)	
+				end	
 				if lasthitting then
 					GetLasthit(me)
 				end
 			else
-				myAttackTickTable.attackRateTick = 0 
-				myAttackTickTable.attackPointTick = nil 
 				attacking = false 
 				victim = nil
 				psivictim = nil
@@ -249,7 +239,9 @@ function Main(tick)
 end
 
 function OrbWalk(me)
-	victim = targetFind:GetClosestToMouse(700)	
+	if not victim or victim.visible or not victim.alive then 
+		victim = targetFind:GetClosestToMouse(1000)	
+	end
 	local dmg = me.dmgMin + me.dmgBonus	
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team = me:GetEnemyTeam(),alive=true})
 	local courier = entityList:GetEntities({classId=CDOTA_Unit_Courier,team=me:GetEnemyTeam(),alive=true,visible=true})[1]
@@ -265,6 +257,11 @@ function OrbWalk(me)
 			end
 		end
 	end	
+	if victim and victim.hero then
+		lasthitting = false
+	elseif not victim then
+		lasthitting = true
+	end
 	--if we got more enemies around and victim is far choose lowest HP target instead
 	if ((victim and GetDistance2D(me,victim) > (myhero.attackRange + 25)) or harras) and #enemies > 1 and enemies[2] and GetDistance2D(enemies[2], me) < (myhero.attackRange + 1200) and not lhcreep then
 		victim = targetFind:GetLowestEHP(1200 + myhero.attackRange, phys)
@@ -323,19 +320,16 @@ function OrbWalk(me)
 	if chasevictim and autochase and (chasevictim.visible or (client.gameTime - invisibletime) < 5) then victim = chasevictim end
 	--attacking our desired target
 	local meld = me:GetAbility(2)	
-	if not me:DoesHaveModifier("modifier_templar_assassin_meld") and lhcreep or ((victim and victim.visible and victim.alive and victim.health > 0 and GetDistance2D(me, victim) <= myhero.attackRange) or (psivictim and (victim and AngleBelow(me,psivictim,victim,5)) and psivictim.alive and psivictim.health > 0 and GetDistance2D(me, psivictim) <= myhero.attackRange)) and me.alive and (not meld or meld.state ~= LuaEntityAbility.STATE_READY or (victim and victim.health <= ((dmg)*(1-victim.dmgResist)+1)) or psivictim or (victim and (victim.classId == CDOTA_BaseNPC_Tower or victim.classId == CDOTA_BaseNPC_Barracks or victim.classId == CDOTA_BaseNPC_Building))) then			
-		if (GetTick() >= myAttackTickTable.attackRateTick) and me:CanAttack() then
+	if SleepCheck("orbwalk") and (lhcreep or ((victim and victim.alive and victim.health > 0) or (psivictim and (victim and AngleBelow(me,psivictim,victim,5)) and psivictim.alive and psivictim.health > 0 and GetDistance2D(me, psivictim) <= myhero.attackRange)) and me.alive) then			
+		if attacking and me:CanAttack() then
 			if psivictim then
 				myhero:Hit(psivictim)
-				myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + (math.max((GetDistance2D(me, psivictim) - myhero.attackRange), 0)/me.movespeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, psivictim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000	
 			elseif victim then
 				myhero:Hit(victim)
-				myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + (math.max((GetDistance2D(me, victim) - myhero.attackRange), 0)/me.movespeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, victim))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000	
 			elseif lhcreep then
 				myhero:Hit(lhcreep)
-				myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000 + (math.max((GetDistance2D(me, lhcreep) - myhero.attackRange), 0)/me.movespeed)*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, lhcreep))) - 0.69, 0))/(myhero.turnRate*(1/0.03))*1000	
-			end						
-			attacking = true
+			end	
+			Sleep(100,"orbwalk")
 		end
 	end
 end	
@@ -353,7 +347,7 @@ function GetLasthit(me)
 			local nocritDmg = (myhero:GetDamage(creepClass))*2.5
 			local nocrittimeToHealth = creepClass:GetTimeToHealth(nocritDmg)
 			--if we can lasthit
-			if (GetTick() >= myAttackTickTable.attackRateTick) and ((me.team ~= creepClass.creepEntity.team) or (not lh and me.team == creepClass.creepEntity.team and creepClass.creepEntity.health < creepClass.creepEntity.maxHealth*0.50)) then
+			if attacking and ((me.team ~= creepClass.creepEntity.team) or (not lh and me.team == creepClass.creepEntity.team and creepClass.creepEntity.health < creepClass.creepEntity.maxHealth*0.50)) then
 				if creepClass.creepEntity.team ~= me.team and (nocrittimeToHealth and (nocrittimeToHealth) < (GetTick() + client.latency + myhero.attackPoint*1000 + (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, creepClass.creepEntity))) - 0.69, 0)/(myhero.turnRate*(1/0.03)))*1000 + ((GetDistance2D(me, creepClass.creepEntity)-math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0))/myhero.projectileSpeed)*1000 + (math.max((GetDistance2D(me, creepClass.creepEntity) - myhero.attackRange), 0)/me.movespeed)*1000)) then
 					lh = true
 				end
@@ -475,15 +469,29 @@ class 'Hero'
 	function Hero:Hit(target)
 		if target.team ~= self.heroEntity.team then
 			local meld = self.heroEntity:GetAbility(2)
-			if target.visible and (not lhcreep or (lhcreep.classId == CDOTA_BaseNPC_Creep_Siege and lhcreep.team ~= self.heroEntity.team)) and not psivictim and (target.classId ~= CDOTA_BaseNPC_Tower and target.classId ~= CDOTA_BaseNPC_Barracks and target.classId ~= CDOTA_BaseNPC_Building) and meld and meld.state == LuaEntityAbility.STATE_READY and GetDistance2D(self.heroEntity, target) <= self.attackRange-50 then
-				self.heroEntity:SafeCastAbility(meld)
+			if target.visible and (not lhcreep or (lhcreep.classId == CDOTA_BaseNPC_Creep_Siege and lhcreep.team ~= self.heroEntity.team and lhcreep == target)) and (not psivictim or target ~= psivictim) and (target.classId ~= CDOTA_BaseNPC_Tower and target.classId ~= CDOTA_BaseNPC_Barracks and target.classId ~= CDOTA_BaseNPC_Building) and meld and (meld.state == LuaEntityAbility.STATE_READY or (meld.cd < ((GetDistance2D(self.heroEntity, target)-self.attackRange)/self.heroEntity.movespeed) and GetDistance2D(self.heroEntity, target) > self.attackRange)) then
+				if GetDistance2D(self.heroEntity, target) > self.attackRange+50 or (target.activity == LuaEntityNPC.ACTIVITY_MOVE and GetDistance2D(self.heroEntity, SkillShot.PredictedXYZ(target,meld:FindCastPoint()*1000+client.latency)) > self.attackRange) then
+					self.heroEntity:Follow(target)
+				elseif target.visible then
+					self.heroEntity:SafeCastAbility(meld)
+					entityList:GetMyPlayer():Attack(target)
+					Sleep(meld:FindCastPoint()*1000+300,"move")
+					Sleep(meld:FindCastPoint()*1000+300,"refr")
+					Sleep(meld:FindCastPoint()*1000+300,"trap")
+					Sleep(meld:FindCastPoint()*1000+300,"trap2")
+					Sleep(meld:FindCastPoint()*1000+300,"blink")
+					Sleep(meld:FindCastPoint()*1000+300,"orbwalk")
+				end
 			else
-				entityList:GetMyPlayer():Attack(target)
+				if not target.visible then
+					self.heroEntity:Follow(target)
+				else
+					entityList:GetMyPlayer():Attack(target)
+				end
 			end
 		else
 			entityList:GetMyPlayer():Attack(target)
 		end
-		attacking = true
 	end
 	
 	function Hero:StopAttack(target,lhcreepclass)
@@ -500,8 +508,7 @@ class 'Hero'
 			if (lhtime and (lhtime) > (GetTick() + client.latency + self.attackPoint*1000 + ((GetDistance2D(self.heroEntity, target)-math.max((GetDistance2D(self.heroEntity, target) - self.attackRange), 0))/self.projectileSpeed)*1000)) and (lhcreep.health > Dmg2) then
 				if GetTick() > myAttackTickTable.attackRateTick2 then
 					entityList:GetMyPlayer():Stop()
-					self:Hit(target)
-					myAttackTickTable.attackRateTick = GetTick() + self.attackRate*1000 + (math.max((GetDistance2D(me, target) - self.attackRange), 0)/me.movespeed)*1000							
+					self:Hit(target)						
 					myAttackTickTable.attackRateTick2 = GetTick() + self.attackPoint*500
 				end
 			end
@@ -743,44 +750,22 @@ function UpdateMyHero(me)
 			attacked = true
 			lhcreep = nil
 			lhcreepclass = nil
-			attacking = false
 			myAttackTickTable.attackRateTick2 = 0
-		end
-		if myAttackTickTable.attackPointTick == nil and (myAttackTickTable.attackRateTick == 0 or myAttackTickTable.attackRateTick > GetTick()) then--and ((victim and GetDistance2D(z.position, victim) > GetDistance2D(z.position, me)) or (psivictim and GetDistance2D(z.position, psivictim) > GetDistance2D(z.position, me))) then
-			myAttackTickTable.attackPointTick = GetTick()
-			attacking = false
-		end			
+		end		
 	end	
-	if isAttacking(me) then
-		if myAttackTickTable.attackRateTick == 0 then
-			myAttackTickTable.attackRateTick = GetTick() + myhero.attackRate*1000
-		end
-	end
 	if lhcreep and not lhcreep.alive then
 		lhcreep = nil
 		lhcreepclass = nil
-		attacking = false
 		if lh then
 			lh = false
 		end
-		if not attacked then
-			myAttackTickTable.attackRateTick = 0
-		end
-		myAttackTickTable.attackPointTick = GetTick()
 		myAttackTickTable.attackRateTick2 = 0
 	end
 	if victim and not victim.alive then
 		victim = nil
-		attacking = false
-		myAttackTickTable.attackPointTick = GetTick()
 	end
 	if psivictim and not psivictim.alive then
 		psivictim = nil
-		myAttackTickTable.attackPointTick = GetTick()
-	end
-	if myAttackTickTable.attackPointTick and GetTick() >= myAttackTickTable.attackPointTick then
-		myAttackTickTable.attackPointTick = nil
-		attacking = false
 	end
 end
 
@@ -915,7 +900,7 @@ function Load()
 			autochase = false 
 			chasevictim = nil
 			invisibletime = nil
-			script:RegisterEvent(EVENT_TICK, Main)
+			script:RegisterEvent(EVENT_FRAME, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:UnregisterEvent(Load)
 		end
