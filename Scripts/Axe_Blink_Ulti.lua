@@ -25,6 +25,7 @@
 require("libs.ScriptConfig")
 require("libs.Utils")
 require("libs.SkillShot")
+require("libs.Animations")
 
 local config = ScriptConfig.new()
 config:SetParameter("Hotkey", "D", config.TYPE_HOTKEY)
@@ -35,7 +36,7 @@ local toggleKey = config.Hotkey
 
 local hero = {} local reg = false
 local active = true local myhero = nil local callactive = true local callvictim = nil
-local eff,eff1 = nil,nil
+local victimhp = 0
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor)
 local cullingblade = drawMgr:CreateRect(-45,-70,20,20,0x000000ff) cullingblade.visible = false
@@ -93,18 +94,25 @@ function Tick(tick)
 						local healthtokill = math.floor(v.health - culldamage + CastPoint*v.healthRegen+Moprhling(v,CastPoint))
 						hero[v.handle].text = "Health to kill: "..healthtokill
 						if active then
-							if healthtokill < 0 then
-								if SleepCheck() and GetDistance2D(me,v) < RangeB and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) and Cullblade:CanBeCasted() then
+							if healthtokill <= 0 then
+								if SleepCheck("blink") and GetDistance2D(me,v) < RangeB and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) and Cullblade:CanBeCasted() then
 									if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
-										me:SafeCastItem(Blink.name,v.position)						
+										me:SafeCastItem(Blink.name,v.position)		
+										Sleep(me:GetTurnTime(v)+client.latency,"blink")
 									end
-								elseif SleepCheck() and GetDistance2D(me,v) < Range and Cullblade:CanBeCasted() then
+								elseif SleepCheck(cull) and GetDistance2D(me,v) < Range and Cullblade:CanBeCasted() then
 									if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
-										me:SafeCastAbility(Cullblade,v)	Sleep(200) break							
+										me:SafeCastAbility(Cullblade,v)	Sleep(Cullblade:FindCastPoint()*1000+client.latency,"cull")
+										victimhp = v.health
 									end
 								end
-							elseif Cullblade.abilityPhase and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) <= 300 then
+							elseif SleepCheck("stopcull") and Cullblade.abilityPhase and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) <= 300 and 
+							Animations.getDuration(Cullblade) > 0.2 then
 								me:Stop()
+								if victimhp > 0 and victimhp-100 > v.health then
+									me:SafeCastAbility(Cullblade,v)
+								end
+								Sleep(client.latency,"stopcull")
 							elseif callactive then
 								local pred = SkillShot.PredictedXYZ(v,call:FindCastPoint()*1000+client.latency)
 								if not v:IsInvul() and GetDistance2D(v,me)-25 <= call:GetSpecialData("radius",call.level) and ((pred and GetDistance2D(pred,me)-25 <= call:GetSpecialData("radius",call.level)) or not pred) then
@@ -112,8 +120,9 @@ function Tick(tick)
 										me:SafeCastAbility(call) Sleep(call:FindCastPoint()*1000+client.latency,"call")
 										callvictim = v
 									end
-								elseif callvictim and v == callvictim and call.abilityPhase and not SleepCheck("call") then
+								elseif callvictim and v == callvictim and call.abilityPhase and not SleepCheck("call") and SleepCheck("callstop") then
 									me:Stop()
+									Sleep(client.latency,"callstop")
 								end
 							end		
 						end		
@@ -180,6 +189,7 @@ function Load()
 			callactive = true
 			active = true
 			callvictim = nil
+			victimhp = 0
 			myhero = me.classId
 			script:RegisterEvent(EVENT_TICK,Tick)
 			script:RegisterEvent(EVENT_KEY,Key)
