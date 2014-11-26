@@ -147,6 +147,7 @@ function Tick( tick )
 						if spell then
 							local dmg = spell:GetDamage(spell.level)
 							if dmg <= 0 then dmg = spell:GetSpecialData("damage",spell.level) end
+							if not dmg then dmg = 0 end
 							if not incoming_projectiles[spell.handle] then
 								incoming_projectiles[spell.handle] = {damage = dmg, time = client.gameTime + ((GetDistance2D(me,z.position)-50)/z.speed)}
 								incoming_damage = incoming_damage + dmg
