@@ -136,7 +136,6 @@ function Tick( tick )
 		end
 		toggle = false
 	end
-	
 	for i,v in ipairs(enemies) do			
 		if not v:IsIllusion() and not me:DoesHaveModifier("modifier_ice_blast") then
 			local projectile = entityList:GetProjectiles({target=me})
@@ -159,6 +158,7 @@ function Tick( tick )
 								me:SafeCastItem("item_armlet")
 								me:SafeCastItem("item_armlet")
 								Sleep(ARMLET_DELAY)
+								break
 							end
 						else
 							if not incoming_projectiles[z.source.handle] then																	
@@ -171,7 +171,7 @@ function Tick( tick )
 							if armState and SleepCheck() and (me.health+((-40+me.healthRegen)*((GetDistance2D(me,z.position)-50)/z.speed))) < ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))) then
 								me:SafeCastItem("item_armlet")
 								me:SafeCastItem("item_armlet")
-								Sleep(ARMLET_DELAY)
+								Sleep(ARMLET_DELAY) break
 							end
 						end
 					end
@@ -193,7 +193,7 @@ function Tick( tick )
 					if armState and SleepCheck() and me.health+((-40+me.healthRegen)*(z:FindCastPoint()-client.latency/1000)) < dmg then
 						me:SafeCastItem("item_armlet")
 						me:SafeCastItem("item_armlet")
-						Sleep(ARMLET_DELAY)
+						Sleep(ARMLET_DELAY) break
 					end
 				end
 			end	
@@ -210,7 +210,7 @@ function Tick( tick )
 					if armState and SleepCheck() then
 						me:SafeCastItem("item_armlet")
 						me:SafeCastItem("item_armlet")
-						Sleep(ARMLET_DELAY)
+						Sleep(ARMLET_DELAY) break
 					end
 				end
 			elseif incoming_projectiles[v.handle] and client.gameTime > incoming_projectiles[v.handle].time then
@@ -220,35 +220,33 @@ function Tick( tick )
 				if distance < 900 and armState and SleepCheck() then
 					me:SafeCastItem("item_armlet")
 					me:SafeCastItem("item_armlet")
-					Sleep(ARMLET_DELAY)
+					Sleep(ARMLET_DELAY) break
 				else
 					toggle = true
 				end
 			end
 			if not armState and SleepCheck() then
-				if Animations.isAttacking(me) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) < me.attackRange+100 then
+				if not armState and SleepCheck() and Animations.isAttacking(me) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) < me.attackRange+100 then
 					me:SafeCastItem("item_armlet")
-					Sleep(ARMLET_DELAY)
+					Sleep(ARMLET_DELAY) break
 				end
 				for i,z in ipairs(v.abilities) do
-					if z.abilityPhase and distance <= z.castRange+100 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 then
+					if not armState and SleepCheck() and z.abilityPhase and distance <= z.castRange+100 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 then
 						me:SafeCastItem("item_armlet")
-						Sleep(ARMLET_DELAY)
+						Sleep(ARMLET_DELAY) break
 					end
 				end	
 				if projectile then
 					for k,z in ipairs(projectile) do
-						if z.target and z.target == me and armlet.toggled == false then
+						if not armState and SleepCheck() and z.target and z.target == me then
 							me:SafeCastItem("item_armlet")
-							Sleep(ARMLET_DELAY)
+							Sleep(ARMLET_DELAY) break
 						end
 					end
 				end
-				if distance <= (200) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and distance < v.attackRange+100) then
-					if armlet.toggled == false then
-						me:SafeCastItem("item_armlet")
-						Sleep(ARMLET_DELAY)
-					end
+				if not armState and SleepCheck() and distance <= (200) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and distance < v.attackRange+100) then
+					me:SafeCastItem("item_armlet")
+					Sleep(ARMLET_DELAY)
 				end
 			end
 		end
