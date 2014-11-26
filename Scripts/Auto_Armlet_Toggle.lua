@@ -1,4 +1,4 @@
---<<Auto Armlet Toggle by Sophylax, reworked and updated by Moones v1.5.1>>
+--<<Auto Armlet Toggle by Sophylax, reworked and updated by Moones v1.5.2>>
 require("libs.Utils")
 require("libs.ScriptConfig")
 require("libs.Animations")
@@ -14,7 +14,7 @@ require("libs.HeroInfo")
  0 1 1 0 0 0 0 1    
  0 1 1 1 1 0 0 0 
 
-			Auto Armlet Toggle  v1.5.1
+			Auto Armlet Toggle  v1.5.2
 
 		This script uses armlet to gain hp when:
 		Theres a flying projectile which would kill you or
@@ -24,6 +24,9 @@ require("libs.HeroInfo")
 		When ranged hero shoots on you, any hero is in melee range or you start to attack an enemy hero, the script will auto toggle Armlet ON.
 
 		Changelog:
+			v1.5.2:
+			 - Armlet will not be now toggle when you are invisible unless somebody is casting AOE ability on you and you would die from it.
+			 
 			v1.5.1:
 			 - Added AutoActivation when you start to attack an enemy hero.
 			 
@@ -115,17 +118,17 @@ function Tick( tick )
 		return
 	end
 	
-	if armState and me:DoesHaveModifier("modifier_ice_blast") and SleepCheck() then
+	if armState and me:DoesHaveModifier("modifier_ice_blast") and SleepCheck() and not me:IsInvisible() then
 		me:SafeCastItem("item_armlet")
 		Sleep(ARMLET_DELAY)
 	end
 	
-	if player.orderId == Player.ORDER_ATTACKENTITY and player.target and player.target.hero and not armState and SleepCheck() and GetDistance2D(player.target,me) < me.attackRange+100 then
+	if player.orderId == Player.ORDER_ATTACKENTITY and player.target and not me:IsInvisible() and player.target.hero and not armState and SleepCheck() and GetDistance2D(player.target,me) < me.attackRange+100 then
 		me:SafeCastItem("item_armlet")
 		Sleep(ARMLET_DELAY)
 	end
 	
-	if config.ToggleAlways and SleepCheck() and (toggle or (#enemies <= 0 and me.health < minhp)) and (math.max(me.health - 475,1) - incoming_damage) > 0 then
+	if config.ToggleAlways and SleepCheck() and not me:IsInvisible() and (toggle or (#enemies <= 0 and me.health < minhp)) and (math.max(me.health - 475,1) - incoming_damage) > 0 then
 		if armState then
 			me:SafeCastItem("item_armlet")
 			me:SafeCastItem("item_armlet")
@@ -155,7 +158,7 @@ function Tick( tick )
 								incoming_damage = incoming_damage - dmg
 								incoming_projectiles[spell.handle] = nil
 							end	
-							if armState and SleepCheck() and (me.health+((-40+me.healthRegen)*(GetDistance2D(me,z.position)/z.speed))) < dmg then
+							if not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*(GetDistance2D(me,z.position)/z.speed))) < dmg then
 								me:SafeCastItem("item_armlet")
 								me:SafeCastItem("item_armlet")
 								Sleep(ARMLET_DELAY)
@@ -169,7 +172,7 @@ function Tick( tick )
 								incoming_damage = incoming_damage - ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist)))
 								incoming_projectiles[z.source.handle] = nil
 							end	
-							if armState and SleepCheck() and (me.health+((-40+me.healthRegen)*((GetDistance2D(me,z.position)-50)/z.speed))) < ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))) then
+							if not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*((GetDistance2D(me,z.position)-50)/z.speed))) < ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))) then
 								me:SafeCastItem("item_armlet")
 								me:SafeCastItem("item_armlet")
 								Sleep(ARMLET_DELAY) break
@@ -191,7 +194,7 @@ function Tick( tick )
 						incoming_damage = incoming_damage + dmg
 						incoming_projectiles = {damage = dmg, time = client.gameTime + z:FindCastPoint()+client.latency/1000}
 					end
-					if armState and SleepCheck() and me.health+((-40+me.healthRegen)*(z:FindCastPoint()-client.latency/1000)) < dmg then
+					if (not me:IsInvisible() or z:IsBehaviourType(LuaEntityAbility.BEHAVIOR_POINT)) and armState and SleepCheck() and me.health+((-40+me.healthRegen)*(z:FindCastPoint()-client.latency/1000)) < dmg then
 						me:SafeCastItem("item_armlet")
 						me:SafeCastItem("item_armlet")
 						Sleep(ARMLET_DELAY) break
@@ -213,7 +216,7 @@ function Tick( tick )
 				if (heroInfo[v.name] and heroInfo[v.name].projectileSpeed and (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v) + distance/heroInfo[v.name].projectileSpeed)) < ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist)))))
 				or (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v))) < ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist))))
 				then
-					if armState and SleepCheck() then
+					if not me:IsInvisible() and armState and SleepCheck() then
 						me:SafeCastItem("item_armlet")
 						me:SafeCastItem("item_armlet")
 						Sleep(ARMLET_DELAY) break
@@ -225,7 +228,7 @@ function Tick( tick )
 			elseif me.health < minhp and (math.max(me.health - 475,1) - incoming_damage) > 0 then
 				toggle = true
 			end
-			if not armState and SleepCheck() then
+			if not armState and SleepCheck() and not me:IsInvisible() then
 				if not armState and SleepCheck() and Animations.isAttacking(me) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) < me.attackRange+100 then
 					me:SafeCastItem("item_armlet")
 					Sleep(ARMLET_DELAY) break
