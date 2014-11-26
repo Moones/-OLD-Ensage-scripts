@@ -109,7 +109,8 @@ function Tick(tick)
 										me:SafeCastItem(Blink.name,bpos)		
 										Sleep(me:GetTurnTime(v)+client.latency,"blink")
 									end
-								elseif SleepCheck("cull") and GetDistance2D(me,v) < Range and Cullblade:CanBeCasted() then
+								end
+								if SleepCheck("cull") and GetDistance2D(me,v) < Range and Cullblade:CanBeCasted() then
 									if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
 										me:SafeCastAbility(Cullblade,v)	Sleep(Cullblade:FindCastPoint()*1000+client.latency,"cull")
 										victimhp = v.health
