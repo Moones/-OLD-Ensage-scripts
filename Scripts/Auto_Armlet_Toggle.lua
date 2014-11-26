@@ -147,7 +147,7 @@ function Tick( tick )
 						if spell then
 							local dmg = spell:GetDamage(spell.level)
 							if dmg <= 0 then dmg = spell:GetSpecialData("damage",spell.level) end
-							if not dmg then dmg = 0 end
+							if not dmg then dmg = ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))) end
 							if not incoming_projectiles[spell.handle] then
 								incoming_projectiles[spell.handle] = {damage = dmg, time = client.gameTime + ((GetDistance2D(me,z.position)-50)/z.speed)}
 								incoming_damage = incoming_damage + dmg
@@ -181,7 +181,7 @@ function Tick( tick )
 			for i,z in ipairs(v.abilities) do
 				local dmg = z:GetDamage(z.level)
 				if dmg <= 0 then dmg = z:GetSpecialData("damage",z.level) end
-				if not dmg then dmg = 0 end
+				if not dmg then dmg = ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist))) end
 				if incoming_projectiles[z.handle] and client.gameTime > incoming_projectiles[z.handle].time then
 					incoming_damage = incoming_damage - dmg		
 					incoming_projectiles[z.handle] = nil
