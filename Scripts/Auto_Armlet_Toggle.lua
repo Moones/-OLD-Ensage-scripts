@@ -21,9 +21,12 @@ require("libs.HeroInfo")
 		theres a hero which is casting ability which would kill you or
 		theres a hero which is attacking you and one hit from them would kill you or
 		your hero is below a specified health and theres no incoming damage so you wont die by togglig it off. (Default 200 HP)
-		When ranged hero shoots on you or any hero is in melee range, the script will auto toggle Armlet ON.
+		When ranged hero shoots on you, any hero is in melee range or you start to attack, the script will auto toggle Armlet ON.
 
 		Changelog:
+			v1.5.1:
+			 - Added AutoActivation when you start to attack.
+			 
 			v1.5:
 			 - Updated Calculation.
 			 
@@ -112,6 +115,11 @@ function Tick( tick )
 	end
 	
 	if armState and me:DoesHaveModifier("modifier_ice_blast") and SleepCheck() then
+		me:SafeCastItem("item_armlet")
+		Sleep(ARMLET_DELAY)
+	end
+	
+	if Animations.isAttacking(me) and not armState and SleepCheck() then
 		me:SafeCastItem("item_armlet")
 		Sleep(ARMLET_DELAY)
 	end
