@@ -1,4 +1,4 @@
---<<Auto Armlet Toggle by Sophylax, reworked and updated by Moones v1.4>>
+--<<Auto Armlet Toggle by Sophylax, reworked and updated by Moones v1.5.1>>
 require("libs.Utils")
 require("libs.ScriptConfig")
 require("libs.Animations")
@@ -14,7 +14,7 @@ require("libs.HeroInfo")
  0 1 1 0 0 0 0 1    
  0 1 1 1 1 0 0 0 
 
-			Auto Armlet Toggle  v1.4
+			Auto Armlet Toggle  v1.5.1
 
 		This script uses armlet to gain hp when:
 		Theres a flying projectile which would kill you or
