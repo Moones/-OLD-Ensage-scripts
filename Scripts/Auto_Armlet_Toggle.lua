@@ -16,7 +16,12 @@ require("libs.HeroInfo")
 
 			Auto Armlet Toggle  v1.4
 
-		This script uses armlet to gain hp when your hero is below a specified health.
+		This script uses armlet to gain hp when:
+		Theres a flying projectile which would kill you or
+		theres a hero which is casting ability which would kill you or
+		theres a hero which is attacking you and one hit from them would kill you or
+		your hero is below a specified health and theres no incoming damage so you wont die by togglig it off. (Default 200 HP)
+		When ranged hero shoots on you or any hero is in melee range, the script will auto toggle Armlet ON.
 
 		Changelog:
 			v1.5:
