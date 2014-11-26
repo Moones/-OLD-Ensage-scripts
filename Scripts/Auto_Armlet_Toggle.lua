@@ -125,7 +125,7 @@ function Tick( tick )
 		Sleep(ARMLET_DELAY)
 	end
 	
-	if config.ToggleAlways and SleepCheck() and (toggle or (#enemies <= 0 and me.health < minhp and (math.max(me.health - 475,1) - incoming_damage) > 0)) then
+	if config.ToggleAlways and SleepCheck() and (toggle or (#enemies <= 0 and me.health < minhp)) and (math.max(me.health - 475,1) - incoming_damage) > 0 then
 		if armState then
 			me:SafeCastItem("item_armlet")
 			me:SafeCastItem("item_armlet")
@@ -197,12 +197,17 @@ function Tick( tick )
 					end
 				end
 			end	
-			if not incoming_projectiles[v.handle] and distance <= (v.attackRange+100) and Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 then
-				incoming_damage = incoming_damage + ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist)))
-				if heroInfo[v.name].projectileSpeed then
-					incoming_projectiles[v.handle] = {damage = ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist))), time = client.gameTime + Animations.GetAttackTime(v) + ((GetDistance2D(me,v)-50)/heroInfo[v.name].projectileSpeed)}
-				else
-					incoming_projectiles[v.handle] = {damage = ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist))), time = client.gameTime + Animations.GetAttackTime(v)}
+			if distance <= (v.attackRange+100) and Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 then
+				if not incoming_projectiles[v.handle] and (Animations.CanMove(v) or v.attackRange < 200) then
+					incoming_damage = incoming_damage + ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist)))
+					if heroInfo[v.name].projectileSpeed then
+						incoming_projectiles[v.handle] = {damage = ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist))), time = client.gameTime + Animations.GetAttackTime(v) + ((GetDistance2D(me,v)-50)/heroInfo[v.name].projectileSpeed)}
+					else
+						incoming_projectiles[v.handle] = {damage = ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist))), time = client.gameTime + Animations.GetAttackTime(v)}
+					end
+				elseif incoming_projectiles[v.handle] and client.gameTime > incoming_projectiles[v.handle].time then
+					incoming_damage = incoming_damage - ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist)))
+					incoming_projectiles[v.handle] = nil
 				end
 				if (heroInfo[v.name] and heroInfo[v.name].projectileSpeed and (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v) + distance/heroInfo[v.name].projectileSpeed)) < ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist)))))
 				or (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v))) < ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist))))
@@ -217,13 +222,7 @@ function Tick( tick )
 				incoming_damage = incoming_damage - ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist)))
 				incoming_projectiles[v.handle] = nil
 			elseif me.health < minhp and (math.max(me.health - 475,1) - incoming_damage) > 0 then
-				if distance < 900 and armState and SleepCheck() then
-					me:SafeCastItem("item_armlet")
-					me:SafeCastItem("item_armlet")
-					Sleep(ARMLET_DELAY) break
-				else
-					toggle = true
-				end
+				toggle = true
 			end
 			if not armState and SleepCheck() then
 				if not armState and SleepCheck() and Animations.isAttacking(me) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) < me.attackRange+100 then
