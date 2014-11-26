@@ -21,11 +21,11 @@ require("libs.HeroInfo")
 		theres a hero which is casting ability which would kill you or
 		theres a hero which is attacking you and one hit from them would kill you or
 		your hero is below a specified health and theres no incoming damage so you wont die by togglig it off. (Default 200 HP)
-		When ranged hero shoots on you, any hero is in melee range or you start to attack, the script will auto toggle Armlet ON.
+		When ranged hero shoots on you, any hero is in melee range or you start to attack an enemy hero, the script will auto toggle Armlet ON.
 
 		Changelog:
 			v1.5.1:
-			 - Added AutoActivation when you start to attack.
+			 - Added AutoActivation when you start to attack an enemy hero.
 			 
 			v1.5:
 			 - Updated Calculation.
@@ -94,7 +94,8 @@ end
 
 function Tick( tick )
 	if not PlayingGame() or client.console or client.paused then return end
-	local me = entityList:GetMyHero() 
+	local me = entityList:GetMyHero()
+	local player = entityList:GetMyPlayer()
 	if not reg then
 		script:RegisterEvent(EVENT_KEY,Key)
 		reg = true
@@ -119,7 +120,7 @@ function Tick( tick )
 		Sleep(ARMLET_DELAY)
 	end
 	
-	if Animations.isAttacking(me) and not armState and SleepCheck() then
+	if player.orderId == Player.ORDER_ATTACKENTITY and player.target and player.target.hero and not armState and SleepCheck() and GetDistance2D(player.target,me) < me.attackRange+100 then
 		me:SafeCastItem("item_armlet")
 		Sleep(ARMLET_DELAY)
 	end
@@ -225,6 +226,10 @@ function Tick( tick )
 				end
 			end
 			if not armState and SleepCheck() then
+				if Animations.isAttacking(me) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and GetDistance2D(me,v) < me.attackRange+100 then
+					me:SafeCastItem("item_armlet")
+					Sleep(ARMLET_DELAY)
+				end
 				for i,z in ipairs(v.abilities) do
 					if z.abilityPhase and distance <= z.castRange and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 then
 						me:SafeCastItem("item_armlet")
