@@ -67,8 +67,6 @@ local incoming_projectiles = {} local incoming_damage = 0 local toggle = false
 
 ARMLET_DELAY = 1000
 
-extraToggle = 0
-
 function Key(msg,code)
     if msg ~= KEY_UP or code ~= hotkey or client.chat then return end
 	if not active then
@@ -110,7 +108,7 @@ function Tick( tick )
 		Sleep(ARMLET_DELAY)
 	end
 	
-	if config.ToggleAlways and SleepCheck() and (toggle or (#enemies <= 0 and me.health < minhp and (me.health - incoming_damage) > 0)) then
+	if config.ToggleAlways and SleepCheck() and (toggle or (#enemies <= 0 and me.health < minhp and (math.max(me.health - 475,1) - incoming_damage) > 0)) then
 		if armState then
 			me:SafeCastItem("item_armlet")
 			me:SafeCastItem("item_armlet")
@@ -148,13 +146,13 @@ function Tick( tick )
 								end
 							else
 								if not incoming_projectiles[z.source.handle] then																	
-									incoming_projectiles[z.source.handle] = {damage = (((z.source.dmgMax + z.source.dmgMin)/2)*((1-me.dmgResist)+1) + z.source.dmgBonus), time = client.gameTime + ((GetDistance2D(me,z.position)-50)/z.speed)}
-									incoming_damage = incoming_damage + (((z.source.dmgMax + z.source.dmgMin)/2)*((1-me.dmgResist)) + z.source.dmgBonus)
+									incoming_projectiles[z.source.handle] = {damage = ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))), time = client.gameTime + ((GetDistance2D(me,z.position)-50)/z.speed)}
+									incoming_damage = incoming_damage + ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist)))
 								elseif client.gameTime > incoming_projectiles[z.source.handle].time then
-									incoming_damage = incoming_damage - (((z.source.dmgMax + z.source.dmgMin)/2)*((1-me.dmgResist)) + z.source.dmgBonus)
+									incoming_damage = incoming_damage - ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist)))
 									incoming_projectiles[z.source.handle] = nil
 								end	
-								if (me.health+((-40+me.healthRegen)*(GetDistance2D(me,z.position)/z.speed))) < (((z.source.dmgMax + z.source.dmgMin)/2)*((1-me.dmgResist)+1) + z.source.dmgBonus) then
+								if (me.health+((-40+me.healthRegen)*((GetDistance2D(me,z.position)-50)/z.speed))) < ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))) then
 									me:SafeCastItem("item_armlet")
 									me:SafeCastItem("item_armlet")
 									Sleep(ARMLET_DELAY)
@@ -162,34 +160,45 @@ function Tick( tick )
 							end
 						end
 					end
-				else
-					incoming_damage = 0
-					incoming_projectiles = {}
 				end
 				for i,z in ipairs(v.abilities) do
-					if z.abilityPhase and distance <= z.castRange and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 then
-						local spell = z
-						if spell then
-							local dmg = spell:GetDamage(spell.level)
-							if dmg <= 0 then dmg = spell:GetSpecialData("damage",spell.level) end
-							if not dmg then dmg = 0 end
-							if me.health+((-40+me.healthRegen)*(z:FindCastPoint()-client.latency/1000)) < dmg then
-								me:SafeCastItem("item_armlet")
-								me:SafeCastItem("item_armlet")
-								Sleep(ARMLET_DELAY)
+					local dmg = z:GetDamage(z.level)
+					if dmg <= 0 then dmg = z:GetSpecialData("damage",z.level) end
+					if not dmg then dmg = 0 end
+					if incoming_projectiles[z.handle] and client.gameTime > incoming_projectiles[z.handle].time then
+						incoming_damage = incoming_damage - dmg		
+						incoming_projectiles[z.handle] = nil
+					end
+					if z.abilityPhase and distance <= z.castRange+100 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 then
+						if me.health+((-40+me.healthRegen)*(z:FindCastPoint()-client.latency/1000)) < dmg then
+							if not incoming_projectiles[z.handle] then
+								incoming_damage = incoming_damage + dmg
+								incoming_projectiles = {damage = dmg, time = client.gameTime + z:FindCastPoint()+client.latency/1000}
 							end
+							me:SafeCastItem("item_armlet")
+							me:SafeCastItem("item_armlet")
+							Sleep(ARMLET_DELAY)
 						end
-					end 
+					end
 				end	
-				if distance <= (v.attackRange+100) and Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 then
-					if (heroInfo[v.name] and heroInfo[v.name].projectileSpeed and (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v) + distance/heroInfo[v.name].projectileSpeed)) < (((v.dmgMax + v.dmgMin)/2)*((1-me.dmgResist)+1))))
-					or (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v))) < (((v.dmgMax + v.dmgMin)/2)*((1-me.dmgResist)+1)))
+				if not incoming_projectiles[v.handle] and distance <= (v.attackRange+100) and Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 then
+					incoming_damage = incoming_damage + ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist)))
+					if heroInfo[v.name].projectileSpeed then
+						incoming_projectiles[v.handle] = {damage = ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist))), time = client.gameTime + Animations.GetAttackTime(v) + ((GetDistance2D(me,v)-50)/heroInfo[v.name].projectileSpeed)}
+					else
+						incoming_projectiles[v.handle] = {damage = ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist))), time = client.gameTime + Animations.GetAttackTime(v)}
+					end
+					if (heroInfo[v.name] and heroInfo[v.name].projectileSpeed and (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v) + distance/heroInfo[v.name].projectileSpeed)) < ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist)))))
+					or (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v))) < ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist))))
 					then
 						me:SafeCastItem("item_armlet")
 						me:SafeCastItem("item_armlet")
 						Sleep(ARMLET_DELAY)
 					end
-				elseif me.health < minhp and (me.health - incoming_damage) > 0 then
+				elseif incoming_projectiles[v.handle] and client.gameTime > incoming_projectiles[v.handle].time then
+					incoming_damage = incoming_damage - ((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus)*((1-me.dmgResist)))
+					incoming_projectiles[v.handle] = nil
+				elseif me.health < minhp and (math.max(me.health - 475,1) - incoming_damage) > 0 then
 					if distance < 900 then
 						me:SafeCastItem("item_armlet")
 						me:SafeCastItem("item_armlet")
