@@ -76,7 +76,7 @@ function Tick(tick)
 			blink.visible = false
 		end
 		local Type = DAMAGE_HPRM
-		local Range = 400
+		local Range = 250
 		local RangeB = 1200
 		local CastPoint,Dmg = 0,0
 		if Cullblade.level > 0 then
@@ -100,9 +100,13 @@ function Tick(tick)
 						hero[v.handle].text = "Health to kill: "..healthtokill
 						if active then
 							if healthtokill <= 0 then
-								if SleepCheck("blink") and GetDistance2D(me,v) < RangeB and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) and Cullblade:CanBeCasted() then
-									if me:IsMagicDmgImmune() or ((Cullblade.level > 0 and NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
-										me:SafeCastItem(Blink.name,v.position)		
+								if SleepCheck("blink") and GetDistance2D(me,v) <= RangeB+150 and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) and Cullblade:CanBeCasted() then
+									if me:IsMagicDmgImmune() or ((NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
+										local bpos = v.position
+										if GetDistance2D(me,v) > RangeB then
+											bpos = (v.position - me.position) * 1100 / GetDistance2D(me,v) + me.position
+										end
+										me:SafeCastItem(Blink.name,bpos)		
 										Sleep(me:GetTurnTime(v)+client.latency,"blink")
 									end
 								elseif SleepCheck("cull") and GetDistance2D(me,v) < Range and Cullblade:CanBeCasted() then
