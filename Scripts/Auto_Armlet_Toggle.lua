@@ -19,6 +19,9 @@ require("libs.HeroInfo")
 		This script uses armlet to gain hp when your hero is below a specified health.
 
 		Changelog:
+			v1.5:
+			 - Updated Calculation.
+			 
 			v1.4:
 			 - Added calculation of incoming damage (projectiles, abilities, attacking heroes)
 			 - MinimumHP is now considered only when there is no incoming damage and there are enemy heroes near
@@ -223,7 +226,7 @@ function Tick( tick )
 						end
 					end
 				end
-				if distance <= (200) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0) then
+				if distance <= (200) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and distance < v.attackRange+100) then
 					if armlet.toggled == false then
 						me:SafeCastItem("item_armlet")
 						Sleep(ARMLET_DELAY)
