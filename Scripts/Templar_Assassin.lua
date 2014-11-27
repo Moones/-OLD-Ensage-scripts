@@ -257,21 +257,12 @@ function OrbWalk(me)
 			end
 		end
 	end	
-	if victim and victim.hero then
+	if victim and victim.hero and entityList:GetMouseover() == victim then
 		lasthitting = false
-	elseif not victim then
+	else
 		lasthitting = true
 	end
-	--if we got more enemies around and victim is far choose lowest HP target instead
-	if ((victim and GetDistance2D(me,victim) > (myhero.attackRange + 25)) or harras) and #enemies > 1 and enemies[2] and GetDistance2D(enemies[2], me) < (myhero.attackRange + 1200) and not lhcreep then
-		victim = targetFind:GetLowestEHP(1200 + myhero.attackRange, phys)
-		if not harras then
-			lasthitting = false
-		end
-	end	
-	if autochase and victim and (not chasevictim or not chasevictim.alive or GetDistance2D(chasevictim,me) > (1200 + myhero.attackRange)) then
-		chasevictim = victim
-	end	
+	
 	local farm = {}
 	local closecreeps = {}
 	for i,v in pairs(creepTable) do if ((v.creepEntity.team ~= me.team and v.creepEntity.type ~= LuaEntityNPC.TYPE_HERO) or v.creepEntity.classId == CDOTA_BaseNPC_Creep_Neutral) then farm[#farm+1] = v.creepEntity end if v.creepEntity.team == me:GetEnemyTeam() and v.creepEntity.classId == CDOTA_BaseNPC_Creep_Lane and GetDistance2D(me,v.creepEntity) < 800 then closecreeps[#closecreeps+1] = v.creepEntity end end
@@ -282,6 +273,19 @@ function OrbWalk(me)
 	else
 		harras = false
 	end
+	
+	--if we got more enemies around and victim is far choose lowest HP target instead
+	if ((victim and GetDistance2D(me,victim) > (myhero.attackRange*2)) or harras) and #enemies > 1 and enemies[2] and GetDistance2D(enemies[2], me) < (myhero.attackRange + 1200) and not lhcreep then
+		victim = targetFind:GetLowestEHP(1200 + myhero.attackRange, phys)
+		if not harras then
+			lasthitting = false
+		end
+	end	
+	
+	if autochase and victim and (not chasevictim or not chasevictim.alive or GetDistance2D(chasevictim,me) > (1200 + myhero.attackRange)) then
+		chasevictim = victim
+	end	
+	
 	--if we dont have victim and there are creeps around then farm them
 	if farm and #farm > 0 and not harras and not lhcreep and not lh and lasthitting then
 		table.sort( farm, function (a,b) return a and b and (GetDistance2D(a,me) < GetDistance2D(b,me)) end )
