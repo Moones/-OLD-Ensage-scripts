@@ -979,6 +979,241 @@ npc_dota_hero_abaddon = {
  attackRate = 1.45,
  attackPoint = 0.43,
  attackRange = 620,
- attackBackswing = 0.67}
-
+ attackBackswing = 0.67},
+ 
+ npc_dota_creep_badguys_melee = {
+ attackRate = 1,
+ attackPoint = 0.467,
+ attackRange = 100,
+ attackBackswing = 0.633},
+ 
+ npc_dota_creep_goodguys_melee = {
+ attackRate = 1,
+ attackPoint = 0.467,
+ attackRange = 100,
+ attackBackswing = 0.633},
+ 
+ npc_dota_creep_badguys_ranged
+ attackRate = 1,
+ attackPoint = 0.5,
+ attackRange = 500,
+ projectileSpeed = 900,
+ attackBackswing = 0.5},
+ 
+ npc_dota_creep_goodguys_ranged	
+ attackRate = 1,
+ attackPoint = 0.5,
+ attackRange = 500,
+ projectileSpeed = 900,
+ attackBackswing = 0.5},
+ 
+ npc_dota_badguys_siege
+ attackRate = 2.7,
+ attackPoint = 0.7,
+ attackRange = 690,
+ projectileSpeed = 1100,
+ attackBackswing = 0.3},
+ 
+ npc_dota_goodguys_siege
+ attackRate = 2.7,
+ attackPoint = 0.7,
+ attackRange = 690,
+ projectileSpeed = 1100,
+ attackBackswing = 0.3},
+ 
+npc_dota_venomancer_plague_ward_1 = {
+ attackRate = 1.5,
+ attackPoint = 0.3,
+ attackRange = 600,
+ projectileSpeed = 1900,
+ attackBackswing = 0.7},
+ 
+npc_dota_venomancer_plague_ward_2 = {
+ attackRate = 1.5,
+ attackPoint = 0.3,
+ attackRange = 600,
+ projectileSpeed = 1900,
+ attackBackswing = 0.7},
+ 
+npc_dota_venomancer_plague_ward_3 = {
+ attackRate = 1.5,
+ attackPoint = 0.3,
+ attackRange = 600,
+ projectileSpeed = 1900,
+ attackBackswing = 0.7},
+ 
+npc_dota_venomancer_plague_ward_4 = {
+ attackRate = 1.5,
+ attackPoint = 0.3,
+ attackRange = 600,
+ projectileSpeed = 1900,
+ attackBackswing = 0.7},
+ 
+npc_dota_badguys_tower1_bot = {
+ attackRate = 1,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_badguys_tower1_mid = {
+ attackRate = 1,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_badguys_tower1_top = {
+ attackRate = 1,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_badguys_tower2_bot = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_badguys_tower2_mid = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_badguys_tower2_top = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_badguys_tower3_bot = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_badguys_tower3_mid = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_badguys_tower3_top = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_badguys_tower4 = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_goodguys_tower1_bot = {
+ attackRate = 1,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_goodguys_tower1_mid = {
+ attackRate = 1,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_goodguys_tower1_top = {
+ attackRate = 1,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_goodguys_tower2_bot = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_goodguys_tower2_mid = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 0.7},
+ 
+npc_dota_goodguys_tower2_top = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_goodguys_tower3_bot = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_goodguys_tower3_mid = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_goodguys_tower3_top = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_goodguys_tower4 = {
+ attackRate = 0.95,
+ attackPoint = 0,
+ attackRange = 700,
+ projectileSpeed = 750,
+ attackBackswing = 1},
+ 
+npc_dota_invoker_forged_spirit = {
+ attackRate = 1.5,
+ attackPoint = 0.2,
+ attackRange = 700,
+ projectileSpeed = 1000,
+ attackBackswing = 0.4},
+ 
+npc_dota_lycan_wolf1 = {
+ attackRate = 1.25,
+ attackPoint = 0.33,
+ attackBackswing = 0.64},
+ 
+npc_dota_lycan_wolf2 = {
+ attackRate = 1.2,
+ attackPoint = 0.33,
+ attackBackswing = 0.64},
+ 
+npc_dota_lycan_wolf3 = {
+ attackRate = 1.15,
+ attackPoint = 0.33,
+ attackBackswing = 0.64},
+ 
+npc_dota_lycan_wolf4 = {
+ attackRate = 1.1,
+ attackPoint = 0.33,
+ attackBackswing = 0.64},
+ 
  }
