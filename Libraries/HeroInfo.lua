@@ -993,28 +993,28 @@ npc_dota_hero_abaddon = {
  attackRange = 100,
  attackBackswing = 0.633},
  
- npc_dota_creep_badguys_ranged
+ npc_dota_creep_badguys_ranged = {
  attackRate = 1,
  attackPoint = 0.5,
  attackRange = 500,
  projectileSpeed = 900,
  attackBackswing = 0.5},
  
- npc_dota_creep_goodguys_ranged	
+ npc_dota_creep_goodguys_ranged	= {
  attackRate = 1,
  attackPoint = 0.5,
  attackRange = 500,
  projectileSpeed = 900,
  attackBackswing = 0.5},
  
- npc_dota_badguys_siege
+ npc_dota_badguys_siege = {
  attackRate = 2.7,
  attackPoint = 0.7,
  attackRange = 690,
  projectileSpeed = 1100,
  attackBackswing = 0.3},
  
- npc_dota_goodguys_siege
+ npc_dota_goodguys_siege = {
  attackRate = 2.7,
  attackPoint = 0.7,
  attackRange = 690,
