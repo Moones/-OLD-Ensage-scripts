@@ -61,8 +61,7 @@ require("libs.HeroInfo")
 			v1.0:
 			 - Release
 
-]]
-
+]]	
 
 local config = ScriptConfig.new()
 config:SetParameter("Hotkey", "L", config.TYPE_HOTKEY)
@@ -139,6 +138,8 @@ function Tick( tick )
 		end
 		toggle = false
 	end
+	
+	
 	for i,v in ipairs(enemies) do			
 		if not v:IsIllusion() and not me:DoesHaveModifier("modifier_ice_blast") then
 			local projectile = entityList:GetProjectiles({target=me})
@@ -241,13 +242,13 @@ function Tick( tick )
 				end	
 				if projectile then
 					for k,z in ipairs(projectile) do
-						if not armState and SleepCheck() and z.target and z.target == me then
+						if not armState and SleepCheck() and z.target and z.target == me and z.source and z.source.hero then
 							me:SafeCastItem("item_armlet")
 							Sleep(ARMLET_DELAY) break
 						end
 					end
 				end
-				if not armState and SleepCheck() and distance <= (200) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and distance < v.attackRange+100) then
+				if not armState and SleepCheck() and (distance <= (250) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and distance < v.attackRange+100)) then
 					me:SafeCastItem("item_armlet")
 					Sleep(ARMLET_DELAY)
 				end
