@@ -575,9 +575,9 @@ class 'Creep'
 			self.creepType = "Hero"
 			self.attackType = "Hero"
 			self.armorType = "Hero"
-			if not heroInfo[self.creepEntity.name].projectileSpeed then
+			if heroInfo[self.creepEntity.name] and not heroInfo[self.creepEntity.name].projectileSpeed then
 				self.isRanged = false
-			else
+			elseif heroInfo[self.creepEntity.name] then
 				self.isRanged = true
 				self.projectileSpeed = heroInfo[self.creepEntity.name].projectileSpeed
 			end
