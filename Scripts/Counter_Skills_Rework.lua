@@ -6,7 +6,7 @@ local activated = 0
 
 function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
-	if sleepTick and sleepTick > tick then return end	
+	if sleepTick and sleepTick > tick then client:ExecuteCmd("+dota_camera_center_on_hero") client:ExecuteCmd("-dota_camera_center_on_hero") return end	
 	me = entityList:GetMyHero() if not me then return end
 	--Silence Dispell
 	if IsSilenced(me) or me:IsSilenced() then
@@ -31,6 +31,18 @@ function Tick( tick )
 						if turntime == 0 then
 							Nyx()
 							TemplarRefraction()
+						end
+					end
+				end
+			elseif v.name == "npc_dota_hero_bane" then
+				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
+					if GetDistance2D(v,me) < 700 then
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						if turntime == 0 then
+							Nyx()
+							TemplarRefraction()
+							Useblackking()
+							Juggernautfury()
 						end
 					end
 				end
@@ -113,7 +125,7 @@ function Tick( tick )
 							UseSheepStickTarget()
 							UseOrchidtarget() SkySilence()
 							PLDoppleganger()
-						end
+						end 
 					end
 				end
 			elseif v.name == "npc_dota_hero_pudge" then
@@ -1120,7 +1132,7 @@ function Tick( tick )
 			
 			--Initiation dodge--
 			local blink = v:FindItem("item_blink")
-			if blink and blink.cd > 11.9 and v:CanCast() then                                 
+			if blink and blink.cd > 11 and v:CanCast() then                                 
 				for s = 1, 6 do
 					target = v
 					if v:GetAbility(s) ~= nil and v:GetAbility(s).state == LuaEntityAbility.STATE_READY then
@@ -2541,6 +2553,8 @@ function Antiblinkhome()
 						me:CastAbility(storm_spirit_ball_lightning,vector)
 						activated=1
 						sleepTick= GetTick() +500
+						client:ExecuteCmd("+dota_camera_center_on_hero")
+						client:ExecuteCmd("-dota_camera_center_on_hero")
 						return
 				end
 			end
@@ -2608,6 +2622,7 @@ function Puck()
 			pstime = {750,1500,2250,3250}
 			sleepTick = GetTick() + pstime[phase.level]
 			script:RegisterEvent(EVENT_TICK,qna)
+			return
 		end
 	end
 end
@@ -2621,6 +2636,7 @@ function PuckW(ps)
 					me:CastAbility(rift)
 					activated = 1
 					sleepTick = GetTick() + 500
+					return
 				end
 			elseif ps then
 				Puck()
@@ -2818,12 +2834,19 @@ end
 function UseBlinkDagger() --use blink to home
 	if activated == 0 then
 		local BlinkDagger = me:FindItem("item_blink")
+		local stormult = me:FindSpell("storm_spirit_ball_lightning")
+		local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
+		local vec = Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
 		if BlinkDagger ~= nil and BlinkDagger.cd == 0 then
-			local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
-			me:CastItem(BlinkDagger.name,Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z))
+			me:CastItem(BlinkDagger.name,vec)
 			activated = 1
 			sleepTick = GetTick() + 500
 			return Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
+		elseif stormult and me:CanCast() then
+			me:CastAbility(stormult,vec)
+			activated = 1
+			sleepTick = GetTick() + 500
+			return
 		end
 	end
 	return me.position
@@ -3173,4 +3196,4 @@ function IsSilenced(hero)
 end
 
 script:RegisterEvent(EVENT_CLOSE, GameClose)
-script:RegisterEvent(EVENT_TICK,Tick)
+script:RegisterEvent(EVENT_FRAME,Tick)
