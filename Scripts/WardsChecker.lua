@@ -44,7 +44,6 @@ function Tick(tick)
 	local sentry_wards = entityList:GetEntities({classId = 374, visible = true, team = me:GetEnemyTeam()})	
 	for i,v in ipairs(enemies) do        
 		local ObserverWard, SentryWard = v:FindItem("item_ward_observer"), v:FindItem("item_ward_sentry")
-		if not ObserverWard and not SentryWard then return end
 		if ObserverWard and not ObserverWards.charges[v.handle] then
 			ObserverWards.charges[v.handle] = ObserverWard.charges
 		end
