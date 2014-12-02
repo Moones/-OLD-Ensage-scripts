@@ -1,6 +1,37 @@
+--<<Wards Checker by Moones version 1.0 - Shows wards by checking for charges>>
 require("libs.Utils")
 require("libs.DrawManager3D")
 require("libs.Res")
+
+--[[
+                                                    `-.
+                                                      .`
+            Wards Checker made by Moones           _.`.`
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^       _.-` .`
+                                       ___.---` _.-`
+                               __..---`___..---`
+                      _...--.-`   _.--`
+                  _.-`.-`.-`  _.-`
+               .-` .`  .`   .`    VERSION 1.0
+    .         /   /   /    /      ===========   .
+    \`-.._    |  |    \    `.              _..-`/
+   .'-.._ ``--.._\     `. -- `.      _..-``  _..-`.
+   `_    _       `-. .`        `. .-`      _    _`
+     `.``           .            \          ``.`
+      `-.-'    _   .              :   _   `-.-`
+        `..-..'    ;       .` `.  '    `..-..`
+            /      .      : .-. : :        \
+            `._     \     ;( O ) /      _.`
+               `-._.'`.    .`-'.' `._.-'
+                       `-....-`					                                                                      
+        Description:
+        ------------
+	
+             This script will create icon 500 range infront of enemies, whenever their wards charges decreases.
+             The script checks also for cooldown of wards, so it prevents creating icons when ward was placed in FOW and enemy then came out of it.
+             When the ward becomes visible and is destroyed then the icon will disappear. (only if distance between icon and ward is less than 500)	 
+	   
+]]--
 
 local ObserverWards = {} ObserverWards.charges = {} ObserverWards.icons_ground = {} ObserverWards.times = {} ObserverWards.icons_minimap = {}
 local SentryWards = {} SentryWards.charges = {} SentryWards.icons_ground = {} SentryWards.times = {} SentryWards.icons_minimap = {}
