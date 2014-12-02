@@ -34,7 +34,7 @@ require("libs.Res")
         Changelog:
 		----------
 		
-             v1.1 - Added range for wards
+             v1.1 - Added range indicator
 	   
 ]]--
 
