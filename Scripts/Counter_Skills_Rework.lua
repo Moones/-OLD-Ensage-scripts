@@ -6,7 +6,7 @@ local activated = 0
 
 function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
-	if sleepTick and sleepTick > tick then client:ExecuteCmd("+dota_camera_center_on_hero") client:ExecuteCmd("-dota_camera_center_on_hero") return end	
+	if sleepTick and sleepTick > tick then if blink then client:ExecuteCmd("+dota_camera_center_on_hero") client:ExecuteCmd("-dota_camera_center_on_hero") end return end	
 	me = entityList:GetMyHero() if not me then return end
 	--Silence Dispell
 	if IsSilenced(me) or me:IsSilenced() then
@@ -2121,6 +2121,7 @@ function Tick( tick )
 		end
 	end
 	activated = 0
+	blink = false
 end
 
 function GameClose()
@@ -2544,14 +2545,12 @@ function Antiblinkhome()
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
 				if me:GetAbility(t).name == "antimage_blink" and me:GetAbility(t).state == -1 then
-
 					local fountPos = entityList:FindEntities({team = me.team, classId = CDOTA_Unit_Fountain})[1].position
 					local vector = ((fountPos - me.position) * 1150 / me:GetDistance2D(fountPos) ) + me.position
-
-
 						storm_spirit_ball_lightning=me:GetAbility(t)
 						me:CastAbility(storm_spirit_ball_lightning,vector)
 						activated=1
+						blink = true
 						sleepTick= GetTick() +500
 						client:ExecuteCmd("+dota_camera_center_on_hero")
 						client:ExecuteCmd("-dota_camera_center_on_hero")
@@ -2840,11 +2839,13 @@ function UseBlinkDagger() --use blink to home
 		if BlinkDagger ~= nil and BlinkDagger.cd == 0 then
 			me:CastItem(BlinkDagger.name,vec)
 			activated = 1
+			blink = true
 			sleepTick = GetTick() + 500
 			return Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
 		elseif stormult and me:CanCast() then
 			me:CastAbility(stormult,vec)
 			activated = 1
+			blink = true
 			sleepTick = GetTick() + 500
 			return
 		end
