@@ -1,4 +1,4 @@
---<<Wards Checker by Moones version 1.0 - Shows wards by checking for charges>>
+--<<Wards Checker by Moones version 1.1 - Shows wards by checking for charges>>
 require("libs.Utils")
 require("libs.DrawManager3D")
 require("libs.Res")
@@ -12,7 +12,7 @@ require("libs.Res")
                                __..---`___..---`
                       _...--.-`   _.--`
                   _.-`.-`.-`  _.-`
-               .-` .`  .`   .`    VERSION 1.0
+               .-` .`  .`   .`    VERSION 1.1
     .         /   /   /    /      ===========   .
     \`-.._    |  |    \    `.              _..-`/
    .'-.._ ``--.._\     `. -- `.      _..-``  _..-`.
@@ -215,14 +215,87 @@ function Tick(tick)
 end
 	
 function GameClose()
+	local me = entityList:GetMyHero()
+	local enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, illusion = false, team = me:GetEnemyTeam()})	
+	for i,v in ipairs(enemies) do 
+		if ObserverWards.icons_ground[v.handle] then
+			ObserverWards.icons_ground[v.handle].visible = false
+			ObserverWards.icons_ground[v.handle] = nil
+			ObserverWards.icons_minimap[v.handle].visible = false
+			ObserverWards.icons_minimap[v.handle] = nil
+			ObserverWards.times[v.handle] = nil
+			ObserverWards.ranges[v.handle] = nil
+		end
+		if ObserverWards.icons_ground[v.handle+1] then
+			ObserverWards.icons_ground[v.handle+1].visible = false
+			ObserverWards.icons_ground[v.handle+1] = nil
+			ObserverWards.icons_minimap[v.handle+1].visible = false
+			ObserverWards.icons_minimap[v.handle+1] = nil
+			ObserverWards.times[v.handle+1] = nil
+			ObserverWards.ranges[v.handle+1]= nil
+		end
+		if SentryWards.icons_ground[v.handle] then
+			SentryWards.icons_ground[v.handle].visible = false
+			SentryWards.icons_ground[v.handle] = nil
+			SentryWards.times[v.handle] = nil
+			SentryWards.icons_minimap[v.handle].visible = false
+			SentryWards.icons_minimap[v.handle] = nil
+			SentryWards.ranges[v.handle] = nil
+		end
+		if SentryWards.icons_ground[v.handle+1] then
+			SentryWards.icons_ground[v.handle+1].visible = false
+			SentryWards.icons_ground[v.handle+1] = nil
+			SentryWards.times[v.handle+1] = nil
+			SentryWards.icons_minimap[v.handle+1].visible = false
+			SentryWards.icons_minimap[v.handle+1] = nil
+			SentryWards.ranges[v.handle+1] = nil
+		end
+	end
 	ObserverWards = {} ObserverWards.charges = {} ObserverWards.icons_ground = {} ObserverWards.times = {} ObserverWards.icons_minimap = {} ObserverWards.ranges = {}
 	SentryWards = {} SentryWards.charges = {} SentryWards.icons_ground = {} SentryWards.times = {} SentryWards.icons_minimap = {} SentryWards.ranges = {}
 	collectgarbage("collect")
 end
 
 function GameLoad()
+	local me = entityList:GetMyHero()
+	local enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, illusion = false, team = me:GetEnemyTeam()})	
+	for i,v in ipairs(enemies) do 
+		if ObserverWards.icons_ground[v.handle] then
+			ObserverWards.icons_ground[v.handle].visible = false
+			ObserverWards.icons_ground[v.handle] = nil
+			ObserverWards.icons_minimap[v.handle].visible = false
+			ObserverWards.icons_minimap[v.handle] = nil
+			ObserverWards.times[v.handle] = nil
+			ObserverWards.ranges[v.handle] = nil
+		end
+		if ObserverWards.icons_ground[v.handle+1] then
+			ObserverWards.icons_ground[v.handle+1].visible = false
+			ObserverWards.icons_ground[v.handle+1] = nil
+			ObserverWards.icons_minimap[v.handle+1].visible = false
+			ObserverWards.icons_minimap[v.handle+1] = nil
+			ObserverWards.times[v.handle+1] = nil
+			ObserverWards.ranges[v.handle+1]= nil
+		end
+		if SentryWards.icons_ground[v.handle] then
+			SentryWards.icons_ground[v.handle].visible = false
+			SentryWards.icons_ground[v.handle] = nil
+			SentryWards.times[v.handle] = nil
+			SentryWards.icons_minimap[v.handle].visible = false
+			SentryWards.icons_minimap[v.handle] = nil
+			SentryWards.ranges[v.handle] = nil
+		end
+		if SentryWards.icons_ground[v.handle+1] then
+			SentryWards.icons_ground[v.handle+1].visible = false
+			SentryWards.icons_ground[v.handle+1] = nil
+			SentryWards.times[v.handle+1] = nil
+			SentryWards.icons_minimap[v.handle+1].visible = false
+			SentryWards.icons_minimap[v.handle+1] = nil
+			SentryWards.ranges[v.handle+1] = nil
+		end
+	end
 	ObserverWards = {} ObserverWards.charges = {} ObserverWards.icons_ground = {} ObserverWards.times = {} ObserverWards.icons_minimap = {} ObserverWards.ranges = {}
 	SentryWards = {} SentryWards.charges = {} SentryWards.icons_ground = {} SentryWards.times = {} SentryWards.icons_minimap = {} SentryWards.ranges = {}
+	collectgarbage("collect")
 end
 
 script:RegisterEvent(EVENT_LOAD, GameLoad)
