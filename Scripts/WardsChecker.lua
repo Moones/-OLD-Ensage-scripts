@@ -41,7 +41,7 @@ function Tick(tick)
 	local me = entityList:GetMyHero()
 	local enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, illusion = false, alive = true, visible = true, team = me:GetEnemyTeam()})
 	local observer_wards = entityList:GetEntities({classId = CDOTA_NPC_Observer_Ward, visible = true, team = me:GetEnemyTeam()})
-	local sentry_wards = entityList:GetEntities({classId = 374, visible = true, team = me:GetEnemyTeam()})	
+	local sentry_wards = entityList:GetEntities({classId = CDOTA_NPC_Observer_Ward_TrueSight, visible = true, team = me:GetEnemyTeam()})	
 	for i,v in ipairs(enemies) do        
 		local ObserverWard, SentryWard = v:FindItem("item_ward_observer"), v:FindItem("item_ward_sentry")
 		if ObserverWard and not ObserverWards.charges[v.handle] then
