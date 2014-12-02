@@ -1,7 +1,7 @@
 require("libs.Utils")
 require("libs.HeroInfo")
 
-wait = 0 waittime = 0 sleepTick = nil sleep1 = 0  sleepk = 0 tt = nil aa = nil
+wait = 0 waittime = 0 sleepTick = nil sleep1 = 0  sleepk = 0 tt = nil aa = nil blink = false
 local activated = 0
 
 function Tick( tick )
@@ -2132,7 +2132,8 @@ function GameClose()
 	sleep1 = 0 
 	sleepk = 0
 	tt = nil
-	aa = nil	
+	aa = nil
+	blink = false
 end
 
 function FindAngleR(entity)
