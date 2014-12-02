@@ -1,12 +1,13 @@
 require("libs.Utils")
 require("libs.HeroInfo")
 
-wait = 0 waittime = 0 sleepTick = nil sleep1 = 0  sleepk = 0 tt = nil aa = nil blink = false
+wait = 0 waittime = 0 sleepTick = nil sleep1 = 0  sleepk = 0 tt = nil aa = nil
 local activated = 0
 
 function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
-	if sleepTick and sleepTick > tick then if blink then client:ExecuteCmd("+dota_camera_center_on_hero") client:ExecuteCmd("-dota_camera_center_on_hero") end return end	
+	if not SleepCheck("blink") then client:ExecuteCmd("+dota_camera_center_on_hero") client:ExecuteCmd("-dota_camera_center_on_hero") return end
+	if sleepTick and sleepTick > tick then return end	
 	me = entityList:GetMyHero() if not me then return end
 	--Silence Dispell
 	if IsSilenced(me) or me:IsSilenced() then
@@ -2133,7 +2134,6 @@ function GameClose()
 	sleepk = 0
 	tt = nil
 	aa = nil
-	blink = false
 end
 
 function FindAngleR(entity)
@@ -2551,7 +2551,7 @@ function Antiblinkhome()
 						storm_spirit_ball_lightning=me:GetAbility(t)
 						me:CastAbility(storm_spirit_ball_lightning,vector)
 						activated=1
-						blink = true
+						Sleep(500,"blink")
 						sleepTick= GetTick() +500
 						client:ExecuteCmd("+dota_camera_center_on_hero")
 						client:ExecuteCmd("-dota_camera_center_on_hero")
@@ -2840,18 +2840,23 @@ function UseBlinkDagger() --use blink to home
 		if BlinkDagger ~= nil and BlinkDagger.cd == 0 then
 			me:CastItem(BlinkDagger.name,vec)
 			activated = 1
-			blink = true
+			Sleep(500,"blink")
+			client:ExecuteCmd("+dota_camera_center_on_hero")
+			client:ExecuteCmd("-dota_camera_center_on_hero")
 			sleepTick = GetTick() + 500
-			return Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
-		elseif stormult and me:CanCast() then
+			return
+		end
+		if stormult and me:CanCast() then
 			me:CastAbility(stormult,vec)
 			activated = 1
-			blink = true
+			Sleep(500,"blink")
+			client:ExecuteCmd("+dota_camera_center_on_hero")
+			client:ExecuteCmd("-dota_camera_center_on_hero")
 			sleepTick = GetTick() + 500
 			return
 		end
 	end
-	return me.position
+	return
 end
 
 function UseBlinkDaggervec() --use blink to home
