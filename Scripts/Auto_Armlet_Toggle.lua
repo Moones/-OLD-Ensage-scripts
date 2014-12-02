@@ -110,6 +110,7 @@ function Tick( tick )
 	
 	local armState = me:DoesHaveModifier("modifier_item_armlet_unholy_strength")
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=me:GetEnemyTeam()})
+	local projectile = entityList:GetProjectiles({target=me})
 	if not me.alive then
 		incoming_damage = 0
 		incoming_projectiles = {}
@@ -139,49 +140,50 @@ function Tick( tick )
 		toggle = false
 	end
 	
+	for k,z in ipairs(projectile) do
+		if z.target and z.target == me and z.source then
+			local spell = z.source:FindSpell(z.name) 
+			if spell then
+				local dmg = spell:GetDamage(spell.level)
+				if dmg <= 0 then dmg = spell:GetSpecialData("damage",spell.level) end
+				if not dmg then dmg = ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))) end
+				if not incoming_projectiles[spell.handle] then
+					incoming_projectiles[spell.handle] = {damage = dmg, time = client.gameTime + ((GetDistance2D(me,z.position)-50)/z.speed)}
+					incoming_damage = incoming_damage + dmg
+				elseif client.gameTime > incoming_projectiles[spell.handle].time then
+					incoming_damage = incoming_damage - dmg
+					incoming_projectiles[spell.handle] = nil
+				end	
+				if not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*(GetDistance2D(me,z.position)/z.speed))) < dmg then
+					me:SafeCastItem("item_armlet")
+					me:SafeCastItem("item_armlet")
+					Sleep(ARMLET_DELAY)
+					break
+				end
+			else
+				if not incoming_projectiles[z.source.handle] then																	
+					incoming_projectiles[z.source.handle] = {damage = ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))), time = client.gameTime + ((GetDistance2D(me,z.position)-50)/z.speed)}
+					incoming_damage = incoming_damage + ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist)))
+				elseif client.gameTime > incoming_projectiles[z.source.handle].time then
+					incoming_damage = incoming_damage - ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist)))
+					incoming_projectiles[z.source.handle] = nil
+				end	
+				if not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*((GetDistance2D(me,z.position)-50)/z.speed))) < ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))) then
+					me:SafeCastItem("item_armlet")
+					me:SafeCastItem("item_armlet")
+					Sleep(ARMLET_DELAY) break
+				end
+			end
+		end
+		if not armState and SleepCheck() and z.target and z.target == me and z.source and z.source.hero and not me:IsInvisible() then
+			me:SafeCastItem("item_armlet")
+			Sleep(ARMLET_DELAY) break
+		end
+	end
 	
 	for i,v in ipairs(enemies) do			
 		if not v:IsIllusion() and not me:DoesHaveModifier("modifier_ice_blast") then
-			local projectile = entityList:GetProjectiles({target=me})
 			local distance = GetDistance2D(v,me)						
-			if #projectile > 0 then
-				for k,z in ipairs(projectile) do
-					if z.target and z.target == me and z.source then
-						local spell = z.source:FindSpell(z.name) 
-						if spell then
-							local dmg = spell:GetDamage(spell.level)
-							if dmg <= 0 then dmg = spell:GetSpecialData("damage",spell.level) end
-							if not dmg then dmg = ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))) end
-							if not incoming_projectiles[spell.handle] then
-								incoming_projectiles[spell.handle] = {damage = dmg, time = client.gameTime + ((GetDistance2D(me,z.position)-50)/z.speed)}
-								incoming_damage = incoming_damage + dmg
-							elseif client.gameTime > incoming_projectiles[spell.handle].time then
-								incoming_damage = incoming_damage - dmg
-								incoming_projectiles[spell.handle] = nil
-							end	
-							if not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*(GetDistance2D(me,z.position)/z.speed))) < dmg then
-								me:SafeCastItem("item_armlet")
-								me:SafeCastItem("item_armlet")
-								Sleep(ARMLET_DELAY)
-								break
-							end
-						else
-							if not incoming_projectiles[z.source.handle] then																	
-								incoming_projectiles[z.source.handle] = {damage = ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))), time = client.gameTime + ((GetDistance2D(me,z.position)-50)/z.speed)}
-								incoming_damage = incoming_damage + ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist)))
-							elseif client.gameTime > incoming_projectiles[z.source.handle].time then
-								incoming_damage = incoming_damage - ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist)))
-								incoming_projectiles[z.source.handle] = nil
-							end	
-							if not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*((GetDistance2D(me,z.position)-50)/z.speed))) < ((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus)*((1-me.dmgResist))) then
-								me:SafeCastItem("item_armlet")
-								me:SafeCastItem("item_armlet")
-								Sleep(ARMLET_DELAY) break
-							end
-						end
-					end
-				end
-			end
 			for i,z in ipairs(v.abilities) do
 				local dmg = z:GetDamage(z.level)
 				if dmg <= 0 then dmg = z:GetSpecialData("damage",z.level) end
@@ -200,7 +202,7 @@ function Tick( tick )
 						me:SafeCastItem("item_armlet")
 						Sleep(ARMLET_DELAY) break
 					end
-				end
+				end 
 			end	
 			if distance <= (v.attackRange+100) and Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 then
 				if not incoming_projectiles[v.handle] and (Animations.CanMove(v) or v.attackRange < 200) then
@@ -240,14 +242,6 @@ function Tick( tick )
 						Sleep(ARMLET_DELAY) break
 					end
 				end	
-				if projectile then
-					for k,z in ipairs(projectile) do
-						if not armState and SleepCheck() and z.target and z.target == me and z.source and z.source.hero then
-							me:SafeCastItem("item_armlet")
-							Sleep(ARMLET_DELAY) break
-						end
-					end
-				end
 				if not armState and SleepCheck() and (distance <= (250) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) == 0 and distance < v.attackRange+100)) then
 					me:SafeCastItem("item_armlet")
 					Sleep(ARMLET_DELAY)
