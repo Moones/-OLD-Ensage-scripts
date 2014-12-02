@@ -27,7 +27,7 @@ require("libs.Res")
         Description:
         ------------
 	
-             This script will create icon 500 range infront of enemies, whenever their wards charges decreases.
+             This script will create icon 500 range infront of enemies on ground as well as on minimap, whenever their wards charges decreases.
              The script checks also for cooldown of wards, so it prevents creating icons when ward was placed in FOW and enemy then came out of it.
              When the ward becomes visible and is destroyed then the icon will disappear. (only if distance between icon and ward is less than 500)	 
 		
