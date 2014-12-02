@@ -215,12 +215,60 @@ function Tick(tick)
 end
 	
 function GameClose()
+	if ObserverWards.icons_ground then
+		for i,v in pairs(ObserverWards.icons_ground) do
+			v.visible = false
+			ObserverWards.icons_ground[i] = nil
+		end
+	end
+	if ObserverWards.icons_minimap then
+		for i,v in pairs(ObserverWards.icons_minimap) do
+			v.visible = false
+			ObserverWards.icons_minimap[i] = nil
+		end
+	end
+	if SentryWards.icons_ground then
+		for i,v in pairs(SentryWards.icons_ground) do
+			v.visible = false
+			SentryWards.icons_ground[i] = nil
+		end
+	end
+	if SentryWards.icons_minimap then
+		for i,v in pairs(SentryWards.icons_minimap) do
+			v.visible = false
+			SentryWards.icons_minimap[i] = nil
+		end
+	end
 	ObserverWards = {} ObserverWards.charges = {} ObserverWards.icons_ground = {} ObserverWards.times = {} ObserverWards.icons_minimap = {} ObserverWards.ranges = {}
 	SentryWards = {} SentryWards.charges = {} SentryWards.icons_ground = {} SentryWards.times = {} SentryWards.icons_minimap = {} SentryWards.ranges = {}
 	collectgarbage("collect")
 end
 
 function GameLoad()
+	if ObserverWards.icons_ground then
+		for i,v in pairs(ObserverWards.icons_ground) do
+			v.visible = false
+			ObserverWards.icons_ground[i] = nil
+		end
+	end
+	if ObserverWards.icons_minimap then
+		for i,v in pairs(ObserverWards.icons_minimap) do
+			v.visible = false
+			ObserverWards.icons_minimap[i] = nil
+		end
+	end
+	if SentryWards.icons_ground then
+		for i,v in pairs(SentryWards.icons_ground) do
+			v.visible = false
+			SentryWards.icons_ground[i] = nil
+		end
+	end
+	if SentryWards.icons_minimap then
+		for i,v in pairs(SentryWards.icons_minimap) do
+			v.visible = false
+			SentryWards.icons_minimap[i] = nil
+		end
+	end
 	ObserverWards = {} ObserverWards.charges = {} ObserverWards.icons_ground = {} ObserverWards.times = {} ObserverWards.icons_minimap = {} ObserverWards.ranges = {}
 	SentryWards = {} SentryWards.charges = {} SentryWards.icons_ground = {} SentryWards.times = {} SentryWards.icons_minimap = {} SentryWards.ranges = {}
 	collectgarbage("collect")
