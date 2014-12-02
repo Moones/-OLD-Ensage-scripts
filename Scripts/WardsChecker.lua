@@ -30,11 +30,16 @@ require("libs.Res")
              This script will create icon 500 range infront of enemies, whenever their wards charges decreases.
              The script checks also for cooldown of wards, so it prevents creating icons when ward was placed in FOW and enemy then came out of it.
              When the ward becomes visible and is destroyed then the icon will disappear. (only if distance between icon and ward is less than 500)	 
+		
+        Changelog:
+		----------
+		
+             v1.1 - Added range for wards
 	   
 ]]--
 
-local ObserverWards = {} ObserverWards.charges = {} ObserverWards.icons_ground = {} ObserverWards.times = {} ObserverWards.icons_minimap = {}
-local SentryWards = {} SentryWards.charges = {} SentryWards.icons_ground = {} SentryWards.times = {} SentryWards.icons_minimap = {}
+local ObserverWards = {} ObserverWards.charges = {} ObserverWards.icons_ground = {} ObserverWards.times = {} ObserverWards.icons_minimap = {} ObserverWards.ranges = {}
+local SentryWards = {} SentryWards.charges = {} SentryWards.icons_ground = {} SentryWards.times = {} SentryWards.icons_minimap = {} SentryWards.ranges = {}
 
 function Tick(tick)
 	if not PlayingGame() or client.console then return end
@@ -59,6 +64,9 @@ function Tick(tick)
 				ObserverWards.icons_minimap[v.handle].x = minimap_vec.x-10
 				ObserverWards.icons_minimap[v.handle].y = minimap_vec.y-10
 				ObserverWards.icons_minimap[v.handle].visible = true					
+				ObserverWards.ranges[v.handle] = Effect(vec, "range_display" )
+				ObserverWards.ranges[v.handle]:SetVector(1,Vector(1600,0,0))
+				ObserverWards.ranges[v.handle]:SetVector(0, vec )
 				if ObserverWard then
 					ObserverWards.charges[v.handle] = ObserverWard.charges
 				else
@@ -76,6 +84,9 @@ function Tick(tick)
 				ObserverWards.icons_minimap[v.handle+1].x = minimap_vec.x-10
 				ObserverWards.icons_minimap[v.handle+1].y = minimap_vec.y-10
 				ObserverWards.icons_minimap[v.handle+1].visible = true
+				ObserverWards.ranges[v.handle+1] = Effect(vec, "range_display" )
+				ObserverWards.ranges[v.handle+1]:SetVector(1,Vector(1600,0,0))
+				ObserverWards.ranges[v.handle+1]:SetVector(0, vec )
 				if ObserverWard then
 					ObserverWards.charges[v.handle] = ObserverWard.charges
 				else
@@ -90,6 +101,7 @@ function Tick(tick)
 			ObserverWards.icons_minimap[v.handle].visible = false
 			ObserverWards.icons_minimap[v.handle] = nil
 			ObserverWards.times[v.handle] = nil
+			ObserverWards.ranges[v.handle] = nil
 		end
 		if ObserverWards.times[v.handle+1] and ObserverWards.icons_ground[v.handle+1] and (client.gameTime - ObserverWards.times[v.handle+1]) > 420 then
 			ObserverWards.icons_ground[v.handle+1].visible = false
@@ -97,6 +109,7 @@ function Tick(tick)
 			ObserverWards.icons_minimap[v.handle+1].visible = false
 			ObserverWards.icons_minimap[v.handle+1] = nil
 			ObserverWards.times[v.handle+1] = nil
+			ObserverWards.ranges[v.handle+1]= nil
 		end
 		if SentryWard and not SentryWards.charges[v.handle] then
 			SentryWards.charges[v.handle] = SentryWard.charges
@@ -113,6 +126,9 @@ function Tick(tick)
 				SentryWards.icons_minimap[v.handle].x = minimap_vec.x-10
 				SentryWards.icons_minimap[v.handle].y = minimap_vec.y-10
 				SentryWards.icons_minimap[v.handle].visible = true
+				SentryWards.ranges[v.handle] = Effect(vec, "range_display" )
+				SentryWards.ranges[v.handle]:SetVector(1,Vector(850,0,0))
+				SentryWards.ranges[v.handle]:SetVector(0, vec )
 				if SentryWard then
 					SentryWards.charges[v.handle] = SentryWard.charges
 				else
@@ -130,6 +146,9 @@ function Tick(tick)
 				SentryWards.icons_minimap[v.handle+1].x = minimap_vec.x-10
 				SentryWards.icons_minimap[v.handle+1].y = minimap_vec.y-10
 				SentryWards.icons_minimap[v.handle+1].visible = true
+				SentryWards.ranges[v.handle+1] = Effect(vec, "range_display" )
+				SentryWards.ranges[v.handle+1]:SetVector(1,Vector(850,0,0))
+				SentryWards.ranges[v.handle+1]:SetVector(0, vec )
 				if SentryWard then
 					SentryWards.charges[v.handle] = SentryWard.charges
 				else
@@ -144,6 +163,7 @@ function Tick(tick)
 			SentryWards.times[v.handle] = nil
 			SentryWards.icons_minimap[v.handle].visible = false
 			SentryWards.icons_minimap[v.handle] = nil
+			SentryWards.ranges[v.handle] = nil
 		end
 		if SentryWards.times[v.handle+1] and SentryWards.icons_ground[v.handle+1] and (client.gameTime - SentryWards.times[v.handle+1]) > 240 then
 			SentryWards.icons_ground[v.handle+1].visible = false
@@ -151,6 +171,7 @@ function Tick(tick)
 			SentryWards.times[v.handle+1] = nil
 			SentryWards.icons_minimap[v.handle+1].visible = false
 			SentryWards.icons_minimap[v.handle+1] = nil
+			SentryWards.ranges[v.handle+1] = nil
 		end
 		for i,z in ipairs(observer_wards) do
 			if not z.alive then
@@ -160,12 +181,14 @@ function Tick(tick)
 					ObserverWards.icons_minimap[v.handle].visible = false
 					ObserverWards.icons_minimap[v.handle] = nil
 					ObserverWards.times[v.handle] = nil
+					ObserverWards.ranges[v.handle] = nil
 				elseif ObserverWards.icons_ground[v.handle+1] and GetDistance2D(ObserverWards.icons_ground[v.handle+1].pos,z.position) <= 500 then
 					ObserverWards.icons_ground[v.handle+1].visible = false
 					ObserverWards.icons_ground[v.handle+1] = nil
 					ObserverWards.icons_minimap[v.handle+1].visible = false
 					ObserverWards.icons_minimap[v.handle+1] = nil
 					ObserverWards.times[v.handle+1] = nil
+					ObserverWards.ranges[v.handle+1] = nil
 				end
 			end
 		end
@@ -177,12 +200,14 @@ function Tick(tick)
 					SentryWards.icons_minimap[v.handle].visible = false
 					SentryWards.icons_minimap[v.handle] = nil
 					SentryWards.times[v.handle] = nil
+					SentryWards.ranges[v.handle] = nil
 				elseif SentryWards.icons_ground[v.handle+1] and GetDistance2D(SentryWards.icons_ground[v.handle+1].pos,z.position) <= 500 then
 					SentryWards.icons_ground[v.handle+1].visible = false
 					SentryWards.icons_ground[v.handle+1] = nil
 					SentryWards.times[v.handle+1] = nil
 					SentryWards.icons_minimap[v.handle+1].visible = false
 					SentryWards.icons_minimap[v.handle+1] = nil
+					SentryWards.ranges[v.handle+1] = nil
 				end
 			end
 		end
@@ -190,10 +215,16 @@ function Tick(tick)
 end
 	
 function GameClose()
-	ObserverWards = {} ObserverWards.charges = {} ObserverWards.icons_ground = {} ObserverWards.times = {} ObserverWards.icons_minimap = {}
-	SentryWards = {} SentryWards.charges = {} SentryWards.icons_ground = {} SentryWards.times = {} SentryWards.icons_minimap = {}
+	ObserverWards = {} ObserverWards.charges = {} ObserverWards.icons_ground = {} ObserverWards.times = {} ObserverWards.icons_minimap = {} ObserverWards.ranges = {}
+	SentryWards = {} SentryWards.charges = {} SentryWards.icons_ground = {} SentryWards.times = {} SentryWards.icons_minimap = {} SentryWards.ranges = {}
 	collectgarbage("collect")
 end
 
+function GameLoad()
+	ObserverWards = {} ObserverWards.charges = {} ObserverWards.icons_ground = {} ObserverWards.times = {} ObserverWards.icons_minimap = {} ObserverWards.ranges = {}
+	SentryWards = {} SentryWards.charges = {} SentryWards.icons_ground = {} SentryWards.times = {} SentryWards.icons_minimap = {} SentryWards.ranges = {}
+end
+
+script:RegisterEvent(EVENT_LOAD, GameLoad)
 script:RegisterEvent(EVENT_CLOSE, GameClose)
-script:RegisterEvent(EVENT_FRAME,Tick)
+script:RegisterEvent(EVENT_TICK,Tick)
