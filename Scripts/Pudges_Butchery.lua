@@ -503,7 +503,7 @@ function Combo(tick)
 		return
 	end
 
-	if not hooked or GetDistance2D(me, target) < 1600*(0.3 + client.latency/1000) and not R.abilityPhase then
+	if not hooked or GetDistance2D(me, target) < 1600*(client.latency/1000) and not R.abilityPhase then
 		if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and ((target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target)) then 
 			me:SafeCastSpell(R.name,target)
 			Sleep(200,"combo")
@@ -511,9 +511,8 @@ function Combo(tick)
 			return
 		end
 		if not me:IsChanneling() and not ultied then
-			if GetDistance2D(me,target) > 150 and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) then
+			if ((hooked and GetDistance2D(me, target) < 1600*(client.latency/1000)) or GetDistance2D(me,target) > 150) and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) then
 				me:Move(target.position)
-
 			elseif not target:IsAttackImmune() then
 				me:Attack(target)
 			end
