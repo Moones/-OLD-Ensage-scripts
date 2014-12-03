@@ -52,7 +52,7 @@ function Tick(tick)
 		if ObserverWard and not ObserverWards.charges[v.handle] then
 			ObserverWards.charges[v.handle] = ObserverWard.charges
 		end
-		if ObserverWards.charges[v.handle] and (not ObserverWard or (ObserverWard.charges < ObserverWards.charges[v.handle] and ObserverWard.cd > 0)) then
+		if ObserverWards.charges[v.handle] and ((not ObserverWard and ObserverWards.charges[v.handle] == 1) or (ObserverWard and ObserverWard.charges < ObserverWards.charges[v.handle] and ObserverWard.cd > 0)) then
 			if not ObserverWards.icons_ground[v.handle] then
 				ObserverWards.icons_ground[v.handle] = drawMgr3D:CreateRect(Vector(0,0,0), Vector(0,0,110), Vector2D(0,0), Vector2D(64,32), 0x000000ff, drawMgr:GetTextureId("NyanUI/other/item_ward_observer"))
 				local vec = Vector(v.position.x + 500 * math.cos(v.rotR), v.position.y + 500 * math.sin(v.rotR), v.position.z)
@@ -114,7 +114,7 @@ function Tick(tick)
 		if SentryWard and not SentryWards.charges[v.handle] then
 			SentryWards.charges[v.handle] = SentryWard.charges
 		end
-		if SentryWards.charges[v.handle] and (not SentryWard or (SentryWard.charges < SentryWards.charges[v.handle] and SentryWard.cd > 0)) then
+		if SentryWards.charges[v.handle] and ((not SentryWard and SentryWards.charges[v.handle] == 1) or (SentryWard and SentryWard.charges < SentryWards.charges[v.handle] and SentryWard.cd > 0)) then
 			if not SentryWards.icons_ground[v.handle] then
 				SentryWards.icons_ground[v.handle] = drawMgr3D:CreateRect(Vector(0,0,0), Vector(0,0,50), Vector2D(0,0), Vector2D(64,32), 0x000000ff, drawMgr:GetTextureId("NyanUI/other/item_ward_sentry"))
 				local vec = Vector(v.position.x + 500 * math.cos(v.rotR), v.position.y + 500 * math.sin(v.rotR), v.position.z)
