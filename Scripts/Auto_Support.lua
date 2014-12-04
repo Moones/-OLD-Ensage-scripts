@@ -292,7 +292,7 @@ function IncomingDamage(hero,onlymagic)
 		local result = 0
 		local results = {}
 		local resultsMagic = {}
-		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,team=hero:GetEnemyTeam()})) do	
+		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,team=entityList:GetMyHero():GetEnemyTeam()})) do	
 			if not onlymagic and not results[v.handle] and (isAttacking(v) or GetDistance2D(hero,v) < 200) and GetDistance2D(hero,v) <= GetAttackRange(v) + 50 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, hero))) - 0.20, 0)) == 0 then
 				result = result + v.dmgMax
 				results[v.handle] = true
