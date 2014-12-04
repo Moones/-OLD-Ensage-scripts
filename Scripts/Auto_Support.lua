@@ -64,7 +64,7 @@ function SupportTick(tick)
 		if ID == CDOTA_Unit_Hero_KeeperOfTheLight then
 			Save(me,6,4,nil,nil)
 		elseif ID == CDOTA_Unit_Hero_Dazzle then
-			Save(me,nil,2,nil,nil,{80, 100, 120, 140},3,{1.5,1.5,1.5,1.5})
+			Save(me,nil,2,nil,nil,{80, 100, 120, 140},3,{1.5,1.5,1.5,1.5},nil,false)
 			Heal(me,3,{80, 100, 120, 140},nil,1)
 		elseif ID == CDOTA_Unit_Hero_Enchantress then		
 			Heal(me,3,{300,500,700,900},300,3)
@@ -73,11 +73,11 @@ function SupportTick(tick)
 		elseif ID == CDOTA_Unit_Hero_Huskar then
 			Heal(me,1,{32, 64, 96, 128},nil,1,ID)
 		elseif ID == CDOTA_Unit_Hero_Abaddon then
-			Save(me,nil,2,nil,2,{100, 150, 200, 250},1,nil,1)
+			Save(me,nil,2,nil,2,{100, 150, 200, 250},1,nil,1,false)
 			Heal(me,1,{100, 150, 200, 250},nil,1,nil,true)
 		elseif ID == CDOTA_Unit_Hero_Omniknight then
 			Heal(me,1,{90, 180, 270, 360},nil,1)
-			Save(me,nil,2,nil,2,{90, 180, 270, 360},1)
+			Save(me,nil,2,nil,2,{90, 180, 270, 360},1,nil,nil,false)
 		elseif ID == CDOTA_Unit_Hero_Treant then
 			Heal(me,3,{60, 105, 150, 195},2200000,1)
 		elseif ID == CDOTA_Unit_Hero_Chen then
@@ -101,6 +101,9 @@ function SupportTick(tick)
 			--Heal()
 		elseif ID == CDOTA_Unit_Hero_Undying then
 			Heal(me,2,{5,10,15,20},nil,1,ID)
+		elseif ID == CDOTA_Unit_Hero_Oracle then
+			Save(me,nil,4,nil,nil,{31.5,63,93.5,126},3,{1.5,1.5,1.5},nil,false)
+			Heal(me,3,{31.5,63,93.5,126},nil,1)
 		end
 	end
 end
@@ -111,7 +114,7 @@ function Key(msg,code)
 	statusText.text = "Auto Support: "..Activ(activ).." - Hotkey: ''"..string.char(toggleKey).."''"
 end
 
-function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,special)
+function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,special,excludeme)
 	if excludeme == nil then excludeme = false end
 	if duration == nil then duration = {1,1,1,1} end
 	local save1,save2 = nil,nil
@@ -125,7 +128,7 @@ function Save(me,ability1,ability2,range,target,tresh,treshspell,duration,specia
 			local allies = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team})
 			for i,v in ipairs(allies) do
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() then
-					if v.alive and v.health > 0 and v ~= me and NetherWard(save2,v,me) then
+					if v.alive and v.health > 0 and (v ~= me or not excludeme) and NetherWard(save2,v,me) then
 						if activ then
 							if type(tresh) == "table" then
 								if treshspell and type(treshspell) == "number" then treshspell = me:GetAbility(treshspell) end
@@ -364,7 +367,7 @@ function NetherWard(skill,hero,me)
 end
 
 function Support(hId)
-	if hId == CDOTA_Unit_Hero_KeeperOfTheLight or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Chen or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Enchantress or hId == CDOTA_Unit_Hero_Legion_Commander or hId == CDOTA_Unit_Hero_Abaddon or hId == CDOTA_Unit_Hero_Omniknight or hId == CDOTA_Unit_Hero_Treant or hId == CDOTA_Unit_Hero_Wisp or hId == CDOTA_Unit_Hero_Centaur or hId == CDOTA_Unit_Hero_Undying or hId == CDOTA_Unit_Hero_WitchDoctor or hId == CDOTA_Unit_Hero_Necrolyte or hId == CDOTA_Unit_Hero_Warlock or hId == CDOTA_Unit_Hero_Rubick or hId == CDOTA_Unit_Hero_Huskar then
+	if hId == CDOTA_Unit_Hero_Oracle or hId == CDOTA_Unit_Hero_KeeperOfTheLight or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Chen or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Enchantress or hId == CDOTA_Unit_Hero_Legion_Commander or hId == CDOTA_Unit_Hero_Abaddon or hId == CDOTA_Unit_Hero_Omniknight or hId == CDOTA_Unit_Hero_Treant or hId == CDOTA_Unit_Hero_Wisp or hId == CDOTA_Unit_Hero_Centaur or hId == CDOTA_Unit_Hero_Undying or hId == CDOTA_Unit_Hero_WitchDoctor or hId == CDOTA_Unit_Hero_Necrolyte or hId == CDOTA_Unit_Hero_Warlock or hId == CDOTA_Unit_Hero_Rubick or hId == CDOTA_Unit_Hero_Huskar then
 		return true
 	else
 		return false
