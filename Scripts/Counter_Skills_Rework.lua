@@ -172,7 +172,7 @@ function Tick( tick )
 								PuckW(true)
 							else
 								Puck()
-							end
+							end 
 							target = v
 							UseSheepStickTarget()
 							UseOrchidtarget() SkySilence()
@@ -278,7 +278,7 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_bloodseeker" then
+			elseif v.name == "npc_dota_hero_bloodseeker" then
 				if  v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
 					if GetDistance2D(v,me) < 1000 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
@@ -288,6 +288,15 @@ function Tick( tick )
 							TemplarRefraction()
 							UseShadowBlade()
 							Useshadowamulet()
+						end
+					end
+				end
+			elseif v.name == "npc_dota_hero_queenofpain" then
+				if  v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
+					if GetDistance2D(v,me) < 1200 then
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						if turntime == 0 then
+							OracleFateEdict()
 						end
 					end
 				end
