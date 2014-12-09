@@ -357,7 +357,7 @@ function Main(tick)
 				statusText.text = "Hook'em - Manual!"
 			end
 			if victim and not victim.visible then victim = nil end
-			if victim and victim.visible and hook:CanBeCasted() and SleepCheck("hook") then
+			if not IsKeyDown(StopKey) and victim and victim.visible and hook:CanBeCasted() and SleepCheck("hook") then
 				local speed = 1600 
 				local delay = (300+client.latency+me:GetTurnTime(victim)*1000)
 				if not guixyz and ((config.PredictionGUI and SleepCheck("guisleep2")) or IsKeyDown(hookkey)) then	
