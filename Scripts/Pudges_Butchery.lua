@@ -283,11 +283,10 @@ function Main(tick)
 		end
 		if (IsKeyDown(config.StopKey) or IsKeyDown(togglekey)) and (((hook.abilityPhase and not SleepCheck("hook")) and (math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook"))) or targetHandle) then
 			xyz = nil
-			if SleepCheck("stopkey") and not client.chat then
+			if not client.chat then
 				local prev = SelectUnit(me)
 				entityList:GetMyPlayer():HoldPosition()
 				SelectBack(prev)
-				Sleep(client.latency + 200, "stopkey")
 				Sleep(client.latency + 200, "testhook")
 			end
 			return
@@ -518,7 +517,7 @@ function Combo(tick)
 			end
 			Sleep(30+client.latency,"combo")
 		end
-	elseif hooked and not ultied then
+	elseif (hooked and target:DoesHaveModifier("modifier_pudge_meat_hook")) and not ultied then
 		entityList:GetMyPlayer():HoldPosition()
 		Sleep(30+client.latency,"combo")
 	end
