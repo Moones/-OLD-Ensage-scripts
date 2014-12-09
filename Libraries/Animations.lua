@@ -232,6 +232,10 @@ function Animations.isAttacking(hero)
 	return hero.activity == LuaEntityNPC.ACTIVITY_ATTACK or hero.activity == LuaEntityNPC.ACTIVITY_ATTACK1 or hero.activity == LuaEntityNPC.ACTIVITY_ATTACK2 or hero.activity == LuaEntityNPC.ACTIVITY_CRIT
 end
 
+function Animations.isCriting(hero)
+	return hero.activity == LuaEntityNPC.ACTIVITY_CRIT
+end
+
 function Animations.CanMove(hero)
 	if Animations.table[hero.handle] then return Animations.table[hero.handle].canmove end
 end
