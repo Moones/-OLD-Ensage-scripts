@@ -259,8 +259,6 @@ function OrbWalk(me)
 	end	
 	if victim and victim.hero and entityList:GetMouseover() == victim then
 		lasthitting = false
-	else
-		lasthitting = true
 	end
 	
 	local farm = {}
