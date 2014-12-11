@@ -76,7 +76,7 @@ function Tick(tick)
 			blink.visible = false
 		end
 		local Type = DAMAGE_HPRM
-		local Range = 250
+		local Range = 350
 		local RangeB = 1200
 		local CastPoint,Dmg = 0,0
 		if Cullblade.level > 0 then
