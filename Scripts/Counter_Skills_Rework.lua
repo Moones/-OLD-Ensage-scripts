@@ -448,7 +448,6 @@ function Tick( tick )
 						NyxVendetta()
 						Puck()
 						Lifestealerrage()
-						Useblackking()
 						UseEulScepterSelf()
 						wait = 0						
 				elseif  v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase then
