@@ -163,7 +163,7 @@ function Key(msg,code)
 end
 
 function Main(tick)
-	if not PlayingGame() or client.console then return end	
+	if not PlayingGame() or client.console or not SleepCheck("stop") then return end	
 	local me = entityList:GetMyHero()
 	local player = entityList:GetMyPlayer()
 
@@ -288,6 +288,7 @@ function Main(tick)
 				entityList:GetMyPlayer():HoldPosition()
 				SelectBack(prev)
 				Sleep(client.latency + 200, "testhook")
+				Sleep(client.latency + 300, "stop")
 			end
 			return
 		end
