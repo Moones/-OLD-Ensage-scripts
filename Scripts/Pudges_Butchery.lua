@@ -149,14 +149,25 @@ function Key(msg,code)
 				end
 			end
 		end
-	elseif msg == RBUTTON_UP and targetHandle then
-		local target = entityList:GetEntity(targetHandle)
-		local player = entityList:GetMyPlayer()
-		if target and player.orderId and player.orderPosition and player.orderPosition ~= Vector(0,0,0) and GetDistance2D(target,player.orderPosition) > 500 then
-			if count == 0 then
-				count = 1
-			elseif count == 1 then
-				count = 2
+	elseif msg == RBUTTON_UP then
+		local hook = entityList:GetMyHero():GetAbility(1)
+		if hook and (((hook.abilityPhase and not SleepCheck("hook")) and (math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")))) then
+			xyz = nil
+			local prev = SelectUnit(me)
+			entityList:GetMyPlayer():HoldPosition()
+			SelectBack(prev)
+			Sleep(client.latency + 200, "testhook")
+			Sleep(client.latency + 300, "stop")
+		end
+		if targetHandle then
+			local target = entityList:GetEntity(targetHandle)
+			local player = entityList:GetMyPlayer()
+			if target and player.orderId and player.orderPosition and player.orderPosition ~= Vector(0,0,0) and GetDistance2D(target,player.orderPosition) > 500 then
+				if count == 0 then
+					count = 1
+				elseif count == 1 then
+					count = 2
+				end
 			end
 		end
 	end
