@@ -1,6 +1,6 @@
 require("libs.ScriptConfig")
 
---THANKS TO ZYNOX WE CAN NOW EXECUTE SOME CHEATCOMMANDS, Add commands from here https://developer.valvesoftware.com/wiki/List_of_DOTA_2_Cvars
+--THANKS TO ZYNOX WE CAN NOW EXECUTE SOME CHEATCOMMANDS, Add commands from here https://privatepaste.com/2b70115c59
 
 local config = ScriptConfig.new()
 config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
