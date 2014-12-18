@@ -117,11 +117,11 @@ function Main(tick)
 			xyz = nil
 			shoot = nil
 			if SleepCheck("stopkey") and not client.chat then
-				me:Stop()
-				me:Move(client.mousePosition)
+				entityList:GetMyPlayer():HoldPosition()
 				Sleep(client.latency + 200, "stopkey")
 				Sleep(client.latency + 200, "testarrow")
 			end
+			return
 		end
 		
 		if not arrow:CanBeCasted() then
