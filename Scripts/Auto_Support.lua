@@ -192,7 +192,7 @@ function Heal(me,ability,amount,range,target,id,excludeme,special)
 			for i,v in ipairs(allies) do
 				local healthAmount = GetHeal(heal.level,me,amount,id,v)
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() and healthAmount > 0 then
-					if v.alive and v.health > 0 and (not excludeme or v ~= me) and NetherWard(heal,v,me) then
+					if v.alive and v.health > 0 and (not excludeme or v ~= me) and NetherWard(heal,v,me) and (me.classId ~= CDOTA_Unit_Hero_Oracle or v:DoesHaveModifier("modifier_oracle_fates_edict")) then
 						if activ then
 							if (((v.maxHealth - v.health)*(config.TresholdPercent/100))  > (math.max(healthAmount + 100,150) + v.healthRegen*10) or v.health < IncomingDamage(v)) and GetDistance2D(me,v) <= Range and IsInDanger(v) then								
 								if target == 1 then
