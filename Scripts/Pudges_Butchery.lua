@@ -117,7 +117,7 @@ local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
 local targetText = drawMgr:CreateText(-100,-5,-1,"",myFont);
 local victimText = drawMgr:CreateText(-40,-5,-1,"",myFont);
 
-local DmgD = {225,375,525} local DmgR = {35,60,85,110} local DmgR2 = {7,12,17,22} local RangeH = {700,900,1100,1300}
+local DmgD = {225,375,525} local DmgR = {35,60,85,110} local DmgR2 = {7,12,17,22} local RangeH = {1000,1100,1200,1300}
 targetText.visible = false victimText.visible = false 
 
 function Key(msg,code)	
