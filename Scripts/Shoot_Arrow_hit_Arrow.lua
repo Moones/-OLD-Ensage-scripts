@@ -256,7 +256,7 @@ function Main(tick)
 									pos = v.position
 								end
 								if GetDistance2D(pos,me) <= ( m.remainingTime*857+57.5) then
-									statusText.text = "Shooting timed Arrow on " .. client:Localize(v.name) .. " in " .. math.max(math.floor((((m.remainingTime) * 857) - (GetDistance2D(pos,me)+428))/10)/100,0) .. " secs"
+									statusText.text = "Shooting timed Arrow on XMARKED " .. client:Localize(v.name) .. " in " .. math.max(math.floor((((m.remainingTime) * 857) - (GetDistance2D(pos,me)+428))/10)/100,0) .. " secs"
 								end
 								if (m.remainingTime * 857) == GetDistance2D(pos,me)+428+((client.latency/1000 + me:GetTurnTime(pos)) * 857) or (( m.remainingTime * 857) < GetDistance2D(pos,me)+428+((client.latency/1000 + me:GetTurnTime(pos)) * 857) and ( m.remainingTime * 857)+25 > GetDistance2D(pos,me)) then
 									me:SafeCastAbility(arrow,pos) break
