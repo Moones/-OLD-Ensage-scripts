@@ -251,7 +251,7 @@ function Main(tick)
 									shoot = true break
 								end
 							end
-							if m.name == "modifier_kunkka_x_marks_the_spot" then
+							if arrow and arrow:CanBeCasted() and m.name == "modifier_kunkka_x_marks_the_spot" then
 								if not pos then
 									pos = v.position
 								end
