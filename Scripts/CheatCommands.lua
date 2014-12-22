@@ -5,7 +5,7 @@ require("libs.Utils")
 
 local config = ScriptConfig.new()
 config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
-config:SetParameter("Commands","fog_enable 0,cl_predict 1,fog_override 1,fog_end 3000,", config.TYPE_STRING_ARRAY) -- see this post for more commands: http://zynox.net/forum/threads/1566-CheatCommands?p=14128
+config:SetParameter("Commands","fog_enable 0,cl_predict 1,fog_override 1,fog_end 30000,", config.TYPE_STRING_ARRAY) -- see this post for more commands: http://zynox.net/forum/threads/1566-CheatCommands?p=14128
 config:SetParameter("AutoExecute", false)
 config:Load()
 
