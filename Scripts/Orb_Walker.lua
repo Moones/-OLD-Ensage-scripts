@@ -94,7 +94,7 @@ aakey = config.AutoAttackKey
 
 sleep = 0
 
-local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil local attack = 0 local move = 0
+local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil local attack = 0 local move = 0 local start = false
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
@@ -199,14 +199,22 @@ function Main(tick)
 		else			
 			myhero.attackRange = myhero:GetAttackRange()		
 			if IsKeyDown(movetomouse) and not client.chat then	
-				if not victim or victim.visible then
-					victim = targetFind:GetClosestToMouse(me,1000)
-				end
-				if (not victim or GetDistance2D(me,victim) > myhero.attackRange*2 or not victim.alive) and SleepCheck("victim") then
+				if Animations.CanMove(me) or not start then
+					start = true
+					local closest = targetFind:GetClosestToMouse(me,1000)
+					local lowestHP = targetFind:GetLowestEHP(1000, phys)
+					if (not victim or GetDistance2D(me,victim) > myhero.attackRange*2 or not victim.alive or (lowestHP and lowestHP.health < victim.health)) and SleepCheck("victim") then			
+						victim = lowestHP
+						Sleep(250,"victim")
+					end
 					local creeps = entityList:GetEntities(function (v) return (v.courier or (v.creep and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Neutral and v.spawned) or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or (v.classId == CDOTA_BaseNPC_Creep_Lane and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Siege and v.spawned) or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health > 0 and me:GetDistance2D(v) <= myhero.attackRange*2 + 50 end)
 					table.sort(creeps, function (a,b) return a.health < b.health end)
-					victim = targetFind:GetLowestEHP(myhero.attackRange*2 + 50, phys) or creeps[1]
-					Sleep(250,"victim")
+					if not victim or (victim.creep and victim.health > creeps[1].health) then 
+						victim = creeps[1]
+					end
+					if closest and GetDistance2D(closest, client.mousePosition) < 200 then
+						victim = closest
+					end
 				end
 				if not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= myhero.attackRange*2 + 50 then
 					if tick > attack then
@@ -216,9 +224,11 @@ function Main(tick)
 				elseif tick > move then
 					me:Move(client.mousePosition)
 					move = tick + 100
+					start = false
 				end
 			else
 				victim = nil
+				start = false
 			end 
 		end
 	end
@@ -416,6 +426,7 @@ function Load()
 			HUD = nil
 			reg = true
 			victim = nil
+			start = false
 			myId = me.classId
 			sleep = 0 
 			myAttackTickTable = {}
@@ -433,6 +444,7 @@ function Close()
 	myhero = nil
 	victim = nil
 	myId = nil
+	start = false
 	
 	if HUD then
 		HUD:Close()	
