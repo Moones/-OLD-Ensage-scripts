@@ -106,6 +106,7 @@ config:SetParameter("HookTolerancy", 0)
 config:SetParameter("PredictionGUI", true)
 config:SetParameter("EnableMouseAdjusting", false)
 config:SetParameter("BlindHooks", false)
+config:SetParameter("HookCanceling", true)
 config:SetParameter("GuiSleep", 0)
 config:Load()
 
@@ -407,7 +408,7 @@ function Main(tick)
 					victimText.visible = false
 				end
 			end
-			if not guixyz and not ultied and not IsKeyDown(config.StopKey) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and predxyz and victim and SleepCheck("testhook") then
+			if config.HookCanceling and not guixyz and not ultied and not IsKeyDown(config.StopKey) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and predxyz and victim and SleepCheck("testhook") then
 				local speed = 1600 
 				local delay = (300+client.latency+me:GetTurnTime(victim)*1000)
 				local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
