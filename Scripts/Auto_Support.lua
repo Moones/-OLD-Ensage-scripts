@@ -31,7 +31,7 @@ function SupportTick(tick)
 		if not v:IsIllusion() and v.alive and v.health > 0 and me.alive and not me:IsChanneling() and GetDistance2D(me,fountain) > 2000 and (not me:IsInvisible() or me:DoesHaveModifier("modifier_treant_natures_guise")) and activ then
 			local distance = GetDistance2D(me,v)
 			if meka and meka.cd == 0 then
-				if (v.maxHealth - v.health) > (450 + v.healthRegen*10) and distance <= 2000 and me.mana >= 150 then
+				if (v.maxHealth - v.health) > (450 + v.healthRegen*10) and distance <= 2000 and me.mana >= 225 then
 					if not needmeka or (needmeka and GetDistance2D(needmeka,me) <= 750) then
 						needmeka = v
 					end
