@@ -410,7 +410,7 @@ function Main(tick)
 			end
 			if config.HookCanceling and not guixyz and not ultied and not IsKeyDown(config.StopKey) and ((hook.abilityPhase and not SleepCheck("hook")) and math.ceil(hook.cd) ~= math.ceil(hook:GetCooldown(hook.level)) or not SleepCheck("hook")) and predxyz and victim and SleepCheck("testhook") then
 				local speed = 1600 
-				local delay = (300+client.latency+me:GetTurnTime(victim)*1000)
+				local delay = ((300-Animations.getDuration(hook)*1000)+client.latency+me:GetTurnTime(victim)*1000)
 				local testxyz = SkillShot.SkillShotXYZ(me,victim,delay,speed)
 				local testpredxyz = SkillShot.PredictedXYZ(victim,delay)
 				if testpredxyz and testxyz and GetDistance2D(me,testxyz) <= RangeH[hook.level] + 200 and victim.alive then	
