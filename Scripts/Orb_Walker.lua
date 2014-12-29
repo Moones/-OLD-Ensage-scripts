@@ -201,7 +201,7 @@ function Main(tick)
 			if IsKeyDown(movetomouse) and not client.chat then	
 				if Animations.CanMove(me) or not start then
 					start = true
-					local closest = targetFind:GetClosestToMouse(me,myhero.attackRange+100)
+					local closest = targetFind:GetClosestToMouse(me,myhero.attackRange*2)
 					local lowestHP = targetFind:GetLowestEHP(1500, phys)
 					if lowestHP and (not victim or not victim.hero or GetDistance2D(me,victim) > myhero.attackRange*2 or not victim.alive or lowestHP.health < victim.health) and SleepCheck("victim") then			
 						victim = lowestHP
@@ -212,7 +212,7 @@ function Main(tick)
 					if not victim or (victim.creep and victim.health > creeps[1].health and not victim.hero) then 
 						victim = creeps[1]
 					end
-					if closest and GetDistance2D(closest, client.mousePosition) < 200 then
+					if closest and GetDistance2D(closest, client.mousePosition) < myhero.attackRange then
 						victim = closest
 					end
 				end
