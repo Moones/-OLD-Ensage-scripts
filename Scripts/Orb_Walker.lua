@@ -203,7 +203,7 @@ function Main(tick)
 					start = true
 					local closest = targetFind:GetClosestToMouse(me,myhero.attackRange+100)
 					local lowestHP = targetFind:GetLowestEHP(1500, phys)
-					if lowestHP and (not victim or victim.creep or GetDistance2D(me,victim) > myhero.attackRange*2 or not victim.alive or lowestHP.health < victim.health) and SleepCheck("victim") then			
+					if lowestHP and (not victim or not victim.hero or GetDistance2D(me,victim) > myhero.attackRange*2 or not victim.alive or lowestHP.health < victim.health) and SleepCheck("victim") then			
 						victim = lowestHP
 						Sleep(250,"victim")
 					end
