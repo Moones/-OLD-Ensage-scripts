@@ -199,7 +199,7 @@ function Main(tick)
 		else			
 			myhero.attackRange = myhero:GetAttackRange()		
 			if IsKeyDown(movetomouse) and not client.chat then	
-				if Animations.CanMove(me) or not start then
+				if Animations.CanMove(me) or not start or (victim and GetDistance2D(victim,me) > myhero.attackRange+50) then
 					start = true
 					local closest = targetFind:GetClosestToMouse(me,myhero.attackRange*2)
 					local lowestHP = targetFind:GetLowestEHP(1500, phys)
