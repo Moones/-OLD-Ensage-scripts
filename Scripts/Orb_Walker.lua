@@ -94,7 +94,7 @@ aakey = config.AutoAttackKey
 
 sleep = 0
 
-local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil local attack = 0 local move = 0 local start = false
+local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil local attack = 0 local move = 0 local start = false local resettime = nil
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
@@ -201,19 +201,15 @@ function Main(tick)
 			if IsKeyDown(movetomouse) and not client.chat then	
 				if Animations.CanMove(me) or not start or (victim and GetDistance2D(victim,me) > myhero.attackRange+50) then
 					start = true
-					local closest = targetFind:GetClosestToMouse(me,myhero.attackRange*2)
-					local lowestHP = targetFind:GetLowestEHP(1500, phys)
-					if lowestHP and (not victim or not victim.hero or GetDistance2D(me,victim) > myhero.attackRange*2 or not victim.alive or lowestHP.health < victim.health) and SleepCheck("victim") then			
+					local lowestHP = targetFind:GetLowestEHP(3000, phys)
+					if lowestHP and (not victim or victim.creep or GetDistance2D(me,victim) > 600 or not victim.alive or lowestHP.health < victim.health) and SleepCheck("victim") then			
 						victim = lowestHP
 						Sleep(250,"victim")
 					end
-					local creeps = entityList:GetEntities(function (v) return (v.courier or (v.creep and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Neutral and v.spawned) or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or (v.classId == CDOTA_BaseNPC_Creep_Lane and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Siege and v.spawned) or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health > 0 and me:GetDistance2D(v) <= myhero.attackRange*2 + 50 end)
-					table.sort(creeps, function (a,b) return a.health < b.health end)
-					if not victim or (victim.creep and victim.health > creeps[1].health and not victim.hero) then 
-						victim = creeps[1]
-					end
-					if closest and GetDistance2D(closest, client.mousePosition) < myhero.attackRange then
-						victim = closest
+					if not victim or not victim.hero then 					
+						local creeps = entityList:GetEntities(function (v) return (v.courier or (v.creep and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Neutral and v.spawned) or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or (v.classId == CDOTA_BaseNPC_Creep_Lane and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Siege and v.spawned) or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health > 0 and me:GetDistance2D(v) <= myhero.attackRange*2 + 50 end)
+						table.sort(creeps, function (a,b) return a.health < b.health end)
+						victim = creeps[1]					
 					end
 				end
 				if not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= myhero.attackRange*2 + 50 then
@@ -226,8 +222,12 @@ function Main(tick)
 					move = tick + 100
 					start = false
 				end
-			else
-				victim = nil
+			elseif victim then
+				if not resettime then
+					resettime = client.gameTime
+				elseif (client.gameTime - resettime) >= 6 then
+					victim = nil		
+				end
 				start = false
 			end 
 		end
@@ -429,9 +429,7 @@ function Load()
 			start = false
 			myId = me.classId
 			sleep = 0 
-			myAttackTickTable = {}
-			myAttackTickTable.attackRateTick = 0 
-			myAttackTickTable.attackPointTick = nil
+			resettime = nil
 			script:RegisterEvent(EVENT_FRAME, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:UnregisterEvent(Load)
@@ -445,6 +443,7 @@ function Close()
 	victim = nil
 	myId = nil
 	start = false
+	resettime = nil
 	
 	if HUD then
 		HUD:Close()	
