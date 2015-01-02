@@ -206,7 +206,7 @@ function Main(tick)
 						victim = lowestHP
 						Sleep(250,"victim")
 					end
-					if victim and GetDistance2D(victim,me) > myhero.attackRange+100 and victim.visible then
+					if victim and GetDistance2D(victim,me) > myhero.attackRange+200 and victim.visible then
 						local closest = targetFind:GetClosestToMouse(me,2000)
 						if closest then 
 							victim = closest
