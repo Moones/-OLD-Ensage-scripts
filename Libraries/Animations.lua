@@ -246,6 +246,13 @@ function Animations.GetAttackTime(hero)
 	return 0
 end
 
+function Animations.getBackswingTime(hero)
+	if hero and Animations.table[hero.handle] and Animations.table[hero.handle].attackTime and Animations.table[hero.handle].moveTime then return Animations.table[hero.handle].moveTime - Animations.table[hero.handle].attackTime elseif HeroInfo(hero) and HeroInfo(hero).attackPoint and HeroInfo(hero).attackRate then return (HeroInfo(hero).attackRate - (client.latency/1000) - (1/Animations.maxCount)*3) - (HeroInfo(hero).attackPoint - ((client.latency/1000)/(1 + (1 - 1/Animations.maxCount))) + (1/Animations.maxCount)*3*(1 + (1 - 1/Animations.maxCount)))
+	end
+	return 0 
+end
+
+
 class 'HeroInfo'
 
 function HeroInfo:__init(entity)   
