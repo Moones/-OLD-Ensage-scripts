@@ -144,6 +144,7 @@ function Tick( tick )
 							UseOrchidtarget() SkySilence()
 							UseShadowBlade()
 							PLDoppleganger()
+							Nyx()
 						end
 						if not timep then
 							timep = client.gameTime
@@ -879,7 +880,8 @@ function Tick( tick )
 					UseOrchidtarget() SkySilence()
 					Emberremnantnow()
 					OracleFalsePromise()
-					UseSheepStickTarget()						
+					UseSheepStickTarget()			
+					Nyx()
 				end
 				UseShadowBlade()
 				UseManta()
