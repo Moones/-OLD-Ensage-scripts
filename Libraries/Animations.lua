@@ -187,7 +187,12 @@ function Animations.trackingTick(tick)
 			for k,z in ipairs(projs) do
 				if GetDistance2D(z.position, v.position) < 127 and not Animations.table[v.handle].canmove then
 					Animations.table[v.handle].canmove = true
-					Animations.table[v.handle].endTime = client.gameTime + (hero.attackBackswing) - (client.latency/1000) - (1/Animations.maxCount)*3
+					-- if v.name == "npc_dota_hero_dragon_knight" then	
+						-- print("Asd")
+						Animations.table[v.handle].endTime = client.gameTime + Animations.table[v.handle].moveTime - Animations.table[v.handle].attackTime
+					-- else
+						-- Animations.table[v.handle].endTime = client.gameTime + (hero.attackBackswing) - (client.latency/1000) - (1/Animations.maxCount)*3
+					-- end
 				end
 			end
 			if Animations.table[v.handle].endTime and Animations.table[v.handle].endTime <= client.gameTime then
@@ -195,7 +200,6 @@ function Animations.trackingTick(tick)
 				Animations.table[v.handle].canmoveTime = nil
 				Animations.table[v.handle].endTime = nil
 				Animations.table[v.handle].canmove = false
-				return
 			end
 			if Animations.table[v.handle].startTime then
 				Animations.table[v.handle].duration = client.gameTime - Animations.table[v.handle].startTime + 1/Animations.maxCount + client.latency/1000
@@ -273,8 +277,8 @@ function HeroInfo:Update()
 end
 
 function HeroInfo:GetAttackSpeed()
-	if self.entity.attackSpeed > 500 then
-		return 500
+	if self.entity.attackSpeed > 600 then
+		return 600
 	end
 	return self.entity.attackSpeed
 end
