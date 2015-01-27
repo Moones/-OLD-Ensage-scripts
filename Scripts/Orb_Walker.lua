@@ -40,7 +40,7 @@ require("libs.Animations")
         |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^           |    *    *     **    
         +-------------------------------------------------+    *   **      **   
                                                                             *       
-        =+=+=+=+=+=+=+=+=+ VERSION 2.1 +=+=+=+=+=+=+=+=+=+=
+        =+=+=+=+=+=+=+=+=+ VERSION 2.2 +=+=+=+=+=+=+=+=+=+=
 	 
         Description:
         ------------
@@ -52,6 +52,9 @@ require("libs.Animations")
 	   
         Changelog:
         ----------
+			
+			 Update 2.2:
+			 Fixed for Metamorphosis and Elder dragon form
 		
 			 Update 2.1:
 			 Fixed FPS drop
