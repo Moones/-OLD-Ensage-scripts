@@ -1694,7 +1694,6 @@ function Tick( tick )
 									if v:GetAbility(t):GetDamage(v:GetAbility(t).level) * (1 - me.magicDmgResist) > me.health then
 										UseEulScepterSelf()
 									end
-									UseEulScepterSelf()
 									UseBlinkDagger() Antiblinkhome()
 									Juggernautfury()
 									Nyx()
