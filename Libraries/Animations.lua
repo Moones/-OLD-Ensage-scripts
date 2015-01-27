@@ -35,7 +35,7 @@ require("libs.HeroInfo")
         |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^       |    *    *     **    
         +-------------------------------------------------+    *   **      **   
                                                                             *       
-        =+=+=+=+=+=+=+=+= VERSION 1.0.2 =+=+=+=+=+=+=+=+=+=
+        =+=+=+=+=+=+=+=+= VERSION 1.0.2.1 =+=+=+=+=+=+=+=+=
 	 
         Description:
         ------------
@@ -87,6 +87,8 @@ require("libs.HeroInfo")
 	   
         Changelog:
         ----------
+		
+			 - 27. 1.  2015 - Version 1.0.2.1 Fixed for Metamorphosis and Elder dragon form
 		
              - 21. 11. 2014 - Version 1.0.2 Fixed bug with tick count.
 		
