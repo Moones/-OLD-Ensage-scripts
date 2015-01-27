@@ -199,7 +199,7 @@ function Main(tick)
 		else			
 			myhero.attackRange = myhero:GetAttackRange()		
 			if IsKeyDown(movetomouse) and not client.chat then	
-				if Animations.CanMove(me) or not start or (victim and GetDistance2D(victim,me) > myhero.attackRange+50) then
+				if Animations.CanMove(me) or not start or (victim and GetDistance2D(victim,me) > math.max(myhero.attackRange+50,500)) then
 					start = true
 					local lowestHP = targetFind:GetLowestEHP(3000, phys)
 					if lowestHP and (not victim or victim.creep or GetDistance2D(me,victim) > 600 or not victim.alive or lowestHP.health < victim.health) and SleepCheck("victim") then			
@@ -213,12 +213,12 @@ function Main(tick)
 						end
 					end
 					if not victim or not victim.hero then 					
-						local creeps = entityList:GetEntities(function (v) return (v.courier or (v.creep and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Neutral and v.spawned) or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or (v.classId == CDOTA_BaseNPC_Creep_Lane and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Siege and v.spawned) or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health > 0 and me:GetDistance2D(v) <= myhero.attackRange*2 + 50 end)
+						local creeps = entityList:GetEntities(function (v) return (v.courier or (v.creep and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Neutral and v.spawned) or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or (v.classId == CDOTA_BaseNPC_Creep_Lane and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Siege and v.spawned) or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health > 0 and me:GetDistance2D(v) <= math.max(myhero.attackRange*2+50,500) end)
 						table.sort(creeps, function (a,b) return a.health < b.health end)
 						victim = creeps[1]					
 					end
 				end
-				if not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= myhero.attackRange*2 + 50 then
+				if not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= math.max(myhero.attackRange*2+50,500) then
 					if tick > attack then
 						myhero:Hit(victim)
 						attack = tick + 100
@@ -271,6 +271,14 @@ function MyHero:GetAttackRange()
 				bonus = 190
 			end
 		end
+	end
+	local dragon = self.heroEntity:FindSpell("dragon_knight_elder_dragon_form")
+	if dragon and dragon.level > 0 and self.heroEntity:DoesHaveModifier("modifier_dragon_knight_dragon_form") then
+		bonus = 372
+	end
+	local terrormorph = self.heroEntity:FindSpell("terrorblade_metamorphosis")
+	if terrormorph and terrormorph.level > 0 and self.heroEntity:DoesHaveModifier("modifier_terrorblade_metamorphosis") then
+		bonus = 422
 	end
 	return self.heroEntity.attackRange + bonus
 end
