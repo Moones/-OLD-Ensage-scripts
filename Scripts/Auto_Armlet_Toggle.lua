@@ -128,7 +128,7 @@ function Tick( tick )
 		me:SafeCastItem("item_armlet")
 		Sleep(ARMLET_DELAY)
 	end
-	
+	--print(config.ToggleAlways,toggle, me.health < minhp, math.max(me.health - 475,1), incoming_damage)
 	if not me:IsStunned() and player.orderId == Player.ORDER_ATTACKENTITY and player.target and not me:IsInvisible() and player.target.hero and not armState and SleepCheck() and GetDistance2D(player.target,me) < me.attackRange+25 then
 		me:SafeCastItem("item_armlet")
 		Sleep(ARMLET_DELAY)
@@ -138,10 +138,10 @@ function Tick( tick )
 		if armState then
 			me:SafeCastItem("item_armlet")
 			me:SafeCastItem("item_armlet")
-			Sleep(ARMLET_DELAY)
+			Sleep(ARMLET_DELAY*2)
 		else
 			me:SafeCastItem("item_armlet")
-			Sleep(ARMLET_DELAY)
+			Sleep(ARMLET_DELAY*2)
 		end
 		toggle = false
 	end
