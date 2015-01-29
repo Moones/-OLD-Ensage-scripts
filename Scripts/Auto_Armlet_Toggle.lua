@@ -1,4 +1,4 @@
---<<Auto Armlet Toggle by Sophylax, reworked and updated by Moones v1.5.2>>
+--<<Auto Armlet Toggle by Sophylax, reworked and updated by Moones v1.5.3>>
 require("libs.Utils")
 require("libs.ScriptConfig")
 require("libs.Animations")
@@ -15,7 +15,7 @@ require("libs.AbilityDamage")
  0 1 1 0 0 0 0 1    
  0 1 1 1 1 0 0 0 
 
-			Auto Armlet Toggle  v1.5.2
+			Auto Armlet Toggle  v1.5.3
 
 		This script uses armlet to gain hp when:
 		Theres a flying projectile which would kill you or
@@ -134,7 +134,7 @@ function Tick( tick )
 		Sleep(ARMLET_DELAY)
 	end
 	
-	if not me:IsStunned() and config.ToggleAlways and SleepCheck() and not me:IsInvisible() and (toggle or (#enemies <= 0 and me.health < minhp)) and (math.max(me.health - 475,1) - incoming_damage) > 0 then
+	if not me:IsStunned() and config.ToggleAlways and SleepCheck() and not me:IsInvisible() and (toggle or me.health < minhp) and (math.max(me.health - 475,1) - incoming_damage) > 0 then
 		if armState then
 			me:SafeCastItem("item_armlet")
 			me:SafeCastItem("item_armlet")
