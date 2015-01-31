@@ -82,6 +82,7 @@ local reg = nil local active = false
 local F14 = drawMgr:CreateFont("f14","Tahoma",14,550)
 local statusText = drawMgr:CreateText(xx,yy,-1,"Auto armlet toggle: Off",F14)
 local incoming_projectiles = {} local incoming_damage = 0 local toggle = false
+local testedIncomingDamage = 0
 
 local ARMLET_DELAY = 1000
 local ARMLET_GAIN_TIME = 800
@@ -128,7 +129,7 @@ function Tick( tick )
 		me:SafeCastItem("item_armlet")
 		Sleep(ARMLET_DELAY)
 	end
-	--print(config.ToggleAlways,toggle, me.health < minhp, math.max(me.health - 475,1), incoming_damage)
+	
 	if not me:IsStunned() and player.orderId == Player.ORDER_ATTACKENTITY and player.target and not me:IsInvisible() and player.target.hero and not armState and SleepCheck() and GetDistance2D(player.target,me) < me.attackRange+25 then
 		me:SafeCastItem("item_armlet")
 		Sleep(ARMLET_DELAY)
@@ -148,21 +149,23 @@ function Tick( tick )
 	
 	for k,z in ipairs(projectile) do
 		if z.target and z.target == me and z.source then
-			local spell = z.source:FindSpell(z.name) 
-			if spell then
-				if not incoming_projectiles[spell.handle] then
-					local dmg = me:DamageTaken(AbilityDamage.GetDamage(spell, me.healthRegen), AbilityDamage.GetDmgType(spell), z.source)					
-					incoming_projectiles[spell.handle] = {damage = dmg, time = client.gameTime + ((GetDistance2D(me,z.position)-25)/z.speed)}
-					incoming_damage = incoming_damage + dmg
-				elseif client.gameTime > incoming_projectiles[spell.handle].time then
-					incoming_damage = incoming_damage - incoming_projectiles[spell.handle].damage
-					incoming_projectiles[spell.handle] = nil
-				end	
-				if not me:IsStunned() and not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*(GetDistance2D(me,z.position)/z.speed))) < incoming_projectiles[spell.handle].damage then
-					me:SafeCastItem("item_armlet")
-					me:SafeCastItem("item_armlet")
-					Sleep(ARMLET_DELAY)
-					break
+			if z.source.hero then
+				local spell = z.source:FindSpell(z.name) 
+				if spell then
+					if not incoming_projectiles[spell.handle] then
+						local dmg = me:DamageTaken(AbilityDamage.GetDamage(spell, me.healthRegen), AbilityDamage.GetDmgType(spell), z.source)					
+						incoming_projectiles[spell.handle] = {damage = dmg, time = client.gameTime + ((GetDistance2D(me,z.position)-25)/z.speed)}
+						incoming_damage = incoming_damage + dmg
+					elseif client.gameTime > incoming_projectiles[spell.handle].time then
+						incoming_damage = incoming_damage - incoming_projectiles[spell.handle].damage
+						incoming_projectiles[spell.handle] = nil
+					end	
+					if incoming_projectiles[spell.handle] and not me:IsStunned() and not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*(GetDistance2D(me,z.position)/z.speed))) < incoming_projectiles[spell.handle].damage then
+						me:SafeCastItem("item_armlet")
+						me:SafeCastItem("item_armlet")
+						Sleep(ARMLET_DELAY)
+						break
+					end
 				end
 			else
 				if not incoming_projectiles[z.source.handle] then																	
@@ -261,6 +264,7 @@ function Load()
 		else
 			incoming_projectiles = {} 
 			incoming_damage = 0
+			testedIncomingDamage = 0
 			reg = true
 			script:RegisterEvent(EVENT_FRAME, Tick)
 			script:RegisterEvent(EVENT_KEY, Key)
@@ -273,6 +277,7 @@ function Close()
 	if reg then
 		incoming_projectiles = {} 
 		incoming_damage = 0
+		testedIncomingDamage = 0
 		script:UnregisterEvent(Tick)
 		script:UnregisterEvent(Key)
 		script:RegisterEvent(EVENT_TICK, Load)	
