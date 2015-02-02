@@ -233,7 +233,7 @@ function Main(tick)
 						attack = tick + 100
 					end
 				else
-					if (noorbwalkidle or (GetDistance2D(me,victim) <= 250 and victim.health < 300)) and SleepCheck("troll1") and victim and berserkers and berserkers.level > 0 and not me:DoesHaveModifier("modifier_troll_warlord_berserkers_rage") then
+					if victim and (noorbwalkidle or (GetDistance2D(me,victim) <= 250 and victim.health < 300)) and SleepCheck("troll1") and berserkers and berserkers.level > 0 and not me:DoesHaveModifier("modifier_troll_warlord_berserkers_rage") then
 						me:ToggleSpell("troll_warlord_berserkers_rage")
 						Sleep(berserkers:FindCastPoint()*1000, "troll1")
 						return
