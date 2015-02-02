@@ -167,7 +167,7 @@ function Tick( tick )
 						break
 					end
 				end
-			else
+			elseif z.source.dmgMax then
 				if not incoming_projectiles[z.source.handle] then																	
 					incoming_projectiles[z.source.handle] = {damage = me:DamageTaken((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus), DAMAGE_PHYS, z.source), time = client.gameTime + ((GetDistance2D(me,z.position)-25)/z.speed)}
 					incoming_damage = incoming_damage + incoming_projectiles[z.source.handle].damage
