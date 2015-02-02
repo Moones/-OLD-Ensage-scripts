@@ -221,15 +221,28 @@ function Main(tick)
 						victim = creeps[1]					
 					end
 				end
+				local berserkers = me:FindSpell("troll_warlord_berserkers_rage")
 				if not Animations.CanMove(me) and victim and GetDistance2D(me,victim) <= math.max(myhero.attackRange*2+50,500) then
+					if (noorbwalkidle or GetDistance2D(me,victim) > 250) and SleepCheck("troll") and berserkers and berserkers.level > 0 and me:DoesHaveModifier("modifier_troll_warlord_berserkers_rage") then
+						me:ToggleSpell("troll_warlord_berserkers_rage")
+						Sleep(berserkers:FindCastPoint()*1000, "troll")
+						return
+					end
 					if tick > attack then
 						myhero:Hit(victim)
 						attack = tick + 100
 					end
-				elseif tick > move then
-					me:Move(client.mousePosition)
-					move = tick + 100
-					start = false
+				else
+					if (noorbwalkidle or (GetDistance2D(me,victim) <= 250 and victim.health < 300)) and SleepCheck("troll1") and victim and berserkers and berserkers.level > 0 and not me:DoesHaveModifier("modifier_troll_warlord_berserkers_rage") then
+						me:ToggleSpell("troll_warlord_berserkers_rage")
+						Sleep(berserkers:FindCastPoint()*1000, "troll1")
+						return
+					end
+					if tick > move then
+						me:Move(client.mousePosition)
+						move = tick + 100
+						start = false
+					end
 				end
 			elseif victim then
 				if not resettime then
@@ -364,7 +377,7 @@ function CreateHUD()
 		HUD:AddCheckbox(5*monitor,50*monitor,35*monitor,20*monitor,"ENABLE SCRIPT",activeCheck,active)
 		HUD:AddText(5*monitor,75*monitor,"Script Settings:")
 		HUD:AddCheckbox(5*monitor,95*monitor,35*monitor,20*monitor,"SHOW MENU ON START",smCheck,showmenu)
-		HUD:AddCheckbox(5*monitor,115*monitor,35*monitor,20*monitor,"NO OrbWalk on IDLE enemy",owCheck,noorbwalkidle)
+		HUD:AddCheckbox(5*monitor,115*monitor,35*monitor,20*monitor,"ENABLE TROLL BERSERKERS SWITCHING",owCheck,noorbwalkidle)
 		if string.byte("A") <= modifhotkey and modifhotkey <= string.byte("Z") then
 			HUD:AddCheckbox(5*monitor,135*monitor,35*monitor,20*monitor,"ATTACK MODIFIERS - ToggleKey "..string.char(modifhotkey),modCheck,enablemodifiers)
 		else
