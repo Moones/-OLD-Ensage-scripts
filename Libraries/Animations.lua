@@ -302,6 +302,10 @@ function HeroInfo:GetAttackRate()
 	if lonetrue and lonetrue.level > 0 and self.entity:DoesHaveModifier("modifier_lone_druid_true_form") then
 		return lonetrue:GetSpecialData("base_attack_time",lonetrue.level) / (1 + (self.entity.attackSpeed - 100) / 100)
 	end
+	local berserkers = self.entity:FindSpell("troll_warlord_berserkers_rage")
+	if berserkers and berserkers.level > 0 and self.entity:DoesHaveModifier("modifier_troll_warlord_berserkers_rage") then
+		return berserkers:GetSpecialData("base_attack_time",berserkers.level) / (1 + (self.entity.attackSpeed - 100) / 100)
+	end
 	return self.entity.attackBaseTime / (1 + (self.entity.attackSpeed - 100) / 100)
 end
 
