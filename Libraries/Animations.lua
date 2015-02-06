@@ -107,9 +107,8 @@ Animations.maxCount = 0
 
 function Animations.trackingTick(tick)
 	if not PlayingGame() or client.paused then return end
-	if not Animations.startTime then Animations.startTime = client.gameTime
-	elseif (client.gameTime < 0 and Animations.startTime > 0) then Animations.startTime = client.gameTime Animations.maxCount = 0 Animations.table = {}
-	elseif (client.gameTime - Animations.startTime) >= 1 then Animations.startTime = nil Animations.maxCount = Animations.count Animations.count = 0
+	if not Animations.startTime then Animations.startTime = GetTick()
+	elseif (GetTick() - Animations.startTime) >= 1000 then Animations.startTime = GetTick() Animations.maxCount = Animations.count Animations.count = 0
 	else Animations.count = Animations.count + 1 end
 	local entities = entityList:GetEntities({type=LuaEntity.TYPE_HERO,visible=true,alive=true})
 	entities[#entities + 1] = entityList:GetEntities({classId=CDOTA_Unit_SpiritBear,visible=true,alive=true})[1]
