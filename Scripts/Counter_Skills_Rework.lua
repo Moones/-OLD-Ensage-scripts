@@ -11,8 +11,10 @@ function Tick( tick )
 	me = entityList:GetMyHero() if not me then return end
 	--Silence Dispell
 	if IsSilenced(me) or me:IsSilenced() then
-		PurgeMyself()
-		UseManta()
+		if not me:DoesHaveModifier("modifier_disruptor_static_storm") then
+			PurgeMyself()
+			UseManta()
+		end
 		UseEulScepterSelf()
 	elseif me:DoesHaveModifier("modifier_item_dustofappearance") and CanGoInvis(me) then
 		PurgeMyself()
