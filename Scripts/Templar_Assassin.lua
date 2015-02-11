@@ -32,7 +32,7 @@ local autochase = false local chasevictim = nil local invisibletime = nil
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
-local statusText = drawMgr:CreateText(10*monitor,600*monitor,-1,'Templar Assassin Script: ON "' .. string.char(hotkey) .. '", Lasthitting/Farming: ON "' .. string.char(lhkey) .. '"',F14) statusText.visible = false
+local statusText = drawMgr:CreateText(10*monitor,610*monitor,-1,'Templar Assassin Script: ON "' .. string.char(hotkey) .. '", Lasthitting/Farming: ON "' .. string.char(lhkey) .. '"',F14) statusText.visible = false
 local chaseText = drawMgr:CreateText(-80*monitor,-20*monitor,-1,'ManualChase',F14) chaseText.visible = false
 
 armorTypeModifiers = { Normal = {Unarmored = 1.00, Light = 1.00, Medium = 1.50, Heavy = 1.25, Fortified = 0.70, Hero = 0.75}, Pierce = {Unarmored = 1.50, Light = 2.00, Medium = 0.75, Heavy = 0.75, Fortified = 0.35, Hero = 0.50},	Siege = {Unarmored = 1.00, Light = 1.00, Medium = 0.50, Heavy = 1.25, Fortified = 1.50, Hero = 0.75}, Chaos = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 0.40, Hero = 1.00},	Hero = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 0.50, Hero = 1.00}, Magic = {Unarmored = 1.00, Light = 1.00, Medium = 1.00, Heavy = 1.00, Fortified = 1.00, Hero = 0.75} }
@@ -199,7 +199,9 @@ function Main(tick)
 							end
 						end
 					end
-					if not attacking and ((not noorbwalkidle and not attacking) or (not attacking and (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1)))) or not victim then
+					local psi = me:GetAbility(3)
+					local psirange = psi:GetSpecialData("attack_spill_range",psi.level)
+					if ((not attacking or (lasthitting and not lhcreep and (not psivictim or (victim and victim ~= psivictim and GetDistance2D(me,victim) > myhero.attackRange+psirange)) and (not victim or GetDistance2D(me,victim) > myhero.attackRange))) and ((not noorbwalkidle and not attacking) or (not attacking and (victim and (victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE and victim.activity ~= LuaEntityNPC.ACTIVITY_IDLE1))) or lasthitting)) or not victim then
 						--move to mouse position
 						if SleepCheck("move") then
 							if victim and (GetDistance2D(client.mousePosition, victim) <= 10 or entityList:GetMouseover() == victim or autochase) then
@@ -257,9 +259,9 @@ function OrbWalk(me)
 			end
 		end
 	end	
-	if victim and victim.hero and entityList:GetMouseover() == victim then
-		lasthitting = false
-	end
+	-- if victim and victim.hero and entityList:GetMouseover() == victim then
+		-- lasthitting = false
+	-- end
 	
 	local farm = {}
 	local closecreeps = {}
@@ -275,9 +277,9 @@ function OrbWalk(me)
 	--if we got more enemies around and victim is far choose lowest HP target instead
 	if ((victim and GetDistance2D(me,victim) > (myhero.attackRange*2)) or harras) and #enemies > 1 and enemies[2] and GetDistance2D(enemies[2], me) < (myhero.attackRange + 1200) and not lhcreep then
 		victim = targetFind:GetLowestEHP(1200 + myhero.attackRange, phys)
-		if not harras then
-			lasthitting = false
-		end
+		-- if not harras then
+			-- lasthitting = false
+		-- end
 	end	
 	
 	if autochase and victim and (not chasevictim or not chasevictim.alive or GetDistance2D(chasevictim,me) > (1200 + myhero.attackRange)) then
@@ -285,7 +287,7 @@ function OrbWalk(me)
 	end	
 	
 	--if we dont have victim and there are creeps around then farm them
-	if farm and #farm > 0 and not harras and not lhcreep and not lh and lasthitting then
+	if farm and #farm > 0 and not harras and lasthitting then
 		table.sort( farm, function (a,b) return a and b and (GetDistance2D(a,me) < GetDistance2D(b,me)) end )
 		if (not victim or GetDistance2D(me, victim) > myhero.attackRange+500 or not victim.alive) then
 			if farm[1] and GetDistance2D(client.mousePosition, farm[1]) < 800 and not farm[1]:IsAttackImmune() then
@@ -312,7 +314,7 @@ function OrbWalk(me)
 	end
 	--reseting psi target
 	if SleepCheck("psi") and psivictim and (not victim or GetDistance2D(psivictim,me) > myhero.attackRange+50 or not (victim and AngleBelow(me,psivictim,victim,5)) or not psivictim.alive or not psivictim.visible or (victim and GetDistance2D(me,victim) > psirange) or (victim and GetDistance2D(me,victim) < GetDistance2D(me,psivictim))) then
-		psivictim = victim
+		psivictim = nil
 	end
 	--if we spotted courier and it is close then kill him
 	if courier and GetDistance2D(me, courier) < myhero.attackRange+1200 then
@@ -324,9 +326,9 @@ function OrbWalk(me)
 	local meld = me:GetAbility(2)	
 	if SleepCheck("orbwalk") and (lhcreep or ((victim and victim.alive and victim.health > 0) or (psivictim and (victim and AngleBelow(me,psivictim,victim,5)) and psivictim.alive and psivictim.health > 0 and GetDistance2D(me, psivictim) <= myhero.attackRange)) and me.alive) then			
 		if attacking and me:CanAttack() then
-			if psivictim then
+			if psivictim and (not lasthitting or (victim and GetDistance2D(me,victim) <= myhero.attackRange+psirange)) then
 				myhero:Hit(psivictim)
-			elseif victim then
+			elseif victim and (not lasthitting or GetDistance2D(me,victim) <= myhero.attackRange) then
 				myhero:Hit(victim)
 			elseif lhcreep then
 				myhero:Hit(lhcreep)
