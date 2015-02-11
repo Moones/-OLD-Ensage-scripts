@@ -906,7 +906,7 @@ function Tick( tick )
 				PLDoppleganger()
 			elseif me:DoesHaveModifier("modifier_orchid_malevolence_debuff") then  
 				UseBlinkDagger() Antiblinkhome()
-				UseEulScepterTarget()	
+				UseEulScepterSelf()	
 				UseSheepStickTarget()
 				UseOrchidtarget() SkySilence()
 				UseManta()
