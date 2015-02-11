@@ -13,6 +13,7 @@ function Tick( tick )
 	if IsSilenced(me) or me:IsSilenced() then
 		PurgeMyself()
 		UseManta()
+		UseEulScepterSelf()
 	elseif me:DoesHaveModifier("modifier_item_dustofappearance") and CanGoInvis(me) then
 		PurgeMyself()
 	end
