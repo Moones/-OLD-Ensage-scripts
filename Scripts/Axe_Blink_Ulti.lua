@@ -59,8 +59,8 @@ function Tick(tick)
 	cullingblade.entityPosition = Vector(0,0,me.healthbarOffset)
 	blink.entity = me 
 	blink.entityPosition = Vector(0,0,me.healthbarOffset)
-	damage = {250,350,450}
-	adamage = {300,450,625}
+	damage = {250,325,400}
+	adamage = {300,425,550}
 	
 	local Cullblade = me:GetAbility(4)
 	local Blink = me:FindItem("item_blink")
