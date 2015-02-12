@@ -301,7 +301,7 @@ end
 
 function MyHero:Hit(target)
 	if target and target.team ~= self.heroEntity.team then
-		if target and enablemodifiers and not target:IsMagicImmune() then
+		if target and enablemodifiers and not target:IsMagicImmune() and target.hero then
 			if self.heroEntity.classId == CDOTA_Unit_Hero_Clinkz then
 				local searinga = self.heroEntity:GetAbility(2)
 				if searinga.level > 0 and self.heroEntity.mana > 10 then
