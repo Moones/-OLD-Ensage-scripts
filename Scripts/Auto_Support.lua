@@ -1,5 +1,7 @@
 require("libs.ScriptConfig")
 require("libs.Utils")
+require("libs.AbilityDamage")
+require("libs.Animations")
 
 local config = ScriptConfig.new()
 config:SetParameter("Active", "U", config.TYPE_HOTKEY)
@@ -14,12 +16,14 @@ local x,y = config:GetParameter("GUIxPosition"), config:GetParameter("GUIyPositi
 local reg = false local activ = true 
 local myhero = nil local onlyitems = false
 
+local spellDamageTable = {}
+
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
 local statusText = drawMgr:CreateText(x*monitor,y*monitor,-1,"Auto Support: ON - Hotkey: ''"..string.char(toggleKey).."''",F14) statusText.visible = false
 
 function SupportTick(tick)
-	if not SleepCheck() then return end Sleep(200)
+	if not SleepCheck() or not PlayingGame() or Animations.maxCount < 1 then return end Sleep(200)
 	local me = entityList:GetMyHero()	
 	if not me then return end
 	local ID = me.classId
@@ -36,7 +40,7 @@ function SupportTick(tick)
 						needmeka = v
 					end
 					if GetDistance2D(needmeka,me) <= 750 then
-						me:CastItem(meka.name) return
+						me:CastItem(meka.name) return 
 					end
 				end
 			end
@@ -104,6 +108,8 @@ function SupportTick(tick)
 		elseif ID == CDOTA_Unit_Hero_Oracle then
 			Save(me,nil,4,nil,nil,{31.5,63,93.5,126},3,{1.5,1.5,1.5},nil,false)
 			Heal(me,3,{31.5,63,93.5,126},nil,1)
+		elseif ID == CDOTA_Unit_Hero_Winter_Wyvern then
+			Heal(me,3,{0.003,0.004,0.005,0.006},nil,1,ID)
 		end
 	end
 end
@@ -193,8 +199,9 @@ function Heal(me,ability,amount,range,target,id,excludeme,special)
 				local healthAmount = GetHeal(heal.level,me,amount,id,v)
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() and healthAmount > 0 then
 					if v.alive and v.health > 0 and (not excludeme or v ~= me) and NetherWard(heal,v,me) and (me.classId ~= CDOTA_Unit_Hero_Oracle or (v:DoesHaveModifier("modifier_oracle_fates_edict") or (not me:GetAbility(2):CanBeCasted() and v.health > 300))) then
+						IncomingDamage(v)
 						if activ then
-							if (((v.maxHealth - v.health)*(config.TresholdPercent/100))  > (math.max(healthAmount + 100,150) + v.healthRegen*10) or v.health < IncomingDamage(v)) and GetDistance2D(me,v) <= Range and IsInDanger(v) then								
+							if (((v.maxHealth - v.health)*(config.TresholdPercent/100)) > (math.max(healthAmount + 100,150) + v.healthRegen*10) or v.health < IncomingDamage(v)) and GetDistance2D(me,v) <= Range and IsInDanger(v) then								
 								if target == 1 then
 									ExecuteHeal(heal,v,me)	break
 								elseif target == 2 then
@@ -243,6 +250,8 @@ function GetHeal(lvl,me,tab1,id,target)
 		return bheal + mainattribute*attribute_percentage[lvl]*16
 	elseif id == CDOTA_Unit_Hero_WitchDoctor then
 		return (bheal+((me.mana)/(bheal/2))+target.healthRegen)*3
+	elseif id == CDOTA_Unit_Hero_Winter_Wyvern then
+		return ((bheal*target.maxHealth) + 2)*40
 	end
 	return bheal	
 end
@@ -287,51 +296,86 @@ function IsInDanger(hero)
 	end
 end
 
-function IncomingDamage(hero,onlymagic)
-	if hero and hero.alive and hero.health > 0 then
+function IncomingDamage(unit,onlymagic)
+	if unit and unit.alive and unit.health > 0 then
 		local result = 0
 		local results = {}
 		local resultsMagic = {}
-		for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,team=entityList:GetMyHero():GetEnemyTeam()})) do	
-			if not onlymagic and not results[v.handle] and (isAttacking(v) or GetDistance2D(hero,v) < 200) and GetDistance2D(hero,v) <= GetAttackRange(v) + 50 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, hero))) - 0.20, 0)) == 0 then
-				result = result + v.dmgMax
+		local enemy = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team=unit:GetEnemyTeam(),illusion=false})		
+		for i,v in pairs(enemy) do	
+			if not onlymagic and not results[v.handle] and GetDistance2D(unit,v) <= v.attackRange + 50 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, unit))) - 0.20, 0)) == 0 then
+				local dmg = math.floor(unit:DamageTaken(v.dmgMin*(3/(Animations.getBackswingTime(v)+Animations.GetAttackTime(v)) + client.latency/1000),DAMAGE_PHYS,v))
+				if v.type == LuaEntity.TYPE_MEEPO then
+					dmg = dmg*getAliveNumber()
+				end
+				result = result + dmg
 				results[v.handle] = true
 			end
-			for i,k in ipairs(entityList:GetProjectiles({target=hero})) do
+			for i,k in pairs(entityList:GetProjectiles({target=unit})) do
 				local spell = v:FindSpell(k.name)
 				if spell and not resultsMagic[v.handle] and not resultsMagic[k.name] then
-					local dmg = spell:GetDamage(spell.level)
-					if dmg <= 0 then dmg = spell:GetSpecialData("damage",spell.level) end
+					local dmg
+					if not spellDamageTable[spell.handle] or spellDamageTable[spell.handle][2] ~= spell.level or spellDamageTable[spell.handle][3] ~= v.dmgMin+v.dmgBonus or spellDamageTable[spell.handle][4] ~= v.attackSpeed then
+						spellDamageTable[spell.handle] = { AbilityDamage.GetDamage(spell), spell.level, v.dmgMin+v.dmgBonus, v.attackSpeed }
+					end
+					dmg = spellDamageTable[spell.handle][1]
+					if v.type == LuaEntity.TYPE_MEEPO then
+						dmg = dmg*getAliveNumber()
+					end
 					if dmg then
-						result = result + dmg
+						result = result + math.floor(unit:DamageTaken(dmg,DAMAGE_MAGC,v))
 						resultsMagic[v.handle] = true
 						resultsMagic[k.name] = true
 					end
-				elseif not onlymagic and k.source and not results[k.source.handle] then
-					result = result + k.source.dmgMax	
+				elseif not onlymagic and k.source and not results[k.source.handle] and k.source.dmgMax then
+					local dmg = math.floor(unit:DamageTaken(k.source.dmgMin*(3/(Animations.getBackswingTime(k.source)+Animations.GetAttackTime(k.source)) + client.latency/1000),DAMAGE_PHYS,k.source))
+					if v.type == LuaEntity.TYPE_MEEPO then
+						dmg = dmg*getAliveNumber()
+					end
+					result = result + dmg
 					results[k.source.handle] = true
 				end					
 			end		
-			for i,k in ipairs(hero.modifiers) do
+			for i,k in pairs(unit.modifiers) do
 				local spell = v:FindSpell(k.name:gsub("modifier_",""))
 				if spell then
-					local dmg = spell:GetDamage(spell.level)
-					if dmg <= 0 then dmg = spell:GetSpecialData("damage",spell.level) end
+					local dmg
+					if not spellDamageTable[spell.handle] or spellDamageTable[spell.handle][2] ~= spell.level or spellDamageTable[spell.handle][3] ~= v.dmgMin+v.dmgBonus or spellDamageTable[spell.handle][4] ~= v.attackSpeed then
+						spellDamageTable[spell.handle] = { AbilityDamage.GetDamage(spell), spell.level, v.dmgMin+v.dmgBonus, v.attackSpeed }
+					end
+					dmg = spellDamageTable[spell.handle][1]
+					if v.type == LuaEntity.TYPE_MEEPO then
+						dmg = dmg*getAliveNumber()
+					end
 					if dmg and dmg > 0 and not resultsMagic[v.handle] and not resultsMagic[k.handle] then
-						result = result + spell:GetDamage(spell.level)
+						result = result + math.floor(unit:DamageTaken(dmg,DAMAGE_MAGC,v))
 						resultsMagic[v.handle] = true
 						resultsMagic[k.handle] = true
 					end
 				end
 			end
-			for i,k in ipairs(v.abilities) do
-				if (k.abilityPhase or (k:CanBeCasted() and k:FindCastPoint() < 0.1)) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, hero))) - 0.20, 0)) == 0 and not resultsMagic[k.handle] and GetDistance2D(v,me) <= k.castRange+50 then
-					local dmg = k:GetDamage(k.level)
-					if dmg <= 0 then dmg = k:GetSpecialData("damage",k.level) end
+			for i,k in pairs(v.abilities) do
+				if k.abilityPhase and not resultsMagic[k.handle] and GetDistance2D(v,me) <= k.castRange+200 then
+					local dmg
+					if not spellDamageTable[k.handle] or spellDamageTable[k.handle][2] ~= k.level or spellDamageTable[k.handle][3] ~= v.dmgMin+v.dmgBonus or spellDamageTable[k.handle][4] ~= v.attackSpeed then
+						spellDamageTable[k.handle] = { AbilityDamage.GetDamage(k), k.level, v.dmgMin+v.dmgBonus, v.attackSpeed }
+					end
+					dmg = spellDamageTable[k.handle][1]
 					if dmg then
-						result = result + dmg
+						result = result + math.floor(unit:DamageTaken(dmg,DAMAGE_MAGC,v))
 						resultsMagic[k.handle] = true
 					end
+				end
+			end
+			for i,k in pairs(v.items) do
+				local dmg
+				if not spellDamageTable[k.handle] or spellDamageTable[k.handle][2] ~= v.level or spellDamageTable[k.handle][3] ~= v.dmgMin+v.dmgBonus or spellDamageTable[k.handle][4] ~= v.attackSpeed then
+					spellDamageTable[k.handle] = { AbilityDamage.GetDamage(k), v.level, v.dmgMin+v.dmgBonus, v.attackSpeed }
+				end
+				dmg = spellDamageTable[k.handle][1]
+				if dmg and dmg > 0 and k.castRange and not resultsMagic[k.handle] and GetDistance2D(v,me) <= k.castRange+200 then
+					result = result + math.floor(unit:DamageTaken(dmg,DAMAGE_MAGC,v))
+					resultsMagic[k.handle] = true
 				end
 			end
 		end	
@@ -367,7 +411,7 @@ function NetherWard(skill,hero,me)
 end
 
 function Support(hId)
-	if hId == CDOTA_Unit_Hero_Oracle or hId == CDOTA_Unit_Hero_KeeperOfTheLight or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Chen or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Enchantress or hId == CDOTA_Unit_Hero_Legion_Commander or hId == CDOTA_Unit_Hero_Abaddon or hId == CDOTA_Unit_Hero_Omniknight or hId == CDOTA_Unit_Hero_Treant or hId == CDOTA_Unit_Hero_Wisp or hId == CDOTA_Unit_Hero_Centaur or hId == CDOTA_Unit_Hero_Undying or hId == CDOTA_Unit_Hero_WitchDoctor or hId == CDOTA_Unit_Hero_Necrolyte or hId == CDOTA_Unit_Hero_Warlock or hId == CDOTA_Unit_Hero_Rubick or hId == CDOTA_Unit_Hero_Huskar then
+	if hId == CDOTA_Unit_Hero_Oracle or hId == CDOTA_Unit_Hero_Winter_Wyvern or hId == CDOTA_Unit_Hero_KeeperOfTheLight or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Chen or hId == CDOTA_Unit_Hero_Dazzle or hId == CDOTA_Unit_Hero_Enchantress or hId == CDOTA_Unit_Hero_Legion_Commander or hId == CDOTA_Unit_Hero_Abaddon or hId == CDOTA_Unit_Hero_Omniknight or hId == CDOTA_Unit_Hero_Treant or hId == CDOTA_Unit_Hero_Wisp or hId == CDOTA_Unit_Hero_Centaur or hId == CDOTA_Unit_Hero_Undying or hId == CDOTA_Unit_Hero_WitchDoctor or hId == CDOTA_Unit_Hero_Necrolyte or hId == CDOTA_Unit_Hero_Warlock or hId == CDOTA_Unit_Hero_Rubick or hId == CDOTA_Unit_Hero_Huskar then
 		return true
 	else
 		return false
@@ -419,6 +463,7 @@ function Load()
 		else
 			onlyitems = false
 		end
+		spellDamageTable = {}
 		script:RegisterEvent(EVENT_TICK,SupportTick)
 		script:RegisterEvent(EVENT_KEY,Key)
 		script:UnregisterEvent(Load)
@@ -430,6 +475,7 @@ function GameClose()
 	needmana = nil 
 	needmeka = nil
 	onlyitems = false
+	spellDamageTable = {}
 	if reg then
 		script:UnregisterEvent(SupportTick)
 		script:UnregisterEvent(Key)
