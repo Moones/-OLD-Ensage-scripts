@@ -1991,6 +1991,7 @@ function Tick( tick )
 									UseEulScepterSelf()
 									SlarkShadowDance()
 									OracleFalsePromise()
+									WWColdEmbrace()
 								end
 							end
 						elseif v:AghanimState() and math.ceil(v:GetAbility(t).cd - 0.3) == 70 then
@@ -2887,6 +2888,19 @@ function OracleFalsePromise()
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) and me:GetAbility(t).name == "oracle_false_promise" and me:GetAbility(t).state == -1 then
+				me:CastAbility(me:GetAbility(t),me)
+				activated=1
+				sleepTick= GetTick() +500
+				return 
+			end
+		end
+	end
+end
+
+function WWColdEmbrace()
+	if activated == 0 then
+		for t=1,6 do
+			if me:GetAbility(t) and me:GetAbility(t).name == "winter_wyvern_cold_embrace" and me:GetAbility(t).state == -1 then
 				me:CastAbility(me:GetAbility(t),me)
 				activated=1
 				sleepTick= GetTick() +500
