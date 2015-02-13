@@ -489,7 +489,7 @@ function Main(tick)
 	end
 	
 	--If we already are in dodge position we are good to go
-	if dodgevector and (isPosEqual(me.position, dodgevector, 5) or GetDistance2D(me,dodgevector) < 100 or count == 3) then 
+	if me:IsChanneling() or (dodgevector and (isPosEqual(me.position, dodgevector, 5) or GetDistance2D(me,dodgevector) < 100 or count == 3)) then 
 		dodgevector = nil
 		dodging = false
 		dodged = false
