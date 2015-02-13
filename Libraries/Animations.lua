@@ -313,7 +313,11 @@ function HeroInfo:GetAttackRate()
 end
 
 function HeroInfo:GetBackswing()
-	return self.baseBackswing / (1 + (self.entity.attackSpeed - 100) / 100)
+	if self.baseBackswing then
+		return self.baseBackswing / (1 + (self.entity.attackSpeed - 100) / 100)
+	else
+		return 0.5 / (1 + (self.entity.attackSpeed - 100) / 100)
+	end
 end
 	
 scriptEngine:RegisterLibEvent(EVENT_FRAME,Animations.trackingTick)
