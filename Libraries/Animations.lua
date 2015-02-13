@@ -285,7 +285,11 @@ function HeroInfo:GetAttackSpeed()
 end
 
 function HeroInfo:GetAttackPoint()
-	return self.baseAttackPoint / (1 + (self.entity.attackSpeed - 100) / 100)
+	if self.baseAttackPoint then
+		return self.baseAttackPoint / (1 + (self.entity.attackSpeed - 100) / 100)
+	else
+		return 0.5 / (1 + (self.entity.attackSpeed - 100) / 100)
+	end
 end
 
 function HeroInfo:GetAttackRate()
