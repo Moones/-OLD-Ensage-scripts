@@ -957,6 +957,15 @@ npc_dota_hero_abaddon = {
  turnRate = 0.4,
  attackBackswing = 0.7},
  
+ npc_dota_hero_winter_wyvern = {
+ attackRate = 1.7,
+ attackPoint = 0.25,
+ attackRange = 620,
+ projectileSpeed = 700,
+ movementSpeed = 305,
+ turnRate = 0.4,
+ attackBackswing = 0.8},
+ 
  npc_dota_lone_druid_bear1 = {
  attackRate = 1.75,
  attackPoint = 0.43,
