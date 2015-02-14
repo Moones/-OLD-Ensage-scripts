@@ -287,6 +287,11 @@ function IsInDanger(hero)
 			if GetDistance2D(hero,v) < GetAttackRange(v)+50 then
 				return true
 			end
+			for i,k in pairs(v.abilities) do
+				if GetDistance2D(hero,v) < k.castRange+50 then
+					return true
+				end
+			end
 		end
 		local modifiers = {"modifier_item_urn_damage","modifier_doom_bringer_doom","modifier_axe_battle_hunger","modifier_queenofpain_shadow_strike","modifier_phoenix_fire_spirit_burn","modifier_venomancer_poison_nova","modifier_venomancer_venomous_gale","modifier_silencer_curse_of_the_silent","modifier_silencer_last_word"}
 		for i,v in ipairs(modifiers) do 
@@ -339,7 +344,8 @@ function IncomingDamage(unit,onlymagic)
 				end
 			end
 			for i,k in pairs(v.abilities) do
-				if k.level > 0 and (k.abilityPhase or (k:CanBeCasted() and k:FindCastPoint() < 0.4)) and not resultsMagic[k.handle] and GetDistance2D(v,unit) <= k.castRange+200 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, unit))) - 0.20, 0)) == 0 then
+				if k.level > 0 and (k.abilityPhase or (k:CanBeCasted() and k:FindCastPoint() < 0.4)) and not resultsMagic[k.handle] and GetDistance2D(v,unit) <= k.castRange+200 and (((math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, unit))) - 0.20, 0)) == 0 
+					and (k:IsBehaviourType(LuaEntityAbility.BEHAVIOR_UNIT_TARGET) or k:IsBehaviourType(LuaEntityAbility.BEHAVIOR_POINT))) or k:IsBehaviourType(LuaEntityAbility.BEHAVIOR_NO_TARGET)) then
 					local dmg
 					if not spellDamageTable[k.handle] or spellDamageTable[k.handle][2] ~= k.level or spellDamageTable[k.handle][3] ~= v.dmgMin+v.dmgBonus or spellDamageTable[k.handle][4] ~= v.attackSpeed then
 						spellDamageTable[k.handle] = { AbilityDamage.GetDamage(k), k.level, v.dmgMin+v.dmgBonus, v.attackSpeed }
