@@ -305,7 +305,11 @@ function IncomingDamage(unit,onlymagic)
 			if not onlymagic and not results[v.handle] and (isAttacking(v) or GetDistance2D(unit,v) < 200) and GetDistance2D(unit,v) <= GetAttackRange(v) + 50 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, unit))) - 0.20, 0)) == 0 then
 				local dmg = math.floor(unit:DamageTaken(v.dmgMin+v.dmgBonus,DAMAGE_PHYS,v))
 				if v.type == LuaEntity.TYPE_MEEPO then
-					dmg = dmg*getAliveNumber()
+					local num = v:GetAbility(4).level
+					if v:AghanimState() then
+						num = num + 1
+					end
+					dmg = dmg*num
 				end
 				result = result + dmg
 				results[v.handle] = true
@@ -319,7 +323,11 @@ function IncomingDamage(unit,onlymagic)
 					end
 					dmg = spellDamageTable[spell.handle][1]
 					if v.type == LuaEntity.TYPE_MEEPO then
-						dmg = dmg*getAliveNumber()
+						local num = v:GetAbility(4).level
+						if v:AghanimState() then
+							num = num + 1
+						end
+						dmg = dmg*num
 					end
 					if dmg and dmg > 0 and not resultsMagic[spell.handle] and not resultsMagic[k.handle] then
 						result = result + math.floor(unit:DamageTaken(dmg,AbilityDamage.GetDmgType(spell),v))
@@ -362,7 +370,11 @@ function IncomingDamage(unit,onlymagic)
 				end
 				dmg = spellDamageTable[spell.handle][1]
 				if k.source.type == LuaEntity.TYPE_MEEPO then
-					dmg = dmg*getAliveNumber()
+					local num = k.source:GetAbility(4).level
+					if k.source:AghanimState() then
+						num = num + 1
+					end
+					dmg = dmg*num
 				end
 				if dmg then
 					result = result + math.floor(unit:DamageTaken(dmg,AbilityDamage.GetDmgType(spell),k.source))
@@ -372,7 +384,11 @@ function IncomingDamage(unit,onlymagic)
 			elseif not onlymagic and k.source and not results[k.source.handle] and k.source.dmgMax then
 				local dmg = math.floor(unit:DamageTaken(k.source.dmgMin+k.source.dmgBonus,DAMAGE_PHYS,k.source))
 				if k.source.type == LuaEntity.TYPE_MEEPO then
-					dmg = dmg*getAliveNumber()
+					local num = k.source:GetAbility(4).level
+					if k.source:AghanimState() then
+						num = num + 1
+					end
+					dmg = dmg*num
 				end
 				result = result + dmg
 				results[k.source.handle] = true
