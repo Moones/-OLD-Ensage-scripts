@@ -335,7 +335,6 @@ function IncomingDamage(unit,onlymagic)
 						spellDamageTable[k.handle] = { AbilityDamage.GetDamage(k), k.level, v.dmgMin+v.dmgBonus, v.attackSpeed }
 					end
 					dmg = spellDamageTable[k.handle][1]
-					print(k.name,dmg)
 					if dmg then
 						result = result + math.floor(unit:DamageTaken(dmg,AbilityDamage.GetDmgType(k),v))
 						resultsMagic[k.handle] = true
