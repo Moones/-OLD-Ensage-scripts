@@ -339,7 +339,7 @@ function IncomingDamage(unit,onlymagic)
 				end
 			end
 			for i,k in pairs(v.abilities) do
-				if k.level > 0 and (k.abilityPhase or (k:CanBeCasted() and k:FindCastPoint() < 0.2)) and not resultsMagic[k.handle] and GetDistance2D(v,unit) <= k.castRange+200 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, unit))) - 0.20, 0)) == 0 then
+				if k.level > 0 and (k.abilityPhase or (k:CanBeCasted() and k:FindCastPoint() < 0.4)) and not resultsMagic[k.handle] and GetDistance2D(v,unit) <= k.castRange+200 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, unit))) - 0.20, 0)) == 0 then
 					local dmg
 					if not spellDamageTable[k.handle] or spellDamageTable[k.handle][2] ~= k.level or spellDamageTable[k.handle][3] ~= v.dmgMin+v.dmgBonus or spellDamageTable[k.handle][4] ~= v.attackSpeed then
 						spellDamageTable[k.handle] = { AbilityDamage.GetDamage(k), k.level, v.dmgMin+v.dmgBonus, v.attackSpeed }
