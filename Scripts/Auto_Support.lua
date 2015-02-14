@@ -199,7 +199,6 @@ function Heal(me,ability,amount,range,target,id,excludeme,special)
 				local healthAmount = GetHeal(heal.level,me,amount,id,v)
 				if v.healthbarOffset ~= -1 and not v:IsIllusion() and healthAmount > 0 then
 					if v.alive and v.health > 0 and (not excludeme or v ~= me) and NetherWard(heal,v,me) and (me.classId ~= CDOTA_Unit_Hero_Oracle or (v:DoesHaveModifier("modifier_oracle_fates_edict") or (not me:GetAbility(2):CanBeCasted() and v.health > 300))) then
-						IncomingDamage(v)
 						if activ then
 							if (((v.maxHealth - v.health)*(config.TresholdPercent/100)) > (math.max(healthAmount + 100,150) + v.healthRegen*10) or v.health < IncomingDamage(v)) and GetDistance2D(me,v) <= Range and IsInDanger(v) then								
 								if target == 1 then
@@ -301,41 +300,16 @@ function IncomingDamage(unit,onlymagic)
 		local result = 0
 		local results = {}
 		local resultsMagic = {}
-		local enemy = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team=unit:GetEnemyTeam(),illusion=false})		
+		local enemy = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=unit:GetEnemyTeam(),illusion=false})		
 		for i,v in pairs(enemy) do	
-			if not onlymagic and not results[v.handle] and GetDistance2D(unit,v) <= v.attackRange + 50 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, unit))) - 0.20, 0)) == 0 then
-				local dmg = math.floor(unit:DamageTaken(v.dmgMin*(3/(Animations.getBackswingTime(v)+Animations.GetAttackTime(v)) + client.latency/1000),DAMAGE_PHYS,v))
+			if not onlymagic and not results[v.handle] and (isAttacking(v) or GetDistance2D(unit,v) < 200) and GetDistance2D(unit,v) <= GetAttackRange(v) + 50 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, unit))) - 0.20, 0)) == 0 then
+				local dmg = math.floor(unit:DamageTaken(v.dmgMin+v.dmgBonus,DAMAGE_PHYS,v))
 				if v.type == LuaEntity.TYPE_MEEPO then
 					dmg = dmg*getAliveNumber()
 				end
 				result = result + dmg
 				results[v.handle] = true
 			end
-			for i,k in pairs(entityList:GetProjectiles({target=unit})) do
-				local spell = v:FindSpell(k.name)
-				if spell and not resultsMagic[v.handle] and not resultsMagic[k.name] then
-					local dmg
-					if not spellDamageTable[spell.handle] or spellDamageTable[spell.handle][2] ~= spell.level or spellDamageTable[spell.handle][3] ~= v.dmgMin+v.dmgBonus or spellDamageTable[spell.handle][4] ~= v.attackSpeed then
-						spellDamageTable[spell.handle] = { AbilityDamage.GetDamage(spell), spell.level, v.dmgMin+v.dmgBonus, v.attackSpeed }
-					end
-					dmg = spellDamageTable[spell.handle][1]
-					if v.type == LuaEntity.TYPE_MEEPO then
-						dmg = dmg*getAliveNumber()
-					end
-					if dmg then
-						result = result + math.floor(unit:DamageTaken(dmg,DAMAGE_MAGC,v))
-						resultsMagic[v.handle] = true
-						resultsMagic[k.name] = true
-					end
-				elseif not onlymagic and k.source and not results[k.source.handle] and k.source.dmgMax then
-					local dmg = math.floor(unit:DamageTaken(k.source.dmgMin*(3/(Animations.getBackswingTime(k.source)+Animations.GetAttackTime(k.source)) + client.latency/1000),DAMAGE_PHYS,k.source))
-					if v.type == LuaEntity.TYPE_MEEPO then
-						dmg = dmg*getAliveNumber()
-					end
-					result = result + dmg
-					results[k.source.handle] = true
-				end					
-			end		
 			for i,k in pairs(unit.modifiers) do
 				local spell = v:FindSpell(k.name:gsub("modifier_",""))
 				if spell then
@@ -347,22 +321,23 @@ function IncomingDamage(unit,onlymagic)
 					if v.type == LuaEntity.TYPE_MEEPO then
 						dmg = dmg*getAliveNumber()
 					end
-					if dmg and dmg > 0 and not resultsMagic[v.handle] and not resultsMagic[k.handle] then
-						result = result + math.floor(unit:DamageTaken(dmg,DAMAGE_MAGC,v))
-						resultsMagic[v.handle] = true
+					if dmg and dmg > 0 and not resultsMagic[spell.handle] and not resultsMagic[k.handle] then
+						result = result + math.floor(unit:DamageTaken(dmg,AbilityDamage.GetDmgType(spell),v))
 						resultsMagic[k.handle] = true
+						resultsMagic[spell.handle] = true
 					end
 				end
 			end
 			for i,k in pairs(v.abilities) do
-				if k.abilityPhase and not resultsMagic[k.handle] and GetDistance2D(v,me) <= k.castRange+200 then
+				if k.level > 0 and (k.abilityPhase or (k:CanBeCasted() and k:FindCastPoint() < 0.2)) and not resultsMagic[k.handle] and GetDistance2D(v,unit) <= k.castRange+200 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, unit))) - 0.20, 0)) == 0 then
 					local dmg
 					if not spellDamageTable[k.handle] or spellDamageTable[k.handle][2] ~= k.level or spellDamageTable[k.handle][3] ~= v.dmgMin+v.dmgBonus or spellDamageTable[k.handle][4] ~= v.attackSpeed then
 						spellDamageTable[k.handle] = { AbilityDamage.GetDamage(k), k.level, v.dmgMin+v.dmgBonus, v.attackSpeed }
 					end
 					dmg = spellDamageTable[k.handle][1]
+					print(k.name,dmg)
 					if dmg then
-						result = result + math.floor(unit:DamageTaken(dmg,DAMAGE_MAGC,v))
+						result = result + math.floor(unit:DamageTaken(dmg,AbilityDamage.GetDmgType(k),v))
 						resultsMagic[k.handle] = true
 					end
 				end
@@ -373,12 +348,37 @@ function IncomingDamage(unit,onlymagic)
 					spellDamageTable[k.handle] = { AbilityDamage.GetDamage(k), v.level, v.dmgMin+v.dmgBonus, v.attackSpeed }
 				end
 				dmg = spellDamageTable[k.handle][1]
-				if dmg and dmg > 0 and k.castRange and not resultsMagic[k.handle] and GetDistance2D(v,me) <= k.castRange+200 then
+				if dmg and dmg > 0 and k.castRange and not resultsMagic[k.handle] and GetDistance2D(v,unit) <= k.castRange+200 then
 					result = result + math.floor(unit:DamageTaken(dmg,DAMAGE_MAGC,v))
 					resultsMagic[k.handle] = true
 				end
 			end
 		end	
+		for i,k in pairs(entityList:GetProjectiles({target=unit})) do
+			local spell = k.source:FindSpell(k.name)
+			if spell and not resultsMagic[k.source.handle] and not resultsMagic[k.name] then
+				local dmg
+				if not spellDamageTable[spell.handle] or spellDamageTable[spell.handle][2] ~= spell.level or spellDamageTable[spell.handle][3] ~= k.source.dmgMin+k.source.dmgBonus or spellDamageTable[spell.handle][4] ~= k.source.attackSpeed then
+					spellDamageTable[spell.handle] = { AbilityDamage.GetDamage(spell), spell.level, k.source.dmgMin+k.source.dmgBonus, k.source.attackSpeed }
+				end
+				dmg = spellDamageTable[spell.handle][1]
+				if k.source.type == LuaEntity.TYPE_MEEPO then
+					dmg = dmg*getAliveNumber()
+				end
+				if dmg then
+					result = result + math.floor(unit:DamageTaken(dmg,AbilityDamage.GetDmgType(spell),k.source))
+					resultsMagic[k.source.handle] = true
+					resultsMagic[k.name] = true
+				end
+			elseif not onlymagic and k.source and not results[k.source.handle] and k.source.dmgMax then
+				local dmg = math.floor(unit:DamageTaken(k.source.dmgMin+k.source.dmgBonus,DAMAGE_PHYS,k.source))
+				if k.source.type == LuaEntity.TYPE_MEEPO then
+					dmg = dmg*getAliveNumber()
+				end
+				result = result + dmg
+				results[k.source.handle] = true
+			end					
+		end		
 		if result then
 			return result
 		else
