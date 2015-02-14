@@ -38,10 +38,7 @@ function SupportTick(tick)
 				if (v.maxHealth - v.health) > (450 + v.healthRegen*10) and distance <= 2000 and me.mana >= 225 then
 					if not needmeka or (needmeka and GetDistance2D(needmeka,me) <= 750) then
 						needmeka = v
-					end
-					if GetDistance2D(needmeka,me) <= 750 then
-						me:CastItem(meka.name) return 
-					end
+					end		
 				end
 			end
 			if urn and urn.cd == 0 and urn.charges > 0 and not v:DoesHaveModifier("modifier_item_urn_heal") then
@@ -57,13 +54,18 @@ function SupportTick(tick)
 					if not needmana or (needmana and GetDistance2D(needmana,me) <= 600) then
 						needmana = v
 					end
-					if GetDistance2D(needmana,me) <= 600 then
-						me:CastItem(manaboots.name)
-					end
 				end
 			end
 		end
 	end
+	
+	if needmeka and meka and meka:CanBeCasted() and GetDistance2D(needmeka,me) <= 750 then
+		me:CastItem(meka.name) return 
+	end
+	if needmana and manaboots and manaboots:CanBeCasted() and GetDistance2D(needmana,me) <= 600 then
+		me:CastItem(manaboots.name)
+	end
+	
 	if not onlyitems then
 		if ID == CDOTA_Unit_Hero_KeeperOfTheLight then
 			Save(me,6,4,nil,nil)
