@@ -1379,7 +1379,7 @@ function Tick( tick )
 							Juggernautfury()
 							PLDoppleganger()
 							return 	
-						elseif v:GetAbility(s).name == "legion_commander_duel" and GetDistance2D(v,me) < 250 then
+						elseif v:GetAbility(s).name == "legion_commander_duel" and GetDistance2D(v,me) < 400 then
 							PuckW(true)
 							Emberremnantnow()
 							UseEulScepterTarget()
