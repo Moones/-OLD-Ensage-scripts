@@ -370,37 +370,39 @@ function IncomingDamage(unit,onlymagic)
 			end
 		end	
 		for i,k in pairs(entityList:GetProjectiles({target=unit})) do
-			local spell = k.source:FindSpell(k.name)
-			if spell and not resultsMagic[k.source.handle] and not resultsMagic[k.name] then
-				local dmg
-				if not spellDamageTable[spell.handle] or spellDamageTable[spell.handle][2] ~= spell.level or spellDamageTable[spell.handle][3] ~= k.source.dmgMin+k.source.dmgBonus or spellDamageTable[spell.handle][4] ~= k.source.attackSpeed then
-					spellDamageTable[spell.handle] = { AbilityDamage.GetDamage(spell), spell.level, k.source.dmgMin+k.source.dmgBonus, k.source.attackSpeed }
-				end
-				dmg = spellDamageTable[spell.handle][1]
-				if k.source.type == LuaEntity.TYPE_MEEPO then
-					local num = k.source:GetAbility(4).level
-					if k.source:AghanimState() then
-						num = num + 1
+			if k.source then
+				local spell = k.source:FindSpell(k.name)
+				if spell and not resultsMagic[k.source.handle] and not resultsMagic[k.name] then
+					local dmg
+					if not spellDamageTable[spell.handle] or spellDamageTable[spell.handle][2] ~= spell.level or spellDamageTable[spell.handle][3] ~= k.source.dmgMin+k.source.dmgBonus or spellDamageTable[spell.handle][4] ~= k.source.attackSpeed then
+						spellDamageTable[spell.handle] = { AbilityDamage.GetDamage(spell), spell.level, k.source.dmgMin+k.source.dmgBonus, k.source.attackSpeed }
 					end
-					dmg = dmg*num
-				end
-				if dmg then
-					result = result + math.floor(unit:DamageTaken(dmg,AbilityDamage.GetDmgType(spell),k.source))
-					resultsMagic[k.source.handle] = true
-					resultsMagic[k.name] = true
-				end
-			elseif not onlymagic and k.source and not results[k.source.handle] and k.source.dmgMax then
-				local dmg = math.floor(unit:DamageTaken(k.source.dmgMin+k.source.dmgBonus,DAMAGE_PHYS,k.source))
-				if k.source.type == LuaEntity.TYPE_MEEPO then
-					local num = k.source:GetAbility(4).level
-					if k.source:AghanimState() then
-						num = num + 1
+					dmg = spellDamageTable[spell.handle][1]
+					if k.source.type == LuaEntity.TYPE_MEEPO then
+						local num = k.source:GetAbility(4).level
+						if k.source:AghanimState() then
+							num = num + 1
+						end
+						dmg = dmg*num
 					end
-					dmg = dmg*num
-				end
-				result = result + dmg
-				results[k.source.handle] = true
-			end					
+					if dmg then
+						result = result + math.floor(unit:DamageTaken(dmg,AbilityDamage.GetDmgType(spell),k.source))
+						resultsMagic[k.source.handle] = true
+						resultsMagic[k.name] = true
+					end
+				elseif not onlymagic and k.source and not results[k.source.handle] and k.source.dmgMax then
+					local dmg = math.floor(unit:DamageTaken(k.source.dmgMin+k.source.dmgBonus,DAMAGE_PHYS,k.source))
+					if k.source.type == LuaEntity.TYPE_MEEPO then
+						local num = k.source:GetAbility(4).level
+						if k.source:AghanimState() then
+							num = num + 1
+						end
+						dmg = dmg*num
+					end
+					result = result + dmg
+					results[k.source.handle] = true
+				end	
+			end
 		end		
 		if result then
 			return result
