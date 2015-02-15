@@ -1427,7 +1427,7 @@ function Tick( tick )
 						Puck()
 						PLDoppleganger()
 						return					
-					elseif GetDistance2D(v,me) <= v.attackRange+150 then
+					elseif GetDistance2D(v,me) <= 500 then
 						UseBlinkDagger() Antiblinkhome()
 						UseEulScepterTarget()
 						UseSheepStickTarget()
