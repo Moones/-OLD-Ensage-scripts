@@ -59,8 +59,6 @@ function Tick(tick)
 	cullingblade.entityPosition = Vector(0,0,me.healthbarOffset)
 	blink.entity = me 
 	blink.entityPosition = Vector(0,0,me.healthbarOffset)
-	damage = {250,325,400}
-	adamage = {300,425,550}
 	
 	local Cullblade = me:GetAbility(4)
 	local Blink = me:FindItem("item_blink")
@@ -81,9 +79,9 @@ function Tick(tick)
 		local CastPoint,Dmg = 0,0
 		if Cullblade.level > 0 then
 			CastPoint = Cullblade:GetCastPoint(Cullblade.level)+client.latency/1000
-			Dmg = damage[Cullblade.level]
+			Dmg = Cullblade:GetSpecialData("kill_threshold",Cullblade.level)
 			if me:AghanimState() then		
-				Dmg = adamage[Cullblade.level]
+				Dmg = Cullblade:GetSpecialData("kill_threshold_scepter",Cullblade.level)
 			end
 		end
 		if me.alive and not me:IsChanneling() then
