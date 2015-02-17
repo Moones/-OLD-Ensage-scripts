@@ -97,7 +97,7 @@ aakey = config.AutoAttackKey
 
 sleep = 0
 
-local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil local attack = 0 local move = 0 local start = false local resettime = nil
+local reg = false local HUD = nil local myhero = nil local victim = nil local myId = nil local attack = 0 local move = 0 local start = false local resettime = nil local type = nil
 
 local monitor = client.screenSize.x/1600
 local F14 = drawMgr:CreateFont("F14","Tahoma",14*monitor,550*monitor) 
@@ -231,6 +231,7 @@ function Main(tick)
 					if tick > attack then
 						myhero:Hit(victim)
 						attack = tick + 100
+						type = nil
 					end
 				else
 					if victim and noorbwalkidle and SleepCheck("troll1") and berserkers and berserkers.level > 0 and not me:DoesHaveModifier("modifier_troll_warlord_berserkers_rage") then
@@ -239,7 +240,13 @@ function Main(tick)
 						return
 					end
 					if tick > move then
-						me:Move(client.mousePosition)
+						local mPos = client.mousePosition
+						if GetDistance2D(me,mPos) > 300 or (type and type == 1) or GetDistance2D(me,victim) < GetDistance2D(victim,mPos) then
+							me:Move(mPos)
+							type = 1
+						else
+							myhero:Hit(victim)
+						end
 						move = tick + 100
 						start = false
 					end
@@ -460,6 +467,7 @@ function Load()
 			myId = me.classId
 			sleep = 0 
 			resettime = nil
+			type = nil
 			script:RegisterEvent(EVENT_FRAME, Main)
 			script:RegisterEvent(EVENT_KEY, Key)
 			script:UnregisterEvent(Load)
@@ -474,6 +482,7 @@ function Close()
 	myId = nil
 	start = false
 	resettime = nil
+	type = nil
 	
 	if HUD then
 		HUD:Close()	
