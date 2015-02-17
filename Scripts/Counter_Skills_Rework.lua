@@ -962,8 +962,11 @@ function Tick( tick )
 			local notvisible_enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, alive = true, team = me:GetEnemyTeam()})
 			local projs = entityList:GetProjectiles({})
 			for i,k in ipairs(projs) do
-				if k.target == me then
-					if k.name == "tinker_missile" then
+				-- if k.target and k.source and k.source.hero then
+					-- print(k.name,k.target.name,k.speed,k.source.name,k.dayVision)
+				-- end
+				if k.target and k.target == me and k.source then
+					if k.source.name == "npc_dota_hero_tinker" and k.speed == 900 and k.source:GetAbility(2) and math.ceil(k.source:GetAbility(2).cd - 0.1) ==  math.ceil(k.source:GetAbility(2):GetCooldown(k.source:GetAbility(2).level)) then
 						Nyx()
 						Puck()
 						TemplarMeld()
@@ -975,7 +978,7 @@ function Tick( tick )
 						PLDoppleganger()
 						OracleFateEdict()
 						return
-					elseif k.name == "phantom_assassin_stifling_dagger" then
+					elseif k.source.name == "npc_dota_hero_phantom_assassin" and k.speed == 1200 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) then
 						Nyx()
 						Puck()
 						TemplarMeld()
@@ -986,7 +989,7 @@ function Tick( tick )
 						Embersleighttargetcal()
 						PLDoppleganger()
 						return
-					elseif k.name == "queen_scream_of_pain" then
+					elseif k.source.name == "npc_dota_hero_queenofpain" and k.speed == 900 and k.source:GetAbility(3) and math.ceil(k.source:GetAbility(3).cd - 0.1) ==  math.ceil(k.source:GetAbility(3):GetCooldown(k.source:GetAbility(3).level)) then
 						Nyx()
 						Puck()
 						TemplarMeld()
@@ -997,7 +1000,7 @@ function Tick( tick )
 						Embersleighttargetcal()
 						PLDoppleganger()
 						return
-					elseif k.name == "ogre_magi_ignite" then
+					elseif k.source.name == "npc_dota_hero_ogre_magi" and k.speed == 1000 and k.source:GetAbility(2) and math.ceil(k.source:GetAbility(2).cd - 0.1) ==  math.ceil(k.source:GetAbility(2):GetCooldown(k.source:GetAbility(2).level)) then
 						Nyx()
 						Puck()
 						TemplarMeld()
@@ -1008,15 +1011,15 @@ function Tick( tick )
 						Embersleighttargetcal()
 						PLDoppleganger()
 						return
-					elseif k.name == "necrolyte_pulse_enemy" and GetDistance2D(me,k.position) < 200 then
+					elseif k.source.name == "npc_dota_hero_necrolyte" and k.speed == 400 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) and GetDistance2D(me,k.position) < 200 then
 						Nyx()
 						Puck()
 						LoneDruidUlt()
 						UseEulScepterSelf()
 						PLDoppleganger()
 						return
-					elseif k.speed == 1000 and v:GetAbility(4).name == "huskar_life_break" then
-						if math.ceil(v:GetAbility(4).cd - 0.1) == math.ceil(v:GetAbility(4):GetCooldown(v:GetAbility(4).level)) then									
+					elseif k.speed == 1000 and k.source:GetAbility(4).name == "huskar_life_break" then
+						if math.ceil(k.source:GetAbility(4).cd - 0.1) == math.ceil(k.source:GetAbility(4):GetCooldown(k.source:GetAbility(4).level)) then									
 							Puck()
 							Nyx()
 							SlarkShadowDance()
@@ -1033,7 +1036,7 @@ function Tick( tick )
 							OracleFateEdict()
 							return
 						end
-					elseif k.name == "sniper_assassinate" then
+					elseif k.source.name == "npc_dota_hero_sniper" and k.speed == 2500 and k.source:GetAbility(4) and math.ceil(k.source:GetAbility(4).cd - 0.1) ==  math.ceil(k.source:GetAbility(4):GetCooldown(k.source:GetAbility(4).level)) then
 						Puck()
 						UseBlinkDagger() Antiblinkhome()
 						TemplarRefraction()
@@ -1070,7 +1073,7 @@ function Tick( tick )
 						return
 					end
 				end
-				if k.name == "windrunner_shackleshot" and (k.target == me or AngleBelow(v,k.target,me,7)) then
+				if k.source and k.source.name == "npc_dota_hero_windrunner" and k.speed == 1515 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) and (k.target == me or AngleBelow(v,k.target,me,7)) then
 					Puck()
 					Nyx()
 					UseBlinkDagger() Antiblinkhome()
