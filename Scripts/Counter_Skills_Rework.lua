@@ -6,7 +6,7 @@ local activated = 0
 
 function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
-	if not SleepCheck("blink") then client:ExecuteCmd("+dota_camera_center_on_hero") client:ExecuteCmd("-dota_camera_center_on_hero") return end
+	if not SleepCheck("blink") then client:ExecuteCmd("+dota_camera_center_on_hero") client:ExecuteCmd("-dota_camera_center_on_hero") end
 	if sleepTick and sleepTick > tick then return end	
 	me = entityList:GetMyHero() if not me then return end
 	--Silence Dispell
@@ -977,7 +977,6 @@ function Tick( tick )
 						Embersleighttargetcal()
 						PLDoppleganger()
 						OracleFateEdict()
-						return
 					elseif k.source.name == "npc_dota_hero_phantom_assassin" and k.speed == 1200 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) then
 						Nyx()
 						Puck()
@@ -988,7 +987,6 @@ function Tick( tick )
 						UseShadowBlade()
 						Embersleighttargetcal()
 						PLDoppleganger()
-						return
 					elseif k.source.name == "npc_dota_hero_queenofpain" and k.speed == 900 and k.source:GetAbility(3) and math.ceil(k.source:GetAbility(3).cd - 0.1) ==  math.ceil(k.source:GetAbility(3):GetCooldown(k.source:GetAbility(3).level)) then
 						Nyx()
 						Puck()
@@ -999,7 +997,6 @@ function Tick( tick )
 						UseShadowBlade()
 						Embersleighttargetcal()
 						PLDoppleganger()
-						return
 					elseif k.source.name == "npc_dota_hero_ogre_magi" and k.speed == 1000 and k.source:GetAbility(2) and math.ceil(k.source:GetAbility(2).cd - 0.1) ==  math.ceil(k.source:GetAbility(2):GetCooldown(k.source:GetAbility(2).level)) then
 						Nyx()
 						Puck()
@@ -1010,14 +1007,12 @@ function Tick( tick )
 						UseShadowBlade()
 						Embersleighttargetcal()
 						PLDoppleganger()
-						return
 					elseif k.source.name == "npc_dota_hero_necrolyte" and k.speed == 400 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) and GetDistance2D(me,k.position) < 200 then
 						Nyx()
 						Puck()
 						LoneDruidUlt()
 						UseEulScepterSelf()
 						PLDoppleganger()
-						return
 					elseif k.speed == 1000 and k.source:GetAbility(4).name == "huskar_life_break" then
 						if math.ceil(k.source:GetAbility(4).cd - 0.1) == math.ceil(k.source:GetAbility(4):GetCooldown(k.source:GetAbility(4).level)) then									
 							Puck()
@@ -1034,7 +1029,6 @@ function Tick( tick )
 							UseBladeMail()
 							PLDoppleganger()
 							OracleFateEdict()
-							return
 						end
 					elseif k.source.name == "npc_dota_hero_sniper" and k.speed == 2500 and k.source:GetAbility(4) and math.ceil(k.source:GetAbility(4).cd - 0.1) ==  math.ceil(k.source:GetAbility(4):GetCooldown(k.source:GetAbility(4).level)) then
 						Puck()
@@ -1070,7 +1064,6 @@ function Tick( tick )
 								UseBloodStone()
 							end
 						end
-						return
 					end
 				end
 				if k.source and k.source.name == "npc_dota_hero_windrunner" and k.speed == 1515 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) and (k.target == me or AngleBelow(v,k.target,me,7)) then
@@ -1081,7 +1074,6 @@ function Tick( tick )
 					SlarkDarkPact()
 					SlarkPounce()
 					PLDoppleganger()
-					return
 				end
 			end
 			for i, z in ipairs(rocket) do
@@ -2964,7 +2956,10 @@ function UseBlinkDagger() --use blink to home
 			Sleep(500,"blink")
 			client:ExecuteCmd("+dota_camera_center_on_hero")
 			client:ExecuteCmd("-dota_camera_center_on_hero")
-			sleepTick = GetTick() + 500
+			if not aa then
+				script:RegisterEvent(EVENT_TICK,qna)
+			end
+			sleepTick = GetTick() + 100
 			return
 		end
 		if stormult and me:CanCast() then
@@ -2993,6 +2988,7 @@ function UseBlinkDaggerfront()--use blink to front of hero distance 100
 			local alfa = me.rotR
 			local p = Vector(me.position.x + 100 * math.cos(alfa), me.position.y + 100 * math.sin(alfa), me.position.z) 
 			me:CastAbility(BlinkDagger,p)
+			script:RegisterEvent(EVENT_TICK,qna)
 			activated = 1
 			sleepTick= GetTick() + 500
 			return
@@ -3300,6 +3296,7 @@ function qna(tick)
 		aa = 1
 	end
 	if tick > sleep then
+		client:ExecuteCmd("-sixense_left_shift")
 		client:ExecuteCmd("-sixense_left_shift")
 		aa = nil
 		script:UnregisterEvent(qna)
