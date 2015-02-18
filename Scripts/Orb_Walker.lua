@@ -241,7 +241,7 @@ function Main(tick)
 					end
 					if tick > move then
 						local mPos = client.mousePosition
-						if victim and (GetDistance2D(me,mPos) > 300 or (type and type == 1) or GetDistance2D(me,victim) < GetDistance2D(victim,mPos)) then
+						if GetDistance2D(me,mPos) > 300 or (type and type == 1) or (victim and GetDistance2D(me,victim) < GetDistance2D(victim,mPos)) then
 							me:Move(mPos)
 							type = 1
 						else
