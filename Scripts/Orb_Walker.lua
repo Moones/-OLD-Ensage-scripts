@@ -202,7 +202,7 @@ function Main(tick)
 		else			
 			myhero.attackRange = myhero:GetAttackRange()		
 			if IsKeyDown(movetomouse) and not client.chat then	
-				if Animations.CanMove(me) or not start or (victim and GetDistance2D(victim,me) > math.max(myhero.attackRange+50,500)) then
+				if Animations.CanMove(me) or not start or (not victim or GetDistance2D(victim,me) > math.max(myhero.attackRange+50,500) or not victim.alive) then
 					start = true
 					local lowestHP = targetFind:GetLowestEHP(3000, phys)
 					if lowestHP and (not victim or victim.creep or GetDistance2D(me,victim) > 600 or not victim.alive or lowestHP.health < victim.health) and SleepCheck("victim") then			
@@ -241,7 +241,7 @@ function Main(tick)
 					end
 					if tick > move then
 						local mPos = client.mousePosition
-						if GetDistance2D(me,mPos) > 300 or (type and type == 1) or GetDistance2D(me,victim) < GetDistance2D(victim,mPos) then
+						if victim and (GetDistance2D(me,mPos) > 300 or (type and type == 1) or GetDistance2D(me,victim) < GetDistance2D(victim,mPos)) then
 							me:Move(mPos)
 							type = 1
 						else
@@ -251,7 +251,7 @@ function Main(tick)
 						start = false
 					end
 				end
-			elseif victim then
+			elseif victim and victim.alive then
 				if not resettime then
 					resettime = client.gameTime
 				elseif (client.gameTime - resettime) >= 6 then
