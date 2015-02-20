@@ -3212,7 +3212,7 @@ function Useblackking()
 end
 
 function PurgeMyself()
-	local diffusal = me:FindItem("item_diffusal_blade")
+	local diffusal = me:FindItem("item_diffusal_blade") or me:FindItem("item_diffusal_blade_2")
 	local purge = me:FindSpell("satyr_trickster_purge")
 	if activated == 0 then
 		if purge and purge:CanBeCasted() and me:CanCast() then
