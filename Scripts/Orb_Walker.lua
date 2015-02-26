@@ -217,8 +217,10 @@ function Main(tick)
 					end
 					if not victim or not victim.hero then 					
 						local creeps = entityList:GetEntities(function (v) return (v.courier or (v.creep and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Neutral and v.spawned) or v.classId == CDOTA_BaseNPC_Tower or v.classId == CDOTA_BaseNPC_Venomancer_PlagueWard or v.classId == CDOTA_BaseNPC_Warlock_Golem or (v.classId == CDOTA_BaseNPC_Creep_Lane and v.spawned) or (v.classId == CDOTA_BaseNPC_Creep_Siege and v.spawned) or v.classId == CDOTA_Unit_VisageFamiliar or v.classId == CDOTA_Unit_Undying_Zombie or v.classId == CDOTA_Unit_SpiritBear or v.classId == CDOTA_Unit_Broodmother_Spiderling or v.classId == CDOTA_Unit_Hero_Beastmaster_Boar or v.classId == CDOTA_BaseNPC_Invoker_Forged_Spirit or v.classId == CDOTA_BaseNPC_Creep) and v.team ~= me.team and v.alive and v.health > 0 and me:GetDistance2D(v) <= math.max(myhero.attackRange*2+50,500) end)
-						table.sort(creeps, function (a,b) return a.health < b.health end)
-						victim = creeps[1]					
+						if GetType(creeps) == "Table" then
+							table.sort(creeps, function (a,b) return a.health < b.health end)
+							victim = creeps[1]
+						end
 					end
 				end
 				local berserkers = me:FindSpell("troll_warlord_berserkers_rage")
@@ -241,7 +243,7 @@ function Main(tick)
 					end
 					if tick > move then
 						local mPos = client.mousePosition
-						if GetDistance2D(me,mPos) > 300 or (type and type == 1) or (victim and GetDistance2D(me,victim) < GetDistance2D(victim,mPos)) then
+						if (not victim or GetDistance2D(me,mPos) > 300) or (type and type == 1) or (victim and GetDistance2D(me,victim) < GetDistance2D(victim,mPos)) then
 							me:Move(mPos)
 							type = 1
 						else
