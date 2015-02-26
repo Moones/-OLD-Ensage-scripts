@@ -1013,7 +1013,7 @@ function Tick( tick )
 						LoneDruidUlt()
 						UseEulScepterSelf()
 						PLDoppleganger()
-					elseif k.speed == 1000 and k.source:GetAbility(4).name == "huskar_life_break" then
+					elseif k.speed and k.speed == 1000 and k.source:GetAbility(4) and k.source:GetAbility(4).name == "huskar_life_break" then
 						if math.ceil(k.source:GetAbility(4).cd - 0.1) == math.ceil(k.source:GetAbility(4):GetCooldown(k.source:GetAbility(4).level)) then									
 							Puck()
 							Nyx()
