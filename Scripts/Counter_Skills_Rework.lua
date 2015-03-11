@@ -965,7 +965,7 @@ function Tick( tick )
 				-- if k.target and k.source and k.source.hero then
 					-- print(k.name,k.target.name,k.speed,k.source.name,k.dayVision)
 				-- end
-				if k.target and k.target == me and k.source then
+				if k.target and k.target == me and k.source and k.source.team ~= me.team then
 					if k.source.name == "npc_dota_hero_tinker" and k.speed == 900 and k.source:GetAbility(2) and math.ceil(k.source:GetAbility(2).cd - 0.1) ==  math.ceil(k.source:GetAbility(2):GetCooldown(k.source:GetAbility(2).level)) then
 						Nyx()
 						Puck()
@@ -1066,7 +1066,7 @@ function Tick( tick )
 						end
 					end
 				end
-				if k.source and k.source.name == "npc_dota_hero_windrunner" and k.speed == 1515 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) and (k.target == me or AngleBelow(v,k.target,me,7)) then
+				if k.source and k.source.team ~= me.team and k.source.name == "npc_dota_hero_windrunner" and k.speed == 1515 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) and (k.target == me or AngleBelow(v,k.target,me,7)) then
 					Puck()
 					Nyx()
 					UseBlinkDagger() Antiblinkhome()
