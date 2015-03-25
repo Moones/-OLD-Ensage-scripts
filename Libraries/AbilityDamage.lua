@@ -259,7 +259,11 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			local bonusDamage = ((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage, level)))
 			if owner:AghanimState() then
 				tickDuration = (((spell.tickDurationScepter) and (ability:GetSpecialData(""..spell.tickDurationScepter, level))) or tickDuration)
-				tickDamage = (((spell.tickDamageScepter) and (ability:GetSpecialData(""..spell.tickDamageScepter, level))) or tickDamage)
+				if spell.tickDamageScepter and GetType(spell.tickDamageScepter) == "Table" then
+					tickDamage = spell.tickDamageScepter[level]
+				else
+					tickDamage = (((spell.tickDamageScepter) and (ability:GetSpecialData(""..spell.tickDamageScepter, level))) or tickDamage)
+				end
 			end
 			local finalDamage = 0
 			if tickDuration and tickInterval and startTime then
