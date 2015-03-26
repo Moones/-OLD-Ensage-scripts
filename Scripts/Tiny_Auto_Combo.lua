@@ -96,10 +96,12 @@ function Tick(tick)
 						hero[v.handle] = drawMgr:CreateText(-45,-55, 0xFFFFFF99, "",F14) hero[v.handle].visible = false hero[v.handle].entity = v hero[v.handle].entityPosition = Vector(0,0,v.healthbarOffset)
 					end
 					
+					hero[v.handle].visible = active
+					
 					if me.alive and active then
 						if v.visible and v.alive and v.health > 0 and me.mana > 240 then
 						
-							hero[v.handle].visible = active
+							
 							local combodamage = math.floor(v:DamageTaken(Dmg,Type,me))
 							local healthtokill = math.floor(v.health - combodamage + CastPoint*v.healthRegen+Moprhling(v,CastPoint))
 							hero[v.handle].text = "Health to kill: "..healthtokill
