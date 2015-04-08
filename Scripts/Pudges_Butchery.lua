@@ -345,7 +345,7 @@ function Main(tick)
 					end
 				end
 				local ethereal = me:FindItem("item_ethereal_blade")	
-				if config.AutoEthereal and SleepCheck("ethereal") and ethereal:CanBeCasted() and me:CanCast() and GetDistance2D(me,v) <= ethereal.castRange+100 then
+				if config.AutoEthereal and SleepCheck("ethereal") and ethereal and ethereal:CanBeCasted() and me:CanCast() and GetDistance2D(me,v) <= ethereal.castRange+100 then
 					if SleepCheck("eth") then
 						EthDmg = AbilityDamage.GetDamage(ethereal)*1.4
 						Sleep(10000,"eth")
