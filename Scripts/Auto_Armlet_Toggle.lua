@@ -113,7 +113,7 @@ function Tick( tick )
 	end
 	
 	local armlet = me:FindItem("item_armlet")
-	if not armlet or not armlet:CanBeCasted() or not active then incoming_damage = 0 incoming_projectiles = {} toggle = false return end
+	if not armlet or not active then incoming_damage = 0 incoming_projectiles = {} toggle = false return end
 	
 	local armState = me:DoesHaveModifier("modifier_item_armlet_unholy_strength")
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=me:GetEnemyTeam()})
@@ -135,14 +135,18 @@ function Tick( tick )
 		Sleep(ARMLET_DELAY)
 	end
 	
-	if not me:IsStunned() and config.ToggleAlways and SleepCheck() and not me:IsInvisible() and (toggle or me.health < minhp) and (math.max(me.health - 475,1) - incoming_damage) > 0 then
+	if not me:IsStunned() and SleepCheck() and not me:IsInvisible() and (toggle or me.health < 475 or me.health < incoming_damage) and (incoming_damage <= 0 or me.health < incoming_damage) then
+		local delay = ARMLET_DELAY*2
+		if incoming_damage <= 0 then
+			delay = delay*1.50
+		end
 		if armState then
 			me:SafeCastItem("item_armlet")
 			me:SafeCastItem("item_armlet")
-			Sleep(ARMLET_DELAY*2)
+			Sleep(delay)
 		else
 			me:SafeCastItem("item_armlet")
-			Sleep(ARMLET_DELAY*2)
+			Sleep(delay)
 		end
 		toggle = false
 	end
@@ -237,17 +241,17 @@ function Tick( tick )
 				toggle = true
 			end
 			if not armState and SleepCheck() and not me:IsInvisible() then
-				if not me:IsStunned() and not armState and SleepCheck() and Animations.isAttacking(me) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and GetDistance2D(me,v) < me.attackRange+100 then
+				if not me:IsStunned() and not armState and SleepCheck() and Animations.isAttacking(me) and (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and GetDistance2D(me,v) < me.attackRange+50 then
 					me:SafeCastItem("item_armlet")
 					Sleep(ARMLET_DELAY) break
 				end
 				for i,z in ipairs(v.abilities) do
-					if not me:IsStunned() and not armState and SleepCheck() and z.abilityPhase and distance <= z.castRange+100 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 then
+					if not me:IsStunned() and not armState and SleepCheck() and z.abilityPhase and distance <= z.castRange+50 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 then
 						me:SafeCastItem("item_armlet")
 						Sleep(ARMLET_DELAY) break
 					end
 				end	
-				if not me:IsStunned() and not armState and SleepCheck() and (distance <= (250) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and distance < v.attackRange+100)) then
+				if not me:IsStunned() and not armState and SleepCheck() and (distance <= (250) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and distance < v.attackRange+50)) then
 					me:SafeCastItem("item_armlet")
 					Sleep(ARMLET_DELAY)
 				end
