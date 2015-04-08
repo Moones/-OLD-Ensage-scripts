@@ -1,9 +1,9 @@
---<<Pudge's Butchery script by Moones version 1.9.2>>
+--<<Pudge's Butchery script by Moones version 1.9.3>>
 --[[
 	-------------------------------------
 	| Pudge's Butchery Script by Moones |
 	-------------------------------------
-	=========== Version 1.9.2 ===========
+	=========== Version 1.9.3 ===========
 	 
 	Description:
 	------------
@@ -23,6 +23,11 @@
 	   
 	Changelog:
 	----------
+		Update 1.9.3:
+			Added configs: AutoCombo, AutoUrn, AutoEthereal
+			Function AutoEthereal now also killsteals.
+			Fixed bug with ulti, it needs tests.
+			
 		Update 1.9.2:
 			Little improve of PredictionGui.
 			
@@ -96,6 +101,7 @@ require("libs.TargetFind")
 require("libs.SkillShot")
 require("libs.VectorOp")
 require("libs.Animations")
+require("libs.AbilityDamage")
 
 config = ScriptConfig.new()
 config:SetParameter("Hotkey", "F", config.TYPE_HOTKEY)
@@ -107,12 +113,15 @@ config:SetParameter("PredictionGUI", true)
 config:SetParameter("EnableMouseAdjusting", false)
 config:SetParameter("BlindHooks", false)
 config:SetParameter("HookCanceling", true)
+config:SetParameter("AutoCombo", true)
+config:SetParameter("AutoUrn", true)
+config:SetParameter("AutoEthereal", true)
 config:SetParameter("GuiSleep", 0)
 config:Load()
 
 local togglekey = config.Hotkey local hookkey = config.Hookkey local manualtogglekey = config.ManualtoggleKey
 local sleeptick = 0 local targetHandle = nil local manualselection = false local active = true local victim = nil local xyz = nil local blindxyz = nil local rottoggled = false local count = 0 local hooked = false local urned = false local reg = false local ultied = nil
-local eff = {} local guixyz = false local distxyz = nil local predxyz = nil
+local eff = {} local guixyz = false local distxyz = nil local predxyz = nil local EthDmg = 0
 local myFont = drawMgr:CreateFont("Pudge","Tahoma",14,550)
 local statusText = drawMgr:CreateText(-40,-20,-1,"Hook'em!",myFont);
 local targetText = drawMgr:CreateText(-100,-5,-1,"",myFont);
@@ -327,11 +336,26 @@ function Main(tick)
 						end
 					end
 				end
-				if v.visible and v.health <= 150 and me:FindItem("item_urn_of_shadows") and SleepCheck("urn") and not targetHandle and GetDistance2D(me,v) <= 950 and GetDistance2D(me,v) > me.attackRange then
+				local urn = me:FindItem("item_urn_of_shadows")
+				if config.AutoUrn and v.visible and v.health <= 150 and urn and urn:CanBeCasted() and me:CanCast() and SleepCheck("urn") and not targetHandle and GetDistance2D(me,v) <= 950 and GetDistance2D(me,v) > me.attackRange then
 					local close_allies = entityList:GetEntities(function (ent) return ent.type == LuaEntity.TYPE_HERO and ent.alive and GetDistance2D(v,ent) < ent.attackRange end)
 					if close_allies and #close_allies > 0 then
-						me:SafeCastAbility(me:FindItem("item_urn_of_shadows"), v)
+						me:SafeCastAbility(urn, v)
 						Sleep(250,"urn")
+					end
+				end
+				local ethereal = me:FindItem("item_ethereal_blade")	
+				if config.AutoEthereal and SleepCheck("ethereal") and ethereal:CanBeCasted() and me:CanCast() and GetDistance2D(me,v) <= ethereal.castRange+100 then
+					if SleepCheck("eth") then
+						EthDmg = AbilityDamage.GetDamage(ethereal)*1.4
+						Sleep(10000,"eth")
+					end
+					if EthDmg > 0 then
+						local taken = v:DamageTaken(EthDmg,DAMAGE_MAGC,me)
+						if v.health <= taken and v:CanDie() then
+							me:CastAbility(ethereal,v)
+							Sleep(250,"ethereal")
+						end
 					end
 				end
 				if config.BlindHooks and hook.level > 0 and me.alive and not victim then
@@ -489,7 +513,7 @@ function Combo(tick)
 		ultied = nil
 	end
 		
-	if urn and urn.charges > 0 and urn.state == -1 and not urned and not me:IsChanneling() and ((R.level > 0 and not R.abilityPhase and R.channelTime == 0 and not ultied) or R.level == 0) then 
+	if config.AutoUrn and urn and urn.charges > 0 and urn.state == -1 and not urned and not me:IsChanneling() and ((R.level > 0 and not R.abilityPhase and R.channelTime == 0 and not ultied) or R.level == 0) then 
 		if not aga then 
 			if R.level == 0 or target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
@@ -497,7 +521,6 @@ function Combo(tick)
 				me:SafeCastItem(urn.name,target)
 			end
 			Sleep(client.latency,"combo")
-			return
 		else
 			if R.level == 0 or target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
@@ -505,20 +528,18 @@ function Combo(tick)
 				me:SafeCastItem(urn.name,target)
 			end
 			Sleep(client.latency,"combo")
-			return
 		end
 	end
 	
-	if ethereal and ethereal:CanBeCasted() and not target:IsMagicImmune() and ((R.level > 0 and not R.abilityPhase and R.channelTime == 0 and not ultied) or R.level == 0) then
+	if config.AutoEthereal and ethereal and ethereal:CanBeCasted() and not target:IsMagicImmune() and ((R.level > 0 and not R.abilityPhase and R.channelTime == 0 and not ultied) or R.level == 0) then
 		me:SafeCastItem(ethereal.name,target)
 		Sleep(client.latency,"combo")
-		return
 	end
 
-	if not hooked or GetDistance2D(me, target) < 1600*(client.latency/1000) and not R.abilityPhase then
-		if R.level > 0 and R.state == LuaEntityAbility.STATE_READY and ((target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target)) then 
+	if (not hooked or GetDistance2D(me, target) < (1600*math.max(client.latency/1000,0.1)+80)) and not R.abilityPhase then
+		if R.level > 0 and R:CanBeCasted() and me:CanCast() and ((target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target)) then 
 			me:SafeCastSpell(R.name,target)
-			Sleep(200,"combo")
+			Sleep(50,"combo")
 			ultied = true
 			return
 		end
@@ -555,7 +576,7 @@ function ModifierAdd(v,modifier)
 	if active then
 		if modifier.name == "modifier_pudge_rot" and v.classId == me.classId then
 			rottoggled = true
-		elseif modifier.name == "modifier_pudge_meat_hook" then
+		elseif config.AutoCombo and modifier.name == "modifier_pudge_meat_hook" then
 			if v.hero and v.team ~= me.team and not v:IsIllusion() then
 				targetHandle = v.handle
 				targetText.visible = true
