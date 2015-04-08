@@ -1,14 +1,103 @@
 require("libs.Utils")
 require("libs.HeroInfo")
+require("libs.ScriptConfig")
+
+local config = ScriptConfig.new()
+config:SetParameter("Blink", true)
+config:SetParameter("Eul", true)
+config:SetParameter("DelayBlink", 0)
+config:SetParameter("DelayEulOnTarget", 0)
+config:SetParameter("ShortBlinkDodge", true)
+config:SetParameter("BlinkToggleKey", "N", config.TYPE_HOTKEY)
+config:SetParameter("ShowText", true)
+config:SetParameter("TextX", 0)
+config:SetParameter("TextY", 0)
+config:SetParameter("TextSize", 14)
+config:Load()
 
 wait = 0 waittime = 0 sleepTick = nil sleep1 = 0  sleepk = 0 tt = nil aa = nil
+local blinking = false local enableBlinking = true
+local euling = {false,nil}
 local activated = 0
 
+local myFont = drawMgr:CreateFont("Font","Tahoma",config.TextSize,550)
+local statusText = drawMgr:CreateText(-60+config.TextX,-20+config.TextY,0x66FF33FF,"BlinkDodging Enabled!",myFont); statusText.visible = config.ShowText
+
+function Key(msg,code)	
+    if client.chat or not PlayingGame() then return end
+	if msg == KEY_UP then
+		if code == config.BlinkToggleKey then
+			enableBlinking = not enableBlinking
+			if not enableBlinking then
+				statusText.text = "BlinkDodging Disabled!"
+				statusText.color = 0xFF6600FF
+			else
+				statusText.text = "BlinkDodging Enabled!"
+				statusText.color = 0x66FF33FF
+			end
+		end
+	end
+end
+			
 function Tick( tick )
 	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
 	if not SleepCheck("blink") then client:ExecuteCmd("+dota_camera_center_on_hero") client:ExecuteCmd("-dota_camera_center_on_hero") end
 	if sleepTick and sleepTick > tick then return end	
 	me = entityList:GetMyHero() if not me then return end
+	
+	local offset = me.healthbarOffset
+	statusText.entity = me
+	statusText.entityPosition = Vector(0,0,offset)
+	
+	if euling[1] and config.Eul then
+		if config.DelayEulOnTarget > 0 and SleepCheck("eulDelay") and SleepCheck("set") then
+			Sleep(config.DelayEulOnTarget,"eulDelay")
+			Sleep(5000,"set")
+			return
+		end
+		local euls = me:FindItem("item_cyclone")
+		if SleepCheck("eulDelay") then
+			if euls and euls.cd == 0 then
+				if euling[2] and GetDistance2D(me,target) < 700 then
+					me:CastAbility(euls,target)
+					activated = 1
+					sleepTick = GetTick() + 500
+					euling = {false,nil}
+					return
+				end
+			end
+		end
+	end
+	
+	if blinking then
+		if config.Blink then
+			if config.DelayBlink > 0 and SleepCheck("blinkDelay") and SleepCheck("set") then
+				Sleep(config.DelayBlink,"blinkDelay")
+				Sleep(5000,"set")
+				return
+			end
+			if SleepCheck("blinkDelay") then
+				local BlinkDagger = me:FindItem("item_blink")
+				local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
+				local vec = Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
+				if BlinkDagger ~= nil and BlinkDagger.cd == 0 then
+					me:CastItem(BlinkDagger.name,vec)
+					Sleep(500,"blink")
+					client:ExecuteCmd("+dota_camera_center_on_hero")
+					client:ExecuteCmd("-dota_camera_center_on_hero")
+					if not aa then
+						script:RegisterEvent(EVENT_TICK,qna)
+					end
+					sleepTick = GetTick() + 100
+					blinking = false
+					return
+				end
+			end
+		else
+			blinking = false
+		end
+	end
+	
 	--Silence Dispell
 	if IsSilenced(me) or me:IsSilenced() then
 		if not me:DoesHaveModifier("modifier_disruptor_static_storm") then
@@ -2598,10 +2687,10 @@ function Antiblinkfront()
 end
 
 function Antiblinkhome()
-	if activated == 0 then
+	if activated == 0 and enableBlinking then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "antimage_blink" and me:GetAbility(t).state == -1 then
+				if (me:GetAbility(t).name == "antimage_blink" or me:GetAbility(t).name == "queenofpain_blink") and me:GetAbility(t).state == -1 then
 					local fountPos = entityList:FindEntities({team = me.team, classId = CDOTA_Unit_Fountain})[1].position
 					local vector = ((fountPos - me.position) * 1150 / me:GetDistance2D(fountPos) ) + me.position
 						storm_spirit_ball_lightning=me:GetAbility(t)
@@ -2945,21 +3034,14 @@ end
 
 --useitem--------------------------------------------------------------------------------------------------------------------------------------
 function UseBlinkDagger() --use blink to home
-	if activated == 0 then
+	if activated == 0 and enableBlinking then
 		local BlinkDagger = me:FindItem("item_blink")
 		local stormult = me:FindSpell("storm_spirit_ball_lightning")
 		local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
 		local vec = Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
-		if BlinkDagger ~= nil and BlinkDagger.cd == 0 then
-			me:CastItem(BlinkDagger.name,vec)
+		if config.Blink and BlinkDagger ~= nil and BlinkDagger.cd == 0 then
+			blinking = true
 			activated = 1
-			Sleep(500,"blink")
-			client:ExecuteCmd("+dota_camera_center_on_hero")
-			client:ExecuteCmd("-dota_camera_center_on_hero")
-			if not aa then
-				script:RegisterEvent(EVENT_TICK,qna)
-			end
-			sleepTick = GetTick() + 100
 			return
 		end
 		if stormult and me:CanCast() then
@@ -2981,7 +3063,7 @@ function UseBlinkDaggervec() --use blink to home
 end
 
 function UseBlinkDaggerfront()--use blink to front of hero distance 100 
-	if activated == 0 then
+	if activated == 0 and config.ShortBlinkDodge then
 		local BlinkDagger = me:FindItem("item_blink")
 		if BlinkDagger ~= nil and BlinkDagger.cd == 0 then
 			local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
@@ -3050,9 +3132,7 @@ function UseEulScepterTarget()--target
 	if activated == 0 then
 		if euls and euls.cd == 0 then
 			if target and GetDistance2D(me,target) < 700 then
-				me:CastAbility(euls,target)
-				activated = 1
-				sleepTick = GetTick() + 500
+				euling = {true,target}
 				return
 			end
 		end
@@ -3322,3 +3402,4 @@ end
 
 script:RegisterEvent(EVENT_CLOSE, GameClose)
 script:RegisterEvent(EVENT_FRAME,Tick)
+script:RegisterEvent(EVENT_KEY, Key)
