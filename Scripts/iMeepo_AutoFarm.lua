@@ -21,7 +21,7 @@ require("libs.DrawManager3D")
 	|  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  |     
 	+--------------------------------------------------+    
 																   
-	=+=+=+=+=+=+=+=+=+ VERSION 0.1 +=+=+=+=+=+=+=+=+=+=+
+	=+=+=+=+=+=+=+=+=+ VERSION 0.2 +=+=+=+=+=+=+=+=+=+=+
  
 	Description:
 	------------
@@ -48,6 +48,7 @@ config:SetParameter("Meepo5", 53, config.TYPE_HOTKEY) -- 5
 config:SetParameter("PoofBindInDota", "W", config.TYPE_HOTKEY)
 config:SetParameter("EarthbindBindInDota", "Q", config.TYPE_HOTKEY)
 config:SetParameter("StopKeyBindInDota", "S", config.TYPE_HOTKEY)
+config:SetParameter("MinimapNumbersXMove", 0)
 config:Load()
 	
 farmJkey = config.FarmJungleKey
@@ -61,6 +62,7 @@ meepo5 = config.Meepo5
 stop1 = config.PoofBindInDota
 stop2 = config.EarthbindBindInDota
 stop3 = config.StopKeyBindInDota
+minimapMove = config.MinimapNumbersXMove
 
 -----Local Script Variables----
 local reg = false local myId = nil local start = false local meepoTable = {}
@@ -274,7 +276,7 @@ function Main(tick)
 				campSigns[camp.id].drawObj.color = 0xFF6600FF
 			elseif JungleCamps[camp.id].visible then
 				campSigns[camp.id].drawObj.text = "Camp visible!"
-				campSigns[camp.id].drawObj.color = 0xFF6600FF
+				campSigns[camp.id].drawObj.color = 0xFFFF00FF
 			else
 				campSigns[camp.id].drawObj.text = "Camp available!"
 				campSigns[camp.id].drawObj.color = 0x66FF33FF
@@ -640,7 +642,7 @@ function Main(tick)
 							end
 						end
 
-						if meepo.visibleToEnemy and not JungleCamps[camp.id].visible and creepForCurrentMeepo then
+						if meepo.visibleToEnemy and not JungleCamps[camp.id].visible and creepForCurrentMeepo and GetDistance2D(meepo,camp.position) < 500 then
 							JungleCamps[camp.id].visible = true
 							JungleCamps[camp.id].visTime = client.gameTime
 							meepoTable[meepoHandle].lastcamp = camp
@@ -747,12 +749,12 @@ function Main(tick)
 										if GetDistance2D(meepo,victim.position) < GetDistance2D(meepo,camp.position) then
 											pos = victim.position
 										end
-										if GetDistance2D(meepo,pos) > 250 then
+										if GetDistance2D(meepo,pos) > 50 then
 											if SleepCheck(meepoHandle.."-move") then
 												meepo:Move(pos)
 												Sleep(750,meepoHandle.."-move")
 											end
-										elseif SleepCheck(meepoHandle.."-casting") and GetDistance2D(meepo,camp.position) < 400 then
+										elseif SleepCheck(meepoHandle.."-casting") and GetDistance2D(meepo,camp.position) < 200 then
 											meepo:CastAbility(meepoTable[meepoHandle].poof,meepo)
 											Sleep(meepoTable[meepoHandle].poof:FindCastPoint()*1000,meepoHandle.."-casting")
 										end
@@ -937,10 +939,10 @@ function Main(tick)
 				end
 				if not meepoNumberSigns[meepoHandle.."-minimap"] then
 					local minimap_vec = MapToMinimap(meepo.position.x,meepo.position.y)
-					meepoNumberSigns[meepoHandle.."-minimap"] = drawMgr:CreateText(minimap_vec.x-2,minimap_vec.y-5,-1,""..meeponumber,F13)
+					meepoNumberSigns[meepoHandle.."-minimap"] = drawMgr:CreateText(minimap_vec.x-2+minimapMove,minimap_vec.y-5,-1,""..meeponumber,F13)
 				elseif SleepCheck(meepoHandle.."-minimap") then
 					local minimap_vec = MapToMinimap(meepo.position.x,meepo.position.y)
-					meepoNumberSigns[meepoHandle.."-minimap"].x, meepoNumberSigns[meepoHandle.."-minimap"].y = minimap_vec.x-2,minimap_vec.y-5
+					meepoNumberSigns[meepoHandle.."-minimap"].x, meepoNumberSigns[meepoHandle.."-minimap"].y = minimap_vec.x-2+minimapMove,minimap_vec.y-5
 					Sleep(Animations.maxCount*2, meepoHandle.."-minimap")
 				end
 				local sign = statesSigns[meepoTable[meepoHandle].state]
