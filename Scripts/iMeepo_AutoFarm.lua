@@ -70,7 +70,7 @@ local active = true local monitor = client.screenSize.x/1920 local DWS = {} loca
 local F14 = drawMgr:CreateFont("F14","Tahoma",15*monitor,600*monitor) local meepoStateSigns = {} local base = nil local allies = nil local enemies = nil
 local meepoNumberSigns = {} local F15 = drawMgr:CreateFont("F15","Tahoma",50*monitor,600*monitor) local meepoMinimapNumberSigns = {}
 local F13 = drawMgr:CreateFont("F13","Tahoma",16*monitor,600*monitor) local spellDamageTable = {} local visibleCamps = {} local entitiesForPush = {}
-local campSigns = {}
+local campSigns = {} local mousehoverCamp = nil local closestCamp = nil
  
 ----Local Meepo States----
 local STATE_NONE, STATE_CHASE, STATE_FARM_JUNGLE, STATE_FARM_LANE, STATE_LANE, STATE_PUSH, STATE_HEAL, STATE_ESCAPE, STATE_POOF_OUT, STATE_MOVE, STATE_STACK = 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
@@ -130,9 +130,16 @@ function Key(msg, code)
 			for h, smeepo in pairs(selection) do
 				if meepoTable[smeepo.handle] then
 					--Updating state of meepo
+					local hovc = closestCamp and GetDistance2D(client.mousePosition,closestCamp.position) < 100
 					if meepoTable[smeepo.handle].state ~= STATE_STACK and meepoTable[smeepo.handle].state ~= STATE_HEAL and meepoTable[smeepo.handle].state ~= STATE_POOF_OUT and meepoTable[smeepo.handle].state ~= STATE_ESCAPE and 
-					meepoTable[smeepo.handle].state ~= STATE_FARM_JUNGLE then
-						meepoTable[smeepo.handle].camp = nil
+					(meepoTable[smeepo.handle].state ~= STATE_FARM_JUNGLE or hovc) then
+						if hovc then
+							meepoTable[smeepo.handle].camp = closestCamp
+							meepoTable[smeepo.handle].hoveredCamp = true
+						else
+							meepoTable[smeepo.handle].camp = nil
+							meepoTable[smeepo.handle].hoveredCamp = false
+						end
 						meepoTable[smeepo.handle].lastcamp = nil
 						meepoTable[smeepo.handle].state = STATE_FARM_JUNGLE
 					elseif meepoTable[smeepo.handle].state == STATE_FARM_JUNGLE or meepoTable[smeepo.handle].state == STATE_PUSH then
@@ -282,8 +289,21 @@ function Main(tick)
 				campSigns[camp.id].drawObj.color = 0x66FF33FF
 			end
 		end
+		if not closestCamp or GetDistance2D(client.mousePosition,closestCamp.position) > GetDistance2D(client.mousePosition,camp.position) then
+			closestCamp = camp
+		end
 	end	
-
+	
+	if closestCamp and GetDistance2D(client.mousePosition,closestCamp.position) < 100 then
+		if not mousehoverCamp then
+			mousehoverCamp = drawMgr3D:CreateText(closestCamp.position, Vector(0,0,0), Vector2D(0,15), -1, "Farm this CAMP? Press B", F14)
+		else
+			mousehoverCamp.pos = closestCamp.position
+		end
+	elseif mousehoverCamp then
+		mousehoverCamp.drawObj.visible = false
+	end
+	
     --neutrals
 	local neutrals = entityList:GetEntities({alive=true,team=LuaEntity.TEAM_NEUTRAL})
 	
@@ -611,17 +631,18 @@ function Main(tick)
 							end
 						end
 					end
-
 					DebugPrint("FarmJungle1")
-					if (not meepoTable[meepoHandle].camp or ((client.gameTime % 60 > 0 and client.gameTime % 60 < 1) or (JungleCamps[meepoTable[meepoHandle].camp.id].farmed and client.gameTime > 30) or JungleCamps[meepoTable[meepoHandle].camp.id].visible)) then
+					if (not meepoTable[meepoHandle].camp or (((client.gameTime % 60 > 0 and client.gameTime % 60 < 1) or (JungleCamps[meepoTable[meepoHandle].camp.id].farmed and client.gameTime > 30) or JungleCamps[meepoTable[meepoHandle].camp.id].visible) and not meepoTable[meepoHandle].hoveredCamp)) then
 						DebugPrint("Getting Camp")
 						meepoTable[meepoHandle].camp = nil
 						meepoTable[meepoHandle].lastcamp = nil
 						meepoTable[meepoHandle].camp = getClosestCamp(meepoTable[meepoHandle], false, numberOfNotVisibleEnemies)
-					elseif meepoTable[meepoHandle].camp and SleepCheck(meepoHandle.."-camp") then
+						meepoTable[meepoHandle].hoveredCamp = false
+					elseif meepoTable[meepoHandle].camp and SleepCheck(meepoHandle.."-camp") and not meepoTable[meepoHandle].hoveredCamp then
 						DebugPrint("Getting Camp 2")
 						local camp = getClosestCamp(meepoTable[meepoHandle], false, numberOfNotVisibleEnemies)
 						if camp and (GetDistance2D(meepo,camp.position) < GetDistance2D(meepo,meepoTable[meepoHandle].camp.position) or (camp.team ~= me.team and numberOfNotVisibleEnemies > 2)) then
+							meepoTable[meepoHandle].hoveredCamp = false
 							meepoTable[meepoHandle].camp = camp
 						end
 						Sleep(3000, meepoHandle.."-camp")
@@ -650,6 +671,7 @@ function Main(tick)
 							if meepoTable[meepoHandle].foundCreep then
 								meepoTable[meepoHandle].foundCreep = false
 							end
+							meepoTable[meepoHandle].hoveredCamp = false
 							camp = getClosestCamp(meepoTable[meepoHandle], false, numberOfNotVisibleEnemies)
 						end
 
@@ -666,7 +688,7 @@ function Main(tick)
 							end
 						end
 						if camp then
-							if (numberOfNotVisibleEnemies < 4 or def) and push[1] and push[2] < GetDistance2D(camp.position,meepo) and GetDistance2D(camp.position,meepo) > 5000 and not back then
+							if not meepoTable[meepoHandle].hoveredCamp and (numberOfNotVisibleEnemies < 4 or def) and push[1] and push[2] < GetDistance2D(camp.position,meepo) and GetDistance2D(camp.position,meepo) > 5000 and not back then
 								meepoTable[meepoHandle].state = STATE_PUSH
 							end
 						end
@@ -707,8 +729,10 @@ function Main(tick)
 									player:HoldPosition()
 									SelectBack(prev)
 								end
-							else
+							elseif not meepoTable[meepoHandle].hoveredCamp or not JungleCamps[camp.id].farmed then
 								meepo:Move(camp.position)
+							elseif JungleCamps[camp.id].farmed and meepoTable[meepoHandle].hoveredCamp then
+								meepo:Move(camp.stackPosition)
 							end
 							Sleep(750,meepoHandle.."-move")
 						end
@@ -768,13 +792,19 @@ function Main(tick)
 									OrbWalk(meepo, meepoHandle, victim, (victim.health > poofDmg/1.2 or #creepsNearCurrentMeepo > 1 or victim.health > meepo.health))
 								end
 							end
-						elseif ((meepoTable[meepoHandle].foundCreep and GetDistance2D(meepo,camp.position) < 600) or GetDistance2D(meepo,camp.position) < 120) and SleepCheck("blink") then
+						elseif ((meepoTable[meepoHandle].foundCreep and GetDistance2D(meepo,camp.position) < 600) or GetDistance2D(meepo,camp.position) < 200) and SleepCheck("blink") then
 							if meepo.health < meepo.maxHealth/4.25 then
 								meepoTable[meepoHandle].state = STATE_HEAL
 							end
 							meepoTable[meepoHandle].lastcamp = camp
 							JungleCamps[camp.id].farmed = true
-							meepoTable[meepoHandle].camp = nil
+							if not meepoTable[meepoHandle].hoveredCamp then
+								meepoTable[meepoHandle].camp = nil
+								meepoTable[meepoHandle].hoveredCamp = false
+							elseif meepoTable[meepoHandle].camp and GetDistance2D(meepo, meepoTable[meepoHandle].camp.stackPosition) > 100 and SleepCheck(meepoHandle.."-move") then
+								meepo:Move(meepoTable[meepoHandle].camp.stackPosition)
+								Sleep(750,meepoHandle.."-move")
+							end
 							if meepoTable[meepoHandle].foundCreep then
 								meepoTable[meepoHandle].foundCreep = false
 							end
@@ -794,15 +824,21 @@ function Main(tick)
 										back = true
 									end
 								end
-								if not en and not back then
+								if not en and not back and not meepoTable[meepoHandle].hoveredCamp then
 									meepoTable[meepoHandle].state = STATE_PUSH
 								end
 							end
 						end
-						meepoTable[meepoHandle].camp = nil
+						if not meepoTable[meepoHandle].hoveredCamp then
+							meepoTable[meepoHandle].camp = nil
+							meepoTable[meepoHandle].hoveredCamp = false
+						end
 						if meepoTable[meepoHandle].foundCreep then
 							meepoTable[meepoHandle].foundCreep = false
 						end
+						if meepoTable[meepoHandle].hoveredCamp then
+							meepoTable[meepoHandle].lastcamp = meepoTable[meepoHandle].camp
+						end 
 						if meepoTable[meepoHandle].lastcamp then
 							if GetDistance2D(meepo, meepoTable[meepoHandle].lastcamp.stackPosition) > 100 then
 								meepo:Move(meepoTable[meepoHandle].lastcamp.stackPosition)
@@ -816,9 +852,7 @@ function Main(tick)
 							end
 						end
 					end
-				end
-				
-				
+				end				
 			
 				--Stacking
 				if meepo.alive and meepoTable[meepoHandle].state == STATE_STACK then
@@ -1018,6 +1052,8 @@ function Load()
 			meepoNumberSigns = {}
 			spellDamageTable = {}
 			entitiesForPush = {}
+			mousehoverCamp = nil
+			closestCamp = nil
 			JungleCamps = {
 				{position = Vector(-1131,-4044,127), stackPosition = Vector(-2498.94,-3517.86,128), waitPosition = Vector(-1401.69,-3791.52,128), team = 2, id = 1, farmed = false, lvlReq = 8, visible = false, visTime = 0, stacking = false},
 				{position = Vector(-366,-2945,127), stackPosition = Vector(-534.219,-1795.27,128), waitPosition = Vector(536,-3001,256), team = 2, id = 2, farmed = false, lvlReq = 3, visible = false, visTime = 0, stacking = false},
@@ -1059,6 +1095,8 @@ function Close()
 	meepoNumberSigns = {}
 	spellDamageTable = {}
 	entitiesForPush = {}
+	mousehoverCamp = nil
+	closestCamp = nil
 	JungleCamps = {
 		{position = Vector(-1131,-4044,127), stackPosition = Vector(-2498.94,-3517.86,128), waitPosition = Vector(-1401.69,-3791.52,128), team = 2, id = 1, farmed = false, lvlReq = 8, visible = false, visTime = 0, stacking = false},
 		{position = Vector(-366,-2945,127), stackPosition = Vector(-534.219,-1795.27,128), waitPosition = Vector(536,-3001,256), team = 2, id = 2, farmed = false, lvlReq = 3, visible = false, visTime = 0, stacking = false},
