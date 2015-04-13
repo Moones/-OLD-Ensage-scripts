@@ -19,6 +19,7 @@ wait = 0 waittime = 0 sleepTick = nil sleep1 = 0  sleepk = 0 tt = nil aa = nil
 local blinking = false local enableBlinking = true
 local euling = {false,nil}
 local activated = 0
+local blinkfront = false
 
 local myFont = drawMgr:CreateFont("Font","Tahoma",config.TextSize,550)
 local statusText = drawMgr:CreateText(-60+config.TextX,-20+config.TextY,0x66FF33FF,"BlinkDodging Enabled!",myFont); statusText.visible = config.ShowText
@@ -80,6 +81,9 @@ function Tick( tick )
 				local BlinkDagger = me:FindItem("item_blink")
 				local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
 				local vec = Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
+				if blinkfront then
+					vec = Vector(me.position.x+1200*math.cos(me.rotR), me.position.y+1200*math.sin(me.rotR), me.position.z)
+				end
 				if BlinkDagger ~= nil and BlinkDagger.cd == 0 then
 					me:CastItem(BlinkDagger.name,vec)
 					Sleep(500,"blink")
@@ -1264,6 +1268,17 @@ function Tick( tick )
 					PLDoppleganger()
 					ObsidianImprisonmentself()
 					SlarkShadowDance()
+					return
+				end
+			end
+			
+			local mines = entityList:GetEntities({classId=CDOTA_NPC_TechiesMines,team=me:GetEnemyTeam()})
+			for i,v in ipairs(mines) do
+				if v.name == "npc_dota_techies_land_mine" and GetDistance2D(v,me) <= 250 then
+					UseEulScepterSelf() UseGhostScepter()
+					Puck() SlarkPounce() PLDoppleganger()
+					UseBlinkDagger(true) Antiblinkhome()
+					ObsidianImprisonmentself()
 					return
 				end
 			end
@@ -3033,12 +3048,17 @@ function ChaosKnightChaosBolt(tick)
 end
 
 --useitem--------------------------------------------------------------------------------------------------------------------------------------
-function UseBlinkDagger() --use blink to home
+function UseBlinkDagger(front) --use blink to home
 	if activated == 0 and enableBlinking then
 		local BlinkDagger = me:FindItem("item_blink")
 		local stormult = me:FindSpell("storm_spirit_ball_lightning")
 		local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
 		local vec = Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
+		if front then
+			blinkfront = true
+		else
+			blinkfront = false
+		end
 		if config.Blink and BlinkDagger ~= nil and BlinkDagger.cd == 0 then
 			blinking = true
 			activated = 1
