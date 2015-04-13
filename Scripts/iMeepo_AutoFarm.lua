@@ -878,7 +878,7 @@ function Main(tick)
 						for i,creep in pairs(neutrals) do
 							if creep.visible and creep.spawned and meepo:GetDistance2D(creep) <= 900 and (creep:GetDistance2D(camp.position) <= 1000 or (creep.visible and GetDistance2D(creep,camp.position) < 1200)) then
 								creepsNearCurrentMeepo[#creepsNearCurrentMeepo + 1] = creep
-								if not creepForCurrentMeepo or GetDistance2D(meepo, creep) < GetDistance2D(meepo, creepForCurrentMeepo) then
+								if not creepForCurrentMeepo or GetDistance2D(meepo, creep) > GetDistance2D(meepo, creepForCurrentMeepo) then
 									creepForCurrentMeepo = creep
 								end
 							end
