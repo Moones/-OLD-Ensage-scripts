@@ -435,7 +435,7 @@ function Main(tick)
 					local travels = meepo:FindItem("item_travel_boots")
 					local tp = meepo:FindItem("item_tpscroll")
 					local item = nil
-					local poof = meepo:GetAbility(2)
+					local poof = meepoTable[meepoHandle].poof
 					meepoTable[meepoHandle].victim = nil
 					if meepoTable[meepoHandle].foundCreep then
 						meepoTable[meepoHandle].foundCreep = false
@@ -443,13 +443,13 @@ function Main(tick)
 					if SleepCheck(meepo.handle.."-casting") then
 						if poof.level > 0 and canCast(meepo, poof) then
 							local farrest = getFarrestMeepo(meepo)
-							if farrest and GetDistance2D(meepo,farrest) > 500 then
+							if farrest and GetDistance2D(meepo,farrest) > 1000 and GetDistance2D(meepo,base) > GetDistance2D(meepo,farrest) then
 								meepo:CastAbility(poof,farrest.position)
 								Sleep(poof:FindCastPoint()*1000,meepo.handle.."-casting")
 							end
 						end
 						if travels then item = travels else item = tp end
-						if item and canCast(meepo, item) then
+						if item and canCast(meepo, item) and not IsInDanger(meepo) then
 							meepo:CastAbility(item,base.position)
 							Sleep(3000,meepo.handle.."-casting")
 						end
@@ -457,7 +457,7 @@ function Main(tick)
 					if SleepCheck(meepo.handle.."-move") then
 						local pos 
 						if victim then
-							pos = (meepo.position - victim.position) * (GetDistance2D(meepo,victim) + 200) / GetDistance2D(meepo,victim) + meepo.position
+							pos = (meepo.position - victim.position) * (GetDistance2D(meepo,victim) + 5000) / GetDistance2D(meepo,victim) + meepo.position
 						end
 						if pos and GetDistance2D(meepo,victim) < 1200 then
 							meepo:Move(pos)
