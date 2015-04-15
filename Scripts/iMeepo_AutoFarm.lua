@@ -1365,16 +1365,16 @@ function IsInDanger(meepo,except)
 			end
 		end
 		for i,v in pairs(enemies) do	
-			if v.alive and v.visible and GetDistance2D(meepo,v) < v.dayVision and (not except or v.handle ~= except.handle) then
+			if v.alive and v.visible and GetDistance2D(meepo,v) < 1000 and (not except or v.handle ~= except.handle) then
 				return true
 			end
 		end
 		for i,v in pairs(entityList:GetEntities({classId=CDOTA_BaseNPC_Creep_Neutral,alive=true,visible=true})) do	
-			if GetDistance2D(meepo,v) < v.attackRange+50 and (not except or v.handle ~= except.handle) then
+			if GetDistance2D(meepo,v) < v.attackRange+50 and (not except or v.handle ~= except.handle) and v.activity == LuaEntityNPC.ACTIVITY_ATTACK then
 				return true
 			end
 			for i,k in pairs(v.abilities) do
-				if GetDistance2D(meepo,v) < k.castRange+50 and (not except or v.handle ~= except.handle) then
+				if GetDistance2D(meepo,v) < math.min(k.castRange+50,1000) and (not except or v.handle ~= except.handle) then
 					return true
 				end
 			end
@@ -1388,7 +1388,6 @@ function IsInDanger(meepo,except)
 				return true
 			end
 		end
-		if meepo.visibleToEnemy then return true end
 	end
 end
 
