@@ -1,3 +1,3 @@
-0.756
+0.76
 BETA
-Hello, I pre-released this version, to allow you to test new dodge/split functions and give me a feedback!
+Hello, I had less time to test this version so even tho I did many fixes something could broke, in that case just let me know at moones@email.cz
