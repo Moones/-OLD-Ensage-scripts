@@ -1,3 +1,3 @@
-0.772
+0.777
 
-Hello, I had less time to test this version so even tho I did many fixes something could broke, in that case just let me know at moones@email.cz
+Hey, this version should NOT CRASH anymore. I have only tested one real game and couple of lobbies tho. If you experience crash again you can report it to moones@email.cz
