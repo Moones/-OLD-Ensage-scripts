@@ -509,7 +509,7 @@ function Combo(tick)
 		urned = true
 	end
 		
-	if not R:CanBeCasted() then
+	if not R or R.level < 1 or not R:CanBeCasted() then
 		ultied = nil
 	end
 		
@@ -544,7 +544,7 @@ function Combo(tick)
 			return
 		end
 		if not me:IsChanneling() and not ultied then
-			if ((hooked and GetDistance2D(me, target) < 1600*(client.latency/1000)) or GetDistance2D(me,target) > 150) and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) and target.activity == LuaEntityNPC.ACTIVITY_MOVE then
+			if (hooked and GetDistance2D(me, target) < 1600*(client.latency/1000)) and GetDistance2D(me,target) > 150 and (target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)) and target.activity == LuaEntityNPC.ACTIVITY_MOVE then
 				me:Move(target.position)
 			elseif not target:IsAttackImmune() then
 				me:Attack(target)
