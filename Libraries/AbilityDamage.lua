@@ -259,11 +259,7 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			local bonusDamage = ((spell.bonusDamage) and (ability:GetSpecialData(""..spell.bonusDamage, level)))
 			if owner:AghanimState() then
 				tickDuration = (((spell.tickDurationScepter) and (ability:GetSpecialData(""..spell.tickDurationScepter, level))) or tickDuration)
-				if spell.tickDamageScepter and GetType(spell.tickDamageScepter) == "Table" then
-					tickDamage = spell.tickDamageScepter[level]
-				else
-					tickDamage = (((spell.tickDamageScepter) and (ability:GetSpecialData(""..spell.tickDamageScepter, level))) or tickDamage)
-				end
+				tickDamage = (((spell.tickDamageScepter) and (ability:GetSpecialData(""..spell.tickDamageScepter, level))) or tickDamage)
 			end
 			local finalDamage = 0
 			if tickDuration and tickInterval and startTime then
@@ -435,11 +431,17 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			damage = (((item.damage) and (ability:GetSpecialData(""..item.damage))))
 		end
 		if ability.name == "item_ethereal_blade" then
-			local atr = owner.primaryAttribute
-			if atr == LuaEntityHero.ATTRIBUTE_STRENGTH then atr = owner.strengthTotal
-			elseif atr == LuaEntityHero.ATTRIBUTE_AGILITY then atr = owner.agilityTotal
-			elseif atr == LuaEntityHero.ATTRIBUTE_INTELLIGENCE then atr = owner.intellectTotal
-			end
+			-- local atr = owner.primaryAttribute
+			-- if atr == LuaEntityHero.ATTRIBUTE_STRENGTH then atr = owner.strengthTotal
+			-- elseif atr == LuaEntityHero.ATTRIBUTE_AGILITY then atr = owner.agilityTotal
+			-- elseif atr == LuaEntityHero.ATTRIBUTE_INTELLIGENCE then atr = owner.intellectTotal
+			-- end
+			local str = owner.strengthTotal
+			local agi = owner.agilityTotal
+			local int = owner.intellectTotal
+			local atr = str
+			if agi > atr then atr = agi end
+			if int > atr then atr = int end		
 			damage = damage + (((item.mult) and (ability:GetSpecialData(""..item.mult))))*atr
 		end
 		return damage
