@@ -1267,7 +1267,8 @@ function Tick( tick )
 			
 			for i, z in ipairs(hit) do
 				local ShadowBlade = v:FindItem("item_invis_sword")
-				if ShadowBlade and ShadowBlade.cd > 14 then
+				local SilverEdge = v:FindItem("item_silver_edge")
+				if (ShadowBlade and ShadowBlade.cd > 14) or (SilverEdge and SilverEdge.cd > 10) then
 					target = v
 					Puck()
 					UseBlinkDagger() Antiblinkhome()
