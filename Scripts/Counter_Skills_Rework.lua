@@ -426,6 +426,7 @@ function Tick( tick )
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
 							OracleFateEdict()
+							UseLotusOrb()
 						end
 					end
 				end
@@ -435,6 +436,7 @@ function Tick( tick )
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
 							OracleFateEdict()
+							UseLotusOrb()
 						end
 					end
 				end
