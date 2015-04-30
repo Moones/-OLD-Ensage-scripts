@@ -128,6 +128,7 @@ function Tick( tick )
 						if turntime == 0 then
 							Nyx()
 							TemplarRefraction()
+							UseLotusOrb()
 						end
 					end
 				end
@@ -140,6 +141,7 @@ function Tick( tick )
 							TemplarRefraction()
 							Useblackking()
 							Juggernautfury()
+							UseLotusOrb()
 						end
 					end
 				end
@@ -156,6 +158,7 @@ function Tick( tick )
 							UseOrchidtarget() SkySilence()
 							UseShadowBlade()
 							PLDoppleganger()
+							UseLotusOrb()
 						end
 						if not timesk then
 							timesk = client.gameTime
@@ -167,6 +170,7 @@ function Tick( tick )
 							UseOrchidtarget() SkySilence()
 							UseShadowBlade()
 							PLDoppleganger()
+							UseLotusOrb()
 							timesk = nil
 						end
 					end	
@@ -187,6 +191,7 @@ function Tick( tick )
 							UseShadowBlade()
 							PLDoppleganger()
 							OracleFateEdict()
+							UseLotusOrb()
 							timees = nil
 						end
 					end	
@@ -223,6 +228,7 @@ function Tick( tick )
 						PLDoppleganger()
 						OracleFalsePromise()
 						SlarkShadowDance()
+						UseLotusOrb()
 					end
 				elseif v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
 					if GetDistance2D(v,me) < 200 then
@@ -236,6 +242,7 @@ function Tick( tick )
 							UseOrchidtarget() SkySilence()
 							PLDoppleganger()
 							OracleFalsePromise()
+							UseLotusOrb()
 						end 
 					end
 				end
@@ -293,6 +300,7 @@ function Tick( tick )
 							Emberremnantnow()
 							Nyx()
 							UseBladeMail()
+							UseLotusOrb()
 						end
 					end
 				end
@@ -345,6 +353,7 @@ function Tick( tick )
 							UseEulScepterTarget()
 							UseSheepStickTarget()
 							UseOrchidtarget() SkySilence()
+							UseLotusOrb()
 						end
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -356,6 +365,7 @@ function Tick( tick )
 							Lifestealerrage()
 							PLDoppleganger()
 							OracleFalsePromise()
+							UseLotusOrb()
 						end
 					end
 				end
@@ -397,6 +407,7 @@ function Tick( tick )
 							TemplarRefraction()
 							UseShadowBlade()
 							Useshadowamulet()
+							UseLotusOrb()
 						end
 					end
 				end
@@ -433,6 +444,7 @@ function Tick( tick )
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
 							Nyx()
+							UseLotusOrb()
 						end
 					end
 				end
@@ -521,6 +533,7 @@ function Tick( tick )
 								Nyx()
 								Puck()
 								Lifestealerrage()
+								UseLotusOrb()
 								wait = 0								
 							end
 						end
@@ -537,6 +550,7 @@ function Tick( tick )
 							else
 								if GetTick() > waittime then
 									Nyx()
+									UseLotusOrb()
 									wait = 0
 								end
 							end
@@ -569,6 +583,7 @@ function Tick( tick )
 							else
 								if GetTick() > waittime then
 									Nyx()
+									UseLotusOrb()
 									wait = 0
 								end
 							end
@@ -728,6 +743,7 @@ function Tick( tick )
 							else
 								if GetTick() > waittime then
 									Nyx()
+									UseLotusOrb()
 									wait = 0
 								end
 							end
@@ -955,6 +971,7 @@ function Tick( tick )
 			if me:DoesHaveModifier("modifier_lina_laguna_blade") then  
 				Puck()
 				Nyx()
+				UseLotusOrb()
 				TemplarRefraction()
 				Embersleighttargetcal()
 				Emberremnantnow()
@@ -987,6 +1004,7 @@ function Tick( tick )
 					UseEulScepterTarget()
 					UseOrchidtarget() SkySilence()
 					Emberremnantnow()
+					UseLotusOrb()
 					OracleFalsePromise()
 					UseSheepStickTarget()			
 					Nyx()
@@ -1010,6 +1028,7 @@ function Tick( tick )
 				Nyx()
 				Juggernautfury()
 				Puck()
+				UseLotusOrb()
 				Lifestealerrage()
 				TemplarRefraction()
 				Embersleighttargetcal()
@@ -1112,6 +1131,7 @@ function Tick( tick )
 							Nyx()
 							SlarkShadowDance()
 							Juggernautfury()
+							UseLotusOrb()
 							Lifestealerrage()
 							Embersleighttargetcal()
 							UseEulScepterSelf()
@@ -1129,6 +1149,7 @@ function Tick( tick )
 						TemplarRefraction()
 						AlchemistRage()
 						Juggernautfury()
+						UseLotusOrb()
 						Nyx()
 						UseEulScepterSelf()
 						LoneDruidUlt()
@@ -1453,6 +1474,7 @@ function Tick( tick )
 							UseOrchidtarget() SkySilence()
 							PuckW(true)
 							UseBlinkDagger() Antiblinkhome()
+							UseLotusOrb()
 							Juggernautfury()
 							UseShadowBlade()
 							PLDoppleganger()
@@ -1465,6 +1487,7 @@ function Tick( tick )
 							UseOrchidtarget() SkySilence()
 							PuckW(false)
 							UseBlinkDagger() Antiblinkhome()
+							UseLotusOrb()
 							Juggernautfury()
 							PLDoppleganger()
 							return 	
@@ -1489,6 +1512,7 @@ function Tick( tick )
 							UseEtherealtarget()
 							Silencerult()
 							UseBlinkDagger() Antiblinkhome()
+							UseLotusOrb()
 							PLDoppleganger()
 							return 
 						elseif v:GetAbility(s).name == "earthshaker_echo_slam" and GetDistance2D(v,me) < 575 and v:GetAbility(s).state == -1 then
@@ -1555,7 +1579,7 @@ function Tick( tick )
 								TusksnowballTarget()
 								UseEulScepterSelf()
 								UseBlinkDagger() Antiblinkhome()
-								UseShadowBlade()
+								UseShadowBlade() 
 								Useshadowamulet()
 								PLDoppleganger()
 							end
@@ -1679,6 +1703,7 @@ function Tick( tick )
 									TemplarMeld()
 									Juggernautfury()
 									Nyx()
+									UseLotusOrb()
 									LoneDruidUlt()
 									AlchemistRage()
 									Embersleighttargetcal()
@@ -1756,6 +1781,7 @@ function Tick( tick )
 									Puck()
 									UseBlinkDagger() Antiblinkhome()
 									AlchemistRage()
+									UseLotusOrb()
 									Juggernautfury()
 									Embersleighttargetcal()
 									Nyx()
@@ -1779,6 +1805,7 @@ function Tick( tick )
 									UseBlinkDagger() Antiblinkhome()
 									AlchemistRage()
 									Juggernautfury()
+									UseLotusOrb()
 									Embersleighttargetcal()
 									Nyx()
 									LoneDruidUlt()
@@ -1965,6 +1992,7 @@ function Tick( tick )
 									Puck()
 									LoneDruidUlt()
 									UseBlinkDaggerfront()
+									UseLotusOrb()
 									AlchemistRage()
 									UseManta()
 									SlarkPounce()
@@ -1983,6 +2011,7 @@ function Tick( tick )
 									Puck()
 									LoneDruidUlt()
 									SlarkPounce()
+									UseLotusOrb()
 									Embersleighttargetcal()
 									UseBlinkDaggerfront()
 									AlchemistRage()
@@ -2001,6 +2030,7 @@ function Tick( tick )
 									UseBlinkDagger() Antiblinkhome()
 									SlarkPounce()
 									LoneDruidUlt()
+									UseLotusOrb()
 									Embersleighttargetcal()
 									UseManta()
 									UseEulScepterSelf()
@@ -2015,6 +2045,7 @@ function Tick( tick )
 									UseBlinkDagger() Antiblinkhome()
 									SlarkPounce()
 									LoneDruidUlt()
+									UseLotusOrb()
 									Embersleighttargetcal()
 									UseManta()
 									PLDoppleganger()
@@ -2028,6 +2059,7 @@ function Tick( tick )
 								if turntime == 0 then
 									UseBlinkDaggerfront()
 									Puck()
+									UseLotusOrb()
 									SlarkDarkPact()
 									Embersleighttargetcal()
 									if v:GetAbility(t).level >= 2 then
@@ -2067,6 +2099,7 @@ function Tick( tick )
 								if turntime == 0 then
 									Nyx()
 									Puck()
+									UseLotusOrb()
 									UseBlinkDagger() Antiblinkhome()
 									UseShadowBlade()
 									UseEulScepterSelf()
@@ -2181,6 +2214,7 @@ function Tick( tick )
 									Embersleighttargetcal()
 									UseBlinkDagger() Antiblinkhome()
 									Juggernautfury()
+									UseLotusOrb()
 									UseEulScepterSelf()
 									UseShadowBlade()
 									Useshadowamulet()
@@ -2334,7 +2368,7 @@ end
 
 function Lifestealerrage()
 	if activated == 0 then
-		local rage = me:FindSpell("lifestealer_rage")
+		local rage = me:FindSpell("life_stealer_rage")
 		if rage and rage.level > 0 and rage:CanBeCasted() and me:CanCast() then
 			me:CastAbility(rage)
 			activated = 1
@@ -2485,7 +2519,7 @@ end
 
 function AlchemistRage()
 	if activated == 0 then
-		local rage = me:FindSpell("alchemist_rage")
+		local rage = me:FindSpell("alchemist_chemical_rage")
 		if rage and rage.level > 0 and rage:CanBeCasted() and me:CanCast() then
 			me:CastAbility(rage)
 			activated = 1
@@ -3036,6 +3070,7 @@ function ChaosKnightChaosBolt(tick)
 		UseBlinkDaggerfront()
 		AlchemistRage()
 		Nyx()
+		UseLotusOrb()
 		SlarkDarkPact()
 		Embersleighttargetcal()
 		UseEulScepterSelf()
@@ -3348,10 +3383,15 @@ function UseManta()
 end
 
 function UseShadowBlade()
-	local shadowblade = me:FindItem("item_invis_sword")
+	local shadowblade = me:FindItem("item_invis_sword") or me:FindItem("item_silver_edge")
+	local glimmer = me:FindItem("item_glimmer_cape")
 	if activated == 0 then
-		if shadowblade and shadowblade.cd == 0 then
-			me:CastAbility(shadowblade)
+		if (shadowblade and shadowblade.cd == 0) or (glimmer and glimmer:CanBeCasted())  then
+			if glimmer then
+				me:CastAbility(glimmer,me)
+			else
+				me:CastAbility(shadowblade)
+			end
 			activated = 1
 			sleepTick = GetTick() + 500
 			return
@@ -3366,6 +3406,18 @@ function Useshadowamulet()
 			me:CastAbility(amulet,me)
 			activated = 1
 			sleepTick = GetTick() + 500
+			return
+		end
+	end
+end
+
+function UseLotusOrb()
+	local lorb = me:FindItem("item_lotus_orb")
+	if activated == 0 then
+		if lorb and lorb:CanBeCasted() then
+			me:CastAbility(lorb,me)
+			activated = 1
+			sleepTick = GetTick() + 100
 			return
 		end
 	end
