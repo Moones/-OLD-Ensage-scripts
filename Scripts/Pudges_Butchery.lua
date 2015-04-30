@@ -381,7 +381,7 @@ function Main(tick)
 				end
 			end
 		end
-		if hook.state == LuaEntityAbility.STATE_READY and victim and victim.visible then
+		if hook:CanBeCasted() and victim and victim.visible then
 			victimText.visible = true
 		else
 			victimText.visible = false
@@ -513,18 +513,18 @@ function Combo(tick)
 		ultied = nil
 	end
 		
-	if config.AutoUrn and urn and urn.charges > 0 and urn.state == -1 and not urned and not me:IsChanneling() and ((R.level > 0 and not R.abilityPhase and R.channelTime == 0 and not ultied) or R.level == 0) then 
+	if config.AutoUrn and urn and urn.charges > 0 and urn:CanBeCasted() and not urned and not me:IsChanneling() and ((R.level > 0 and not R.abilityPhase and R.channelTime == 0 and not ultied) or R.level == 0) then 
 		if not aga then 
 			if R.level == 0 or target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
-			elseif R.level == 0 or target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
+			elseif R.level == 0 or target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and not R:CanBeCasted() or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
 			end
 			Sleep(client.latency,"combo")
 		else
 			if R.level == 0 or target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
-			elseif R.level == 0 or target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and R.state ~= LuaEntityAbility.STATE_READY or CanEscape(target) then
+			elseif R.level == 0 or target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and not R:CanBeCasted() or CanEscape(target) then
 				me:SafeCastItem(urn.name,target)
 			end
 			Sleep(client.latency,"combo")
