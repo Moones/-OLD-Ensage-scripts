@@ -89,7 +89,7 @@ function Main(tick)
 			local meld = me:GetAbility(2)	
 			local meldDmg = meld:GetSpecialData("bonus_damage", meld.level)			
 			local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,team = me:GetEnemyTeam(),visible=true,alive=true})
-			if me.alive and meld and meld.level > 0 and meld.state == LuaEntityAbility.STATE_READY then
+			if me.alive and meld and meld.level > 0 and meld:CanBeCasted() then
 				for i, v in ipairs(enemies) do
 					if GetDistance2D(v,me) <= 1200+myhero.attackRange and not v:IsIllusion() and v.health <= ((dmg + meldDmg + refdmg)*(1-v.dmgResist)+1) then
 						if SleepCheck("meld2") and me:CanAttack() and not v:IsAttackImmune() then
@@ -107,7 +107,7 @@ function Main(tick)
 							end
 							if GetDistance2D(me, v) <= myhero.attackRange-25 then
 								if v.health > ((dmg)*(1-v.dmgResist)+1) then
-									if refraction and refraction.state == LuaEntityAbility.STATE_READY then
+									if refraction and refraction:CanBeCasted() then
 										me:SafeCastAbility(refraction)
 									end
 									me:SafeCastAbility(meld)
@@ -127,7 +127,7 @@ function Main(tick)
 				local traps = entityList:GetEntities({classId=CDOTA_BaseNPC_Additive,alive=true,team=me.team,visible=true})
 				local closestTrap = nil
 				for i,v in ipairs(traps) do
-					if (v:GetAbility(1) and v:GetAbility(1).name == "templar_assassin_self_trap" and v:GetAbility(1).state == LuaEntityAbility.STATE_READY) then
+					if (v:GetAbility(1) and v:GetAbility(1).name == "templar_assassin_self_trap" and v:GetAbility(1):CanBeCasted()) then
 						if not closestTrap or GetDistance2D(closestTrap, victim) > GetDistance2D(v, victim) then
 							if GetDistance2D(v, victim) <= 400 then
 								closestTrap = v
@@ -182,7 +182,7 @@ function Main(tick)
 									Sleep(trap:FindCastPoint()*1000 + client.latency, "trap")
 								end
 								return
-							elseif (not trapslow or trapslow.remainingTime <= (trap:FindCastPoint()*1.5)) and SleepCheck("trap") and (((not attacking or Animations.isAttacking(me)) and me:DoesHaveModifier("modifier_templar_assassin_meld")) or not me:DoesHaveModifier("modifier_templar_assassin_meld")) and trap.state == LuaEntityAbility.STATE_READY then
+							elseif (not trapslow or trapslow.remainingTime <= (trap:FindCastPoint()*1.5)) and SleepCheck("trap") and (((not attacking or Animations.isAttacking(me)) and me:DoesHaveModifier("modifier_templar_assassin_meld")) or not me:DoesHaveModifier("modifier_templar_assassin_meld")) and trap:CanBeCasted() then
 								if victim.visible then
 									me:SafeCastAbility(trap, SkillShot.PredictedXYZ(victim,trap:FindCastPoint()*1000+client.latency))
 								else
@@ -222,7 +222,7 @@ function Main(tick)
 				--activate refraction
 				if SleepCheck("refr") and victim and victim.visible and (not attacking or GetDistance2D(me,victim) > myhero.attackRange+25) then	
 					if GetDistance2D(me,victim) <= myhero.attackRange+50 then
-						if refraction and refraction.state == LuaEntityAbility.STATE_READY then
+						if refraction and refraction:CanBeCasted() then
 							me:SafeCastAbility(refraction)
 							Sleep(250+client.latency,"refr")
 						end
@@ -344,7 +344,7 @@ function GetLasthit(me)
 			local Dmg = myhero:GetDamage(creepClass)
 			local meld = me:GetAbility(2)	
 			local meldDmg = meld:GetSpecialData("bonus_damage", meld.level)
-			if creepClass.creepEntity.classId == CDOTA_BaseNPC_Creep_Siege and meld and meld.level > 0 and meld.state == LuaEntityAbility.STATE_READY then			
+			if creepClass.creepEntity.classId == CDOTA_BaseNPC_Creep_Siege and meld and meld.level > 0 and meld:CanBeCasted() then			
 				Dmg = Dmg + (meldDmg*(1-creepClass.creepEntity.dmgResist)+1)
 			end
 			local timeToHealth = creepClass:GetTimeToHealth(Dmg)
@@ -473,7 +473,7 @@ class 'Hero'
 	function Hero:Hit(target)
 		if target.team ~= self.heroEntity.team then
 			local meld = self.heroEntity:GetAbility(2)
-			if target.visible and (not lhcreep or (lhcreep.classId == CDOTA_BaseNPC_Creep_Siege and lhcreep.team ~= self.heroEntity.team and lhcreep == target)) and (not psivictim or target ~= psivictim) and (target.classId ~= CDOTA_BaseNPC_Tower and target.classId ~= CDOTA_BaseNPC_Barracks and target.classId ~= CDOTA_BaseNPC_Building) and meld and (meld.state == LuaEntityAbility.STATE_READY or (meld.cd < ((GetDistance2D(self.heroEntity, target)-self.attackRange)/self.heroEntity.movespeed) and GetDistance2D(self.heroEntity, target) > self.attackRange)) then
+			if target.visible and (not lhcreep or (lhcreep.classId == CDOTA_BaseNPC_Creep_Siege and lhcreep.team ~= self.heroEntity.team and lhcreep == target)) and (not psivictim or target ~= psivictim) and (target.classId ~= CDOTA_BaseNPC_Tower and target.classId ~= CDOTA_BaseNPC_Barracks and target.classId ~= CDOTA_BaseNPC_Building) and meld and (meld:CanBeCasted() or (meld.cd < ((GetDistance2D(self.heroEntity, target)-self.attackRange)/self.heroEntity.movespeed) and GetDistance2D(self.heroEntity, target) > self.attackRange)) then
 				if GetDistance2D(self.heroEntity, target) > self.attackRange+50 or (target.activity == LuaEntityNPC.ACTIVITY_MOVE and GetDistance2D(self.heroEntity, SkillShot.PredictedXYZ(target,meld:FindCastPoint()*1000+client.latency)) > self.attackRange) then
 					self.heroEntity:Follow(target)
 				elseif target.visible then
@@ -504,7 +504,7 @@ class 'Hero'
 			local Dmg2 = self:GetDamage(lhcreepclass)
 			local meld = me:GetAbility(2)	
 			local meldDmg = meld:GetSpecialData("bonus_damage", meld.level)
-			if target.classId == CDOTA_BaseNPC_Creep_Siege and meld and meld.level > 0 and meld.state == LuaEntityAbility.STATE_READY then			
+			if target.classId == CDOTA_BaseNPC_Creep_Siege and meld and meld.level > 0 and meld:CanBeCasted() then			
 				Dmg2 = Dmg2 + (meldDmg*(1-target.dmgResist)+1)
 			end
 			local timeToHealth2 = lhcreepclass:GetTimeToHealth(Dmg2)
