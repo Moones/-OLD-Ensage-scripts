@@ -196,7 +196,7 @@ end
 
 function Heal(me,ability,amount,range,target,id,excludeme,special)
 	local heal = me:GetAbility(ability)
-	if heal and heal.level > 0 and heal.state == LuaEntityAbility.STATE_READY then
+	if heal and heal.level > 0 and heal:CanBeCasted() then
 		local Range = (range) or (heal.castRange + 50)		
 		local fountain = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
 		if me.alive and not me:IsChanneling() and (not me:IsInvisible() or me:DoesHaveModifier("modifier_treant_natures_guise")) and GetDistance2D(me,fountain) > 2000 then
