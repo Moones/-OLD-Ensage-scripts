@@ -98,7 +98,7 @@ function Tick(tick)
 						hero[v.handle].text = "Health to kill: "..healthtokill
 						if active then
 							if healthtokill <= 0 then
-								if SleepCheck("blink") and GetDistance2D(me,v) <= RangeB+150 and GetDistance2D(me,v) > Range and (Blink and Blink.state == -1) and Cullblade:CanBeCasted() then
+								if SleepCheck("blink") and GetDistance2D(me,v) <= RangeB+150 and GetDistance2D(me,v) > Range and (Blink and Blink:CanBeCasted()) and Cullblade:CanBeCasted() then
 									if me:IsMagicDmgImmune() or ((NetherWard(Cullblade,v,me)) and not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and BladeMail(v,me,culldamage)) then
 										local bpos = v.position
 										if GetDistance2D(me,v) > RangeB then
