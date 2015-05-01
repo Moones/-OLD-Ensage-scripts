@@ -359,10 +359,11 @@ function Tick( tick )
 					if GetDistance2D(v,me) < 680 then
 						if GetDistance2D(v,me) < 400 then
 							PuckW(false)
-							UseEulScepterTarget()
-							UseSheepStickTarget()
-							UseOrchidtarget() SkySilence()
 						end
+						UseEulScepterTarget()
+						UseSheepStickTarget()
+						UseOrchidtarget() SkySilence()
+
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
 							Nyx()
@@ -382,10 +383,10 @@ function Tick( tick )
 					if GetDistance2D(v,me) < 600 then
 						if GetDistance2D(v,me) < 400 then
 							PuckW(false)
-							UseEulScepterTarget()
-							UseSheepStickTarget()
-							UseOrchidtarget() SkySilence()
 						end
+						UseEulScepterTarget()
+						UseSheepStickTarget()
+						UseOrchidtarget() SkySilence()
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
 							Nyx()
