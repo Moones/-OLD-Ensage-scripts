@@ -353,7 +353,6 @@ function Tick( tick )
 							UseEulScepterTarget()
 							UseSheepStickTarget()
 							UseOrchidtarget() SkySilence()
-							UseLotusOrb()
 						end
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
 						if turntime == 0 then
@@ -366,6 +365,50 @@ function Tick( tick )
 							PLDoppleganger()
 							OracleFalsePromise()
 							UseLotusOrb()
+						end
+					end
+				end
+			elseif v.name == "npc_dota_hero_necrolyte" then
+				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
+					if GetDistance2D(v,me) < 600 then
+						if GetDistance2D(v,me) < 400 then
+							PuckW(false)
+							UseEulScepterTarget()
+							UseSheepStickTarget()
+							UseOrchidtarget() SkySilence()
+						end
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						if turntime == 0 then
+							Nyx()
+							Useshadowamulet()
+							UseShadowBlade()
+							Puck()
+							UseLotusOrb()
+							Useblackking()
+							Lifestealerrage()
+							PLDoppleganger()
+							OracleFalsePromise()
+						end
+					end
+				end
+			elseif v.name == "npc_dota_hero_terrorblade" then
+				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
+					if GetDistance2D(v,me) < 325 then
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						if turntime == 0 then
+							PuckW(false)
+							UseEulScepterTarget()
+							UseSheepStickTarget()
+							UseOrchidtarget() SkySilence()
+							Nyx()
+							Useshadowamulet()
+							UseShadowBlade()
+							Puck()
+							UseLotusOrb()
+							Useblackking()
+							Lifestealerrage()
+							PLDoppleganger()
+							OracleFalsePromise()
 						end
 					end
 				end
