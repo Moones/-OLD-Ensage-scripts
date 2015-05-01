@@ -20,6 +20,7 @@ local blinking = false local enableBlinking = true
 local euling = {false,nil}
 local activated = 0
 local blinkfront = false
+local visible_time = {}
 
 local myFont = drawMgr:CreateFont("Font","Tahoma",config.TextSize,550)
 local statusText = drawMgr:CreateText(-60+config.TextX,-20+config.TextY,0x66FF33FF,"BlinkDodging Enabled!",myFont); statusText.visible = config.ShowText
@@ -113,13 +114,21 @@ function Tick( tick )
 		PurgeMyself()
 	end
 	--Dodge by checking animations--
-	local enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, alive = true, visible = true, team = me:GetEnemyTeam()})
+	local enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, alive = true, team = me:GetEnemyTeam()})
 	for i,v in ipairs(enemies) do
-		if not v:IsIllusion() then
+		if not v:IsIllusion() and not v.visible then
+			if visible_time[v.handle] then
+				visible_time[v.handle] = nil
+			end
+		end
+		if not v:IsIllusion() and v.visible then
+			if not visible_time[v.handle] then
+				visible_time[v.handle] = client.gameTime
+			end
 			target = v
-			if GotHex(v) and ((v:FindItem("item_sheepstick") and GetDistance2D(me,v) <= 900) or GetDistance2D(v,me) <= 500) then
+			if GotHex(v) and ((v:FindItem("item_sheepstick") and GetDistance2D(me,v) <= 900) or GetDistance2D(v,me) <= 500) and (not visible_time[v.handle] or client.gameTime - visible_time[v.handle] < 3 or GetDistance2D(v,me) < 350) then
 				UseBlinkDagger() Antiblinkhome()
-				SlarkDarkPact()
+				SlarkDarkPact() UseLotusOrb()
 			end
 			if v.name == "npc_dota_hero_shadow_shaman" then
 				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
@@ -1116,7 +1125,6 @@ function Tick( tick )
 			local cast = entityList:GetEntities({classId=282})
 			local rocket = entityList:GetEntities({classId=CDOTA_BaseNPC})
 			local hit = entityList:GetProjectiles({source=v,target=me})
-			local notvisible_enemies = entityList:GetEntities({type = LuaEntity.TYPE_HERO, alive = true, team = me:GetEnemyTeam()})
 			local projs = entityList:GetProjectiles({})
 			for i,k in ipairs(projs) do
 				-- if k.target and k.source and k.source.hero then
@@ -1262,33 +1270,28 @@ function Tick( tick )
 						end
 					end
 				elseif #z.modifiers > 0 and z:DoesHaveModifier("modifier_lina_light_strike_array") then
-					for i,k in ipairs(notvisible_enemies) do
-						if k.classId == CDOTA_Unit_Hero_Lina and GetDistance2D(z,me) < 250 then
-							Puck()
-							UseBlinkDagger() Antiblinkhome()
-							Lifestealerrage()
-							Juggernautfury()
-							UseEulScepterSelf()
-							SlarkDarkPact()
-							SlarkPounce()	
-							PLDoppleganger()
-							OracleFateEdict()
-							return
-						end
+					if v.classId == CDOTA_Unit_Hero_Lina and GetDistance2D(z,me) < 250 then
+						Puck()
+						UseBlinkDagger() Antiblinkhome()
+						Lifestealerrage()
+						Juggernautfury()
+						UseEulScepterSelf()
+						SlarkDarkPact()
+						SlarkPounce()	
+						PLDoppleganger()
+						OracleFateEdict()
+						return
 					end
-				elseif #z.modifiers > 0 and z:DoesHaveModifier("modifier_leshrac_split_earth_thinker") then
-					for i,k in ipairs(notvisible_enemies) do
-						if k.classId == CDOTA_Unit_Hero_Leshrac and GetDistance2D(z,me) < GetSpecial(k:GetAbility(1),"radius",k:GetAbility(1).level+0)+25 then
-							Puck()
-							UseBlinkDagger() Antiblinkhome()
-							Lifestealerrage()
-							Juggernautfury()
-							UseEulScepterSelf()
-							SlarkDarkPact()
-							SlarkPounce()	
-							PLDoppleganger()
-							return
-						end
+				if v.classId == CDOTA_Unit_Hero_Leshrac and GetDistance2D(z,me) < GetSpecial(v:GetAbility(1),"radius",v:GetAbility(1).level+0)+25 then
+						Puck()
+						UseBlinkDagger() Antiblinkhome()
+						Lifestealerrage()
+						Juggernautfury()
+						UseEulScepterSelf()
+						SlarkDarkPact()
+						SlarkPounce()	
+						PLDoppleganger()
+						return
 					end
 				end
 			end	
@@ -1355,7 +1358,7 @@ function Tick( tick )
 			if blink and blink.cd > 11 and v:CanCast() then                                 
 				for s = 1, 6 do
 					target = v
-					if v:GetAbility(s) ~= nil and v:GetAbility(s).state == LuaEntityAbility.STATE_READY then
+					if v:GetAbility(s) ~= nil and v:GetAbility(s):CanBeCasted() then
 						if v:GetAbility(s).name == "tiny_avalanche" and GetDistance2D(v,me) < 500 then
 							Puck()
 							Jugernautomnitarget()
@@ -1561,7 +1564,7 @@ function Tick( tick )
 							UseLotusOrb()
 							PLDoppleganger()
 							return 
-						elseif v:GetAbility(s).name == "earthshaker_echo_slam" and GetDistance2D(v,me) < 575 and v:GetAbility(s).state == -1 then
+						elseif v:GetAbility(s).name == "earthshaker_echo_slam" and GetDistance2D(v,me) < 575 and v:GetAbility(s):CanBeCasted() then
 							PuckW(true)
 							Emberremnantnow()
 							UseEulScepterSelf()
@@ -2329,7 +2332,7 @@ function Tick( tick )
 					elseif v:GetAbility(t).name == "faceless_void_time_walk" then
 						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
 							if GetDistance2D(v,me) < 1050 and v:CanCast() then
-								if v:GetAbility(4).name == "faceless_void_chronosphere" and v:GetAbility(4).state == LuaEntityAbility.STATE_READY then
+								if v:GetAbility(4).name == "faceless_void_chronosphere" and v:GetAbility(4):CanBeCasted() then
 									if GetDistance2D(v,me) < 400 then
 										UseBlinkDagger() Antiblinkhome()
 										PuckW(true)
@@ -2409,7 +2412,7 @@ function FindAngleBetween(first, second)
 end
 
 function GotHex(hero)
-	return (hero:FindItem("item_sheepstick") and hero:FindItem("item_sheepstick").state == LuaEntityAbility.STATE_READY) or (hero:FindSpell("lion_voodoo") and hero:FindSpell("lion_voodoo").state == LuaEntityAbility.STATE_READY) or (hero:FindSpell("shadow_shaman_voodoo") and hero:FindSpell("shadow_shaman_voodoo").state == LuaEntityAbility.STATE_READY)
+	return (hero:FindItem("item_sheepstick") and hero:FindItem("item_sheepstick"):CanBeCasted()) or (hero:FindSpell("lion_voodoo") and hero:FindSpell("lion_voodoo"):CanBeCasted()) or (hero:FindSpell("shadow_shaman_voodoo") and hero:FindSpell("shadow_shaman_voodoo"):CanBeCasted())
 end
 
 function Lifestealerrage()
@@ -2667,7 +2670,7 @@ function Embersleighttargetcal()
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "ember_spirit_sleight_of_fist" and me:GetAbility(t).state == -1 then
+				if me:GetAbility(t).name == "ember_spirit_sleight_of_fist" and me:GetAbility(t):CanBeCasted() then
 				local addrange =0
 				if me:GetAbility(t).level == 1 then
 					addrange = 250
@@ -2703,7 +2706,7 @@ function EmberGuard()
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "ember_spirit_flame_guard" and me:GetAbility(t).state == -1 then
+				if me:GetAbility(t).name == "ember_spirit_flame_guard" and me:GetAbility(t):CanBeCasted() then
 					me:CastAbility(me:GetAbility(t))
 					activated=1
 					sleepTick= GetTick() +500
@@ -2717,7 +2720,7 @@ end
 function Emberremnantnow()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "ember_spirit_activate_fire_remnant" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "ember_spirit_activate_fire_remnant" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t))
 				activated=1
 				sleepTick= GetTick() +160
@@ -2731,7 +2734,7 @@ function StormUltfront()
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "storm_spirit_ball_lightning" and me:GetAbility(t).state == -1 then
+				if me:GetAbility(t).name == "storm_spirit_ball_lightning" and me:GetAbility(t):CanBeCasted() then
 						alfa = me.rotR
 						local p = Vector(me.x + 100 * math.cos(alfa), me.y + 100 * math.sin(alfa), me.z) 
 						storm_spirit_ball_lightning=me:GetAbility(t)
@@ -2749,7 +2752,7 @@ function StormUltfront2(moverange)
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "storm_spirit_ball_lightning" and me:GetAbility(t).state == -1 then
+				if me:GetAbility(t).name == "storm_spirit_ball_lightning" and me:GetAbility(t):CanBeCasted() then
 						alfa = me.rotR
 						local p = Vector(me.x + moverange * math.cos(alfa), me.y + moverange * math.sin(alfa), me.z) 
 						storm_spirit_ball_lightning=me:GetAbility(t)
@@ -2767,7 +2770,7 @@ function Antiblinkfront()
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "antimage_blink" and me:GetAbility(t).state == -1 then
+				if me:GetAbility(t).name == "antimage_blink" and me:GetAbility(t):CanBeCasted() then
 						alfa = me.rotR
 						local p = Vector(me.x + 100 * math.cos(alfa), me.y + 100 * math.sin(alfa), me.z) 
 						storm_spirit_ball_lightning=me:GetAbility(t)
@@ -2785,7 +2788,7 @@ function Antiblinkhome()
 	if activated == 0 and enableBlinking then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if (me:GetAbility(t).name == "antimage_blink" or me:GetAbility(t).name == "queenofpain_blink") and me:GetAbility(t).state == -1 then
+				if (me:GetAbility(t).name == "antimage_blink" or me:GetAbility(t).name == "queenofpain_blink") and me:GetAbility(t):CanBeCasted() then
 					local fountPos = entityList:FindEntities({team = me.team, classId = CDOTA_Unit_Fountain})[1].position
 					local vector = ((fountPos - me.position) * 1150 / me:GetDistance2D(fountPos) ) + me.position
 						storm_spirit_ball_lightning=me:GetAbility(t)
@@ -2806,7 +2809,7 @@ function AbaddonShieldtarget()
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "abaddon_aphotic_shield" and me:GetAbility(t).state == -1 then
+				if me:GetAbility(t).name == "abaddon_aphotic_shield" and me:GetAbility(t):CanBeCasted() then
 					if target and GetDistance2D(me,target) < 510 then
 						abaddon_aphotic_shield=me:GetAbility(t)
 						me:CastAbility(abaddon_aphotic_shield,target)
@@ -2824,7 +2827,7 @@ function LegionPresstarget()
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "legion_commander_press_the_attack" and me:GetAbility(t).state == -1 then
+				if me:GetAbility(t).name == "legion_commander_press_the_attack" and me:GetAbility(t):CanBeCasted() then
 					if target and GetDistance2D(me,target) < 810 then
 						legion_commander_press_the_attack=me:GetAbility(t)
 						me:CastAbility(legion_commander_press_the_attack,target)
@@ -2842,7 +2845,7 @@ function Axe()
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t) and me:GetAbility(t).name == "axe_berserkers_call" and me:GetAbility(t).state == -1 then
+				if me:GetAbility(t) and me:GetAbility(t).name == "axe_berserkers_call" and me:GetAbility(t):CanBeCasted() then
 					me:CastAbility(me:GetAbility(t))
 					activated=1
 					sleepTick= GetTick() +500
@@ -2888,7 +2891,7 @@ end
 function Slardar()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "slardar_slithereen_crush" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "slardar_slithereen_crush" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t))
 				activated=1
 				sleepTick= GetTick() +500
@@ -2901,7 +2904,7 @@ end
 function SlarkDarkPact()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "slark_dark_pact" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "slark_dark_pact" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t))
 				activated=1
 				sleepTick= GetTick() +500
@@ -2914,7 +2917,7 @@ end
 function SlarkPounce()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "slark_pounce" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "slark_pounce" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t))
 				activated=1
 				sleepTick= GetTick() +500
@@ -2927,7 +2930,7 @@ end
 function SlarkShadowDance()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "slark_shadow_dance" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "slark_shadow_dance" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t))
 				activated=1
 				sleepTick= GetTick() +500
@@ -2940,7 +2943,7 @@ end
 function ObsidianImprisonmentself()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "obsidian_destroyer_astral_imprisonment" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "obsidian_destroyer_astral_imprisonment" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t),me)
 				activated=1
 				sleepTick= GetTick() +500
@@ -2953,7 +2956,7 @@ end
 function ShadowdemonDisruptionself()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "shadow_demon_disruption" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "shadow_demon_disruption" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t),me)
 				activated=1
 				sleepTick= GetTick() +500
@@ -2966,7 +2969,7 @@ end
 function OmniknightRepelself()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "omniknight_repel" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "omniknight_repel" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t),me)
 				activated=1
 				sleepTick= GetTick() +500
@@ -2979,7 +2982,7 @@ end
 function Abaddonult()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "abaddon_borrowed_time" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "abaddon_borrowed_time" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t))
 				activated=1
 				sleepTick= GetTick() +500
@@ -2993,7 +2996,7 @@ function SilencerLastWord()
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "silencer_last_word" and me:GetAbility(t).state == -1 then
+				if me:GetAbility(t).name == "silencer_last_word" and me:GetAbility(t):CanBeCasted() then
 					if target and GetDistance2D(me,target) < 920 then
 						silencer_last_word=me:GetAbility(t)
 						me:CastAbility(silencer_last_word,target)
@@ -3010,7 +3013,7 @@ end
 function Silencerult()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "silencer_global_silence" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "silencer_global_silence" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t))
 				activated=1
 				sleepTick= GetTick() +500
@@ -3035,7 +3038,7 @@ end
 function OracleFateEdict()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "oracle_fates_edict" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "oracle_fates_edict" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t),me)
 				activated=1
 				sleepTick= GetTick() +500
@@ -3049,7 +3052,7 @@ function OracleFateEdictTarget()
 	if activated == 0 then
 		for t=1,6 do
 			if me:GetAbility(t) ~= nil then
-				if me:GetAbility(t).name == "oracle_fates_edict" and me:GetAbility(t).state == -1 then
+				if me:GetAbility(t).name == "oracle_fates_edict" and me:GetAbility(t):CanBeCasted() then
 					if target and GetDistance2D(me,target) < 700 then
 						oracle_fates_edict=me:GetAbility(t)
 						me:CastAbility(oracle_fates_edict,target)
@@ -3066,7 +3069,7 @@ end
 function OracleFalsePromise()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "oracle_false_promise" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "oracle_false_promise" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t),me)
 				activated=1
 				sleepTick= GetTick() +500
@@ -3079,7 +3082,7 @@ end
 function WWColdEmbrace()
 	if activated == 0 then
 		for t=1,6 do
-			if me:GetAbility(t) and me:GetAbility(t).name == "winter_wyvern_cold_embrace" and me:GetAbility(t).state == -1 then
+			if me:GetAbility(t) and me:GetAbility(t).name == "winter_wyvern_cold_embrace" and me:GetAbility(t):CanBeCasted() then
 				me:CastAbility(me:GetAbility(t),me)
 				activated=1
 				sleepTick= GetTick() +500
@@ -3096,7 +3099,7 @@ function Useblackking()
 		end
 	end
 	if activated == 0 then
-		if item_black_king_bar and item_black_king_bar.state== -1 then
+		if item_black_king_bar and item_black_king_bar:CanBeCasted() then
 			me:CastAbility(item_black_king_bar)
 			activated=1
 			sleepTick= GetTick() +500
@@ -3186,7 +3189,7 @@ function UseBlinkDaggertarget()--target
 		end
 	end
 	if activated == 0 then
-		if item_blink and item_blink.state==-1 then
+		if item_blink and item_blink:CanBeCasted() then
 			if target and GetDistance2D(me,target) < 1150 then
 
 				me:CastAbility(item_blink,target.x,target.y,target.z)
@@ -3205,7 +3208,7 @@ function UseGhostScepter()
 		end
 	end
 	if activated == 0 then
-		if GhostScepter and GhostScepter.state==-1 then
+		if GhostScepter and GhostScepter:CanBeCasted() then
 			--UseAbility(GhostScepter)
 			me:CastAbility(GhostScepter)
 
@@ -3247,7 +3250,7 @@ function UseBladeMail()
 		end
 	end
 	if activated == 0 then
-		if item_blade_mail and item_blade_mail.state==-1 then
+		if item_blade_mail and item_blade_mail:CanBeCasted() then
 			me:CastAbility(item_blade_mail)
 			activated=1
 			sleepTick= GetTick() +500
@@ -3263,7 +3266,7 @@ function UseBloodStone()--suiside
 		end
 	end
 	if activated == 0 then
-		if item_bloodstone and item_bloodstone.state==-1 then
+		if item_bloodstone and item_bloodstone:CanBeCasted() then
 			--UseAbility(item_bloodstone)
 			me:CastAbility(item_bloodstone)
 
@@ -3306,7 +3309,7 @@ function UseOrchidtarget()--target
 		end
 	end
 	if activated == 0 then
-		if item_orchid and item_orchid.state==-1 then
+		if item_orchid and item_orchid:CanBeCasted() then
 			if target and GetDistance2D(me,target) < 900 then
 
 				me:CastAbility(item_orchid,target)
@@ -3325,7 +3328,7 @@ function UseAbyssaltarget()--target
 		end
 	end
 	if activated == 0 then
-		if item_abyssal_blade and item_abyssal_blade.state==-1 then
+		if item_abyssal_blade and item_abyssal_blade:CanBeCasted() then
 			if target and GetDistance2D(me,target) < 140 then
 
 				me:CastAbility(item_abyssal_blade,target)
@@ -3344,7 +3347,7 @@ function UseHalberdtarget()--target
 		end
 	end
 	if activated == 0 then
-		if item_heavens_halberd and item_heavens_halberd.state==-1 then
+		if item_heavens_halberd and item_heavens_halberd:CanBeCasted() then
 			if target and GetDistance2D(me,target) < 600 then
 
 				me:CastAbility(item_heavens_halberd,target)
@@ -3363,7 +3366,7 @@ function UseEtherealtarget()--target
 		end
 	end
 	if activated == 0 then
-		if item_ethereal_blade and item_ethereal_blade.state==-1 then
+		if item_ethereal_blade and item_ethereal_blade:CanBeCasted() then
 			if target and GetDistance2D(me,target) < 800 then
 
 				me:CastAbility(item_ethereal_blade,target)
@@ -3382,7 +3385,7 @@ function Useblackking()
 		end
 	end
 	if activated == 0 then
-		if item_black_king_bar and item_black_king_bar.state==-1 then
+		if item_black_king_bar and item_black_king_bar:CanBeCasted() then
 			--UseAbility(item_black_king_bar)
 			me:CastAbility(item_black_king_bar)
 			activated=1
@@ -3401,7 +3404,7 @@ function PurgeMyself()
 			activated = 1
 			sleepTick = GetTick() + 500
 			return
-		elseif diffusal and diffusal.charges > 0 and diffusal.state == LuaEntityAbility.STATE_READY then
+		elseif diffusal and diffusal.charges > 0 and diffusal:CanBeCasted() then
 			me:CastItem(diffusal.name, me)
 			activated = 1
 			sleepTick = GetTick() + 500
@@ -3418,7 +3421,7 @@ function UseManta()
 		end
 	end
 	if activated == 0 then
-		if item_manta and item_manta.state==-1 then
+		if item_manta and item_manta:CanBeCasted() then
 			--UseAbility(item_manta)
 			me:CastAbility(item_manta)
 			activated=1
@@ -3476,7 +3479,7 @@ function Useshadowamulettarget()--target
 		end
 	end
 	if activated == 0 then
-		if item_shadow_amulet and item_shadow_amulet.state==-1 then
+		if item_shadow_amulet and item_shadow_amulet:CanBeCasted() then
 			if target and GetDistance2D(me,target) < 600 then
 				me:CastAbility(item_shadow_amulet,target)
 				activated=1
