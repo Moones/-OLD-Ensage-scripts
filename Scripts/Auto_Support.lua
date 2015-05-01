@@ -43,10 +43,10 @@ function SupportTick(tick)
 			--end
 			if urn and urn.cd == 0 and urn.charges > 0 and not v:DoesHaveModifier("modifier_item_urn_heal") then
 				if (v.maxHealth - v.health) > (500  + v.healthRegen*10) and distance <= 950 and not IsInDanger(v) then
-					me:CastItem(urn.name,v) return
+					me:CastAbility(urn,v) return
 				end
 				if me:DoesHaveModifier("modifier_wisp_tether") and (v.maxHealth - v.health) >= 600 then
-					me:CastItem(urn.name,me) return
+					me:CastAbility(urn,me) return
 				end
 			end
 			if manaboots and manaboots.cd == 0 then
@@ -61,13 +61,13 @@ function SupportTick(tick)
 	
 	if needmeka and ((guardian and guardian:CanBeCasted()) or (meka and meka:CanBeCasted())) and GetDistance2D(needmeka,me) <= 750 then
 		if meka then
-			me:CastItem(meka.name) return 
+			me:CastAbility(meka) return 
 		else
-			me:CastItem(guardian.name) return
+			me:CastAbility(guardian) return
 		end
 	end
 	if needmana and manaboots and manaboots:CanBeCasted() and GetDistance2D(needmana,me) <= 600 then
-		me:CastItem(manaboots.name)
+		me:CastAbility(manaboots)
 	end
 	
 	if not onlyitems then
@@ -265,7 +265,9 @@ function ExecuteHeal(spell,target,me,toggle)
 	if spell and spell:CanBeCasted() and me:CanCast() then
 		if toggle then
 			if not spell.toggled then
-				me:ToggleSpell(spell.name)
+				local prev = SelectUnit(me)
+				entityList:GetMyPlayer():ToggleAbility(spell)
+				SelectBack(prev)
 			end
 		else
 			if not target then
