@@ -27,7 +27,7 @@
 
 heroInfo = {
 
-npc_dota_hero_antimage = {
+CDOTA_Unit_Hero_AntiMage = {
  attackRate = 1.45,
  attackPoint = 0.3,
  attackRange = 128,
@@ -35,7 +35,7 @@ npc_dota_hero_antimage = {
  turnRate = 0.5,
  attackBackswing = 0.6},
 
-npc_dota_hero_axe = {
+CDOTA_Unit_Hero_Axe = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 128,
@@ -43,7 +43,7 @@ npc_dota_hero_axe = {
  turnRate = 0.6,
  attackBackswing = 0.5},
 
-npc_dota_hero_bane = {
+CDOTA_Unit_Hero_Bane = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 400,
@@ -52,7 +52,7 @@ npc_dota_hero_bane = {
  turnRate = 0.6,
  attackBackswing = 0.7},
 
-npc_dota_hero_bloodseeker = {
+CDOTA_Unit_Hero_Bloodseeker = {
  attackRate = 1.7,
  attackPoint = 0.43,
  attackRange = 128,
@@ -60,7 +60,7 @@ npc_dota_hero_bloodseeker = {
  turnRate = 0.5,
  attackBackswing = 0.74},
 
-npc_dota_hero_crystal_maiden = {
+CDOTA_Unit_Hero_CrystalMaiden = {
  attackRate = 1.7,
  attackPoint = 0.55,
  attackRange = 600,
@@ -69,7 +69,7 @@ npc_dota_hero_crystal_maiden = {
  turnRate = 0.5,
  attackBackswing = 0},
 
-npc_dota_hero_drow_ranger = {
+CDOTA_Unit_Hero_DrowRanger = {
  attackRate = 1.7,
  attackPoint = 0.7,
  attackRange = 625,
@@ -78,7 +78,7 @@ npc_dota_hero_drow_ranger = {
  turnRate = 0.6,
  attackBackswing = 0.3},
 
-npc_dota_hero_earthshaker = {
+CDOTA_Unit_Hero_Earthshaker = {
  attackRate = 1.7,
  attackPoint = 0.467,
  attackRange = 128,
@@ -86,7 +86,7 @@ npc_dota_hero_earthshaker = {
  turnRate = 0.6,
  attackBackswing = 0.863},
 
-npc_dota_hero_juggernaut = {
+CDOTA_Unit_Hero_Juggernaut = {
  attackRate = 1.6,
  attackPoint = 0.33,
  attackRange = 128,
@@ -94,7 +94,7 @@ npc_dota_hero_juggernaut = {
  turnRate = 0.6,
  attackBackswing = 0.84},
 
-npc_dota_hero_mirana = {
+CDOTA_Unit_Hero_Mirana = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 600,
@@ -103,7 +103,7 @@ npc_dota_hero_mirana = {
  turnRate = 0.4,
  attackBackswing = 0.7},
 
-npc_dota_hero_nevermore = {
+CDOTA_Unit_Hero_Nevermore = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 500,
@@ -112,7 +112,7 @@ npc_dota_hero_nevermore = {
  turnRate = 1.0,
  attackBackswing = 0.54},
 
-npc_dota_hero_morphling = {
+CDOTA_Unit_Hero_Morphling = {
  attackRate = 1.6,
  attackPoint = 0.5,
  attackRange = 350,
@@ -121,7 +121,7 @@ npc_dota_hero_morphling = {
  turnRate = 0.6,
  attackBackswing = 0.5},
 
-npc_dota_hero_phantom_lancer = {
+CDOTA_Unit_Hero_PhantomLancer = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 128,
@@ -129,7 +129,7 @@ npc_dota_hero_phantom_lancer = {
  turnRate = 0.6,
  attackBackswing = 0.5},
 
-npc_dota_hero_puck = {
+CDOTA_Unit_Hero_Puck = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 550,
@@ -138,7 +138,7 @@ npc_dota_hero_puck = {
  turnRate = 0.4,
  attackBackswing = 0.8},
 
-npc_dota_hero_pudge = {
+CDOTA_Unit_Hero_Pudge = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 128,
@@ -146,7 +146,7 @@ npc_dota_hero_pudge = {
  turnRate = 0.5,
  attackBackswing = 1.17},
 
-npc_dota_hero_razor = {
+CDOTA_Unit_Hero_Razor = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 475,
@@ -155,7 +155,7 @@ npc_dota_hero_razor = {
  turnRate = 0.4,
  attackBackswing = 0.7},
 
-npc_dota_hero_sand_king = {
+CDOTA_Unit_Hero_SandKing = {
  attackRate = 1.7,
  attackPoint = 0.53,
  attackRange = 128,
@@ -163,7 +163,7 @@ npc_dota_hero_sand_king = {
  turnRate = 0.5,
  attackBackswing = 0.47},
 
-npc_dota_hero_storm_spirit = {
+CDOTA_Unit_Hero_StormSpirit = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 480,
@@ -172,7 +172,7 @@ npc_dota_hero_storm_spirit = {
  turnRate = 0.6,
  attackBackswing = 0.3},
 
-npc_dota_hero_sven = {
+CDOTA_Unit_Hero_Sven = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 128,
@@ -180,7 +180,7 @@ npc_dota_hero_sven = {
  turnRate = 0.6,
  attackBackswing = 0.3},
 
-npc_dota_hero_tiny = {
+CDOTA_Unit_Hero_Tiny = {
  attackRate = 1.7,
  attackPoint = 0.49,
  attackRange = 128,
@@ -188,7 +188,7 @@ npc_dota_hero_tiny = {
  turnRate = 0.5,
  attackBackswing = 1},
 
-npc_dota_hero_vengefulspirit = {
+CDOTA_Unit_Hero_VengefulSpirit = {
  attackRate = 1.7,
  attackPoint = 0.33,
  attackRange = 400,
@@ -197,7 +197,7 @@ npc_dota_hero_vengefulspirit = {
  turnRate = 0.6,
  attackBackswing = 0.64},
 
-npc_dota_hero_windrunner = {
+CDOTA_Unit_Hero_Windrunner = {
  attackRate = 1.5,
  attackPoint = 0.4,
  attackRange = 600,
@@ -206,7 +206,7 @@ npc_dota_hero_windrunner = {
  turnRate = 0.6,
  attackBackswing = 0.3},
 
-npc_dota_hero_zuus = {
+CDOTA_Unit_Hero_Zuus = {
  attackRate = 1.7,
  attackPoint = 0.633,
  attackRange = 350,
@@ -215,7 +215,7 @@ npc_dota_hero_zuus = {
  turnRate = 0.6,
  attackBackswing = 0.366},
 
-npc_dota_hero_earth_spirit = {
+CDOTA_Unit_Hero_EarthSpirit = {
  attackRate = 1.7,
  attackPoint = 0.35,
  attackRange = 128,
@@ -223,7 +223,7 @@ npc_dota_hero_earth_spirit = {
  turnRate = 0.6,
  attackBackswing = 0.65},
  
-npc_dota_hero_legion_commander = {
+CDOTA_Unit_Hero_Legion_Commander = {
  attackRate = 1.7,
  attackPoint = 0.46,
  attackRange = 128,
@@ -231,7 +231,7 @@ npc_dota_hero_legion_commander = {
  turnRate = 0.5,
  attackBackswing = 0.64},
 
-npc_dota_hero_ember_spirit = {
+CDOTA_Unit_Hero_EmberSpirit = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 128,
@@ -239,7 +239,7 @@ npc_dota_hero_ember_spirit = {
  turnRate = 0.6,
  attackBackswing = 0.3},
 
-npc_dota_hero_terrorblade = {
+CDOTA_Unit_Hero_Terrorblade = {
  attackRate = 1.5,
  attackPoint = 0.3,
  attackRange = 128,
@@ -247,7 +247,7 @@ npc_dota_hero_terrorblade = {
  turnRate = 0.5,
  attackBackswing = 0.6},
 
-npc_dota_hero_kunkka = {
+CDOTA_Unit_Hero_Kunkka = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 128,
@@ -255,7 +255,7 @@ npc_dota_hero_kunkka = {
  turnRate = 0.6,
  attackBackswing = 0.3},
 
-npc_dota_hero_lina = {
+CDOTA_Unit_Hero_Lina = {
  attackRate = 1.7,
  attackPoint = 0.75,
  attackRange = 635,
@@ -264,7 +264,7 @@ npc_dota_hero_lina = {
  turnRate = 0.5,
  attackBackswing = 0.78},
 
-npc_dota_hero_phoenix = {
+CDOTA_Unit_Hero_Phoenix = {
  attackRate = 1.7,
  attackPoint = 0.35,
  attackRange = 500,
@@ -273,7 +273,7 @@ npc_dota_hero_phoenix = {
  turnRate = 1.0,
  attackBackswing = 0.633},
 
-npc_dota_hero_lich = {
+CDOTA_Unit_Hero_Lich = {
  attackRate = 1.7,
  attackPoint = 0.46,
  attackRange = 550,
@@ -282,7 +282,7 @@ npc_dota_hero_lich = {
  turnRate = 0.5,
  attackBackswing = 0.54},
 
-npc_dota_hero_lion = {
+CDOTA_Unit_Hero_Lion = {
  attackRate = 1.7,
  attackPoint = 0.43,
  attackRange = 600,
@@ -291,7 +291,7 @@ npc_dota_hero_lion = {
  turnRate = 0.5,
  attackBackswing = 0.74},
 
-npc_dota_hero_shadow_shaman = {
+CDOTA_Unit_Hero_ShadowShaman = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 500,
@@ -300,7 +300,7 @@ npc_dota_hero_shadow_shaman = {
  turnRate = 0.4,
  attackBackswing = 0.5},
 
-npc_dota_hero_slardar = {
+CDOTA_Unit_Hero_Slardar = {
  attackRate = 1.7,
  attackPoint = 0.36,
  attackRange = 128,
@@ -308,7 +308,7 @@ npc_dota_hero_slardar = {
  turnRate = 0.5,
  attackBackswing = 0.64},
 
-npc_dota_hero_tidehunter = {
+CDOTA_Unit_Hero_Tidehunter = {
  attackRate = 1.7,
  attackPoint = 0.6,
  attackRange = 128,
@@ -316,7 +316,7 @@ npc_dota_hero_tidehunter = {
  turnRate = 0.4,
  attackBackswing = 0.56},
 
-npc_dota_hero_witch_doctor = {
+CDOTA_Unit_Hero_WitchDoctor = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 600,
@@ -325,7 +325,7 @@ npc_dota_hero_witch_doctor = {
  turnRate = 0.4,
  attackBackswing = 0.5},
 
-npc_dota_hero_riki = {
+CDOTA_Unit_Hero_Riki = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 128,
@@ -333,7 +333,7 @@ npc_dota_hero_riki = {
  turnRate = 0.6,
  attackBackswing = 0.3},
 
-npc_dota_hero_enigma = {
+CDOTA_Unit_Hero_Enigma = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 500,
@@ -342,7 +342,7 @@ npc_dota_hero_enigma = {
  turnRate = 0.5,
  attackBackswing = 0.77},
 
-npc_dota_hero_tinker = {
+CDOTA_Unit_Hero_Tinker = {
  attackRate = 1.7,
  attackPoint = 0.35,
  attackRange = 500,
@@ -351,7 +351,7 @@ npc_dota_hero_tinker = {
  turnRate = 0.6,
  attackBackswing = 0.65},
 
-npc_dota_hero_sniper = {
+CDOTA_Unit_Hero_Sniper = {
  attackRate = 1.7,
  attackPoint = 0.17,
  attackRange = 550,
@@ -360,7 +360,7 @@ npc_dota_hero_sniper = {
  turnRate = 0.6,
  attackBackswing = 0.7},
 
-npc_dota_hero_necrolyte = {
+CDOTA_Unit_Hero_Necrolyte = {
  attackRate = 1.7,
  attackPoint = 0.53,
  attackRange = 550,
@@ -369,7 +369,7 @@ npc_dota_hero_necrolyte = {
  turnRate = 0.5,
  attackBackswing = 0.77},
 
-npc_dota_hero_warlock = {
+CDOTA_Unit_Hero_Warlock = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 600,
@@ -378,7 +378,7 @@ npc_dota_hero_warlock = {
  turnRate = 0.4,
  attackBackswing = 0.3},
 
-npc_dota_hero_beastmaster = {
+CDOTA_Unit_Hero_Beastmaster = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 128,
@@ -386,7 +386,7 @@ npc_dota_hero_beastmaster = {
  turnRate = 0.4,
  attackBackswing = 0.7},
 
-npc_dota_hero_queenofpain = {
+CDOTA_Unit_Hero_QueenOfPain = {
  attackRate = 1.7,
  attackPoint = 0.56,
  attackRange = 550,
@@ -395,7 +395,7 @@ npc_dota_hero_queenofpain = {
  turnRate = 0.5,
  attackBackswing = 0.41},
 
-npc_dota_hero_venomancer = {
+CDOTA_Unit_Hero_Venomancer = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 450,
@@ -404,7 +404,7 @@ npc_dota_hero_venomancer = {
  turnRate = 0.4,
  attackBackswing = 0.7},
  
-npc_dota_hero_faceless_void = {
+CDOTA_Unit_Hero_FacelessVoid = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 128,
@@ -412,7 +412,7 @@ npc_dota_hero_faceless_void = {
  turnRate = 0.5,
  attackBackswing = 0.56},
 
-npc_dota_hero_skeleton_king = {
+CDOTA_Unit_Hero_SkeletonKing = {
  attackRate = 1.7,
  attackPoint = 0.56,
  attackRange = 128,
@@ -420,7 +420,7 @@ npc_dota_hero_skeleton_king = {
  turnRate = 0.4,
  attackBackswing = 0.44},
 
-npc_dota_hero_death_prophet = {
+CDOTA_Unit_Hero_DeathProphet = {
  attackRate = 1.7,
  attackPoint = 0.56,
  attackRange = 600,
@@ -429,7 +429,7 @@ npc_dota_hero_death_prophet = {
  turnRate = 0.5,
  attackBackswing = 0.51},
 
-npc_dota_hero_phantom_assassin = {
+CDOTA_Unit_Hero_PhantomAssassin = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 128,
@@ -437,7 +437,7 @@ npc_dota_hero_phantom_assassin = {
  turnRate = 0.4,
  attackBackswing = 0.7},
 
-npc_dota_hero_pugna = {
+CDOTA_Unit_Hero_Pugna = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 600,
@@ -446,7 +446,7 @@ npc_dota_hero_pugna = {
  turnRate = 0.5,
  attackBackswing = 0.5},
 
-npc_dota_hero_templar_assassin = {
+CDOTA_Unit_Hero_TemplarAssassin = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 140,
@@ -455,7 +455,7 @@ npc_dota_hero_templar_assassin = {
  turnRate = 0.7,
  attackBackswing = 0.5},
 
-npc_dota_hero_viper = {
+CDOTA_Unit_Hero_Viper = {
  attackRate = 1.7,
  attackPoint = 0.33,
  attackRange = 575,
@@ -464,7 +464,7 @@ npc_dota_hero_viper = {
  turnRate = 0.4,
  attackBackswing = 1},
 
-npc_dota_hero_luna = {
+CDOTA_Unit_Hero_Luna = {
  attackRate = 1.7,
  attackPoint = 0.46,
  attackRange = 330,
@@ -473,7 +473,7 @@ npc_dota_hero_luna = {
  turnRate = 0.4,
  attackBackswing = 0.46},
 
-npc_dota_hero_dragon_knight = {
+CDOTA_Unit_Hero_DragonKnight = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 128,
@@ -482,7 +482,7 @@ npc_dota_hero_dragon_knight = {
  turnRate = 0.4,
  attackBackswing = 0.5},
 
-npc_dota_hero_dazzle = {
+CDOTA_Unit_Hero_Dazzle = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 500,
@@ -491,7 +491,7 @@ npc_dota_hero_dazzle = {
  turnRate = 0.6,
  attackBackswing = 0.3},
 
-npc_dota_hero_rattletrap = {
+CDOTA_Unit_Hero_Rattletrap = {
  attackRate = 1.7,
  attackPoint = 0.33,
  attackRange = 128,
@@ -499,7 +499,7 @@ npc_dota_hero_rattletrap = {
  turnRate = 0.6,
  attackBackswing = 0.64},
 
-npc_dota_hero_leshrac = {
+CDOTA_Unit_Hero_Leshrac = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 600,
@@ -508,7 +508,7 @@ npc_dota_hero_leshrac = {
  turnRate = 0.5,
  attackBackswing = 0.77},
 
-npc_dota_hero_furion = {
+CDOTA_Unit_Hero_Furion = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 600,
@@ -517,7 +517,7 @@ npc_dota_hero_furion = {
  turnRate = 0.6,
  attackBackswing = 0.77},
 
-npc_dota_hero_life_stealer = {
+CDOTA_Unit_Hero_Life_Stealer = {
  attackRate = 1.7,
  attackPoint = 0.39,
  attackRange = 128,
@@ -525,7 +525,7 @@ npc_dota_hero_life_stealer = {
  turnRate = 1.0,
  attackBackswing = 0.44},
 
-npc_dota_hero_dark_seer = {
+CDOTA_Unit_Hero_DarkSeer = {
  attackRate = 1.7,
  attackPoint = 0.59,
  attackRange = 128,
@@ -533,7 +533,7 @@ npc_dota_hero_dark_seer = {
  turnRate = 0.6,
  attackBackswing = 0.58},
 
-npc_dota_hero_clinkz = {
+CDOTA_Unit_Hero_Clinkz = {
  attackRate = 1.7,
  attackPoint = 0.7,
  attackRange = 600,
@@ -542,7 +542,7 @@ npc_dota_hero_clinkz = {
  turnRate = 0.4,
  attackBackswing = 0.3},
 
-npc_dota_hero_omniknight = {
+CDOTA_Unit_Hero_Omniknight = {
  attackRate = 1.7,
  attackPoint = 0.433,
  attackRange = 128,
@@ -550,7 +550,7 @@ npc_dota_hero_omniknight = {
  turnRate = 0.6,
  attackBackswing = 0.567},
 
-npc_dota_hero_enchantress = {
+CDOTA_Unit_Hero_Enchantress = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 550,
@@ -559,7 +559,7 @@ npc_dota_hero_enchantress = {
  turnRate = 0.4,
  attackBackswing = 0.7},
 
-npc_dota_hero_huskar = {
+CDOTA_Unit_Hero_Huskar = {
  attackRate = 1.6,
  attackPoint = 0.4,
  attackRange = 400,
@@ -568,7 +568,7 @@ npc_dota_hero_huskar = {
  turnRate = 0.5,
  attackBackswing = 0.5},
 
-npc_dota_hero_night_stalker = {
+CDOTA_Unit_Hero_NightStalker = {
  attackRate = 1.7,
  attackPoint = 0.55,
  attackRange = 128,
@@ -576,7 +576,7 @@ npc_dota_hero_night_stalker = {
  turnRate = 0.5,
  attackBackswing = 0.56},
 
-npc_dota_hero_broodmother = {
+CDOTA_Unit_Hero_Broodmother = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 128,
@@ -584,7 +584,7 @@ npc_dota_hero_broodmother = {
  turnRate = 0.5,
  attackBackswing = 0.5},
 
-npc_dota_hero_bounty_hunter = {
+CDOTA_Unit_Hero_BountyHunter = {
  attackRate = 1.7,
  attackPoint = 0.59,
  attackRange = 128,
@@ -592,7 +592,7 @@ npc_dota_hero_bounty_hunter = {
  turnRate = 0.6,
  attackBackswing = 0.59},
 
-npc_dota_hero_weaver = {
+CDOTA_Unit_Hero_Weaver = {
  attackRate = 1.7,
  attackPoint = 0.64,
  attackRange = 425,
@@ -601,7 +601,7 @@ npc_dota_hero_weaver = {
  turnRate = 0.5,
  attackBackswing = 0.36},
 
-npc_dota_hero_jakiro = {
+CDOTA_Unit_Hero_Jakiro = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 400,
@@ -610,7 +610,7 @@ npc_dota_hero_jakiro = {
  turnRate = 0.5,
  attackBackswing = 0.5},
 
-npc_dota_hero_batrider = {
+CDOTA_Unit_Hero_Batrider = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 375,
@@ -619,7 +619,7 @@ npc_dota_hero_batrider = {
  turnRate = 1.0,
  attackBackswing = 0.54},
 
-npc_dota_hero_chen = {
+CDOTA_Unit_Hero_Chen = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 600,
@@ -628,7 +628,7 @@ npc_dota_hero_chen = {
  turnRate = 0.6,
  attackBackswing = 0.5},
 
-npc_dota_hero_spectre = {
+CDOTA_Unit_Hero_Spectre = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 128,
@@ -636,7 +636,7 @@ npc_dota_hero_spectre = {
  turnRate = 0.4,
  attackBackswing = 0.7},
 
-npc_dota_hero_doom_bringer = {
+CDOTA_Unit_Hero_DoomBringer = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 150,
@@ -644,7 +644,7 @@ npc_dota_hero_doom_bringer = {
  turnRate = 0.5,
  attackBackswing = 0.7},
 
-npc_dota_hero_ancient_apparition = {
+CDOTA_Unit_Hero_AncientApparition = {
  attackRate = 1.7,
  attackPoint = 0.45,
  attackRange = 600,
@@ -653,7 +653,7 @@ npc_dota_hero_ancient_apparition = {
  turnRate = 0.6,
  attackBackswing = 0.3},
 
-npc_dota_hero_ursa = {
+CDOTA_Unit_Hero_Ursa = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 128,
@@ -661,7 +661,7 @@ npc_dota_hero_ursa = {
  turnRate = 0.5,
  attackBackswing = 0.3},
 
-npc_dota_hero_spirit_breaker = {
+CDOTA_Unit_Hero_SpiritBreaker = {
  attackRate = 1.7,
  attackPoint = 0.6,
  attackRange = 128,
@@ -669,7 +669,7 @@ npc_dota_hero_spirit_breaker = {
  turnRate = 0.4,
  attackBackswing = 0.3},
 
-npc_dota_hero_gyrocopter = {
+CDOTA_Unit_Hero_Gyrocopter = {
  attackRate = 1.7,
  attackPoint = 0.2,
  attackRange = 375,
@@ -678,7 +678,7 @@ npc_dota_hero_gyrocopter = {
  turnRate = 0.6,
  attackBackswing = 0.97},
 
-npc_dota_hero_alchemist = {
+CDOTA_Unit_Hero_Alchemist = {
  attackRate = 1.7,
  attackPoint = 0.35,
  attackRange = 128,
@@ -686,7 +686,7 @@ npc_dota_hero_alchemist = {
  turnRate = 0.6,
  attackBackswing = 0.65},
 
-npc_dota_hero_invoker = {
+CDOTA_Unit_Hero_Invoker = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 600,
@@ -695,7 +695,7 @@ npc_dota_hero_invoker = {
  turnRate = 0.5,
  attackBackswing = 0.7},
 
-npc_dota_hero_silencer = {
+CDOTA_Unit_Hero_Silencer = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 600,
@@ -704,7 +704,7 @@ npc_dota_hero_silencer = {
  turnRate = 0.6,
  attackBackswing = 0.5},
 
-npc_dota_hero_obsidian_destroyer = {
+CDOTA_Unit_Hero_Obsidian_Destroyer = {
  attackRate = 1.7,
  attackPoint = 0.46,
  attackRange = 450,
@@ -713,7 +713,7 @@ npc_dota_hero_obsidian_destroyer = {
  turnRate = 0.5,
  attackBackswing = 0.54},
 
-npc_dota_hero_lycan = {
+CDOTA_Unit_Hero_Lycan = {
  attackRate = 1.7,
  attackPoint = 0.55,
  attackRange = 128,
@@ -721,7 +721,7 @@ npc_dota_hero_lycan = {
  turnRate = 0.5,
  attackBackswing = 0.55},
 
-npc_dota_hero_brewmaster = {
+CDOTA_Unit_Hero_Brewmaster = {
  attackRate = 1.7,
  attackPoint = 0.35,
  attackRange = 128,
@@ -729,7 +729,7 @@ npc_dota_hero_brewmaster = {
  turnRate = 0.6,
  attackBackswing = 0.65},
 
-npc_dota_hero_shadow_demon = {
+CDOTA_Unit_Hero_Shadow_Demon = {
  attackRate = 1.7,
  attackPoint = 0.35,
  attackRange = 500,
@@ -738,7 +738,7 @@ npc_dota_hero_shadow_demon = {
  turnRate = 0.6,
  attackBackswing = 0.5},
 
-npc_dota_hero_lone_druid = {
+CDOTA_Unit_Hero_LoneDruid = {
  attackRate = 1.7,
  attackPoint = 0.33,
  attackRange = 550,
@@ -747,7 +747,7 @@ npc_dota_hero_lone_druid = {
  turnRate = 0.5,
  attackBackswing = 0.53},
 
-npc_dota_hero_chaos_knight = {
+CDOTA_Unit_Hero_ChaosKnight = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 128,
@@ -755,7 +755,7 @@ npc_dota_hero_chaos_knight = {
  turnRate = 0.5,
  attackBackswing = 0.5},
 
-npc_dota_hero_meepo = {
+CDOTA_Unit_Hero_Meepo = {
  attackRate = 1.7,
  attackPoint = 0.38,
  attackRange = 128,
@@ -763,7 +763,7 @@ npc_dota_hero_meepo = {
  turnRate = 0.5,
  attackBackswing = 0.6},
 
-npc_dota_hero_treant = {
+CDOTA_Unit_Hero_Treant = {
  attackRate = 1.9,
  attackPoint = 0.6,
  attackRange = 128,
@@ -771,7 +771,7 @@ npc_dota_hero_treant = {
  turnRate = 0.5,
  attackBackswing = 0.4},
 
-npc_dota_hero_ogre_magi = {
+CDOTA_Unit_Hero_Ogre_Magi = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 128,
@@ -779,7 +779,7 @@ npc_dota_hero_ogre_magi = {
  turnRate = 0.6,
  attackBackswing = 0.3},
 
-npc_dota_hero_undying = {
+CDOTA_Unit_Hero_Undying = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 128,
@@ -787,7 +787,7 @@ npc_dota_hero_undying = {
  turnRate = 0.6,
  attackBackswing = 0.3},
 
-npc_dota_hero_rubick = {
+CDOTA_Unit_Hero_Rubick = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 600,
@@ -796,7 +796,7 @@ npc_dota_hero_rubick = {
  turnRate = 0.5,
  attackBackswing = 0.77},
 
-npc_dota_hero_disruptor = {
+CDOTA_Unit_Hero_Disruptor = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 600,
@@ -805,7 +805,7 @@ npc_dota_hero_disruptor = {
  turnRate = 0.6,
  attackBackswing = 0.5},
 
-npc_dota_hero_nyx_assassin = {
+CDOTA_Unit_Hero_Nyx_Assassin = {
  attackRate = 1.7,
  attackPoint = 0.46,
  attackRange = 128,
@@ -813,7 +813,7 @@ npc_dota_hero_nyx_assassin = {
  turnRate = 0.5,
  attackBackswing = 0.54},
 
-npc_dota_hero_naga_siren = {
+CDOTA_Unit_Hero_Naga_Siren = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 128,
@@ -821,7 +821,7 @@ npc_dota_hero_naga_siren = {
  turnRate = 0.5,
  attackBackswing = 0.5},
 
-npc_dota_hero_keeper_of_the_light = {
+CDOTA_Unit_Hero_KeeperOfTheLight = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 600,
@@ -830,7 +830,7 @@ npc_dota_hero_keeper_of_the_light = {
  turnRate = 0.5,
  attackBackswing = 0.85},
 
-npc_dota_hero_wisp = {
+CDOTA_Unit_Hero_Wisp = {
  attackRate = 1.7,
  attackPoint = 0.15,
  attackRange = 575,
@@ -839,7 +839,7 @@ npc_dota_hero_wisp = {
  turnRate = 0.7,
  attackBackswing = 0.4},
 
-npc_dota_hero_visage = {
+CDOTA_Unit_Hero_Visage = {
  attackRate = 1.7,
  attackPoint = 0.46,
  attackRange = 600,
@@ -848,7 +848,7 @@ npc_dota_hero_visage = {
  turnRate = 0.5,
  attackBackswing = 0.54},
 
-npc_dota_hero_slark = {
+CDOTA_Unit_Hero_Slark = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 128,
@@ -856,7 +856,7 @@ npc_dota_hero_slark = {
  turnRate = 0.5,
  attackBackswing = 0.3},
 
-npc_dota_hero_medusa = {
+CDOTA_Unit_Hero_Medusa = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 600,
@@ -865,7 +865,7 @@ npc_dota_hero_medusa = {
  turnRate = 0.5,
  attackBackswing = 0.6},
 
-npc_dota_hero_troll_warlord = {
+CDOTA_Unit_Hero_TrollWarlord = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 500,
@@ -874,7 +874,7 @@ npc_dota_hero_troll_warlord = {
  turnRate = 0.5,
  attackBackswing = 0.3},
 
-npc_dota_hero_centaur = {
+CDOTA_Unit_Hero_Centaur = {
  attackRate = 1.7,
  attackPoint = 0.3,
  attackRange = 128,
@@ -882,7 +882,7 @@ npc_dota_hero_centaur = {
  turnRate = 0.5,
  attackBackswing = 0.3},
 
-npc_dota_hero_magnataur = {
+CDOTA_Unit_Hero_Magnataur = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 128,
@@ -890,7 +890,7 @@ npc_dota_hero_magnataur = {
  turnRate = 0.5,
  attackBackswing = 0.84},
 
-npc_dota_hero_shredder = {
+CDOTA_Unit_Hero_Shredder = {
  attackRate = 1.7,
  attackPoint = 0.36,
  attackRange = 128,
@@ -898,7 +898,7 @@ npc_dota_hero_shredder = {
  turnRate = 0.5,
  attackBackswing = 0.64},
 
-npc_dota_hero_bristleback = {
+CDOTA_Unit_Hero_Bristleback = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 128,
@@ -906,7 +906,7 @@ npc_dota_hero_bristleback = {
  turnRate = 1.0,
  attackBackswing = 0.3},
 
-npc_dota_hero_tusk = {
+CDOTA_Unit_Hero_Tusk = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 128,
@@ -914,7 +914,7 @@ npc_dota_hero_tusk = {
  turnRate = 0.5,
  attackBackswing = 0.64},
 
-npc_dota_hero_skywrath_mage = {
+CDOTA_Unit_Hero_Skywrath_Mage = {
  attackRate = 1.7,
  attackPoint = 0.4,
  attackRange = 600,
@@ -923,7 +923,7 @@ npc_dota_hero_skywrath_mage = {
  turnRate = 0.5,
  attackBackswing = 0.78},
 
-npc_dota_hero_elder_titan = {
+CDOTA_Unit_Hero_Elder_Titan = {
  attackRate = 1.7,
  attackPoint = 0.35,
  attackRange = 128,
@@ -931,7 +931,7 @@ npc_dota_hero_elder_titan = {
  turnRate = 0.4,
  attackBackswing = 0.97},
 
-npc_dota_hero_abaddon = {
+CDOTA_Unit_Hero_Abaddon = {
  attackRate = 1.7,
  attackPoint = 0.56,
  attackRange = 128,
@@ -939,7 +939,7 @@ npc_dota_hero_abaddon = {
  turnRate = 0.5,
  attackBackswing = 0.41},
  
- npc_dota_hero_techies = {
+ CDOTA_Unit_Hero_Techies = {
  attackRate = 1.7,
  attackPoint = 0.5,
  attackRange = 700,
@@ -948,7 +948,7 @@ npc_dota_hero_abaddon = {
  turnRate = 0.5,
  attackBackswing = 0.5},
  
- npc_dota_hero_oracle = {
+ CDOTA_Unit_Hero_Oracle = {
  attackRate = 1.4,
  attackPoint = 0.3,
  attackRange = 620,
@@ -957,7 +957,7 @@ npc_dota_hero_abaddon = {
  turnRate = 0.4,
  attackBackswing = 0.7},
  
- npc_dota_hero_winter_wyvern = {
+ CDOTA_Unit_Hero_Winter_Wyvern = {
  attackRate = 1.7,
  attackPoint = 0.25,
  attackRange = 620,
@@ -966,97 +966,63 @@ npc_dota_hero_abaddon = {
  turnRate = 0.4,
  attackBackswing = 0.8},
  
- npc_dota_lone_druid_bear1 = {
+ CDOTA_Unit_SpiritBear = {{
  attackRate = 1.75,
  attackPoint = 0.43,
  attackRange = 620,
- attackBackswing = 0.67},
- 
- npc_dota_lone_druid_bear2 = {
+ attackBackswing = 0.67},{
  attackRate = 1.65,
  attackPoint = 0.43,
  attackRange = 620,
- attackBackswing = 0.67},
- 
- npc_dota_lone_druid_bear3 = {
+ attackBackswing = 0.67},{
  attackRate = 1.55,
  attackPoint = 0.43,
  attackRange = 620,
- attackBackswing = 0.67},
- 
- npc_dota_lone_druid_bear4 = {
+ attackBackswing = 0.67},{
  attackRate = 1.45,
  attackPoint = 0.43,
  attackRange = 620,
- attackBackswing = 0.67},
+ attackBackswing = 0.67}},
  
- npc_dota_creep_badguys_melee = {
+ CDOTA_BaseNPC_Creep_Lane = {{
  attackRate = 1,
  attackPoint = 0.467,
  attackRange = 100,
- attackBackswing = 0.633},
- 
- npc_dota_creep_goodguys_melee = {
- attackRate = 1,
- attackPoint = 0.467,
- attackRange = 100,
- attackBackswing = 0.633},
- 
- npc_dota_creep_badguys_ranged = {
+ attackBackswing = 0.633},{
  attackRate = 1,
  attackPoint = 0.5,
  attackRange = 500,
  projectileSpeed = 900,
- attackBackswing = 0.5},
+ attackBackswing = 0.5}},
  
- npc_dota_creep_goodguys_ranged	= {
- attackRate = 1,
- attackPoint = 0.5,
- attackRange = 500,
- projectileSpeed = 900,
- attackBackswing = 0.5},
- 
- npc_dota_badguys_siege = {
+ CDOTA_BaseNPC_Creep_Siege = {
  attackRate = 2.7,
  attackPoint = 0.7,
  attackRange = 690,
  projectileSpeed = 1100,
  attackBackswing = 0.3},
  
- npc_dota_goodguys_siege = {
- attackRate = 2.7,
- attackPoint = 0.7,
- attackRange = 690,
- projectileSpeed = 1100,
- attackBackswing = 0.3},
- 
-npc_dota_venomancer_plague_ward_1 = {
+CDOTA_BaseNPC_Venomancer_PlagueWard = {{
  attackRate = 1.5,
  attackPoint = 0.3,
  attackRange = 600,
  projectileSpeed = 1900,
- attackBackswing = 0.7},
- 
-npc_dota_venomancer_plague_ward_2 = {
+ attackBackswing = 0.7},{
  attackRate = 1.5,
  attackPoint = 0.3,
  attackRange = 600,
  projectileSpeed = 1900,
- attackBackswing = 0.7},
- 
-npc_dota_venomancer_plague_ward_3 = {
+ attackBackswing = 0.7},{
  attackRate = 1.5,
  attackPoint = 0.3,
  attackRange = 600,
  projectileSpeed = 1900,
- attackBackswing = 0.7},
- 
-npc_dota_venomancer_plague_ward_4 = {
+ attackBackswing = 0.7},{
  attackRate = 1.5,
  attackPoint = 0.3,
  attackRange = 600,
  projectileSpeed = 1900,
- attackBackswing = 0.7},
+ attackBackswing = 0.7}},
  
 npc_dota_badguys_tower1_bot = {
  attackRate = 1,
@@ -1198,7 +1164,7 @@ npc_dota_goodguys_tower4 = {
  projectileSpeed = 750,
  attackBackswing = 1},
  
-npc_dota_invoker_forged_spirit = {
+CDOTA_BaseNPC_Invoker_Forged_Spirit = {
  attackRate = 1.5,
  attackPoint = 0.2,
  attackRange = 700,
