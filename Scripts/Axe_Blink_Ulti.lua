@@ -104,7 +104,7 @@ function Tick(tick)
 										if GetDistance2D(me,v) > RangeB then
 											bpos = (v.position - me.position) * 1100 / GetDistance2D(me,v) + me.position
 										end
-										me:SafeCastItem(Blink.name,bpos)		
+										me:CastAbility(Blink,bpos)		
 										Sleep(me:GetTurnTime(v)+client.latency,"blink")
 									end
 								end
