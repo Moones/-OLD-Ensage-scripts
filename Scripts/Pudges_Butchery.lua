@@ -402,6 +402,7 @@ function Main(tick)
 			end
 			if victim and not victim.visible then victim = nil end
 			if not IsKeyDown(config.StopKey) and victim and victim.visible and hook:CanBeCasted() and SleepCheck("hook") then
+				hooked = false
 				local speed = 1600 
 				local delay = (300+client.latency+me:GetTurnTime(victim)*1000)
 				if not guixyz and ((config.PredictionGUI and SleepCheck("guisleep2")) or IsKeyDown(hookkey)) then	
@@ -483,6 +484,7 @@ function Combo(tick)
 	
 	if not target or (not target.alive or target:IsUnitState(LuaEntityNPC.STATE_MAGIC_IMMUNE) or (me:GetDistance2D(target) > minRange and not hooked) or target:IsIllusion()) or not me.alive or not active or count == 2 then
 		targetHandle = nil
+		hooked = false
 		targetText.visible = false
 		if not manualselection then
 			statusText.text = "  Hook'em!"
@@ -548,7 +550,7 @@ function Combo(tick)
 		Sleep(client.latency,"combo")
 	end
 
-	if (not hooked or GetDistance2D(me, target) < (1600*math.max(client.latency/1000,0.1)+80)) and not R.abilityPhase then
+	if (not hooked or GetDistance2D(me, target) < (1600*math.max(client.latency/1000,0.1)+500)) and not R.abilityPhase then
 		if R.level > 0 and R:CanBeCasted() and me:CanCast() and ((target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target)) then 
 			me:CastAbility(R,target)
 			Sleep(50,"combo")
@@ -589,7 +591,7 @@ function ModifierAdd(v,modifier)
 		if modifier.name == "modifier_pudge_rot" and v.classId == me.classId then
 			rottoggled = true
 		elseif config.AutoCombo and modifier.name == "modifier_pudge_meat_hook" then
-			if v.hero and v.team ~= me.team and not v:IsIllusion() then
+			if v.hero and v.team ~= me.team and not v:IsIllusion() and not hooked then
 				targetHandle = v.handle
 				targetText.visible = true
 				targetText.text = "Eating " .. client:Localize(v.name) .. ". Press " .. string.char(togglekey) .. " to cancel."
