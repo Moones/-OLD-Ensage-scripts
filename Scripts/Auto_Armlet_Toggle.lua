@@ -126,26 +126,26 @@ function Tick( tick )
 	end
 	
 	if not me:IsStunned() and armState and me:DoesHaveModifier("modifier_ice_blast") and SleepCheck() and not me:IsInvisible() then
-		me:SafeCastItem("item_armlet")
+		me:CastAbility(armlet)
 		Sleep(ARMLET_DELAY)
 	end
 	
 	if not me:IsStunned() and player.orderId == Player.ORDER_ATTACKENTITY and player.target and not me:IsInvisible() and player.target.hero and not armState and SleepCheck() and GetDistance2D(player.target,me) < me.attackRange+25 then
-		me:SafeCastItem("item_armlet")
+		me:CastAbility(armlet)
 		Sleep(ARMLET_DELAY)
 	end
 	
-	if not me:IsStunned() and SleepCheck() and not me:IsInvisible() and (toggle or me.health < 475 or me.health < incoming_damage) and (incoming_damage <= 0 or me.health < incoming_damage) then
+	if not me:IsStunned() and SleepCheck() and not me:IsInvisible() and (toggle or me.health < minhp or me.health < incoming_damage) and (incoming_damage <= 0 or me.health < incoming_damage or me.health < minhp) then
 		local delay = ARMLET_DELAY*2
 		if incoming_damage <= 0 then
 			delay = delay*1.50
 		end
 		if armState then
-			me:SafeCastItem("item_armlet")
-			me:SafeCastItem("item_armlet")
+			me:CastAbility(armlet)
+			me:CastAbility(armlet)
 			Sleep(delay)
 		else
-			me:SafeCastItem("item_armlet")
+			me:CastAbility(armlet)
 			Sleep(delay)
 		end
 		toggle = false
@@ -165,8 +165,8 @@ function Tick( tick )
 						incoming_projectiles[spell.handle] = nil
 					end	
 					if incoming_projectiles[spell.handle] and not me:IsStunned() and not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*(GetDistance2D(me,z.position)/z.speed))) < incoming_projectiles[spell.handle].damage then
-						me:SafeCastItem("item_armlet")
-						me:SafeCastItem("item_armlet")
+						me:CastAbility(armlet)
+						me:CastAbility(armlet)
 						Sleep(ARMLET_DELAY)
 						break
 					end
@@ -180,14 +180,14 @@ function Tick( tick )
 					incoming_projectiles[z.source.handle] = nil
 				end	
 				if incoming_projectiles[z.source.handle] and not me:IsStunned() and not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*((GetDistance2D(me,z.position)-50)/z.speed))) < incoming_projectiles[z.source.handle].damage then
-					me:SafeCastItem("item_armlet")
-					me:SafeCastItem("item_armlet")
+					me:CastAbility(armlet)
+					me:CastAbility(armlet)
 					Sleep(ARMLET_DELAY) break
 				end
 			end
 		end
 		if not me:IsStunned() and not armState and SleepCheck() and z.target and z.target == me and z.source and z.source.hero and not me:IsInvisible() then
-			me:SafeCastItem("item_armlet")
+			me:CastAbility(armlet)
 			Sleep(ARMLET_DELAY) break
 		end
 	end
@@ -207,8 +207,8 @@ function Tick( tick )
 						incoming_projectiles[z.handle] = {damage = dmg, time = client.gameTime + z:FindCastPoint()+client.latency/1000}
 					end
 					if not me:IsStunned() and (not me:IsInvisible() or z:IsBehaviourType(LuaEntityAbility.BEHAVIOR_POINT)) and armState and SleepCheck() and me.health+((-40+me.healthRegen)*(z:FindCastPoint()-client.latency/1000)) < incoming_projectiles[z.handle].damage then
-						me:SafeCastItem("item_armlet")
-						me:SafeCastItem("item_armlet")
+						me:CastAbility(armlet)
+						me:CastAbility(armlet)
 						Sleep(ARMLET_DELAY) break
 					end
 				end 
@@ -229,8 +229,8 @@ function Tick( tick )
 				or (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v))) < incoming_projectiles[v.handle].damage))
 				then
 					if not me:IsStunned() and not me:IsInvisible() and armState and SleepCheck() then
-						me:SafeCastItem("item_armlet")
-						me:SafeCastItem("item_armlet")
+						me:CastAbility(armlet)
+						me:CastAbility(armlet)
 						Sleep(ARMLET_DELAY) break
 					end
 				end
@@ -242,17 +242,17 @@ function Tick( tick )
 			end
 			if not armState and SleepCheck() and not me:IsInvisible() then
 				if not me:IsStunned() and not armState and SleepCheck() and Animations.isAttacking(me) and (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and GetDistance2D(me,v) < me.attackRange+50 then
-					me:SafeCastItem("item_armlet")
+					me:CastAbility(armlet)
 					Sleep(ARMLET_DELAY) break
 				end
 				for i,z in ipairs(v.abilities) do
 					if not me:IsStunned() and not armState and SleepCheck() and z.abilityPhase and distance <= z.castRange+50 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 then
-						me:SafeCastItem("item_armlet")
+						me:CastAbility(armlet)
 						Sleep(ARMLET_DELAY) break
 					end
 				end	
 				if not me:IsStunned() and not armState and SleepCheck() and (distance <= (250) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and distance < v.attackRange+50)) then
-					me:SafeCastItem("item_armlet")
+					me:CastAbility(armlet)
 					Sleep(ARMLET_DELAY)
 				end
 			end
