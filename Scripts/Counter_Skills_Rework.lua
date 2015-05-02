@@ -12,7 +12,7 @@ config:SetParameter("BlinkToggleKey", "N", config.TYPE_HOTKEY)
 config:SetParameter("ShowText", true)
 config:SetParameter("TextX", 0)
 config:SetParameter("TextY", 0)
-config:SetParameter("TextSize", 14)
+config:SetParameter("TextSize", 14) 
 config:Load()
 
 wait = 0 waittime = 0 sleepTick = nil sleep1 = 0  sleepk = 0 tt = nil aa = nil
@@ -86,7 +86,7 @@ function Tick( tick )
 					vec = Vector(me.position.x+1200*math.cos(me.rotR), me.position.y+1200*math.sin(me.rotR), me.position.z)
 				end
 				if BlinkDagger ~= nil and BlinkDagger.cd == 0 then
-					me:CastItem(BlinkDagger.name,vec)
+					me:CastAbility(BlinkDagger,vec)
 					Sleep(500,"blink")
 					client:ExecuteCmd("+dota_camera_center_on_hero")
 					client:ExecuteCmd("-dota_camera_center_on_hero")
@@ -122,18 +122,28 @@ function Tick( tick )
 			end
 		end
 		if not v:IsIllusion() and v.visible then
+			local Q = v:GetAbility(1)
+			local W = v:GetAbility(2)
+			local E = v:GetAbility(3)
+			local R = v:GetAbility(4)
+			local D = v:GetAbility(5)
+			local F = v:GetAbility(6)
+			local distance = GetDistance2D(v,me)
+			
 			if not visible_time[v.handle] then
 				visible_time[v.handle] = client.gameTime
 			end
 			target = v
-			if GotHex(v) and ((v:FindItem("item_sheepstick") and GetDistance2D(me,v) <= 900) or GetDistance2D(v,me) <= 500) and (not visible_time[v.handle] or client.gameTime - visible_time[v.handle] < 3 or GetDistance2D(v,me) < 350) then
+			if GotHex(v) and ((v:FindItem("item_sheepstick") and distance <= 900) or distance <= 500) and (not visible_time[v.handle] or client.gameTime - visible_time[v.handle] < 3 or distance < 350) then
 				UseBlinkDagger() Antiblinkhome()
 				SlarkDarkPact() UseLotusOrb()
 			end
-			if v.name == "npc_dota_hero_shadow_shaman" then
-				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 610 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			local tt20 = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			local timetoTurn = me:GetTurnTime(UseBlinkDaggervec())
+			if v.classId == CDOTA_Unit_Hero_ShadowShaman then
+				if Q and Q.level > 0 and Q.abilityPhase then
+					if distance < 650 then
+						turntime = tt20
 						if turntime == 0 then
 							Nyx()
 							TemplarRefraction()
@@ -141,10 +151,10 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_bane" then
-				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 700 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_Bane then
+				if R and R.level > 0 and R.abilityPhase then
+					if distance < 700 then
+						turntime = tt20
 						if turntime == 0 then
 							Nyx()
 							TemplarRefraction()
@@ -154,12 +164,12 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_skeleton_king" then
-				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 600 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, UseBlinkDaggervec()))), 0)/(heroInfo[me.name].turnRate*(1/0.03)))
-						if GetDistance2D(v,me) < 240 and turntime == 0 then
+			elseif v.classId == CDOTA_Unit_Hero_SkeletonKing then
+				if Q and Q.level > 0 and Q.abilityPhase then
+					if distance < 600 then
+						turntime = tt20
+						local turn = timetoTurn
+						if distance < 240 and turntime == 0 then
 							UseBlinkDagger() Antiblinkhome()
 							UseEulScepterTarget()
 							PuckW(true)
@@ -171,7 +181,7 @@ function Tick( tick )
 						end
 						if not timesk then
 							timesk = client.gameTime
-						elseif turntime == 0 and client.gameTime >= timesk+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000 then
+						elseif turntime == 0 and client.gameTime >= timesk+Q:FindCastPoint()-turn-client.latency/1000 then
 							UseBlinkDagger() Antiblinkhome()
 							UseEulScepterSelf()
 							Puck()
@@ -186,14 +196,14 @@ function Tick( tick )
 				else
 					timesk = nil
 				end
-			elseif v.name == "npc_dota_hero_earthshaker" then
-				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 1625 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, UseBlinkDaggervec()))), 0)/(heroInfo[me.name].turnRate*(1/0.03)))
+			elseif v.classId == CDOTA_Unit_Hero_Earthshaker then
+				if Q and Q.level > 0 and Q.abilityPhase then
+					if distance < 1625 then
+						turntime = tt20
+						local turn = timetoTurn
 						if not timees then
 							timees = client.gameTime
-						elseif turntime == 0 and client.gameTime >= timees+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000-0.1 then
+						elseif turntime == 0 and client.gameTime >= timees+Q:FindCastPoint()-turn-client.latency/1000-0.1 then
 							Puck()
 							UseBlinkDagger() Antiblinkhome()
 							UseEulScepterSelf()
@@ -204,12 +214,12 @@ function Tick( tick )
 							timees = nil
 						end
 					end	
-				elseif v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase then
-					if GetDistance2D(v,me) < 325 then
-						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, UseBlinkDaggervec()))), 0)/(heroInfo[me.name].turnRate*(1/0.03)))
+				elseif W and W.level > 0 and W.abilityPhase then
+					if distance < 325 then
+						local turn = timetoTurn
 						if not timees2 then
 							timees2 = client.gameTime
-						elseif client.gameTime >= timees2+v:GetAbility(2):FindCastPoint()-turn-client.latency/1000-0.1 then
+						elseif client.gameTime >= timees2+W:FindCastPoint()-turn-client.latency/1000-0.1 then
 							Puck()
 							UseBlinkDagger() Antiblinkhome()
 							UseEulScepterSelf()
@@ -219,16 +229,16 @@ function Tick( tick )
 						end
 					end	
 				else
-					if not (v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase) then
+					if not (W and W.level > 0 and W.abilityPhase) then
 						timees2 = nil
 					end
-					if not (v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase) then
+					if not (Q and Q.level > 0 and Q.abilityPhase) then
 						timees = nil
 					end
 				end
-			elseif v.name == "npc_dota_hero_axe" then
-				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 300 then
+			elseif v.classId == CDOTA_Unit_Hero_Axe then
+				if Q and Q.level > 0 and Q.abilityPhase then
+					if distance < 300 then
 						UseBlinkDagger() Antiblinkhome()
 						UseEulScepterTarget()
 						PuckW(true)
@@ -239,9 +249,9 @@ function Tick( tick )
 						SlarkShadowDance()
 						UseLotusOrb()
 					end
-				elseif v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 200 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+				elseif R and R.level > 0 and R.abilityPhase then
+					if distance < 200 then
+						turntime = tt20
 						if turntime == 0 then
 							SlarkShadowDance()
 							UseBlinkDagger() Antiblinkhome()
@@ -255,12 +265,12 @@ function Tick( tick )
 						end 
 					end
 				end
-			elseif v.name == "npc_dota_hero_pudge" then
-				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 400 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-						local turn = (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(me, UseBlinkDaggervec()))), 0)/(heroInfo[me.name].turnRate*(1/0.03)))
-						if GetDistance2D(v,me) < 300 and turntime == 0 then
+			elseif v.classId == CDOTA_Unit_Hero_Pudge then
+				if Q and Q.level > 0 and Q.abilityPhase then
+					if distance < 400 then
+						turntime = tt20
+						local turn = timetoTurn
+						if distance < 300 and turntime == 0 then
 							PuckW(true)
 							UseBlinkDagger() Antiblinkhome()
 							UseEulScepterTarget()
@@ -272,7 +282,7 @@ function Tick( tick )
 						end
 						if not timep then
 							timep = client.gameTime
-						elseif turntime == 0 and client.gameTime >= timep+v:GetAbility(1):FindCastPoint()-turn-client.latency/1000 then
+						elseif turntime == 0 and client.gameTime >= timep+Q:FindCastPoint()-turn-client.latency/1000 then
 							PuckW(true)
 							UseBlinkDagger() Antiblinkhome()
 							UseEulScepterSelf()
@@ -286,14 +296,14 @@ function Tick( tick )
 				else
 					timep = nil
 				end
-			elseif v.name == "npc_dota_hero_faceless_void" then
-				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) <= 1050 then
+			elseif v.classId == CDOTA_Unit_Hero_FacelessVoid then
+				if R and R.level > 0 and R.abilityPhase then
+					if distance <= 1050 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 2, 0))
 						if turntime == 0 then
 							UseBlinkDagger() Antiblinkhome()
 							UseEulScepterTarget()
-							if GetDistance2D(v,me) < 400 then
+							if distance < 400 then
 								PuckW(true)
 							else
 								Puck()
@@ -313,9 +323,9 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_puck" then
-				if v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase  then
-					if GetDistance2D(v,me) < 400 then
+			elseif v.classId == CDOTA_Unit_Hero_Puck then
+				if W and W.level > 0 and W.abilityPhase  then
+					if distance < 400 then
 						Nyx()
 						UseBlinkDagger() Antiblinkhome()
 						UseEulScepterSelf()
@@ -323,9 +333,9 @@ function Tick( tick )
 						PLDoppleganger()
 					end
 				end
-			elseif v.name == "npc_dota_hero_slardar" then
-				if v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase  then
-					if GetDistance2D(v,me) < 350 then
+			elseif v.classId == CDOTA_Unit_Hero_Slardar then
+				if W and W.level > 0 and W.abilityPhase  then
+					if distance < 350 then
 						Nyx()
 						UseBlinkDagger() Antiblinkhome()
 						UseEulScepterTarget()
@@ -338,10 +348,10 @@ function Tick( tick )
 						PLDoppleganger()
 					end
 				end
-			elseif v.name == "npc_dota_hero_silencer" then
-				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
+			elseif v.classId == CDOTA_Unit_Hero_Silencer then
+				if R and R.level > 0 and R.abilityPhase then
 					Nyx()
-					if GetDistance2D(me,v) < 400 then
+					if distance < 400 then
 						PuckW(true)
 					else
 						Puck()
@@ -354,17 +364,17 @@ function Tick( tick )
 					NagaMirror()
 					ObsidianImprisonmentself()
 				end
-			elseif v.name == "npc_dota_hero_doom_bringer" then
-				if v:GetAbility(6) and v:GetAbility(6).level > 0 and v:GetAbility(6).abilityPhase then
-					if GetDistance2D(v,me) < 680 then
-						if GetDistance2D(v,me) < 400 then
+			elseif v.classId == CDOTA_Unit_Hero_DoomBringer then
+				if F and F.level > 0 and F.abilityPhase then
+					if distance < 680 then
+						if distance < 400 then
 							PuckW(false)
 						end
 						UseEulScepterTarget()
 						UseSheepStickTarget()
 						UseOrchidtarget() SkySilence()
 
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						turntime = tt20
 						if turntime == 0 then
 							Nyx()
 							Useshadowamulet()
@@ -378,16 +388,16 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_necrolyte" then
-				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 600 then
-						if GetDistance2D(v,me) < 400 then
+			elseif v.classId == CDOTA_Unit_Hero_Necrolyte then
+				if R and R.level > 0 and R.abilityPhase then
+					if distance < 600 then
+						if distance < 400 then
 							PuckW(false)
 						end
 						UseEulScepterTarget()
 						UseSheepStickTarget()
 						UseOrchidtarget() SkySilence()
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						turntime = tt20
 						if turntime == 0 then
 							Nyx()
 							Useshadowamulet()
@@ -401,10 +411,10 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_terrorblade" then
-				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 325 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_Terrorblade then
+				if R and R.level > 0 and R.abilityPhase then
+					if distance < 325 then
+						turntime = tt20
 						if turntime == 0 then
 							PuckW(false)
 							UseEulScepterTarget()
@@ -422,10 +432,10 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_nevermore" then
-				if v:GetAbility(6) and v:GetAbility(6).level > 0 and v:GetAbility(6).abilityPhase then
-					if GetDistance2D(v,me) < 900 then
-						if GetDistance2D(v,me) < 400 then
+			elseif v.classId == CDOTA_Unit_Hero_Nevermore then
+				if F and F.level > 0 and F.abilityPhase then
+					if distance < 900 then
+						if distance < 400 then
 							PuckW(true)
 						end
 						Nyx()
@@ -440,20 +450,20 @@ function Tick( tick )
 						OracleFateEdict()
 					end
 				end
-			elseif v.name == "npc_dota_hero_sven" then
-				if v:GetProperty("CBaseAnimating","m_nSequence") == 15 then
-					if GetDistance2D(v,me) < 680 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_Sven then
+				if Q and Q.level > 0 and Q.abilityPhase then
+					if distance < 680 then
+						turntime = tt20
 						if turntime == 0 then
 							Nyx()
 							Useshadowamulet()
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_bloodseeker" then
-				if  v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 1000 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_Bloodseeker then
+				if R and R.level > 0 and R.abilityPhase then
+					if distance < 1000 then
+						turntime = tt20
 						if turntime == 0 then
 							Nyx()
 							TemplarMeld()
@@ -464,59 +474,59 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_queenofpain" then
-				if  v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 1200 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_QueenOfPain then
+				if  R and R.level > 0 and R.abilityPhase then
+					if distance < 1200 then
+						turntime = tt20
 						if turntime == 0 then
 							OracleFateEdict()
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_lina" then
-				if  v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 900 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
-						if turntime == 0 then
-							OracleFateEdict()
-							UseLotusOrb()
-						end
-					end
-				end
-			elseif v.name == "npc_dota_hero_lion" then
-				if  v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 900 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_Lina then
+				if  R and R.level > 0 and R.abilityPhase then
+					if distance < 900 then
+						turntime = tt20
 						if turntime == 0 then
 							OracleFateEdict()
 							UseLotusOrb()
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_night_stalker" then
-				if  v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 535 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_Lion then
+				if  R and R.level > 0 and R.abilityPhase then
+					if distance < 900 then
+						turntime = tt20
+						if turntime == 0 then
+							OracleFateEdict()
+							UseLotusOrb()
+						end
+					end
+				end
+			elseif v.classId == CDOTA_Unit_Hero_NightStalker then
+				if  Q and Q.level > 0 and Q.abilityPhase then
+					if distance < 535 then
+						turntime = tt20
 						if turntime == 0 then
 							Nyx()
 							UseLotusOrb()
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_luna" then
-				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 810 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_Luna then
+				if Q and Q.level > 0 and Q.abilityPhase then
+					if distance < 810 then
+						turntime = tt20
 						if turntime == 0 then
 							Nyx()
 							OracleFateEdict()
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_chaos_knight" then
+			elseif v.classId == CDOTA_Unit_Hero_ChaosKnight then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 11 then
-					if GetDistance2D(v,me) < 680 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					if distance < 680 then
+						turntime = tt20
 						if turntime == 0 then
 							if wait == 0 then
 								waittime = GetTick() + 80 - (client.avgLatency / 1000)
@@ -533,9 +543,9 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_magnataur" then
-				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 200 then
+			elseif v.classId == CDOTA_Unit_Hero_Magnataur then
+				if Q and Q.level > 0 and Q.abilityPhase then
+					if distance < 200 then
 						PuckW(true)	
 						target = v
 						UseShadowBlade()
@@ -546,11 +556,11 @@ function Tick( tick )
 						UseOrchidtarget() SkySilence()
 					end
 				end
-				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 400 then
+				if R and R.level > 0 and R.abilityPhase then
+					if distance < 400 then
 						PuckW(true)	
 					end
-					if GetDistance2D(v,me) < 420 then
+					if distance < 420 then
 						target = v
 						Puck()
 						UseShadowBlade()
@@ -561,24 +571,24 @@ function Tick( tick )
 						UseOrchidtarget() SkySilence()
 					end
 				end
-				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
-					if GetDistance2D(v,me) < 420 then
+				if R and R.level > 0 and R.abilityPhase then
+					if distance < 420 then
 						if not timerp then
 							timerp = client.gameTime
-						elseif client.gameTime >= timerp+v:GetAbility(4):FindCastPoint()-0.1-client.latency/1000 then							
+						elseif client.gameTime >= timerp+R:FindCastPoint()-0.1-client.latency/1000 then							
 							UseManta()
 							timerp = nil
 						end
 					end	
 				else
-					if not (v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase) then
+					if not (R and R.level > 0 and R.abilityPhase) then
 						timerp = nil
 					end
 				end
-			elseif v.name == "npc_dota_hero_tinker" then
-				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 680 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_Tinker then
+				if Q and Q.level > 0 and Q.abilityPhase then
+					if distance < 680 then
+						turntime = tt20
 						if turntime == 0 then
 							if wait == 0 then
 								waittime = GetTick() + 200 - (client.avgLatency/1000)
@@ -594,10 +604,10 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_ogre_magi" then
-				if v:GetAbility(1) and v:GetAbility(1).level > 0 and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 650 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_Ogre_Magi then
+				if Q and Q.level > 0 and Q.abilityPhase then
+					if distance < 650 then
+						turntime = tt20
 						if turntime == 0 then
 							if wait == 0 then
 								waittime = GetTick() + 200 - (client.avgLatency/1000)
@@ -612,8 +622,8 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_zuus" then
-				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
+			elseif v.classId == CDOTA_Unit_Hero_Zuus then
+				if R and R.level > 0 and R.abilityPhase then
 					if wait == 0 then					
 						waittime = GetTick() + 100 - (client.avgLatency/1000)
 						wait = 1 						
@@ -628,9 +638,9 @@ function Tick( tick )
 						Lifestealerrage()
 						UseEulScepterSelf()
 						wait = 0						
-				elseif  v:GetAbility(2) and v:GetAbility(2).level > 0 and v:GetAbility(2).abilityPhase then
-					if GetDistance2D(v,me) < 760 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+				elseif  W and W.level > 0 and W.abilityPhase then
+					if distance < 760 then
+						turntime = tt20
 						if turntime == 0 then
 							if wait == 0 then
 								waittime = GetTick() + 100 - (client.avgLatency / 1000)
@@ -645,9 +655,9 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_templar_assassin" then
+			elseif v.classId == CDOTA_Unit_Hero_TemplarAssassin then
 		        if v:DoesHaveModifier("modifier_templar_assassin_meld") then                                                      
-					if GetDistance2D(v,me) < 390 then
+					if distance < 390 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
 						if turntime == 0 then
 							if wait == 0 then
@@ -662,11 +672,11 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_clinkz" then
+			elseif v.classId == CDOTA_Unit_Hero_Clinkz then
 		        if v:DoesHaveModifier("modifier_clinkz_strafe") then                                                      
 					if v.activity == LuaEntityNPC.ACTIVITY_ATTACK then
-						if GetDistance2D(v,me) < 650 then
-							turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						if distance < 650 then
+							turntime = tt20
 							if turntime == 0 then
 								if wait == 0 then
 									waittime = GetTick() + 10 - (client.avgLatency/1000)
@@ -681,9 +691,9 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_phantom_assassin" then
+			elseif v.classId == CDOTA_Unit_Hero_PhantomAssassin then
 				if v.activity == LuaEntityNPC.ACTIVITY_CRIT then
-					if GetDistance2D(v,me) < 360 then
+					if distance < 360 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.60, 0))
 						if turntime == 0 then
 							if wait == 0 then
@@ -703,29 +713,27 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_tusk" then
-		        if v:DoesHaveModifier("modifier_tusk_walrus_punch") then                                                      
-					if v.activity == LuaEntityNPC.ACTIVITY_ATTACK then
-						if GetDistance2D(v,me) < 360 then
-							turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.60, 0))
-							if turntime == 0 then
-								if wait == 0 then
-									waittime = GetTick() + 10 - (client.avgLatency / 1000)
-									wait = 1 
-								else
-									if GetTick() > waittime then
-										Nyx()
-										wait = 0
-									end
+			elseif v.classId == CDOTA_Unit_Hero_Tusk then
+		        if R and R.abilityPhase then
+					if distance < 360 then
+						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.60, 0))
+						if turntime == 0 then
+							if wait == 0 then
+								waittime = GetTick() + 10 - (client.avgLatency / 1000)
+								wait = 1 
+							else
+								if GetTick() > waittime then
+									Nyx()
+									wait = 0
 								end
 							end
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_ursa" then
+			elseif v.classId == CDOTA_Unit_Hero_Ursa then
 		        if v:DoesHaveModifier("modifier_ursa_overpower") then                                                      
 					if v.activity == LuaEntityNPC.ACTIVITY_ATTACK then
-						if GetDistance2D(v,me) < 360 then
+						if distance < 360 then
 							turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.60, 0))
 							if turntime == 0 then
 								if wait == 0 then
@@ -740,8 +748,8 @@ function Tick( tick )
 							end
 						end
 					end
-				elseif v:GetAbility(1) and v:GetAbility(1):CanBeCasted() and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 389 then
+				elseif Q and Q:CanBeCasted() and Q.abilityPhase then
+					if distance < 389 then
 						if wait == 0 then
 							waittime = GetTick() + 10 - (client.avgLatency / 1000)
 							wait = 1 
@@ -753,10 +761,10 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_undying" then
-				if v:GetAbility(1) and v:GetAbility(1):CanBeCasted() and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 760 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_Undying then
+				if Q and Q:CanBeCasted() and Q.abilityPhase then
+					if distance < 760 then
+						turntime = tt20
 						if turntime == 0 then
 							if wait == 0 then
 								waittime = GetTick() + 100 - (client.avgLatency / 1000)
@@ -770,10 +778,10 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_abaddon" then
-				if v:GetAbility(1) and v:GetAbility(1):CanBeCasted() and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 820 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == "npc_dota_hero_abaddon" then
+				if Q and Q:CanBeCasted() and Q.abilityPhase then
+					if distance < 820 then
+						turntime = tt20
 						if turntime == 0 then
 							if wait == 0 then
 								waittime = GetTick() + 100 - (client.avgLatency / 1000)
@@ -787,10 +795,10 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_bounty_hunter" then
-				if v:GetAbility(1) and v:GetAbility(1):CanBeCasted() and v:GetAbility(1).abilityPhase then
-					if GetDistance2D(v,me) < 660 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+			elseif v.classId == CDOTA_Unit_Hero_Abaddon then
+				if Q and Q:CanBeCasted() and Q.abilityPhase then
+					if distance < 660 then
+						turntime = tt20
 						if turntime == 0 then
 							if wait == 0 then
 								waittime = GetTick() + 100 - (client.avgLatency / 1000)
@@ -805,9 +813,9 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_troll_warlord" then
-				if v:GetAbility(2) and v:GetAbility(2):CanBeCasted() and v:GetAbility(2).abilityPhase then
-					if GetDistance2D(v,me) < 450 then
+			elseif v.classId == CDOTA_Unit_Hero_TrollWarlord then
+				if W and W:CanBeCasted() and W.abilityPhase then
+					if distance < 450 then
 						if wait == 0 then
 							waittime = GetTick() + 100 - (client.avgLatency / 1000)
 							wait = 1 
@@ -820,9 +828,9 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_queenofpain" then
+			elseif v.classId == CDOTA_Unit_Hero_QueenOfPain then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 8 then
-					if GetDistance2D(v,me) < 760 then
+					if distance < 760 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.70, 0))
 						if turntime == 0 then
 							if wait == 0 then
@@ -837,13 +845,13 @@ function Tick( tick )
 						end
 					end
 				elseif v:GetProperty("CBaseAnimating","m_nSequence") ==7 then
-					if GetDistance2D(v,me) < 475 then
+					if distance < 475 then
 						Nyx()
 					end
 				end
-			elseif v.name == "npc_dota_hero_crystal_maiden" then
+			elseif v.classId == CDOTA_Unit_Hero_CrystalMaiden then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 7 then
-					if GetDistance2D(v,me) < 1050 then
+					if distance < 1050 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.70, 0))
 						if turntime == 0 then
 							if wait == 0 then
@@ -858,14 +866,14 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_obsidian_destroyer" then
-				if v:GetAbility(4) and v:GetAbility(4).level > 0 and v:GetAbility(4).abilityPhase then
+			elseif v.classId == CDOTA_Unit_Hero_Obsidian_Destroyer then
+				if R and R.level > 0 and R.abilityPhase then
 				Radius = {375,475,575}
-					if GetDistance2D(v,me) < v:GetAbility(4):GetCastRange(v:GetAbility(4).level)+Radius[v:GetAbility(4).level]/2 then
+					if distance < R:GetCastRange(R.level)+Radius[R.level]/2 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.70, 0))
 						if turntime == 0 then
 							Nyx()
-							if GetDistance2D(v,me) < 400 then
+							if distance < 400 then
 								PuckW(true)
 							else
 								Puck()
@@ -879,9 +887,9 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_lich" then
+			elseif v.classId == CDOTA_Unit_Hero_Lich then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 6 then
-					if GetDistance2D(v,me) < 610 then
+					if distance < 610 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
 						if turntime == 0 then
 							if wait == 0 then
@@ -896,9 +904,9 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_slardar" then
+			elseif v.classId == CDOTA_Unit_Hero_Slardar then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 6 then
-					if GetDistance2D(v,me) < 360 then
+					if distance < 360 then
 						if wait == 0 then
 							waittime = GetTick() + 150 - (client.avgLatency / 1000)
 							wait = 1 
@@ -910,9 +918,9 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_centaur" then
+			elseif v.classId == CDOTA_Unit_Hero_Centaur then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 6 then
-					if GetDistance2D(v,me) < 320 then
+					if distance < 320 then
 						if wait == 0 then
 							waittime = GetTick() +150 -(client.avgLatency / 1000)
 							wait = 1 
@@ -924,7 +932,7 @@ function Tick( tick )
 						end
 					end
 				elseif v:GetProperty("CBaseAnimating","m_nSequence") == 8 then
-					if GetDistance2D(v,me) < 340 then
+					if distance < 340 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 1.7, 0))
 						if turntime == 0 then
 							if wait == 0 then
@@ -939,27 +947,27 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_dragon_knight" then
+			elseif v.classId == CDOTA_Unit_Hero_DragonKnight then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 10 then
-					if GetDistance2D(v,me) < 600 then
+					if distance < 600 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
 						if turntime == 0 then
 							Nyx()
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_riki" then
+			elseif v.classId == CDOTA_Unit_Hero_Riki then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 35 then
-					if GetDistance2D(v,me) < 600 then
+					if distance < 600 then
 						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
 						if turntime == 0 then
 							Nyx()
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_mirana" then
+			elseif v.classId == CDOTA_Unit_Hero_Mirana then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 11 then
-					if GetDistance2D(v,me) < 630 then
+					if distance < 630 then
 						Nyx()
 						UseShadowBlade()
 						SandkinSandstorm()
@@ -967,26 +975,26 @@ function Tick( tick )
 						WeaverShukuchi()
 					end
 				end
-			elseif v.name == "npc_dota_hero_legion_commander" then
+			elseif v.classId == CDOTA_Unit_Hero_Legion_Commander then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 17 then
-					if GetDistance2D(v,me) < 400 then
+					if distance < 400 then
 						Nyx()
 					end
 				end
-			elseif v.name == "npc_dota_hero_necrolyte" then
+			elseif v.classId == CDOTA_Unit_Hero_Necrolyte then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 2 then
-					if GetDistance2D(v,me) < 650 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					if distance < 650 then
+						turntime = tt20
 						if turntime == 0 then
 							Nyx()
 							Useblackking()
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_spirit_breaker" then
+			elseif v.classId == "npc_dota_hero_spirit_breaker" then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 16 then
-					if GetDistance2D(v,me) < 720 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					if distance < 720 then
+						turntime = tt20
 						if turntime == 0 then
 							if wait == 0 then
 								waittime = GetTick() +400 -(client.avgLatency / 1000)
@@ -1000,19 +1008,19 @@ function Tick( tick )
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_doom_bringer" then
+			elseif v.classId == CDOTA_Unit_Hero_DoomBringer then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 9 then
-					if GetDistance2D(v,me) < 570 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					if distance < 570 then
+						turntime = tt20
 						if turntime == 0 then
 							Nyx()			
 						end
 					end
 				end
-			elseif v.name == "npc_dota_hero_bane" then
+			elseif v.classId == CDOTA_Unit_Hero_Bane then
 				if v:GetProperty("CBaseAnimating","m_nSequence") == 12  or v:GetProperty("CBaseAnimating","m_nSequence") == 14 or v:GetProperty("CBaseAnimating","m_nSequence") == 13  then
-					if GetDistance2D(v,me) < 570 then
-						turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					if distance < 570 then
+						turntime = tt20
 						if turntime == 0 then
 							StormUltfront()
 							Nyx()
@@ -1035,10 +1043,10 @@ function Tick( tick )
 				PLDoppleganger()
 				Useblackking()
 				UseShadowBlade()
-				if v:GetAbility(4) and v:GetAbility(4).name == "lina_laguna_blade" then
+				if R and v.classId == CDOTA_Unit_Hero_Lina then
 					target = v
 					TusksnowballTarget()
-					if v:GetAbility(4):GetDamage(v:GetAbility(4).level) * (1 - me.magicDmgResist) >= me.health then
+					if R:GetDamage(R.level) * (1 - me.magicDmgResist) >= me.health then
 						Phoenixsupernova()
 						Abaddonult()
 						UseBloodStone()
@@ -1053,7 +1061,7 @@ function Tick( tick )
 				UseBladeMail()
 				return				
 			elseif me:DoesHaveModifier("modifier_pudge_meat_hook") then                                                      
-				if v:GetAbility(1) and v:GetAbility(1).name == "pudge_meat_hook" then
+				if Q and v.classId == CDOTA_Unit_Hero_Pudge then
 					target = v
 					PuckW(false)
 					UseEulScepterTarget()
@@ -1093,10 +1101,10 @@ function Tick( tick )
 				Useblackking()
 				PLDoppleganger()
 				OracleFateEdict()
-				if v:GetAbility(4) and v:GetAbility(4).name == "lion_finger_of_death" then
+				if R and v.classId == CDOTA_Unit_Hero_Lion then
 					target = v
 					TusksnowballTarget()
-					if v:GetAbility(4):GetDamage(v:GetAbility(4).level) * (1 - me.magicDmgResist) >= me.health then
+					if R:GetDamage(R.level) * (1 - me.magicDmgResist) >= me.health then
 						Phoenixsupernova()
 						Abaddonult()
 						UseBloodStone()
@@ -1108,8 +1116,8 @@ function Tick( tick )
 				return	
 			elseif me:DoesHaveModifier("modifier_spirit_breaker_charge_of_darkness_vision") then	
 				if v.classId == CDOTA_Unit_Hero_SpiritBreaker then
-					if GetDistance2D(v,me) < 700 then
-						if GetDistance2D(v,me) < 400 then
+					if distance < 700 then
+						if distance < 400 then
 							Puck()
 						end
 						UseEulScepterTarget()
@@ -1132,7 +1140,7 @@ function Tick( tick )
 					-- print(k.name,k.target.name,k.speed,k.source.name,k.dayVision)
 				-- end
 				if k.target and k.target == me and k.source and k.source.team ~= me.team then
-					if k.source.name == "npc_dota_hero_tinker" and k.speed == 900 and k.source:GetAbility(2) and math.ceil(k.source:GetAbility(2).cd - 0.1) ==  math.ceil(k.source:GetAbility(2):GetCooldown(k.source:GetAbility(2).level)) then
+					if k.source.classId == CDOTA_Unit_Hero_Tinker and k.speed == 900 and k.source:GetAbility(2) and math.ceil(k.source:GetAbility(2).cd - 0.1) ==  math.ceil(k.source:GetAbility(2):GetCooldown(k.source:GetAbility(2).level)) then
 						Nyx()
 						Puck()
 						TemplarMeld()
@@ -1143,7 +1151,7 @@ function Tick( tick )
 						Embersleighttargetcal()
 						PLDoppleganger()
 						OracleFateEdict()
-					elseif k.source.name == "npc_dota_hero_phantom_assassin" and k.speed == 1200 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) then
+					elseif k.source.classId == CDOTA_Unit_Hero_PhantomAssassin and k.speed == 1200 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) then
 						Nyx()
 						Puck()
 						TemplarMeld()
@@ -1153,7 +1161,7 @@ function Tick( tick )
 						UseShadowBlade()
 						Embersleighttargetcal()
 						PLDoppleganger()
-					elseif k.source.name == "npc_dota_hero_queenofpain" and k.speed == 900 and k.source:GetAbility(3) and math.ceil(k.source:GetAbility(3).cd - 0.1) ==  math.ceil(k.source:GetAbility(3):GetCooldown(k.source:GetAbility(3).level)) then
+					elseif k.source.classId == CDOTA_Unit_Hero_QueenOfPain and k.speed == 900 and k.source:GetAbility(3) and math.ceil(k.source:GetAbility(3).cd - 0.1) ==  math.ceil(k.source:GetAbility(3):GetCooldown(k.source:GetAbility(3).level)) then
 						Nyx()
 						Puck()
 						TemplarMeld()
@@ -1163,7 +1171,7 @@ function Tick( tick )
 						UseShadowBlade()
 						Embersleighttargetcal()
 						PLDoppleganger()
-					elseif k.source.name == "npc_dota_hero_ogre_magi" and k.speed == 1000 and k.source:GetAbility(2) and math.ceil(k.source:GetAbility(2).cd - 0.1) ==  math.ceil(k.source:GetAbility(2):GetCooldown(k.source:GetAbility(2).level)) then
+					elseif k.source.classId == CDOTA_Unit_Hero_Ogre_Magi and k.speed == 1000 and k.source:GetAbility(2) and math.ceil(k.source:GetAbility(2).cd - 0.1) ==  math.ceil(k.source:GetAbility(2):GetCooldown(k.source:GetAbility(2).level)) then
 						Nyx()
 						Puck()
 						TemplarMeld()
@@ -1173,7 +1181,7 @@ function Tick( tick )
 						UseShadowBlade()
 						Embersleighttargetcal()
 						PLDoppleganger()
-					elseif k.source.name == "npc_dota_hero_necrolyte" and k.speed == 400 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) and GetDistance2D(me,k.position) < 200 then
+					elseif k.source.classId == CDOTA_Unit_Hero_Necrolyte and k.speed == 400 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) and GetDistance2D(me,k.position) < 200 then
 						Nyx()
 						Puck()
 						LoneDruidUlt()
@@ -1197,7 +1205,7 @@ function Tick( tick )
 							PLDoppleganger()
 							OracleFateEdict()
 						end
-					elseif k.source.name == "npc_dota_hero_sniper" and k.speed == 2500 and k.source:GetAbility(4) and math.ceil(k.source:GetAbility(4).cd - 0.1) ==  math.ceil(k.source:GetAbility(4):GetCooldown(k.source:GetAbility(4).level)) then
+					elseif k.source.classId == CDOTA_Unit_Hero_Sniper and k.speed == 2500 and k.source:GetAbility(4) and math.ceil(k.source:GetAbility(4).cd - 0.1) ==  math.ceil(k.source:GetAbility(4):GetCooldown(k.source:GetAbility(4).level)) then
 						Puck()
 						UseBlinkDagger() Antiblinkhome()
 						TemplarRefraction()
@@ -1212,19 +1220,19 @@ function Tick( tick )
 						UseBladeMail()
 						PLDoppleganger()
 						EmberGuard()
-						if v:GetAbility(4).name == "sniper_assassinate" then
+						if R then
 							local sniperultdamage = 0
-							if v:GetAbility(4).level == 1 then
+							if R.level == 1 then
 								sniperultdamage = 350*3/4
 							end
-							if v:GetAbility(4).level == 2 then
+							if R.level == 2 then
 								sniperultdamage = 505*3/4
 							end
-							if v:GetAbility(4).level == 3 then
+							if R.level == 3 then
 								sniperultdamage = 655*3/4
 							end
 							if sniperultdamage > me.health then
-								if GetDistance2D(v,me) > 1000 then
+								if distance > 1000 then
 									ShadowdemonDisruptionself()
 									ObsidianImprisonmentself()
 								end
@@ -1234,7 +1242,7 @@ function Tick( tick )
 						end
 					end
 				end
-				if k.source and k.source.team ~= me.team and k.source.name == "npc_dota_hero_windrunner" and k.speed == 1515 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) and (k.target == me or AngleBelow(v,k.target,me,7)) then
+				if k.source and k.source.team ~= me.team and k.source.classId == CDOTA_Unit_Hero_Windrunner and k.speed == 1515 and k.source:GetAbility(1) and math.ceil(k.source:GetAbility(1).cd - 0.1) ==  math.ceil(k.source:GetAbility(1):GetCooldown(k.source:GetAbility(1).level)) and (k.target == me or AngleBelow(v,k.target,me,7)) then
 					Puck()
 					Nyx()
 					UseBlinkDagger() Antiblinkhome()
@@ -1262,7 +1270,7 @@ function Tick( tick )
 				elseif z.dayVision == 0 and z.unitState == 59802112 then
 					if GetDistance2D(z,me) < 700 then
 						if v.classId == CDOTA_Unit_Hero_SpiritBreaker then
-							if GetDistance2D(v,me) < 900 then
+							if distance < 900 then
 								target = v 
 								UseEulScepterTarget()
 								UseSheepStickTarget()
@@ -1283,7 +1291,7 @@ function Tick( tick )
 						OracleFateEdict()
 						return
 					end
-				if v.classId == CDOTA_Unit_Hero_Leshrac and GetDistance2D(z,me) < GetSpecial(v:GetAbility(1),"radius",v:GetAbility(1).level+0)+25 then
+				if v.classId == CDOTA_Unit_Hero_Leshrac and GetDistance2D(z,me) < GetSpecial(Q,"radius",Q.level+0)+25 then
 						Puck()
 						UseBlinkDagger() Antiblinkhome()
 						Lifestealerrage()
@@ -1302,8 +1310,8 @@ function Tick( tick )
 					if GetDistance2D(z,me) < 650 then
 						Puck()
 						UseBlinkDagger()
-						if v:GetAbility(3).name == "rattletrap_rocket_flare" then
-							if v:GetAbility(3):GetDamage(v:GetAbility(3).level)*(1 - me.magicDmgResist) >= me.health then
+						if E.name == "rattletrap_rocket_flare" then
+							if E:GetDamage(E.level)*(1 - me.magicDmgResist) >= me.health then
 								UseEulScepterSelf()
 								return
 							end
@@ -1345,7 +1353,7 @@ function Tick( tick )
 			
 			local mines = entityList:GetEntities({classId=CDOTA_NPC_TechiesMines,team=me:GetEnemyTeam()})
 			for i,v in ipairs(mines) do
-				if v.name == "npc_dota_techies_land_mine" and GetDistance2D(v,me) <= 250 then
+				if v.classId == "npc_dota_techies_land_mine" and distance <= 250 then
 					UseEulScepterSelf() UseGhostScepter()
 					Puck() SlarkPounce() PLDoppleganger()
 					UseBlinkDagger(true) Antiblinkhome()
@@ -1359,8 +1367,9 @@ function Tick( tick )
 			if blink and blink.cd > 11 and v:CanCast() then                                 
 				for s = 1, 6 do
 					target = v
-					if v:GetAbility(s) ~= nil and v:GetAbility(s):CanBeCasted() then
-						if v:GetAbility(s).name == "tiny_avalanche" and GetDistance2D(v,me) < 500 then
+					local spell = v:GetAbility(s)
+					if spell ~= nil and spell:CanBeCasted() then
+						if spell.name == "tiny_avalanche" and distance < 500 then
 							Puck()
 							Jugernautomnitarget()
 							Lifestealerrage()
@@ -1371,8 +1380,8 @@ function Tick( tick )
 							Juggernautfury()
 							PLDoppleganger()
 							return 
-						elseif v:GetAbility(s).name == "tidehunter_ravage" and GetDistance2D(v,me) < 1050 then
-							if GetDistance2D(v,me) < 400 then
+						elseif spell.name == "tidehunter_ravage" and distance < 1050 then
+							if distance < 400 then
 								PuckW(true)
 								UseSheepStickTarget()
 								UseOrchidtarget() SkySilence()
@@ -1391,7 +1400,7 @@ function Tick( tick )
 							end
 							PLDoppleganger()
 							return 
-						elseif v:GetAbility(s).name == "puck_waning_rift" and GetDistance2D(v,me) < 400 then
+						elseif spell.name == "puck_waning_rift" and distance < 400 then
 							Emberremnantnow()
 							Silencerult()
 							UseSheepStickTarget()
@@ -1400,8 +1409,8 @@ function Tick( tick )
 							UseEulScepterSelf()
 							PLDoppleganger()
 							return 
-						elseif v:GetAbility(s).name == "treant_overgrowth" and GetDistance2D(v,me) < 625 then
-							if GetDistance2D(v,me) < 400 then
+						elseif spell.name == "treant_overgrowth" and distance < 625 then
+							if distance < 400 then
 								PuckW(true)
 								Emberremnantnow()
 								UseSheepStickTarget()
@@ -1420,7 +1429,7 @@ function Tick( tick )
 							end
 							PLDoppleganger()
 							return 
-						elseif v:GetAbility(s).name == "centaur_hoof_stomp" and GetDistance2D(v,me) < 320 then
+						elseif spell.name == "centaur_hoof_stomp" and distance < 320 then
 							PuckW(true)
 							Silencerult()
 							UseSheepStickTarget()
@@ -1431,7 +1440,7 @@ function Tick( tick )
 							Juggernautfury()
 							PLDoppleganger()
 							return 	
-						elseif v:GetAbility(s).name == "slardar_slithereen_crush" and GetDistance2D(v,me) < 350 then
+						elseif spell.name == "slardar_slithereen_crush" and distance < 350 then
 							PuckW(true)	
 							Emberremnantnow()
 							UseSheepStickTarget()
@@ -1442,7 +1451,7 @@ function Tick( tick )
 							Juggernautfury()
 							PLDoppleganger()
 							return 	
-						elseif v:GetAbility(s).name == "brewmaster_thunder_clap" and GetDistance2D(v,me) < 400 then
+						elseif spell.name == "brewmaster_thunder_clap" and distance < 400 then
 							PuckW(true)
 							Emberremnantnow()
 							UseSheepStickTarget()
@@ -1452,7 +1461,7 @@ function Tick( tick )
 							Juggernautfury()
 							PLDoppleganger()
 							return 		
-						elseif v:GetAbility(s).name == "venomancer_poison_nova" and GetDistance2D(v,me) < 830 then
+						elseif spell.name == "venomancer_poison_nova" and distance < 830 then
 							Emberremnantnow()
 							Silencerult()
 							UseSheepStickTarget()
@@ -1463,8 +1472,8 @@ function Tick( tick )
 							Juggernautfury()
 							PLDoppleganger()
 							return 	
-						elseif v:GetAbility(s).name == "magnataur_reverse_polarity" and GetDistance2D(v,me) < 410 then
-							if GetDistance2D(v,me) < 400 then
+						elseif spell.name == "magnataur_reverse_polarity" and distance < 410 then
+							if distance < 400 then
 								PuckW(true)
 								Emberremnantnow()
 								Silencerult()
@@ -1485,8 +1494,8 @@ function Tick( tick )
 							end
 							PLDoppleganger()
 							return 	
-						elseif v:GetAbility(s).name == "enigma_black_hole" and GetDistance2D(v,me) < 700 then
-							if GetDistance2D(v,me) < 400 then
+						elseif spell.name == "enigma_black_hole" and distance < 700 then
+							if distance < 400 then
 								PuckW(true)
 								Emberremnantnow()
 								Silencerult()
@@ -1507,7 +1516,7 @@ function Tick( tick )
 							end
 							PLDoppleganger()
 							return 	
-						elseif v:GetAbility(s).name == "magnataur_skewer" and GetDistance2D(v,me) < 300 then
+						elseif spell.name == "magnataur_skewer" and distance < 300 then
 							Emberremnantnow()
 							UseEulScepterTarget()
 							UseSheepStickTarget()
@@ -1516,7 +1525,7 @@ function Tick( tick )
 							UseBlinkDagger() Antiblinkhome()
 							PLDoppleganger()
 							return 
-						elseif v:GetAbility(s).name == "batrider_flaming_lasso" and GetDistance2D(v,me) < 300 then
+						elseif spell.name == "batrider_flaming_lasso" and distance < 300 then
 							Emberremnantnow()
 							Silencerult()
 							UseEulScepterTarget()
@@ -1529,7 +1538,7 @@ function Tick( tick )
 							UseShadowBlade()
 							PLDoppleganger()
 							return 	
-						elseif v:GetAbility(s).name == "pudge_dismember" and GetDistance2D(v,me) < 200 then
+						elseif spell.name == "pudge_dismember" and distance < 200 then
 							Emberremnantnow()
 							Silencerult()
 							UseEulScepterTarget()
@@ -1541,7 +1550,7 @@ function Tick( tick )
 							Juggernautfury()
 							PLDoppleganger()
 							return 	
-						elseif v:GetAbility(s).name == "axe_berserkers_call" and GetDistance2D(v,me) < 300 then
+						elseif spell.name == "axe_berserkers_call" and distance < 300 then
 							Emberremnantnow()
 							PuckW(true)
 							UseEulScepterTarget()
@@ -1551,7 +1560,7 @@ function Tick( tick )
 							Juggernautfury()
 							PLDoppleganger()
 							return 	
-						elseif v:GetAbility(s).name == "legion_commander_duel" and GetDistance2D(v,me) < 400 then
+						elseif spell.name == "legion_commander_duel" and distance < 400 then
 							PuckW(true)
 							Emberremnantnow()
 							UseEulScepterTarget()
@@ -1565,7 +1574,7 @@ function Tick( tick )
 							UseLotusOrb()
 							PLDoppleganger()
 							return 
-						elseif v:GetAbility(s).name == "earthshaker_echo_slam" and GetDistance2D(v,me) < 575 and v:GetAbility(s):CanBeCasted() then
+						elseif spell.name == "earthshaker_echo_slam" and distance < 575 and spell:CanBeCasted() then
 							PuckW(true)
 							Emberremnantnow()
 							UseEulScepterSelf()
@@ -1578,7 +1587,7 @@ function Tick( tick )
 						end
 					end
 					
-					if v.name == "npc_dota_hero_templar_assassin" and GetDistance2D(v,me) < 380 then
+					if v.classId == CDOTA_Unit_Hero_TemplarAssassin and distance < 380 then
 						Puck()
 						UseEulScepterTarget()
 						UseSheepStickTarget()
@@ -1586,7 +1595,7 @@ function Tick( tick )
 						UseBlinkDagger() Antiblinkhome()
 						PLDoppleganger()
 						return
-					elseif v.name == "npc_dota_hero_ursa" and GetDistance2D(v,me) < 385 then
+					elseif v.classId == CDOTA_Unit_Hero_Ursa and distance < 385 then
 						UseBlinkDagger() Antiblinkhome()
 						Puck()
 						UseEulScepterTarget()
@@ -1595,12 +1604,12 @@ function Tick( tick )
 						PLDoppleganger()
 						SkySilence()
 						return					
-					elseif v.name == "npc_dota_hero_meepo" and GetDistance2D(v,me) < 400 then
+					elseif v.classId == "npc_dota_hero_meepo" and distance < 400 then
 						UseBlinkDagger() Antiblinkhome()
 						Puck()
 						PLDoppleganger()
 						return					
-					elseif GetDistance2D(v,me) <= 500 then
+					elseif distance <= 500 then
 						UseBlinkDagger() Antiblinkhome()
 						UseEulScepterTarget()
 						UseSheepStickTarget()
@@ -1617,11 +1626,14 @@ function Tick( tick )
 			
 			--Checking if skill was already casted--
 			for t = 1, 4 do 
-				if v:GetAbility(t) and v:GetAbility(t).level > 0 then	
+				local spell = v:GetAbility(t)
+				if spell and spell.level > 0 then	
 					target = v
-					if v:GetAbility(t).name == "tidehunter_ravage" then
-						if v:GetAbility(t).abilityPhase or math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1025 then
+					local casted = (math.ceil(spell.cd - 0.1) == math.ceil(spell:GetCooldown(spell.level)))
+					local casted2 = (math.ceil(spell.cd) == math.ceil(spell:GetCooldown(spell.level)))
+					if spell.name == "tidehunter_ravage" then
+						if spell.abilityPhase or casted then
+							if distance < 1025 then
 								Embersleighttargetcal()
 								Juggernautfury()
 								Nyx()
@@ -1634,9 +1646,9 @@ function Tick( tick )
 								PLDoppleganger()
 							end
 						end
-					elseif v:GetAbility(t).name == "queenofpain_scream_of_pain" then
-						if v:GetAbility(t).abilityPhase or v:GetProperty("CBaseAnimating","m_nSequence") == 10 or math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 475 then
+					elseif spell.name == "queenofpain_scream_of_pain" then
+						if spell.abilityPhase or v:GetProperty("CBaseAnimating","m_nSequence") == 10 or casted then
+							if distance < 475 then
 								Embersleighttargetcal()
 								Juggernautfury()
 								Nyx()
@@ -1649,9 +1661,9 @@ function Tick( tick )
 								PLDoppleganger()
 							end
 						end
-					elseif v:GetAbility(t).name == "sandking_epicenter" then
-						if v:GetAbility(t).channelTime > 0 then
-							if GetDistance2D(v,me) < 400 then
+					elseif spell.name == "sandking_epicenter" then
+						if spell.channelTime > 0 then
+							if distance < 400 then
 								PuckW(false)
 							end
 							target = v
@@ -1659,9 +1671,9 @@ function Tick( tick )
 							UseSheepStickTarget()
 							UseEulScepterTarget()
 						end
-					elseif v:GetAbility(t).name == "bane_fiends_grip" then
-						if v:GetAbility(t).channelTime > 0 then
-							if GetDistance2D(v,me) < 400 then
+					elseif spell.name == "bane_fiends_grip" then
+						if spell.channelTime > 0 then
+							if distance < 400 then
 								PuckW(false)
 							end
 							target = v
@@ -1669,10 +1681,10 @@ function Tick( tick )
 							UseSheepStickTarget()
 							UseEulScepterTarget()
 						end
-					elseif v:GetAbility(t).name == "drow_ranger_wave_of_silence" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
+					elseif spell.name == "drow_ranger_wave_of_silence" then
+						if casted then
 							turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
-							if GetDistance2D(v,me) < 1150 and turntime == 0 then
+							if distance < 1150 and turntime == 0 then
 								Puck()
 								UseBlinkDagger() Antiblinkhome()
 								Juggernautfury()
@@ -1687,9 +1699,9 @@ function Tick( tick )
 								PLDoppleganger()
 							end
 						end	
-					elseif v:GetAbility(t).name == "shadow_shaman_shackles" then
-						if v:GetAbility(t).channelTime > 0 then
-							if GetDistance2D(v,me) < 400 then
+					elseif spell.name == "shadow_shaman_shackles" then
+						if spell.channelTime > 0 then
+							if distance < 400 then
 								PuckW(false)
 							end
 							target = v
@@ -1697,9 +1709,9 @@ function Tick( tick )
 							UseSheepStickTarget()
 							UseEulScepterTarget()
 						end
-					elseif v:GetAbility(t).name == "luna_eclipse" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 675 then
+					elseif spell.name == "luna_eclipse" then
+						if casted then
+							if distance < 675 then
 								Puck()
 								UseBlinkDagger() Antiblinkhome()
 								UseEulScepterSelf()
@@ -1717,9 +1729,9 @@ function Tick( tick )
 								OracleFalsePromise()
 							end
 						end
-					elseif v:GetAbility(t).name == "mirana_starfall" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 625 then
+					elseif spell.name == "mirana_starfall" then
+						if casted then
+							if distance < 625 then
 								Puck()
 								UseBlinkDagger() Antiblinkhome()
 								UseEulScepterSelf()
@@ -1734,19 +1746,19 @@ function Tick( tick )
 								Useshadowamulet()
 							end
 						end
-					elseif v:GetAbility(t).name == "venomancer_poison_nova" then
-						if v:GetAbility(t).abilityPhase or v:GetProperty("CBaseAnimating","m_nSequence") == 12 or math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1025 then
+					elseif spell.name == "venomancer_poison_nova" then
+						if spell.abilityPhase or v:GetProperty("CBaseAnimating","m_nSequence") == 12 or casted2 then
+							if distance < 1025 then
 								Juggernautfury()
 								Puck()
 								UseBlinkDagger() Antiblinkhome()
 								PLDoppleganger()
 							end
 						end
-					elseif v:GetAbility(t).name == "sven_storm_bolt" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  13 then
-							if GetDistance2D(v,me) < (600 + me.movespeed*((GetDistance2D(v,me)/v:GetAbility(t):GetSpecialData("bolt_speed",v:GetAbility(t).level)) + 1)) then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "sven_storm_bolt" then
+						if math.ceil(spell.cd - 0.1) ==  13 then
+							if distance < (600 + me.movespeed*((distance/spell:GetSpecialData("bolt_speed",spell.level)) + 1)) then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
 									UseBlinkDagger() Antiblinkhome()
@@ -1768,10 +1780,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "phantom_assassin_phantom_strike" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1100 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "phantom_assassin_phantom_strike" then
+						if casted then
+							if distance < 1100 then
+								turntime = tt20
 								if turntime == 0 then
 									UseEulScepterTarget()
 									UseEtherealtarget()
@@ -1785,10 +1797,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "tiny_avalanche" then
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 900 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "tiny_avalanche" then
+						if casted2 then
+							if distance < 900 then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
 									UseEulScepterSelf()
@@ -1802,19 +1814,19 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "pugna_nether_blast" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 750 then
+					elseif spell.name == "pugna_nether_blast" then
+						if casted then
+							if distance < 750 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.70, 0))
 								if turntime == 0 then
 									Nyx()	
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "dazzle_poison_touch" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 650 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "dazzle_poison_touch" then
+						if casted then
+							if distance < 650 then
+								turntime = tt20
 								if turntime == 0 then
 									UseBlinkDagger() Antiblinkhome()
 									Puck()
@@ -1822,10 +1834,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "skeleton_king_hellfire_blast" then 
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 600 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "skeleton_king_hellfire_blast" then 
+						if casted2 then
+							if distance < 600 then
+								turntime = tt20
 								if turntime == 0 then
 									SlarkDarkPact()
 									Puck()
@@ -1845,10 +1857,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "sandking_burrowstrike" then 
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 600 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "sandking_burrowstrike" then 
+						if casted2 then
+							if distance < 600 then
+								turntime = tt20
 								if turntime == 0 then
 									SlarkDarkPact()
 									Puck()
@@ -1867,22 +1879,22 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "medusa_mystic_snake" then
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 800 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "medusa_mystic_snake" then
+						if casted2 then
+							if distance < 800 then
+								turntime = tt20
 								if turntime == 0 then
 									UseShadowBlade()
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "lina_dragon_slave" then
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1275 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "lina_dragon_slave" then
+						if casted2 then
+							if distance < 1275 then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
-									if v:GetAbility(t):GetDamage(v:GetAbility(t).level) * (1 - me.magicDmgResist) > me.health then
+									if spell:GetDamage(spell.level) * (1 - me.magicDmgResist) > me.health then
 										UseEulScepterSelf()
 									end
 									UseBlinkDagger() Antiblinkhome()
@@ -1891,9 +1903,9 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "pudge_meat_hook" then
-						if math.ceil(v:GetAbility(t).cd) == math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) and not me:DoesHaveModifier("pudge_meat_hook") then
-							if GetDistance2D(v,me) < 1300 then
+					elseif spell.name == "pudge_meat_hook" then
+						if math.ceil(spell.cd) == math.ceil(spell:GetCooldown(spell.level)) and not me:DoesHaveModifier("pudge_meat_hook") then
+							if distance < 1300 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
 								if turntime == 0 then
 									Nyx()
@@ -1907,10 +1919,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "rattletrap_hookshot" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 3000 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "rattletrap_hookshot" then
+						if casted then
+							if distance < 3000 then
+								turntime = tt20
 								if turntime == 0 then
 									Nyx()
 									Juggernautfury()
@@ -1921,10 +1933,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "dragon_knight_breathe_fire" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) or v:GetAbility(t).abilityPhase then
-							if GetDistance2D(v,me) < 620 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "dragon_knight_breathe_fire" then
+						if casted or spell.abilityPhase then
+							if distance < 620 then
+								turntime = tt20
 								if turntime == 0 then
 									Nyx()
 									Puck()
@@ -1933,10 +1945,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "chaos_knight_chaos_bolt" then
-						if v:GetAbility(t).abilityPhase then
-							if GetDistance2D(v,me) < 580 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "chaos_knight_chaos_bolt" then
+						if spell.abilityPhase then
+							if distance < 580 then
+								turntime = tt20
 								if turntime == 0 then
 									target = v
 									tt = nil
@@ -1944,10 +1956,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "shredder_timber_chain" then
-						if math.ceil(v:GetAbility(t).cd-0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)-0.1) then
-							if GetDistance2D(v,me) < 1400 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "shredder_timber_chain" then
+						if math.ceil(spell.cd-0.1) ==  math.ceil(spell:GetCooldown(spell.level)-0.1) then
+							if distance < 1400 then
+								turntime = tt20
 								if turntime == 0 then
 									Nyx()
 									Juggernautfury()
@@ -1955,17 +1967,17 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "magnataur_shockwave" then
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1160 then
+					elseif spell.name == "magnataur_shockwave" then
+						if casted2 then
+							if distance < 1160 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
 								if turntime == 0 then
 									Nyx()
 									Puck()
 								end
 							end
-						elseif math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 600 then
+						elseif casted2 then
+							if distance < 600 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
 								if turntime == 0 then
 									Nyx()
@@ -1973,9 +1985,9 @@ function Tick( tick )
 								end
 							end	
 						end	
-					elseif v:GetAbility(t).name == "nyx_assassin_impale" then
-						if math.ceil(v:GetAbility(t).cd - 12.9) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 800 then
+					elseif spell.name == "nyx_assassin_impale" then
+						if math.ceil(spell.cd - 12.9) ==  math.ceil(spell:GetCooldown(spell.level)) then
+							if distance < 800 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
 								if turntime == 0 then
 									Puck()
@@ -1983,9 +1995,9 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "magnataur_skewer" then
-						if math.ceil(v:GetAbility(t).cd - 0.8) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 900 then
+					elseif spell.name == "magnataur_skewer" then
+						if math.ceil(spell.cd - 0.8) ==  math.ceil(spell:GetCooldown(spell.level)) then
+							if distance < 900 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.80, 0))
 								if turntime == 0 then
 									Nyx()
@@ -1994,20 +2006,20 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "phantom_lancer_spirit_lance" then
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 820 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "phantom_lancer_spirit_lance" then
+						if casted2 then
+							if distance < 820 then
+								turntime = tt20
 								if turntime == 0 then						
 									Nyx()
 									Puck()
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "jakiro_ice_path" then
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1200 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "jakiro_ice_path" then
+						if casted2 then
+							if distance < 1200 then
+								turntime = tt20
 								if turntime == 0 then
 									Nyx()
 									Useshadowamulet()
@@ -2021,9 +2033,9 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "slark_pounce" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 600 then
+					elseif spell.name == "slark_pounce" then
+						if casted then
+							if distance < 600 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.30, 0))
 								if turntime == 0 then
 									Nyx()
@@ -2033,10 +2045,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "vengefulspirit_magic_missile" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 550 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "vengefulspirit_magic_missile" then
+						if casted then
+							if distance < 550 then
+								turntime = tt20
 								if turntime == 0 then
 									Nyx()
 									Puck()
@@ -2052,10 +2064,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "bounty_hunter_shuriken_toss" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 750 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "bounty_hunter_shuriken_toss" then
+						if casted then
+							if distance < 750 then
+								turntime = tt20
 								if turntime == 0 then
 									Nyx()
 									Puck()
@@ -2071,10 +2083,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "viper_viper_strike" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 910 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "viper_viper_strike" then
+						if casted then
+							if distance < 910 then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
 									UseBlinkDagger() Antiblinkhome()
@@ -2087,9 +2099,9 @@ function Tick( tick )
 									PLDoppleganger()
 								end
 							end
-						elseif v:AghanimState() and math.ceil(v:GetAbility(t).cd - 0.1) ==  12 then
-							if GetDistance2D(v,me) < 1200 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						elseif v:AghanimState() and math.ceil(spell.cd - 0.1) ==  12 then
+							if distance < 1200 then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
 									UseBlinkDagger() Antiblinkhome()
@@ -2102,50 +2114,50 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "naga_siren_ensnare" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 670 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "naga_siren_ensnare" then
+						if casted then
+							if distance < 670 then
+								turntime = tt20
 								if turntime == 0 then
 									UseBlinkDaggerfront()
 									Puck()
 									UseLotusOrb()
 									SlarkDarkPact()
 									Embersleighttargetcal()
-									if v:GetAbility(t).level >= 2 then
+									if spell.level >= 2 then
 										LoneDruidUlt()
 									end
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "witch_doctor_paralyzing_cask" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 720 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "witch_doctor_paralyzing_cask" then
+						if casted then
+							if distance < 720 then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
 									Embersleighttargetcal()
-									if v:GetAbility(t).level >= 2 then
+									if spell.level >= 2 then
 										LoneDruidUlt()
 									end
 									UseShadowBlade()	
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "spectre_spectral_dagger" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1000 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "spectre_spectral_dagger" then
+						if casted then
+							if distance < 1000 then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
 									Nyx()
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "lich_chain_frost" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 900 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "lich_chain_frost" then
+						if casted then
+							if distance < 900 then
+								turntime = tt20
 								if turntime == 0 then
 									Nyx()
 									Puck()
@@ -2157,10 +2169,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "juggernaut_omni_slash" then
-						if math.ceil(v:GetAbility(t).cd - 0.3) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 900 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "juggernaut_omni_slash" then
+						if math.ceil(spell.cd - 0.3) ==  math.ceil(spell:GetCooldown(spell.level)) then
+							if distance < 900 then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
 									TemplarMeld()
@@ -2176,9 +2188,9 @@ function Tick( tick )
 									WWColdEmbrace()
 								end
 							end
-						elseif v:AghanimState() and math.ceil(v:GetAbility(t).cd - 0.3) == 70 then
-							if GetDistance2D(v,me) < 900 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+						elseif v:AghanimState() and math.ceil(spell.cd - 0.3) == 70 then
+							if distance < 900 then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
 									TemplarMeld()
@@ -2193,9 +2205,9 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "death_prophet_carrion_swarm" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1100 then
+					elseif spell.name == "death_prophet_carrion_swarm" then
+						if casted then
+							if distance < 1100 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
 								if turntime == 0 then
 									Nyx()
@@ -2204,10 +2216,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "invoker_deafening_blast" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1100 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "invoker_deafening_blast" then
+						if casted then
+							if distance < 1100 then
+								turntime = tt20
 								if turntime == 0 then									
 									Nyx()
 									Puck()
@@ -2216,16 +2228,16 @@ function Tick( tick )
 								end
 							end
 						end
-					-- elseif v:GetAbility(t).name == "skywrath_mage_concussive_shot" then
-						-- if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							-- if GetDistance2D(v,me) < 1600 then
+					-- elseif spell.name == "skywrath_mage_concussive_shot" then
+						-- if casted then
+							-- if distance < 1600 then
 								-- Puck()
 							-- end
 						-- end
-					elseif v:GetAbility(t).name == "skywrath_mage_mystic_flare" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1250 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "skywrath_mage_mystic_flare" then
+						if casted then
+							if distance < 1250 then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
 									UseEulScepterSelf()
@@ -2234,30 +2246,30 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "puck_illusory_orb" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 750 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "puck_illusory_orb" then
+						if casted then
+							if distance < 750 then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
 									Nyx()
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "windrunner_powershot" then
-						if math.ceil(v:GetAbility(t).cd + 0.9) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1500 then
-									turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "windrunner_powershot" then
+						if math.ceil(spell.cd + 0.9) ==  math.ceil(spell:GetCooldown(spell.level)) then
+							if distance < 1500 then
+									turntime = tt20
 									if turntime == 0 then
 										Nyx()
 										Puck()
 									end
 								end
 							end
-					elseif v:GetAbility(t).name == "alchemist_unstable_concoction" then
-						if math.ceil(v:GetAbility(t).cd) >  10.4 then
-							if GetDistance2D(v,me) < 1000 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "alchemist_unstable_concoction" then
+						if math.ceil(spell.cd) >  10.4 then
+							if distance < 1000 then
+								turntime = tt20
 								if turntime == 0 then
 									Puck()
 									Nyx()
@@ -2272,10 +2284,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "queenofpain_shadow_strike" then
-						if math.ceil(v:GetAbility(t).cd - 0.7) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 625 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "queenofpain_shadow_strike" then
+						if math.ceil(spell.cd - 0.7) ==  math.ceil(spell:GetCooldown(spell.level)) then
+							if distance < 625 then
+								turntime = tt20
 								if turntime == 0 then
 									UseBlinkDaggerfront()
 									Puck()
@@ -2284,10 +2296,10 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "queenofpain_blink" then
-						if math.ceil(v:GetAbility(t).cd - 0.8) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 500 then
-								if GetDistance2D(v,me) < 400 then
+					elseif spell.name == "queenofpain_blink" then
+						if math.ceil(spell.cd - 0.8) ==  math.ceil(spell:GetCooldown(spell.level)) then
+							if distance < 500 then
+								if distance < 400 then
 									PuckW(true)
 									UseSheepStickTarget()
 									UseOrchidtarget() SkySilence()
@@ -2304,9 +2316,9 @@ function Tick( tick )
 								PLDoppleganger()
 							end
 						end
-					elseif v:GetAbility(t).name == "queenofpain_sonic_wave" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1300 then
+					elseif spell.name == "queenofpain_sonic_wave" then
+						if casted then
+							if distance < 1300 then
 								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.40, 0))
 								if turntime == 0 then
 									Nyx()
@@ -2320,21 +2332,21 @@ function Tick( tick )
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "disruptor_glimpse" then
-						if math.ceil(v:GetAbility(t).cd) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 2000 then
-								turntime = (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0))
+					elseif spell.name == "disruptor_glimpse" then
+						if casted2 then
+							if distance < 2000 then
+								turntime = tt20
 								if turntime == 0 then
 									UseShadowBlade()
 									Useshadowamulet()
 								end
 							end
 						end
-					elseif v:GetAbility(t).name == "faceless_void_time_walk" then
-						if math.ceil(v:GetAbility(t).cd - 0.1) ==  math.ceil(v:GetAbility(t):GetCooldown(v:GetAbility(t).level)) then
-							if GetDistance2D(v,me) < 1050 and v:CanCast() then
-								if v:GetAbility(4).name == "faceless_void_chronosphere" and v:GetAbility(4):CanBeCasted() then
-									if GetDistance2D(v,me) < 400 then
+					elseif spell.name == "faceless_void_time_walk" then
+						if casted then
+							if distance < 1050 and v:CanCast() then
+								if R.name == "faceless_void_chronosphere" and R:CanBeCasted() then
+									if distance < 400 then
 										UseBlinkDagger() Antiblinkhome()
 										PuckW(true)
 										UseSheepStickTarget()
@@ -2548,8 +2560,8 @@ function PLDoppleganger()
 	if activated == 0 then
 		local dopplewalk = me:FindSpell("phantom_lancer_doppelwalk")
 		if dopplewalk and dopplewalk.level > 0 and dopplewalk:CanBeCasted() and me:CanCast() then
-			local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
-			me:CastAbility(dopplewalk,Vector((v.position.x - me.position.x) * 500 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 500 / GetDistance2D(v,me) + me.position.y,v.position.z))
+			local base = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
+			me:CastAbility(dopplewalk,Vector((base.position.x - me.position.x) * 500 / GetDistance2D(base,me) + me.position.x,(base.position.y - me.position.y) * 500 / GetDistance2D(base,me) + me.position.y,base.position.z))
 			activated = 1
 			sleepTick = GetTick() + 500
 		end
@@ -3137,8 +3149,8 @@ function UseBlinkDagger(front) --use blink to home
 	if activated == 0 and enableBlinking then
 		local BlinkDagger = me:FindItem("item_blink")
 		local stormult = me:FindSpell("storm_spirit_ball_lightning")
-		local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
-		local vec = Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
+		local base = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
+		local vec = Vector((base.position.x - me.position.x) * 1100 / GetDistance2D(base,me) + me.position.x,(base.position.y - me.position.y) * 1100 / GetDistance2D(base,me) + me.position.y,base.position.z)
 		if front then
 			blinkfront = true
 		else
@@ -3163,8 +3175,8 @@ function UseBlinkDagger(front) --use blink to home
 end
 
 function UseBlinkDaggervec() --use blink to home
-	local v = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
-	return Vector((v.position.x - me.position.x) * 1100 / GetDistance2D(v,me) + me.position.x,(v.position.y - me.position.y) * 1100 / GetDistance2D(v,me) + me.position.y,v.position.z)
+	local base = entityList:GetEntities({classId = CDOTA_Unit_Fountain,team = me.team})[1]
+	return Vector((base.position.x - me.position.x) * 1100 / GetDistance2D(base,me) + me.position.x,(base.position.y - me.position.y) * 1100 / GetDistance2D(base,me) + me.position.y,base.position.z)
 end
 
 function UseBlinkDaggerfront()--use blink to front of hero distance 100 
@@ -3508,7 +3520,7 @@ end
 function GetSpecial(spell,Name,lvl)
 	local specials = spell.specials
 	for _,v in ipairs(specials) do
-		if v.name == Name then
+		if v.classId == Name then
 			return v:GetData( math.min(v.dataCount,lvl) )
 		end
 	end
