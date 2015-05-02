@@ -126,20 +126,20 @@ function Main(tick)
 				local ethereal = me:FindItem("item_ethereal_blade")
 				local manaboots = me:FindItem("item_arcane_boots")
 				
-				if impale and impale.state == LuaEntityAbility.STATE_READY then
+				if impale and impale:CanBeCasted() then
 					ImpaleSkillShot(victim,me,impale)
 					sleeptick = tick + 400
 				end
 				
 				if me.mana < me.maxMana*0.5 and manaboots and manaboots.cd == 0 then
-					me:SafeCastItem(manaboots.name)
+					me:CastAbility(manaboots)
 				end
 				
 				if ethereal and ethereal.cd == 0 then
 					table.insert(castQueue,{(GetDistance2D(me,victim)/1200)*1000,ethereal,victim})
 				end
 				
-				if manaburn and manaburn.state == LuaEntityAbility.STATE_READY and (victim.intellectTotal*manadmg[manaburn.level])/4 < victim.mana then
+				if manaburn and manaburn:CanBeCasted() and (victim.intellectTotal*manadmg[manaburn.level])/4 < victim.mana then
 					table.insert(castQueue,{manaburn:GetCastPoint(manaburn.level)*1000,manaburn,victim})
 				end
 				
