@@ -295,7 +295,9 @@ function Main(tick)
 		if hook.level > 0 and math.ceil(hook.cd) == math.ceil(hook:GetCooldown(hook.level)) then
 			xyz = nil
 			if (Rubick or (targetHandle and entityList:GetEntity(targetHandle))) and rot.level > 0 and rot.toggled == false and not rot.abilityPhase and not rottoggled and SleepCheck("rot") then
-				me:ToggleSpell(rot.name)
+				local prev = SelectUnit(me)
+				entityList:GetMyPlayer():ToggleAbility(rot)
+				SelectBack(prev)
 				Sleep(250 + client.latency, "rot")
 				rottoggled = true
 			else
@@ -323,7 +325,10 @@ function Main(tick)
 							for k,z in ipairs(projectile) do
 								if me.health <= (DmgR2[rot.level]*3*(1 - me.magicDmgResist)) then
 									if rot.toggled == false then
-										me:SafeToggleSpell(rot.name)
+										local prev = SelectUnit(me)
+										entityList:GetMyPlayer():ToggleAbility(rot)
+										SelectBack(prev)
+										Sleep(250 + client.latency, "rot")
 									end
 								end
 							end
@@ -331,7 +336,10 @@ function Main(tick)
 					else
 						if distance <= (v.attackRange + 50) and me.health <= (DmgR2[rot.level]*3*(1 - me.magicDmgResist)) then
 							if rot.toggled == false then
-								me:SafeToggleSpell(rot.name)
+								local prev = SelectUnit(me)
+								entityList:GetMyPlayer():ToggleAbility(rot)
+								SelectBack(prev)
+								Sleep(250 + client.latency, "rot")
 							end
 						end
 					end
@@ -482,7 +490,9 @@ function Combo(tick)
 			statusText.text = "Hook'em - Manual!"
 		end
 		if W.toggled == true or rottoggled then
-			me:SafeToggleSpell(W.name)
+			local prev = SelectUnit(me)
+			entityList:GetMyPlayer():ToggleAbility(W)
+			SelectBack(prev)
 		end
 		active = true
 		count = 0
@@ -494,7 +504,9 @@ function Combo(tick)
 	
 	if W.level > 0 and W.toggled == false and not W.abilityPhase and not rottoggled and SleepCheck("rot") then
 		if distance <= 250 then
-			me:SafeToggleSpell(W.name)
+			local prev = SelectUnit(me)
+			entityList:GetMyPlayer():ToggleAbility(W)
+			SelectBack(prev)
 			Sleep(250 + client.latency, "rot")
 		end
 	end
@@ -516,29 +528,29 @@ function Combo(tick)
 	if config.AutoUrn and urn and urn.charges > 0 and urn:CanBeCasted() and not urned and not me:IsChanneling() and ((R.level > 0 and not R.abilityPhase and R.channelTime == 0 and not ultied) or R.level == 0) then 
 		if not aga then 
 			if R.level == 0 or target.health > (DmgD[R.level] * (1 - target.magicDmgResist)) or CanEscape(target) then
-				me:SafeCastItem(urn.name,target)
+				me:CastAbility(urn,target)
 			elseif R.level == 0 or target.health < (DmgD[R.level] * (1 - target.magicDmgResist)) and not R:CanBeCasted() or CanEscape(target) then
-				me:SafeCastItem(urn.name,target)
+				me:CastAbility(urn,target)
 			end
 			Sleep(client.latency,"combo")
 		else
 			if R.level == 0 or target.health > (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) or CanEscape(target) then
-				me:SafeCastItem(urn.name,target)
+				me:CastAbility(urn,target)
 			elseif R.level == 0 or target.health < (DmgD[R.level]+(3*me.strengthTotal) * (1 - target.magicDmgResist)) and not R:CanBeCasted() or CanEscape(target) then
-				me:SafeCastItem(urn.name,target)
+				me:CastAbility(urn,target)
 			end
 			Sleep(client.latency,"combo")
 		end
 	end
 	
 	if config.AutoEthereal and ethereal and ethereal:CanBeCasted() and not target:IsMagicImmune() and ((R.level > 0 and not R.abilityPhase and R.channelTime == 0 and not ultied) or R.level == 0) then
-		me:SafeCastItem(ethereal.name,target)
+		me:CastAbility(ethereal,target)
 		Sleep(client.latency,"combo")
 	end
 
 	if (not hooked or GetDistance2D(me, target) < (1600*math.max(client.latency/1000,0.1)+80)) and not R.abilityPhase then
 		if R.level > 0 and R:CanBeCasted() and me:CanCast() and ((target.health*(target.dmgResist+1)) > ((me.dmgMin + me.dmgBonus)*3) or CanEscape(target)) then 
-			me:SafeCastSpell(R.name,target)
+			me:CastAbility(R,target)
 			Sleep(50,"combo")
 			ultied = true
 			return
