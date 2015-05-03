@@ -1,3 +1,3 @@
-0.812
+0.813
 
-Chaining Earthbind broken currently, need to wait for Zynox again. Dont forget to add Rulfy\ensage-wip repo back.
+Had to do workaround for broken alive attribute. Chaining Earthbind broken currently, need to wait for Zynox again. Dont forget to add Rulfy\ensage-wip repo back.
