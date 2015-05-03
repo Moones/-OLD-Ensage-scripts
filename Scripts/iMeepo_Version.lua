@@ -1,3 +1,3 @@
-0.811
+0.812
 
-Dont forget to add Rulfy\ensage-wip repo back
+Chaining Earthbind broken currently, need to wait for Zynox again. Dont forget to add Rulfy\ensage-wip repo back.
