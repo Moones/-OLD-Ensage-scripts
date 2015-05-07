@@ -242,7 +242,7 @@ function Animations.isCriting(hero)
 end
 
 function Animations.CanMove(hero)
-	if Animations.table[hero.handle] then return Animations.table[hero.handle].canmove end
+	if Animations.table[hero.handle] then return Animations.table[hero.handle].canmove and HeroInfo(hero) and HeroInfo(hero).attackSpeed and HeroInfo(hero).attackSpeed < 200 end
 end
 
 function Animations.GetAttackTime(hero)
@@ -268,6 +268,10 @@ function HeroInfo:__init(entity)
 	end
 	self.baseAttackPoint = heroInfo[name].attackPoint
 	self.baseBackswing = heroInfo[name].attackBackswing
+	self.attackSpeed = self:GetAttackSpeed()
+	self.attackRate = self:GetAttackRate()
+	self.attackPoint = self:GetAttackPoint()
+	self.attackBackswing = self:GetBackswing()
 end
 
 function HeroInfo:Update()	
@@ -278,7 +282,7 @@ function HeroInfo:Update()
 end
 
 function HeroInfo:GetAttackSpeed()
-	if self.entity.attackSpeed > 600 then
+	if self.entity.attackSpeed > 600 or self.entity:DoesHaveModifier("modifier_ursa_overpower") then
 		return 600
 	end
 	return self.entity.attackSpeed
