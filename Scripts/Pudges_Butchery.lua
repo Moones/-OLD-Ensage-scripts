@@ -198,7 +198,7 @@ function Main(tick)
 		targetText.entity = me
 		targetText.entityPosition = Vector(0,0,offset)
 	end
-	if active then
+	if active and me.alive then
 		if config.PredictionGUI and victim and victim.visible then
 			local pred = SkillShot.SkillShotXYZ(me,victim,(300+client.latency+me:GetTurnTime(victim)*1000),1600)
 			if not distxyz then
@@ -491,7 +491,7 @@ function Combo(tick)
 		else
 			statusText.text = "Hook'em - Manual!"
 		end
-		if W.toggled == true or rottoggled then
+		if me.alive and (W.toggled == true or rottoggled) then
 			local prev = SelectUnit(me)
 			entityList:GetMyPlayer():ToggleAbility(W)
 			SelectBack(prev)
