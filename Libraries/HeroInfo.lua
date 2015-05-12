@@ -1225,4 +1225,49 @@ npc_dota_lycan_wolf4 = {
  attackPoint = 0.33,
  attackBackswing = 0.64},
  
+ npc_dota_brewmaster_earth_1 = {
+ attackRate = 1.35,
+ attackPoint = 0.3,
+ attackBackswing = 0.3},
+ 
+ npc_dota_brewmaster_earth_2 = {
+ attackRate = 1.35,
+ attackPoint = 0.3,
+ attackBackswing = 0.3},
+ 
+ npc_dota_brewmaster_earth_3 = {
+ attackRate = 1.35,
+ attackPoint = 0.3,
+ attackBackswing = 0.3},
+ 
+npc_dota_brewmaster_fire_1 = {
+ attackRate = 1.35,
+ attackPoint = 0.3,
+ attackBackswing = 0.3},
+ 
+ npc_dota_brewmaster_fire_2 = {
+ attackRate = 1.35,
+ attackPoint = 0.3,
+ attackBackswing = 0.3},
+ 
+ npc_dota_brewmaster_fire_3 = {
+ attackRate = 1.35,
+ attackPoint = 0.3,
+ attackBackswing = 0.3},
+ 
+npc_dota_brewmaster_storm_1 = {
+ attackRate = 1.5,
+ attackPoint = 0.4,
+ attackBackswing = 0.77},
+ 
+ npc_dota_brewmaster_storm_2 = {
+ attackRate = 1.5,
+ attackPoint = 0.4,
+ attackBackswing = 0.77},
+ 
+ npc_dota_brewmaster_storm_3 = {
+ attackRate = 1.5,
+ attackPoint = 0.4,
+ attackBackswing = 0.77},
+ 
  }
