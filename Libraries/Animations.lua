@@ -112,8 +112,11 @@ function Animations.trackingTick(tick)
 	else Animations.count = Animations.count + 1 end
 	local entities = entityList:GetEntities({type=LuaEntity.TYPE_HERO,visible=true,alive=true})
 	entities[#entities + 1] = entityList:GetEntities({classId=CDOTA_Unit_SpiritBear,visible=true,alive=true})[1]
+	entities[#entities + 1] = entityList:GetEntities({classId=CDOTA_Unit_Brewmaster_PrimalEarth,visible=true,alive=true})[1]
+	entities[#entities + 1] = entityList:GetEntities({classId=CDOTA_Unit_Brewmaster_PrimalFire,visible=true,alive=true})[1]
+	entities[#entities + 1] = entityList:GetEntities({classId=CDOTA_Unit_Brewmaster_PrimalStorm,alive=true})[1]
 	for i,v in ipairs(entities) do
-		if (v.hero and not v:IsIllusion()) or v.classId == CDOTA_Unit_SpiritBear then
+		if not v:IsIllusion() then
 			if not Animations.table[v.handle] then
 				Animations.table[v.handle] = {}
 			end
@@ -243,6 +246,7 @@ end
 
 function Animations.CanMove(hero)
 	if Animations.table[hero.handle] then return Animations.table[hero.handle].canmove and HeroInfo(hero) and HeroInfo(hero).attackSpeed and HeroInfo(hero).attackSpeed < 400 end
+	return false
 end
 
 function Animations.GetAttackTime(hero)
