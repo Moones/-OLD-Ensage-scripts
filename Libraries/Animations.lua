@@ -189,7 +189,7 @@ function Animations.trackingTick(tick)
 			--FlyingProjectilesCheck
 			local projs = entityList:GetProjectiles({source=v})
 			for k,z in ipairs(projs) do
-				if GetDistance2D(z.position, v.position) < 127 and not Animations.table[v.handle].canmove then
+				if (GetDistance2D(z.position, v.position) < 127 or (z.target and GetDistance2D(z,z.target) < 127)) and not Animations.table[v.handle].canmove then
 					Animations.table[v.handle].canmove = true
 					-- if v.name == "npc_dota_hero_dragon_knight" then	
 						-- print("Asd")
