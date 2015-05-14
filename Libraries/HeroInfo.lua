@@ -1270,4 +1270,35 @@ npc_dota_brewmaster_storm_1 = {
  attackPoint = 0.4,
  attackBackswing = 0.77},
  
+ npc_dota_necronomicon_archer_1 = {
+ attackRate = 1,
+ attackPoint = 0.7,
+ attackBackswing = 0.3},
+ 
+ npc_dota_necronomicon_archer_2 = {
+ attackRate = 1,
+ attackPoint = 0.7,
+ attackBackswing = 0.3},
+ 
+ npc_dota_necronomicon_archer_3 = {
+ attackRate = 1,
+ attackPoint = 0.7,
+ attackBackswing = 0.3},
+ 
+ npc_dota_necronomicon_warrior_1 = {
+ attackRate = 0.75,
+ attackPoint = 0.56,
+ attackBackswing = 0.44},
+ 
+ npc_dota_necronomicon_warrior_2 = {
+ attackRate = 0.75,
+ attackPoint = 0.56,
+ attackBackswing = 0.44},
+ 
+ npc_dota_necronomicon_warrior_3 = {
+ attackRate = 0.75,
+ attackPoint = 0.56,
+ attackBackswing = 0.44},
+ 
+ 
  }
