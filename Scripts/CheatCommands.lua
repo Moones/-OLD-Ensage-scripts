@@ -14,7 +14,7 @@ local commandsTable = config.Commands
 local autoExec = config.AutoExecute
 
 function KeyExecute(msg,code)	
-	if msg ~= KEY_UP or client.chat or not PlayingGame() then return end
+	if msg ~= KEY_UP or client.chat or not IsIngame() then return end
 	if code == key then
 		if ExecuteCommands("Starting to execute cheat commands") then
 			script:Disable()
@@ -24,7 +24,7 @@ function KeyExecute(msg,code)
 end
 
 function AutoExecution()
-	if PlayingGame() and autoExec then
+	if IsIngame() and autoExec then
 		if ExecuteCommands("Starting to AutoExecute cheat commands") then
 			script:Disable()
 		end
