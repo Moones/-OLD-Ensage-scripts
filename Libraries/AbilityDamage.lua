@@ -6,7 +6,7 @@ require("libs.Animations")
                              ) ))              
   .::.ABILITY DAMAGE LIBRARY/ /( MADE BY MOONES      
  'M .-;-.-.-.-.-.-.-.-.-.-/| ((:::::::::::::::::::::::::::::::::::::::::::::.._
-(O ( ( ( ( ( ( ( ( ( ( ( ( |  ))   -============VERSION 0.1============-      _.>
+(O ( ( ( ( ( ( ( ( ( ( ( ( |  ))   -============VERSION 0.2============-      _.>
  `M `-;-`-`-`-`-`-`-`-`-`-\| ((::::::::::::::::::::::::::::::::::::::::::::::''
   `::'                      \ \(
         Description:         ) ))
@@ -22,12 +22,16 @@ require("libs.Animations")
         Changelog:
         ----------
 		
+		v0.2 - Added temporary table to access damage easily
+		
 		v0.1 - BETA Release
 		
 ]]--
 
 --Tables with all informations we need to determine actual ability damage
 AbilityDamage = {}
+
+AbilityDamage.temporaryTable = {}
 
 AbilityDamage.modifiersSpellList = {	
 	modifier_alchemist_acid_spray = { npc = true; npcModifierName = "modifier_alchemist_acid_spray_thinker"; spellName = "alchemist_acid_spray"; AbilityDamage = "damage"; tickInterval = "tick_rate"; startTime = 0; duration = "duration"; };
@@ -276,13 +280,25 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			if hpRegen and tickDuration then
 				finalDamage = finalDamage - (hpRegen*tickDuration)
 			end
-			--print(ability.name, finalDamage)
+			
 			return finalDamage
 		elseif spell.manaBurn then
 			if ability.name == "antimage_mana_void" then
-				return ability:GetSpecialData(""..spell.damage,ability.level)
+				local Dmg = ability:GetSpecialData(""..spell.damage,ability.level)
+				if not AbilityDamage.temporaryTable[ability.name] then
+					AbilityDamage.temporaryTable[ability.name] = {}
+				else
+					AbilityDamage.temporaryTable[ability.name][ability.level] = Dmg
+				end
+				return Dmg
 			elseif ability.name == "invoker_emp" then
-				return ability:GetSpecialData(""..spell.damage,owner:FindSpell(spell.spellLevel).level)
+				local Dmg = ability:GetSpecialData(""..spell.damage,owner:FindSpell(spell.spellLevel).level)
+				if not AbilityDamage.temporaryTable[ability.name] then
+					AbilityDamage.temporaryTable[ability.name] = {}
+				else
+					AbilityDamage.temporaryTable[ability.name][ability.level] = Dmg
+				end
+				return Dmg
 			end
 		else
 			local spellLevel = nil
@@ -331,6 +347,11 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			end
 			if bonusDamage then
 				damage = damage + bonusDamage
+			end
+			if not AbilityDamage.temporaryTable[ability.name] then
+				AbilityDamage.temporaryTable[ability.name] = {}
+			else
+				AbilityDamage.temporaryTable[ability.name][ability.level] = damage
 			end
 			return damage
 		end
@@ -381,6 +402,11 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			end
 			if hpRegen and tickDuration then
 				finalDamage = finalDamage - (hpRegen*tickDuration)
+			end
+			if not AbilityDamage.temporaryTable[ability.name] then
+				AbilityDamage.temporaryTable[ability.name] = {}
+			else
+				AbilityDamage.temporaryTable[ability.name][ability.level] = finalDamage
 			end
 			return finalDamage
 		else
@@ -444,19 +470,35 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			if int > atr then atr = int end		
 			damage = damage + (((item.mult) and (ability:GetSpecialData(""..item.mult))))*atr
 		end
+		if ability.name ~= "item_ethereal_blade" then
+			if not AbilityDamage.temporaryTable[ability.name] then
+				AbilityDamage.temporaryTable[ability.name] = {}
+			else
+				AbilityDamage.temporaryTable[ability.name][ability.level] = damage
+			end
+		end
 		return damage
 	elseif dmg then
+		if not AbilityDamage.temporaryTable[ability.name] then
+			AbilityDamage.temporaryTable[ability.name] = {}
+		else
+			AbilityDamage.temporaryTable[ability.name][ability.level] = dmg
+		end
 		return dmg
 	end
 	return nil
 end
 
 function AbilityDamage.GetDamage(ability, hpRegen)
-	local damage = AbilityDamage.CalculateDamage(ability, hpRegen)
-	if damage then 
-		return damage 
+	if AbilityDamage.temporaryTable[ability.name] and AbilityDamage.temporaryTable[ability.name][ability.level] then
+		return AbilityDamage.temporaryTable[ability.name][ability.level]
+	else
+		local damage = AbilityDamage.CalculateDamage(ability, hpRegen)
+		if damage then 
+			return damage 
+		end
 	end
-	return nil
+	return 0
 end
 
 function AbilityDamage.GetDmgType(spell)
