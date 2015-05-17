@@ -227,9 +227,13 @@ AbilityDamage.itemList = {
 
 function AbilityDamage.CalculateDamage(ability, hpRegen)
 	if ability.level <= 0 then return 0 end
-	local spell = AbilityDamage.spellList[ability.name]
-	local item = AbilityDamage.itemList[ability.name]
-	local attack_modifier = AbilityDamage.attackModifiersList[ability.name]
+	local AbilityDamagetemporaryTable = AbilityDamage.temporaryTable
+	local AbilityDamagespellList = AbilityDamage.spellList
+	local AbilityDamageitemList = AbilityDamage.itemList
+	local AbilityDamageattackModifiersList = AbilityDamage.attackModifiersList
+	local spell = AbilityDamagespellList[ability.name]
+	local item = AbilityDamageitemList[ability.name]
+	local attack_modifier = AbilityDamageattackModifiersList[ability.name]
 	local owner = ability.owner
 	local dmg = ability:GetDamage(ability.level)
 	if spell then
@@ -285,18 +289,18 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 		elseif spell.manaBurn then
 			if ability.name == "antimage_mana_void" then
 				local Dmg = ability:GetSpecialData(""..spell.damage,ability.level)
-				if not AbilityDamage.temporaryTable[ability.name] then
-					AbilityDamage.temporaryTable[ability.name] = {}
+				if not AbilityDamagetemporaryTable[ability.name] then
+					AbilityDamagetemporaryTable[ability.name] = {}
 				else
-					AbilityDamage.temporaryTable[ability.name][ability.level] = Dmg
+					AbilityDamagetemporaryTable[ability.name][ability.level] = Dmg
 				end
 				return Dmg
 			elseif ability.name == "invoker_emp" then
 				local Dmg = ability:GetSpecialData(""..spell.damage,owner:FindSpell(spell.spellLevel).level)
-				if not AbilityDamage.temporaryTable[ability.name] then
-					AbilityDamage.temporaryTable[ability.name] = {}
+				if not AbilityDamagetemporaryTable[ability.name] then
+					AbilityDamagetemporaryTable[ability.name] = {}
 				else
-					AbilityDamage.temporaryTable[ability.name][ability.level] = Dmg
+					AbilityDamagetemporaryTable[ability.name][owner:FindSpell(spell.spellLevel).level] = Dmg
 				end
 				return Dmg
 			end
@@ -348,10 +352,12 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			if bonusDamage then
 				damage = damage + bonusDamage
 			end
-			if not AbilityDamage.temporaryTable[ability.name] then
-				AbilityDamage.temporaryTable[ability.name] = {}
+			if not AbilityDamagetemporaryTable[ability.name] then
+				AbilityDamagetemporaryTable[ability.name] = {}
+			elseif spell.spellLevel then
+				AbilityDamagetemporaryTable[ability.name][owner:FindSpell(spell.spellLevel).level] = damage
 			else
-				AbilityDamage.temporaryTable[ability.name][ability.level] = damage
+				AbilityDamagetemporaryTable[ability.name][ability.level] = damage
 			end
 			return damage
 		end
@@ -403,10 +409,12 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			if hpRegen and tickDuration then
 				finalDamage = finalDamage - (hpRegen*tickDuration)
 			end
-			if not AbilityDamage.temporaryTable[ability.name] then
-				AbilityDamage.temporaryTable[ability.name] = {}
+			if not AbilityDamagetemporaryTable[ability.name] then
+				AbilityDamagetemporaryTable[ability.name] = {}
+			elseif spell.spellLevel then
+				AbilityDamagetemporaryTable[ability.name][owner:FindSpell(spell.spellLevel).level] = finalDamage
 			else
-				AbilityDamage.temporaryTable[ability.name][ability.level] = finalDamage
+				AbilityDamagetemporaryTable[ability.name][ability.level] = finalDamage
 			end
 			return finalDamage
 		else
@@ -471,18 +479,18 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			damage = damage + (((item.mult) and (ability:GetSpecialData(""..item.mult))))*atr
 		end
 		if ability.name ~= "item_ethereal_blade" then
-			if not AbilityDamage.temporaryTable[ability.name] then
-				AbilityDamage.temporaryTable[ability.name] = {}
+			if not AbilityDamagetemporaryTable[ability.name] then
+				AbilityDamagetemporaryTable[ability.name] = {}
 			else
-				AbilityDamage.temporaryTable[ability.name][ability.level] = damage
+				AbilityDamagetemporaryTable[ability.name][ability.level] = damage
 			end
 		end
 		return damage
 	elseif dmg then
-		if not AbilityDamage.temporaryTable[ability.name] then
-			AbilityDamage.temporaryTable[ability.name] = {}
+		if not AbilityDamagetemporaryTable[ability.name] then
+			AbilityDamagetemporaryTable[ability.name] = {}
 		else
-			AbilityDamage.temporaryTable[ability.name][ability.level] = dmg
+			AbilityDamagetemporaryTable[ability.name][ability.level] = dmg
 		end
 		return dmg
 	end
@@ -490,8 +498,16 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 end
 
 function AbilityDamage.GetDamage(ability, hpRegen)
-	if AbilityDamage.temporaryTable[ability.name] and AbilityDamage.temporaryTable[ability.name][ability.level] then
-		return AbilityDamage.temporaryTable[ability.name][ability.level]
+	local AbilityDamagetemporaryTable = AbilityDamage.temporaryTable
+	local AbilityDamagespellList = AbilityDamage.spellList
+	local spell = AbilityDamagespellList[ability.name]
+	local owner = ability.owner
+	if AbilityDamagetemporaryTable[ability.name] then
+		if (spell and spell.spellLevel and AbilityDamagetemporaryTable[ability.name][owner:FindSpell(spell.spellLevel).level]) then
+			return AbilityDamagetemporaryTable[ability.name][owner:FindSpell(spell.spellLevel).level]
+		elseif AbilityDamagetemporaryTable[ability.name][ability.level] then
+			return AbilityDamagetemporaryTable[ability.name][ability.level]
+		end
 	else
 		local damage = AbilityDamage.CalculateDamage(ability, hpRegen)
 		if damage then 
