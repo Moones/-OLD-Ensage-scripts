@@ -244,7 +244,7 @@ function Animations.isCriting(hero)
 end
 
 function Animations.CanMove(hero)
-	if Animations.table[hero.handle] then return Animations.table[hero.handle].canmove and HeroInfo(hero) and HeroInfo(hero).attackSpeed and HeroInfo(hero).attackSpeed < 400 end
+	if Animations.table[hero.handle] then return Animations.table[hero.handle].canmove and HeroInfo(hero) and HeroInfo(hero).attackSpeed and HeroInfo(hero).attackSpeed < 250 end
 	return false
 end
 
