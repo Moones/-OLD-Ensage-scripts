@@ -1,5 +1,5 @@
 require("libs.Utils")
-require("libs.AnimationsBETA")
+require("libs.Animations2")
 --[[
                              ___
                             ( ((
