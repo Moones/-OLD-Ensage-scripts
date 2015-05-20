@@ -115,6 +115,13 @@ function Animations.trackingTick(tick)
 --	v.name == "npc_dota_necronomicon_warrior_2" or v.name == "npc_dota_necronomicon_warrior_3") and v.alive and v.visible) end)
 	local entities = {}
 	entities[1] = entityList:GetMyHero()
+	if entities[1].classId == CDOTA_Unit_Hero_Meepo then
+		entities = {}
+		local meepos = entityList:GetEntities({type = LuaEntity.TYPE_MEEPO})
+		for i = 1, #meepos do
+			entities[#entities+1] = meepos[i]
+		end
+	end
 	for i = 1, #entities do
 		local v = entities[i]
 		if not Animations.table[v.handle] then
