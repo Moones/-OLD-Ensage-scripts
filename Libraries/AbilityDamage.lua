@@ -465,17 +465,17 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			damage = (((item.damage) and (ability:GetSpecialData(""..item.damage))))
 		end
 		if ability.name == "item_ethereal_blade" then
-			-- local atr = owner.primaryAttribute
-			-- if atr == LuaEntityHero.ATTRIBUTE_STRENGTH then atr = owner.strengthTotal
-			-- elseif atr == LuaEntityHero.ATTRIBUTE_AGILITY then atr = owner.agilityTotal
-			-- elseif atr == LuaEntityHero.ATTRIBUTE_INTELLIGENCE then atr = owner.intellectTotal
-			-- end
-			local str = owner.strengthTotal
-			local agi = owner.agilityTotal
-			local int = owner.intellectTotal
-			local atr = str
-			if agi > atr then atr = agi end
-			if int > atr then atr = int end		
+			local atr = owner.primaryAttribute
+			if atr == LuaEntityHero.ATTRIBUTE_STRENGTH then atr = owner.strengthTotal
+			elseif atr == LuaEntityHero.ATTRIBUTE_AGILITY then atr = owner.agilityTotal
+			elseif atr == LuaEntityHero.ATTRIBUTE_INTELLIGENCE then atr = owner.intellectTotal
+			end
+			-- local str = owner.strengthTotal
+			-- local agi = owner.agilityTotal
+			-- local int = owner.intellectTotal
+			-- local atr = str
+			-- if agi > atr then atr = agi end
+			-- if int > atr then atr = int end		
 			damage = damage + (((item.mult) and (ability:GetSpecialData(""..item.mult))))*atr
 		end
 		if ability.name ~= "item_ethereal_blade" then
