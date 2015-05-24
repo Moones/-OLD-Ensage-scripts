@@ -203,7 +203,7 @@ AbilityDamage.spellList = {
 	ember_spirit_searing_chains = { damage = "total_damage_tooltip"; };
 	ember_spirit_sleight_of_fist = { bonusDamage = "bonus_hero_damage"; heroDamage = true; };
 	ember_spirit_flame_guard = { tickDamage = "damage_per_second"; tickDuration = "duration"; tickInterval = 1; startTime = 0.2; tick = true; };
-	ember_spirit_fire_remnant = { damage = "damage"; };
+	ember_spirit_activate_fire_remnant = { damage = "damage"; };
 	earth_spirit_boulder_smash = { damage = "rock_damage"; };
 	earth_spirit_rolling_boulder = { damage = "rock_damage"; };
 	earth_spirit_geomagnetic_grip = { damage = "rock_damage"; };
