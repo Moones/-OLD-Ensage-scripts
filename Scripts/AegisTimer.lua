@@ -87,6 +87,7 @@ function Load()
 		text.visible = false
 		bg.visible = false
 		script:RegisterEvent(EVENT_TICK,Main)
+		script:RegisterEvent(EVENT_DOTA,int)
 		script:UnregisterEvent(Load)
 	end
 end
@@ -99,6 +100,7 @@ function Close()
 	bg.visible = false
 	if reg then
 		script:UnregisterEvent(Main)
+		script:UnregisterEvent(int)
 		script:RegisterEvent(EVENT_TICK, Load)	
 		reg = false
 	end
@@ -106,4 +108,3 @@ end
 
 script:RegisterEvent(EVENT_CLOSE,Close)
 script:RegisterEvent(EVENT_TICK,Load)
-script:RegisterEvent(EVENT_DOTA,int)
