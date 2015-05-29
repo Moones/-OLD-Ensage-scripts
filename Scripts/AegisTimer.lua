@@ -71,6 +71,7 @@ function int(event)
 	end
 	if roshdead and names == "spec_item_pickup" then
 		fog = true
+		roshdead = false
 	end
 end
 
