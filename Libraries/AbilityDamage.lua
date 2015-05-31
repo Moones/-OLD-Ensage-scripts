@@ -356,9 +356,9 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			end
 			if not AbilityDamagetemporaryTable[ability.name] then
 				AbilityDamage.temporaryTable[ability.name] = {}
-				AbilityDamage.temporaryTable[ability.name][spellLevel] = damage
+				AbilityDamage.temporaryTable[ability.name][level] = damage
 			else
-				AbilityDamage.temporaryTable[ability.name][spellLevel] = damage
+				AbilityDamage.temporaryTable[ability.name][level] = damage
 			end
 			return damage
 		end
@@ -412,12 +412,9 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			end
 			if not AbilityDamagetemporaryTable[ability.name] then
 				AbilityDamage.temporaryTable[ability.name] = {}
-				if spell.spellLevel then AbilityDamage.temporaryTable[ability.name][owner:FindSpell(spell.spellLevel).level] = finalDamage
-				else AbilityDamage.temporaryTable[ability.name][ability.level] = finalDamage end
-			elseif spell.spellLevel then
-				AbilityDamage.temporaryTable[ability.name][owner:FindSpell(spell.spellLevel).level] = finalDamage
+				bilityDamage.temporaryTable[ability.name][level] = finalDamage
 			else
-				AbilityDamage.temporaryTable[ability.name][ability.level] = finalDamage
+				AbilityDamage.temporaryTable[ability.name][level] = finalDamage
 			end
 			return finalDamage
 		else
