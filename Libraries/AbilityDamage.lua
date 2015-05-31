@@ -505,8 +505,11 @@ function AbilityDamage.GetDamage(ability, hpRegen)
 	local spell = AbilityDamagespellList[ability.name]
 	local owner = ability.owner
 	if AbilityDamagetemporaryTable[ability.name] then
-		if (spell and spell.spellLevel and AbilityDamagetemporaryTable[ability.name][owner:FindSpell(spell.spellLevel).level]) then
-			return AbilityDamagetemporaryTable[ability.name][owner:FindSpell(spell.spellLevel).level]
+		if spell and spell.spellLevel then
+			local level = owner:FindSpell(spell.spellLevel).level
+			if AbilityDamagetemporaryTable[ability.name][level] then
+				return AbilityDamagetemporaryTable[ability.name][level]
+			end
 		elseif AbilityDamagetemporaryTable[ability.name][ability.level] then
 			return AbilityDamagetemporaryTable[ability.name][ability.level]
 		end
