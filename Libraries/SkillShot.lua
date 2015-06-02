@@ -81,31 +81,31 @@ function SkillShot.__Track()
 					SkillShot.trackTable[v.handle].rotR = v.rotR
 					SkillShot.trackTable[v.handle].last = {pos = v.position, tick = SkillShot.currentTick}
 				end
-				if SkillShot.trackTable[v.handle].lastpred and SkillShot.trackTable[v.handle].lastpred.pred then
-					local pred = SkillShot.PredictedXYZ(v,(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick), true)
-					local dist = GetDistance2D(v,pred)
-					if GetDistance2D(pred,SkillShot.trackTable[v.handle].lastpred.pred) > SkillShot.trackTable[v.handle].lastpred.dist and GetDistance2D(v,SkillShot.trackTable[v.handle].lastpred.pos) <= math.max(SkillShot.trackTable[v.handle].lastpred.dist,100) then
-						if SkillShot.trackTable[v.handle].lastpred.pred2 and GetDistance2D(pred,SkillShot.trackTable[v.handle].lastpred.pred2) > SkillShot.trackTable[v.handle].lastpred.dist2 and GetDistance2D(v,SkillShot.trackTable[v.handle].lastpred.pos2) <= math.max(SkillShot.trackTable[v.handle].lastpred.dist2,100) then
-							SkillShot.trackTable[v.handle].SpecialSpeed = Vector(0,0,0)
-							SkillShot.trackTable[v.handle].lastpred = {}
-						else
-							SkillShot.trackTable[v.handle].lastpred.pred2 = SkillShot.PredictedXYZ(v,((SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)), true)
-							SkillShot.trackTable[v.handle].lastpred.dist2 = GetDistance2D(v,SkillShot.trackTable[v.handle].lastpred.pred2)
-							SkillShot.trackTable[v.handle].lastpred.pos2 = v.position
-						end
-					else
-						SkillShot.trackTable[v.handle].SpecialSpeed = nil
-						if not SkillShot.trackTable[v.handle].lastpred then SkillShot.trackTable[v.handle].lastpred = {} end
-						SkillShot.trackTable[v.handle].lastpred.pos = v.position
-						SkillShot.trackTable[v.handle].lastpred.pred = SkillShot.PredictedXYZ(v,((SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)), true)
-						SkillShot.trackTable[v.handle].lastpred.dist = GetDistance2D(v,SkillShot.trackTable[v.handle].lastpred.pred)
-					end
-				else	
-					if not SkillShot.trackTable[v.handle].lastpred then SkillShot.trackTable[v.handle].lastpred = {} end
-					SkillShot.trackTable[v.handle].lastpred.pos = v.position
-					SkillShot.trackTable[v.handle].lastpred.pred = SkillShot.PredictedXYZ(v,((SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)), true)
-					SkillShot.trackTable[v.handle].lastpred.dist = GetDistance2D(v,SkillShot.trackTable[v.handle].lastpred.pred)
-				end
+				-- if SkillShot.trackTable[v.handle].lastpred and SkillShot.trackTable[v.handle].lastpred.pred then
+					-- local pred = SkillShot.PredictedXYZ(v,(SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick), true)
+					-- local dist = GetDistance2D(v,pred)
+					-- if GetDistance2D(pred,SkillShot.trackTable[v.handle].lastpred.pred) > SkillShot.trackTable[v.handle].lastpred.dist and GetDistance2D(v,SkillShot.trackTable[v.handle].lastpred.pos) <= math.max(SkillShot.trackTable[v.handle].lastpred.dist,100) then
+						-- if SkillShot.trackTable[v.handle].lastpred.pred2 and GetDistance2D(pred,SkillShot.trackTable[v.handle].lastpred.pred2) > SkillShot.trackTable[v.handle].lastpred.dist2 and GetDistance2D(v,SkillShot.trackTable[v.handle].lastpred.pos2) <= math.max(SkillShot.trackTable[v.handle].lastpred.dist2,100) then
+							-- SkillShot.trackTable[v.handle].SpecialSpeed = Vector(0,0,0)
+							-- SkillShot.trackTable[v.handle].lastpred = {}
+						-- else
+							-- SkillShot.trackTable[v.handle].lastpred.pred2 = SkillShot.PredictedXYZ(v,((SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)), true)
+							-- SkillShot.trackTable[v.handle].lastpred.dist2 = GetDistance2D(v,SkillShot.trackTable[v.handle].lastpred.pred2)
+							-- SkillShot.trackTable[v.handle].lastpred.pos2 = v.position
+						-- end
+					-- else
+						-- SkillShot.trackTable[v.handle].SpecialSpeed = nil
+						-- if not SkillShot.trackTable[v.handle].lastpred then SkillShot.trackTable[v.handle].lastpred = {} end
+						-- SkillShot.trackTable[v.handle].lastpred.pos = v.position
+						-- SkillShot.trackTable[v.handle].lastpred.pred = SkillShot.PredictedXYZ(v,((SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)), true)
+						-- SkillShot.trackTable[v.handle].lastpred.dist = GetDistance2D(v,SkillShot.trackTable[v.handle].lastpred.pred)
+					-- end
+				-- else	
+					-- if not SkillShot.trackTable[v.handle].lastpred then SkillShot.trackTable[v.handle].lastpred = {} end
+					-- SkillShot.trackTable[v.handle].lastpred.pos = v.position
+					-- SkillShot.trackTable[v.handle].lastpred.pred = SkillShot.PredictedXYZ(v,((SkillShot.currentTick - SkillShot.trackTable[v.handle].last.tick)), true)
+					-- SkillShot.trackTable[v.handle].lastpred.dist = GetDistance2D(v,SkillShot.trackTable[v.handle].lastpred.pred)
+				-- end
 			else
 				SkillShot.trackTable[v.handle].last = {pos = v.position, tick = SkillShot.currentTick}
 			end
@@ -124,7 +124,10 @@ end
 function SkillShot.PredictedXYZ(t,delay,test)
 	if SkillShot.isIdle(t) then return t.position
 	elseif SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and (GetType(SkillShot.trackTable[t.handle].speed) == "Vector" or GetType(SkillShot.trackTable[t.handle].speed) == "Vector2D") and (SkillShot.trackTable[t.handle].speed ~= Vector(0,0,0) or t.activity ~= LuaEntityNPC.ACTIVITY_MOVE) then	
-		local pred = t.position + SkillShot.trackTable[t.handle].speed * delay
+		local a = (1/Animations.maxCount)
+		--print(a)
+		--local asd = (SkillShot.InFront(t,a) - t.position)/(a*1000)
+		local pred = t.position + Vector(SkillShot.trackTable[t.handle].speed.x+a^2, SkillShot.trackTable[t.handle].speed.y+a^2, SkillShot.trackTable[t.handle].speed.z) * delay
 		local pred2 = SkillShot.InFront(t,(delay/1000)*t.movespeed)
 		local v = pred
 		if pred and v then
