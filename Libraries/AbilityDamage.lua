@@ -412,7 +412,7 @@ function AbilityDamage.CalculateDamage(ability, hpRegen)
 			end
 			if not AbilityDamagetemporaryTable[ability.name] then
 				AbilityDamage.temporaryTable[ability.name] = {}
-				bilityDamage.temporaryTable[ability.name][level] = finalDamage
+				AbilityDamage.temporaryTable[ability.name][level] = finalDamage
 			else
 				AbilityDamage.temporaryTable[ability.name][level] = finalDamage
 			end
