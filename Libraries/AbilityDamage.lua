@@ -211,7 +211,7 @@ AbilityDamage.spellList = {
 	earth_spirit_magnetize = {};
 	oracle_fortunes_end = { damage = "damage"; };
 	oracle_purifying_flames = { damage = "damage"; };	
-	bounty_hunter_jinada = { damageMultiplier = "crit_multiplier"; heroDamage = true; };
+	phoenix_sun_ray = { tickDamage = "base_dmg"; tickDuration = "tooltip_duration"; tickInterval = 0.2; startTime = 0.2; tick = true; };
 	--finished !?
 }
 
