@@ -212,6 +212,7 @@ AbilityDamage.spellList = {
 	oracle_fortunes_end = { damage = "damage"; };
 	oracle_purifying_flames = { damage = "damage"; };	
 	phoenix_sun_ray = { tickDamage = "base_dmg"; tickDuration = "tooltip_duration"; tickInterval = 0.2; startTime = 0.2; tick = true; };
+	bounty_hunter_jinada = { damageMultiplier = "crit_multiplier"; heroDamage = true; };
 	--finished !?
 }
 
