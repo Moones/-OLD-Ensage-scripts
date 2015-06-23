@@ -6,7 +6,6 @@ require("libs.ScriptConfig")
 require("libs.Utils")
 require("libs.DrawManager3D")
 require("libs.Res")
-require("libs.Animations2")
 
 local config = ScriptConfig.new()
 config:SetParameter("ShowOnMap", true, config.TYPE_BOOL)
@@ -35,7 +34,7 @@ local botLaneMin2 = drawMgr:CreateText(0,0,-1,"C",F13) topLaneMin2.visible = fal
 
 function FRAME()
 	local gameTime = client.gameTime
-	if not PlayingGame() or gameTime < 0 or not SleepCheck() or Animations.maxCount < 1 then return end
+	if not PlayingGame() or gameTime < 0 or not SleepCheck() then return end
 	Sleep(config.Sleep)
 	local me = entityList:GetMyHero()
 	local meTeam = me.team
