@@ -341,7 +341,7 @@ function SkillShot.AbilityMove(t)
 end
 	
 function SkillShot.isIdle(t)
-	return (SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and SkillShot.trackTable[t.handle].speed == Vector(0,0,0)) or t:DoesHaveModifier("modifier_eul_cyclone") or t:DoesHaveModifier("modifier_invoker_tornado") or (t.activity == LuaEntityNPC.ACTIVITY_IDLE and not SkillShot.AbilityMove(t)) or Animations.isAttacking(t)
+	return ((SkillShot.trackTable[t.handle] and SkillShot.trackTable[t.handle].speed and SkillShot.trackTable[t.handle].speed == Vector(0,0,0)) or t:DoesHaveModifier("modifier_eul_cyclone") or t:DoesHaveModifier("modifier_invoker_tornado") or (t.activity == LuaEntityNPC.ACTIVITY_IDLE and not SkillShot.AbilityMove(t)) or Animations.isAttacking(t)) and not t:DoesHaveModifier("modifier_invoker_deafening_blast_knockback")
 end
 
 scriptEngine:RegisterLibEvent(EVENT_FRAME,SkillShot.__TrackTick)
