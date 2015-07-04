@@ -1301,14 +1301,28 @@ npc_dota_brewmaster_storm_1 = {
  attackBackswing = 0.44},
  
  npc_dota_beastmaster_boar = {
-  attackRate = 1.25,
+ attackRate = 1.25,
  attackPoint = 0.5,
  attackBackswing = 0.47},
  
-  npc_dota_beastmaster_greater_boar = {
-  attackRate = 1.25,
+ npc_dota_beastmaster_greater_boar = {
+ attackRate = 1.25,
  attackPoint = 0.5,
  attackBackswing = 0.47},
  
+ npc_dota_visage_familiar1 = {
+ attackRate = 0.4,
+ attackPoint = 0.33,
+ attackBackswing = 0.2},
  
- }
+ npc_dota_visage_familiar2 = {
+ attackRate = 0.4,
+ attackPoint = 0.33,
+ attackBackswing = 0.2},
+ 
+ npc_dota_visage_familiar3 = {
+ attackRate = 0.4,
+ attackPoint = 0.33,
+ attackBackswing = 0.2},
+ 
+}
