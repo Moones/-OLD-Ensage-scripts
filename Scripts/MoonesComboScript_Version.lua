@@ -1,3 +1,3 @@
-0.21
+0.22
 
-(Invoker) AOE spells from Refresher Combos will be used to your mouse position 
+Feel free to contact me at skype: lojzalojza6 or email: moones@email.cz
