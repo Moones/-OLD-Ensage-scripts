@@ -1,5 +1,5 @@
-0.35
+0.37
 
-Sorry forget to change version number so version remains at 0.35
-0.35
+Feel free to contact me at moones@email.cz
+0.37
 0.225
