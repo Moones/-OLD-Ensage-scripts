@@ -1,5 +1,5 @@
-0.36
+0.35
 
-Feel free to contact me at skype: lojzalojza6 or email: moones@email.cz
-0.36
+Sorry forget to change version number so version remains at 0.35
+0.35
 0.225
