@@ -1,7 +1,7 @@
 --<<Auto Armlet Toggle by Sophylax, reworked and updated by Moones v1.5.3>>
 require("libs.Utils")
 require("libs.ScriptConfig")
-require("libs.Animations")
+require("libs.Animations2")
 require("libs.HeroInfo")
 require("libs.AbilityDamage")
 
@@ -124,138 +124,38 @@ function Tick( tick )
 		toggle = false
 		return
 	end
-	
+	Animations.entities = {}
+	local anientiCount = 1
+	Animations.entities[1] = me
+	for i = 1,#enemies do
+		anientiCount = anientiCount + 1
+		--print(enemies[i])
+		Animations.entities[anientiCount] = enemies[i]
+	end
+	--print("Asd")
 	if not me:IsStunned() and armState and me:DoesHaveModifier("modifier_ice_blast") and SleepCheck() and not me:IsInvisible() then
-		me:CastAbility(armlet)
+		me:CastItem("item_armlet")
+		Sleep(ARMLET_DELAY)
+	end
+	--print(Animations.isAttacking(me))
+	--if player.target then print(me.attackRange) end
+	if not me:IsStunned() and player.orderId == Player.ORDER_ATTACKENTITY and player.target and not me:IsInvisible() and player.target.hero and not armState and SleepCheck() and (GetDistance2D(player.target,me) < me.attackRange+25 or Animations.isAttacking(me)) then
+		me:CastItem("item_armlet")
+		--print("asd")
 		Sleep(ARMLET_DELAY)
 	end
 	
-	if not me:IsStunned() and player.orderId == Player.ORDER_ATTACKENTITY and player.target and not me:IsInvisible() and player.target.hero and not armState and SleepCheck() and GetDistance2D(player.target,me) < me.attackRange+25 then
-		me:CastAbility(armlet)
-		Sleep(ARMLET_DELAY)
-	end
+	local closeEnemies = entityList:GetEntities(function (v) return (v.hero and v.alive and v.team ~= me.team and (GetDistance2D(me,v) > v.attackRange+50 or not Animations.CanMove(v))) end)									
 	
-	if not me:IsStunned() and SleepCheck() and not me:IsInvisible() and (toggle or me.health < minhp or me.health < incoming_damage) and (incoming_damage <= 0 or me.health < incoming_damage or me.health < minhp) then
-		local delay = ARMLET_DELAY*2
-		if incoming_damage <= 0 then
-			delay = delay*1.50
-		end
-		if armState then
-			me:CastAbility(armlet)
-			me:CastAbility(armlet)
-			Sleep(delay)
-		else
-			me:CastAbility(armlet)
-			Sleep(delay)
-		end
-		toggle = false
-	end
-	
-	for k,z in ipairs(projectile) do
-		if z.target and z.target == me and z.source then
-			if z.source.hero then
-				local spell = z.source:FindSpell(z.name) 
-				if spell then
-					if not incoming_projectiles[spell.handle] then
-						local dmg = me:DamageTaken(AbilityDamage.GetDamage(spell, me.healthRegen), AbilityDamage.GetDmgType(spell), z.source)					
-						incoming_projectiles[spell.handle] = {damage = dmg, time = client.gameTime + ((GetDistance2D(me,z.position)-25)/z.speed)}
-						incoming_damage = incoming_damage + dmg
-					elseif client.gameTime > incoming_projectiles[spell.handle].time then
-						incoming_damage = incoming_damage - incoming_projectiles[spell.handle].damage
-						incoming_projectiles[spell.handle] = nil
-					end	
-					if incoming_projectiles[spell.handle] and not me:IsStunned() and not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*(GetDistance2D(me,z.position)/z.speed))) < incoming_projectiles[spell.handle].damage then
-						me:CastAbility(armlet)
-						me:CastAbility(armlet)
-						Sleep(ARMLET_DELAY)
-						break
-					end
-				end
-			elseif z.source.dmgMax then
-				if not incoming_projectiles[z.source.handle] then																	
-					incoming_projectiles[z.source.handle] = {damage = me:DamageTaken((((z.source.dmgMax + z.source.dmgMin)/2) + z.source.dmgBonus), DAMAGE_PHYS, z.source), time = client.gameTime + ((GetDistance2D(me,z.position)-25)/z.speed)}
-					incoming_damage = incoming_damage + incoming_projectiles[z.source.handle].damage
-				elseif client.gameTime > incoming_projectiles[z.source.handle].time then
-					incoming_damage = incoming_damage - incoming_projectiles[z.source.handle].damage
-					incoming_projectiles[z.source.handle] = nil
-				end	
-				if incoming_projectiles[z.source.handle] and not me:IsStunned() and not me:IsInvisible() and armState and SleepCheck() and (me.health+((-40+me.healthRegen)*((GetDistance2D(me,z.position)-50)/z.speed))) < incoming_projectiles[z.source.handle].damage then
-					me:CastAbility(armlet)
-					me:CastAbility(armlet)
-					Sleep(ARMLET_DELAY) break
-				end
-			end
-		end
-		if not me:IsStunned() and not armState and SleepCheck() and z.target and z.target == me and z.source and z.source.hero and not me:IsInvisible() then
-			me:CastAbility(armlet)
-			Sleep(ARMLET_DELAY) break
-		end
-	end
-	
-	for i,v in ipairs(enemies) do			
-		if not v:IsIllusion() and not me:DoesHaveModifier("modifier_ice_blast") then
-			local distance = GetDistance2D(v,me)						
-			for i,z in ipairs(v.abilities) do
-				if incoming_projectiles[z.handle] and client.gameTime > incoming_projectiles[z.handle].time then
-					incoming_damage = incoming_damage - incoming_projectiles[z.handle].damage		
-					incoming_projectiles[z.handle] = nil
-				end
-				if z.abilityPhase and distance <= z.castRange+100 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 then
-					if not incoming_projectiles[z.handle] then
-						local dmg = me:DamageTaken(AbilityDamage.GetDamage(z, me.healthRegen), AbilityDamage.GetDmgType(z), v)
-						incoming_damage = incoming_damage + dmg
-						incoming_projectiles[z.handle] = {damage = dmg, time = client.gameTime + z:FindCastPoint()+client.latency/1000}
-					end
-					if not me:IsStunned() and (not me:IsInvisible() or z:IsBehaviourType(LuaEntityAbility.BEHAVIOR_POINT)) and armState and SleepCheck() and me.health+((-40+me.healthRegen)*(z:FindCastPoint()-client.latency/1000)) < incoming_projectiles[z.handle].damage then
-						me:CastAbility(armlet)
-						me:CastAbility(armlet)
-						Sleep(ARMLET_DELAY) break
-					end
-				end 
-			end	
-			if distance <= (v.attackRange+100) and Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 then
-				if not incoming_projectiles[v.handle] and (not Animations.CanMove(v) or v.attackRange < 200) then
-					incoming_damage = incoming_damage + me:DamageTaken((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus), DAMAGE_PHYS, v)
-					if heroInfo[v.name].projectileSpeed then
-						incoming_projectiles[v.handle] = {damage = me:DamageTaken((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus), DAMAGE_PHYS, v), time = client.gameTime + Animations.GetAttackTime(v) + ((GetDistance2D(me,v)-25)/heroInfo[v.name].projectileSpeed)}
-					else
-						incoming_projectiles[v.handle] = {damage = me:DamageTaken((((v.dmgMax + v.dmgMin)/2) + v.dmgBonus), DAMAGE_PHYS, v), time = client.gameTime + Animations.GetAttackTime(v)}
-					end
-				elseif incoming_projectiles[v.handle] and client.gameTime > incoming_projectiles[v.handle].time then
-					incoming_damage = incoming_damage - incoming_projectiles[v.handle].damage
-					incoming_projectiles[v.handle] = nil
-				end
-				if incoming_projectiles[v.handle] and ((heroInfo[v.name] and heroInfo[v.name].projectileSpeed and (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v) + distance/heroInfo[v.name].projectileSpeed)) < incoming_projectiles[v.handle].damage))
-				or (me.health+((-40+me.healthRegen)*(Animations.GetAttackTime(v))) < incoming_projectiles[v.handle].damage))
-				then
-					if not me:IsStunned() and not me:IsInvisible() and armState and SleepCheck() then
-						me:CastAbility(armlet)
-						me:CastAbility(armlet)
-						Sleep(ARMLET_DELAY) break
-					end
-				end
-			elseif incoming_projectiles[v.handle] and client.gameTime > incoming_projectiles[v.handle].time then
-				incoming_damage = incoming_damage - incoming_projectiles[v.handle].damage
-				incoming_projectiles[v.handle] = nil
-			elseif me.health < minhp and (math.max(me.health - 475,1) - incoming_damage) > 0 then
-				toggle = true
-			end
-			if not armState and SleepCheck() and not me:IsInvisible() then
-				if not me:IsStunned() and not armState and SleepCheck() and Animations.isAttacking(me) and (math.max(math.abs(FindAngleR(me) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and GetDistance2D(me,v) < me.attackRange+50 then
-					me:CastAbility(armlet)
-					Sleep(ARMLET_DELAY) break
-				end
-				for i,z in ipairs(v.abilities) do
-					if not me:IsStunned() and not armState and SleepCheck() and z.abilityPhase and distance <= z.castRange+50 and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 then
-						me:CastAbility(armlet)
-						Sleep(ARMLET_DELAY) break
-					end
-				end	
-				if not me:IsStunned() and not armState and SleepCheck() and (distance <= (250) or (Animations.isAttacking(v) and (math.max(math.abs(FindAngleR(v) - math.rad(FindAngleBetween(v, me))) - 0.20, 0)) < 0.15 and distance < v.attackRange+50)) then
-					me:CastAbility(armlet)
-					Sleep(ARMLET_DELAY)
-				end
-			end
+	if armState and SleepCheck("item_armlet") and me:CanCast() then
+		--print(#closeEnemies)
+		--print(Animations.CanMove(closeEnemies[1]))
+		if me.health < 250 and #closeEnemies < 1 then
+			me:CastItem("item_armlet")
+			me:CastItem("item_armlet")
+			Sleep(1000,"item_armlet")
+			toggled = true
+			return
 		end
 	end
 end
