@@ -103,8 +103,10 @@ end
 
 function Tick( tick )
 	if not PlayingGame() or client.console or client.paused then return end
+	
 	local me = entityList:GetMyHero()
 	local player = entityList:GetMyPlayer()
+	
 	if not reg then
 		script:RegisterEvent(EVENT_KEY,Key)
 		reg = true
@@ -113,44 +115,77 @@ function Tick( tick )
 	end
 	
 	local armlet = me:FindItem("item_armlet")
+	
 	if not armlet or not active then incoming_damage = 0 incoming_projectiles = {} toggle = false return end
 	
 	local armState = me:DoesHaveModifier("modifier_item_armlet_unholy_strength")
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team=me:GetEnemyTeam()})
-	local projectile = entityList:GetProjectiles({target=me})
 	if not me.alive then
 		incoming_damage = 0
 		incoming_projectiles = {}
 		toggle = false
 		return
 	end
+	
 	Animations.entities = {}
 	local anientiCount = 1
 	Animations.entities[1] = me
+	
 	for i = 1,#enemies do
 		anientiCount = anientiCount + 1
-		--print(enemies[i])
 		Animations.entities[anientiCount] = enemies[i]
 	end
-	--print("Asd")
-	if not me:IsStunned() and armState and me:DoesHaveModifier("modifier_ice_blast") and SleepCheck() and not me:IsInvisible() then
-		me:CastItem("item_armlet")
-		Sleep(ARMLET_DELAY)
+	
+	if me:DoesHaveModifier("modifier_ice_blast") then
+		if not me:IsStunned() and armState and SleepCheck() and not me:IsInvisible() then
+			me:CastItem("item_armlet")
+			Sleep(ARMLET_DELAY)
+		end
+		return
 	end
-	--print(Animations.isAttacking(me))
-	--if player.target then print(me.attackRange) end
+
 	if not me:IsStunned() and player.orderId == Player.ORDER_ATTACKENTITY and player.target and not me:IsInvisible() and player.target.hero and not armState and SleepCheck() and (GetDistance2D(player.target,me) < me.attackRange+25 or Animations.isAttacking(me)) then
 		me:CastItem("item_armlet")
-		--print("asd")
 		Sleep(ARMLET_DELAY)
 	end
 	
-	local closeEnemies = entityList:GetEntities(function (v) return (v.hero and v.alive and v.team ~= me.team and (GetDistance2D(me,v) > v.attackRange+50 or not Animations.CanMove(v))) end)									
+	local closeEnemies = 
+						entityList:GetEntities
+							(
+								function (v) 
+									return 
+										(
+											(v.hero or v.creep) 
+											and v.alive 
+											and v.team ~= me.team 
+											and GetDistance2D(me,v) < v.attackRange+100 
+											and (not v:IsRanged() or GetDistance2D(me,v) < 500)	
+											and not Animations.CanMove(v) 
+											and Animations.isAttacking(v)
+											and (Animations.GetAttackTime(v)*1000 
+												- Animations.getAttackDuration(v)
+												- client.latency - ((1 / Animations.maxCount) 
+												* 3 * (1 + (1 - 1/ Animations.maxCount)))
+												*1000) < ARMLET_GAIN_TIME/1.5
+										) 
+								end
+							)
+											
+	local closeProjectiles = 
+							entityList:GetProjectiles
+								(
+									function (v) 
+										return 
+											(
+												v.target 
+												and v.target == me 
+												and (GetDistance2D(v,me)/v.speed)*1000 < ARMLET_GAIN_TIME/2.5
+											) 
+									end
+								)
 	
 	if armState and SleepCheck("item_armlet") and me:CanCast() then
-		--print(#closeEnemies)
-		--print(Animations.CanMove(closeEnemies[1]))
-		if me.health < 250 and #closeEnemies < 1 then
+		if me.health < 250 and #closeEnemies < 1 and #closeProjectiles < 1 then
 			me:CastItem("item_armlet")
 			me:CastItem("item_armlet")
 			Sleep(1000,"item_armlet")
