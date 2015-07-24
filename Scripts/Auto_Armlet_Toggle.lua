@@ -162,6 +162,9 @@ function Tick( tick )
 								and (not v:IsRanged() or GetDistance2D(me,v) < 500)	
 								and not Animations.CanMove(v) 
 								and Animations.isAttacking(v)
+								and (math.max(math.abs(FindAngleR(v) 
+									- math.rad(FindAngleBetween(v, me))) 
+									- 0.20, 0)) == 0
 								and (Animations.GetAttackTime(v)*1000 
 									- Animations.getAttackDuration(v)
 									- client.latency - ((1 / Animations.maxCount) 
