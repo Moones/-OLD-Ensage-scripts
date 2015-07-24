@@ -150,39 +150,39 @@ function Tick( tick )
 	end
 	
 	local closeEnemies = 
-						entityList:GetEntities
+			entityList:GetEntities
+				(
+					function (v) 
+						return 
 							(
-								function (v) 
-									return 
-										(
-											(v.hero or v.creep) 
-											and v.alive 
-											and v.team ~= me.team 
-											and GetDistance2D(me,v) < v.attackRange+100 
-											and (not v:IsRanged() or GetDistance2D(me,v) < 500)	
-											and not Animations.CanMove(v) 
-											and Animations.isAttacking(v)
-											and (Animations.GetAttackTime(v)*1000 
-												- Animations.getAttackDuration(v)
-												- client.latency - ((1 / Animations.maxCount) 
-												* 3 * (1 + (1 - 1/ Animations.maxCount)))
-												*1000) < ARMLET_GAIN_TIME/1.5
-										) 
-								end
-							)
+								(v.hero or v.creep) 
+								and v.alive 
+								and v.team ~= me.team 
+								and GetDistance2D(me,v) < v.attackRange+100 
+								and (not v:IsRanged() or GetDistance2D(me,v) < 500)	
+								and not Animations.CanMove(v) 
+								and Animations.isAttacking(v)
+								and (Animations.GetAttackTime(v)*1000 
+									- Animations.getAttackDuration(v)
+									- client.latency - ((1 / Animations.maxCount) 
+									* 3 * (1 + (1 - 1/ Animations.maxCount)))
+									*1000) < ARMLET_GAIN_TIME/1.5
+							) 
+					end
+				)
 											
 	local closeProjectiles = 
-							entityList:GetProjectiles
-								(
-									function (v) 
-										return 
-											(
-												v.target 
-												and v.target == me 
-												and (GetDistance2D(v,me)/v.speed)*1000 < ARMLET_GAIN_TIME/2.5
-											) 
-									end
-								)
+			entityList:GetProjectiles
+				(
+					function (v) 
+						return 
+							(
+								v.target 
+								and v.target == me 
+								and (GetDistance2D(v,me)/v.speed)*1000 < ARMLET_GAIN_TIME/2.5
+							) 
+					end
+				)
 	
 	if armState and SleepCheck("item_armlet") and me:CanCast() then
 		if me.health < 250 and #closeEnemies < 1 and #closeProjectiles < 1 then
