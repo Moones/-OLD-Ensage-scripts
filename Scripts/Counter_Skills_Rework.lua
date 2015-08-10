@@ -47,7 +47,7 @@ function Tick( tick )
 	if not SleepCheck("blink") then client:ExecuteCmd("+dota_camera_center_on_hero") client:ExecuteCmd("-dota_camera_center_on_hero") end
 	if sleepTick and sleepTick > tick then return end	
 	me = entityList:GetMyHero() if not me then return end
-	Sleep(sleep,"sleep")
+	Sleep(config.SleepMS,"sleep")
 	local offset = me.healthbarOffset
 	statusText.entity = me
 	statusText.entityPosition = Vector(0,0,offset)
