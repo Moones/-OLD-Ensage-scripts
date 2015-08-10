@@ -7,6 +7,7 @@ config:SetParameter("Blink", true)
 config:SetParameter("Eul", true)
 config:SetParameter("DelayBlink", 0)
 config:SetParameter("DelayEulOnTarget", 0)
+config:SetParameter("SleepMS", 0)
 config:SetParameter("ShortBlinkDodge", true)
 config:SetParameter("BlinkToggleKey", "N", config.TYPE_HOTKEY)
 config:SetParameter("ShowText", true)
@@ -42,11 +43,11 @@ function Key(msg,code)
 end
 			
 function Tick( tick )
-	if not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
+	if not SleepCheck("sleep") or not client.connected or client.loading or client.console or not entityList:GetMyHero() then return end
 	if not SleepCheck("blink") then client:ExecuteCmd("+dota_camera_center_on_hero") client:ExecuteCmd("-dota_camera_center_on_hero") end
 	if sleepTick and sleepTick > tick then return end	
 	me = entityList:GetMyHero() if not me then return end
-	
+	Sleep(sleep,"sleep")
 	local offset = me.healthbarOffset
 	statusText.entity = me
 	statusText.entityPosition = Vector(0,0,offset)
