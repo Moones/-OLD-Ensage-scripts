@@ -1,5 +1,5 @@
 0.5
 
-Feel free to contact me at moones@email.cz
+(for EarthSpirit) Disable AutoSelect Summoned units in Dota settings!
 0.5
 0.225
