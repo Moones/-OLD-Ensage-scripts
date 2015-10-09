@@ -1,5 +1,6 @@
 Lua scripts for Ensage
 ==============
+!! OUTDATED USE ONLY FOR A PREVIEW/INSPIRATION !!
 Hero Scripts:             | Other Scripts:          | Libraries:
 :-----------              | :-----------            | :----------
 Axe_Blink_Ulti.lua        | AdvancedCreepControl.lua| SkillShot.lua                    
