@@ -1,6 +1,6 @@
 Lua scripts for Ensage
 ==============
-!! OUTDATED USE ONLY FOR A PREVIEW/INSPIRATION !!
+!! OUTDATED USE ONLY FOR A PREVIEW OR INSPIRATION !!
 
 Hero Scripts:             | Other Scripts:          | Libraries:
 :-----------              | :-----------            | :----------
